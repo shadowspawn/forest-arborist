@@ -1,0 +1,17 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+#end_of_line in visual studio code's backlog to add: https://marketplace.visualstudio.com/items?itemName=chrisdias.vscodeEditorConfig
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 3
+tab_width = 3
+
+# Tab indentation (no size specified)
+[{Makefile,makefile}]
+indent_style = tab

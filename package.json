@@ -1,0 +1,18 @@
+{
+  "name": "@jrg/arm",
+  "version": "0.0.1",
+  "description": "Another Repository Manager, Inspired by Mercurial subrepositories, npm, and git.",
+  "private": true,
+  "main": "arm.js",
+  "bin": {
+    "arm": "./arm.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Gee",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.9.0"
+  }
+}
