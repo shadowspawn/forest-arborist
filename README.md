@@ -78,7 +78,11 @@ Terminology
 - git
 - Mercurial
 
-## Reference node modules
+## References
+
+Developer
+* [w3schools javascript](http://www.w3schools.com/js/default.asp)
+* [node](https://nodejs.org/docs/latest/api/index.html)
 
 Shell scripting
 * [Building command line tools with Node.js](https://developer.atlassian.com/blog/2015/11/scripting-with-node/) from Atlassian
