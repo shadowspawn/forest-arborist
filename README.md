@@ -42,6 +42,11 @@ c.f. npm install
 
 ## Musing
 
+ToDo
+* basic command line processing
+* lint
+* typescript?
+
 - control file at top of ordinary repo, which is part of tree
 - Summon dependencies
 - Clone repo (with control) and summon
@@ -73,7 +78,7 @@ Terminology
 - git
 - Mercurial
 
-## Node modules
+## Reference node modules
 
 Shell scripting
 * [Building command line tools with Node.js](https://developer.atlassian.com/blog/2015/11/scripting-with-node/) from Atlassian
@@ -84,3 +89,7 @@ Shell utility
 Command line parsing
 * [yargs](https://www.npmjs.com/package/yargs)
 * [command](https://www.npmjs.com/package/commander)
+
+Colouring output
+* [chalk](https://github.com/sindresorhus/chalk)
+* [cli-color](https://www.npmjs.org/package/cli-color)
