@@ -2,7 +2,49 @@
 
 const program = require('commander');
 const chalk = require('chalk');
+const fs = require('fs');
 
+// const armConfigFilename = '.arm-config.json';
+const armRootFilename = '.arm-root.json';
+
+function terminate(message) {
+  console.log(chalk.red(`Error: ${message}`));
+  process.exit(1);
+}
+
+
+function fileExists(filePath) {
+  try {
+    return fs.statSync(filePath).isFile();
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return false;
+    }
+    throw err;
+  }
+}
+
+
+function printRoot() {
+  let tryParent = true;
+  do {
+    const cwd = process.cwd();
+
+    if (fileExists(armRootFilename)) {
+      console.log(process.cwd());
+      return;
+    }
+
+    // NB: chdir('..') from '/' silently does nothing
+    process.chdir('..');
+    tryParent = (cwd !== process.cwd());
+  } while (tryParent);
+
+  terminate('Root of source tree not found. (Do you need to call \'arm init\'?)');
+}
+
+
+//------------------------------------------------------------------------------
 // Command line processing
 
 program
@@ -19,17 +61,24 @@ program
   .description('install dependent repositories')
   .option('-n, --dry-run', 'do not perform actions, just print output')
   .action(() => {
-    console.log(chalk.red('not implemented yet'));
-    process.exit(0);
+    terminate('not implemented yet');
   });
 
 program
   .command('init')
-  .description('add placeholder file at root of source tree')
+  .description(`add file above master repo to mark root of source tree (${armRootFilename})`)
+  .option('-m, --master', 'master directory, defaults to current directory')
   .action(() => {
-    console.log(chalk.red('not implemented yet'));
-    process.exit(0);
+    terminate('not implemented yet');
   });
+
+  program
+    .command('root')
+    .description('print the root directory of the current source tree')
+    .action(() => {
+      printRoot();
+      process.exit(0);
+    });
 
 program.parse(process.argv);
 
@@ -38,12 +87,11 @@ program.parse(process.argv);
 
 // Show help if no command specified.
 if (process.argv.length === 2) {
-  program.outputHelp();
-  process.exit(1);
+  program.help();
 }
 
 // Error in the same style as command uses for unknown option
 console.log('');
-console.log('  error: unknown command `${process.argv[2]}\'');
+console.log(`  error: unknown command \`${process.argv[2]}'`);
 console.log('');
 process.exit(1);

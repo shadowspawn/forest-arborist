@@ -83,6 +83,7 @@ Terminology
 Developer
 * [w3schools javascript](http://www.w3schools.com/js/default.asp)
 * [node](https://nodejs.org/docs/latest/api/index.html)
+* [node ES6 support](http://node.green)
 
 Shell scripting
 * [Building command line tools with Node.js](https://developer.atlassian.com/blog/2015/11/scripting-with-node/) from Atlassian
@@ -97,3 +98,6 @@ Command line parsing
 Colouring output
 * [chalk](https://github.com/sindresorhus/chalk)
 * [cli-color](https://www.npmjs.org/package/cli-color)
+
+Async
+* [async](http://caolan.github.io/async/)
