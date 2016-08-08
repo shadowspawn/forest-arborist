@@ -13,6 +13,27 @@ function terminate(message) {
 }
 
 
+function loadRoot() {
+  const masterKey = 'master';
+  const data = fs.readFileSync(armRootFilename);
+  let rootObject;
+
+  try {
+    rootObject = JSON.parse(data);
+  } catch (err) {
+    terminate(`problem parsing ${armRootFilename}\n${err}`);
+  }
+  if (rootObject[masterKey] === undefined) {
+    terminate(`problem parsing ${armRootFilename}\nmissing field 'master'`);
+  }
+  console.log(`master folder from root config: ${rootObject[masterKey]}`);
+
+  Object.keys(rootObject.alphabet).forEach((key) => {
+    console.log(`${key}: ${rootObject.alphabet[key]}`);
+  });
+}
+
+
 function fileExists(filePath) {
   try {
     return fs.statSync(filePath).isFile();
@@ -72,13 +93,22 @@ program
     terminate('not implemented yet');
   });
 
-  program
-    .command('root')
-    .description('print the root directory of the current source tree')
-    .action(() => {
-      printRoot();
-      process.exit(0);
-    });
+program
+  .command('root')
+  .description('print the root directory of the current source tree')
+  .action(() => {
+    printRoot();
+    process.exit(0);
+  });
+
+program
+  .command('_test')
+  .description('testing testing testing')
+  .action(() => {
+    loadRoot();
+    process.exit(0);
+  });
+
 
 program.parse(process.argv);
 
@@ -92,6 +122,6 @@ if (process.argv.length === 2) {
 
 // Error in the same style as command uses for unknown option
 console.log('');
-console.log(`  error: unknown command \`${process.argv[2]}'`);
+console.log(`  error: unknown command \`${process.argv[2]}`);
 console.log('');
 process.exit(1);
