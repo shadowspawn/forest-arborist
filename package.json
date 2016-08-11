@@ -8,7 +8,7 @@
     "arm": "./arm.js"
   },
   "scripts": {
-     "pwd": "pwd",
+    "pwd": "pwd",
     "lint": "./node_modules/eslint/bin/eslint.js arm.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,7 +16,8 @@
   "license": "ISC",
   "dependencies": {
     "chalk": "^1.1.3",
-    "commander": "^2.9.0"
+    "commander": "^2.9.0",
+    "shelljs": "^0.7.3"
   },
   "devDependencies": {
     "eslint": "^3.2.2",

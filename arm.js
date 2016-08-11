@@ -3,6 +3,8 @@
 const program = require('commander');
 const chalk = require('chalk');
 const fs = require('fs');
+// Reminder: shell still listed as dependency in package.json, remove if not used
+// const shell = require('shelljs');
 
 // const armConfigFilename = '.arm-config.json';
 const armRootFilename = '.arm-root.json';
@@ -13,24 +15,35 @@ function terminate(message) {
 }
 
 
-function loadRoot() {
-  const masterKey = 'master';
-  const data = fs.readFileSync(armRootFilename);
-  let rootObject;
+function testTest() {
+  // // code in development, not final routine
 
-  try {
-    rootObject = JSON.parse(data);
-  } catch (err) {
-    terminate(`problem parsing ${armRootFilename}\n${err}`);
-  }
-  if (rootObject[masterKey] === undefined) {
-    terminate(`problem parsing ${armRootFilename}\nmissing field 'master'`);
-  }
-  console.log(`master folder from root config: ${rootObject[masterKey]}`);
+  // shell playing about
+  // if (shell.exec('git --version').code !== 0) {
+  //   terminate('Error: git not available');
+  // }
+  // if (!shell.which('hg')) {
+  //   terminate('Error: git not available');
+  // }
 
-  Object.keys(rootObject.alphabet).forEach((key) => {
-    console.log(`${key}: ${rootObject.alphabet[key]}`);
-  });
+  // // Read root file and do some json mucking about
+
+  // const data = fs.readFileSync(armRootFilename);
+  // let rootObject;
+  //
+  // try {
+  //   rootObject = JSON.parse(data);
+  // } catch (err) {
+  //   terminate(`problem parsing ${armRootFilename}\n${err}`);
+  // }
+  // if (rootObject.master === undefined) {
+  //   terminate(`problem parsing ${armRootFilename}\nmissing field 'master'`);
+  // }
+  // console.log(`master folder from root config: ${rootObject.master}`);
+  //
+  // Object.keys(rootObject.alphabet).forEach((key) => {
+  //   console.log(`${key}: ${rootObject.alphabet[key]}`);
+  // });
 }
 
 
@@ -105,7 +118,7 @@ program
   .command('_test')
   .description('testing testing testing')
   .action(() => {
-    loadRoot();
+    testTest();
     process.exit(0);
   });
 
@@ -122,6 +135,6 @@ if (process.argv.length === 2) {
 
 // Error in the same style as command uses for unknown option
 console.log('');
-console.log(`  error: unknown command \`${process.argv[2]}`);
+console.log(`  error: unknown command \`${process.argv[2]}'`);
 console.log('');
 process.exit(1);
