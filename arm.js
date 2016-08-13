@@ -3,11 +3,16 @@
 const program = require('commander');
 const chalk = require('chalk');
 const fs = require('fs');
+const childProcess = require('child_process');
+const path = require('path');
 // Reminder: shell still listed as dependency in package.json, remove if not used
 // const shell = require('shelljs');
 
 const armConfigFilename = 'arm.json';
 const armRootFilename = '.arm-root.json';
+
+let gRecognisedCommand = false; // Seems there should be a tidier way...
+
 
 function terminate(message) {
   console.log(chalk.red(`Error: ${message}`));
@@ -47,7 +52,7 @@ function testTest() {
 }
 
 
-function fileExists(filePath) {
+function fileExistsSync(filePath) {
   try {
     return fs.statSync(filePath).isFile();
   } catch (err) {
@@ -59,35 +64,65 @@ function fileExists(filePath) {
 }
 
 
+function dirExistsSync(filePath) {
+  try {
+    return fs.statSync(filePath).isDirectory();
+  } catch (err) {
+    if (err.code === 'ENOENT') {
+      return false;
+    }
+    throw err;
+  }
+}
+
+
+function runCommand(cmd, args) {
+  const child = childProcess.spawn(cmd, args);
+  let stdoutText = '';
+  let stderrText = '';
+  child.stdout.on('data', (buffer) => { stdoutText += buffer.toString(); });
+  child.stderr.on('data', (buffer) => { stderrText += buffer.toString(); });
+  // child.stdout.on('end', () => { console.log('end'); callBack(stdoutText); });
+  child.on('close', (code) => {
+    if (code === 0) {
+      console.log(chalk.blue(`${cmd} ${args.join(' ')}`));
+      console.log(stdoutText);
+    } else {
+      console.log(chalk.red(`Error running command from ${process.cwd()}`));
+      console.log(chalk.red(`  ${cmd} ${args.join(' ')}`));
+      console.log(chalk.yellow(stderrText));
+    }
+  });
+}
+
+
 function readMasterFolderName() {
-  const cwd = process.cwd();
   const data = fs.readFileSync(armRootFilename);
   let rootObject;
   try {
     rootObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${cwd}/${armRootFilename}\n${err}`);
+    terminate(`problem parsing ${process.cwd()}/${armRootFilename}\n${err}`);
   }
   if (rootObject.master === undefined) {
-    terminate(`problem parsing: ${cwd}/${armRootFilename}\nmissing field 'master'`);
+    terminate(`problem parsing: ${process.cwd()}/${armRootFilename}\nmissing field 'master'`);
   }
   return rootObject.master;
 }
 
 
 function cdRootFolder() {
-  const startedInMasterFolder = fileExists(armConfigFilename);
+  const startedInMasterFolder = fileExistsSync(armConfigFilename);
 
   let tryParent = true;
   do {
-    const cwd = process.cwd();
-
-    if (fileExists(armRootFilename)) {
+    if (fileExistsSync(armRootFilename)) {
       readMasterFolderName(); // Sanity check
       return;
     }
 
     // NB: chdir('..') from '/' silently does nothing,so check we moved
+    const cwd = process.cwd();
     process.chdir('..');
     tryParent = (cwd !== process.cwd());
   } while (tryParent);
@@ -100,33 +135,48 @@ function cdRootFolder() {
 }
 
 
-function printRoot() {
-  cdRootFolder();
-  console.log(process.cwd());
-}
-
-
-function readConfig() {
-  cdRootFolder();
+function readConfig(includeMaster) {
+  // Assuming already called cd to root folder
+  const rootPath = process.cwd();
   const masterFolderName = readMasterFolderName();
   process.chdir(masterFolderName);
-  const cwd = process.cwd();
 
+  const masterPath = process.cwd();
   let data;
   try {
     data = fs.readFileSync(armConfigFilename);
   } catch (err) {
-    terminate(`problem opening ${cwd}/${armConfigFilename}\n${err}`);
+    terminate(`problem opening ${masterPath}/${armConfigFilename}\n${err}`);
   }
   let rootObject;
   try {
     rootObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${cwd}/${armConfigFilename}\n${err}`);
+    terminate(`problem parsing ${masterPath}/${armConfigFilename}\n${err}`);
   }
 
-  console.log('Found and read config file');
+  if (includeMaster) rootObject[masterFolderName] = masterFolderName;
+
+  process.chdir(rootPath);
+  return rootObject;
 }
+
+
+function showTreeStatus() {
+  const rootObject = readConfig(true);
+  Object.keys(rootObject).forEach((repoPath) => {
+    if (dirExistsSync(path.join(repoPath, '.hg'))) {
+      runCommand(
+        'hg', ['-R', repoPath, 'status']
+      );
+    } else {
+      runCommand(
+        'git', ['-C', repoPath, 'status', '--short']
+      );
+    }
+  });
+}
+
 
 //------------------------------------------------------------------------------
 // Command line processing
@@ -141,43 +191,54 @@ program.on('--help', () => {
 });
 
 program
-  .command('install')
+  .command('_install')
   .description('install dependent repositories')
-  .option('-n, --dry-run', 'do not perform actions, just print output')
+  .option('-n, --dry-run', 'do not perform actions, just show actions')
   .action(() => {
+    gRecognisedCommand = true;
     readConfig();
     terminate('not fully implemented yet');
   });
 
 program
-  .command('init')
+  .command('_init')
   .description(`add file above master repo to mark root of source tree (${armRootFilename})`)
   .option('-m, --master', 'master directory, defaults to current directory')
   .action(() => {
+    gRecognisedCommand = true;
     terminate('not implemented yet');
   });
 
 program
   .command('root')
-  .description('print the root directory of the current source tree')
+  .description('show the root directory of the working tree')
   .action(() => {
-    printRoot();
+    gRecognisedCommand = true;
+    cdRootFolder();
+    console.log(process.cwd());
     process.exit(0);
+  });
+
+program
+  .command('status')
+  .description('show the status of the working tree')
+  .action(() => {
+    gRecognisedCommand = true;
+    cdRootFolder();
+    showTreeStatus();
+    // process.exit(0);
   });
 
 program
   .command('_test')
   .description('testing testing testing')
   .action(() => {
+    gRecognisedCommand = true;
     testTest();
     process.exit(0);
   });
 
-
 program.parse(process.argv);
-
-// Calling exit as part of recognised command handling,
-// so into error handling if reach this code.
 
 // Show help if no command specified.
 if (process.argv.length === 2) {
@@ -185,7 +246,9 @@ if (process.argv.length === 2) {
 }
 
 // Error in the same style as command uses for unknown option
-console.log('');
-console.log(`  error: unknown command \`${process.argv[2]}'`);
-console.log('');
-process.exit(1);
+if (!gRecognisedCommand) {
+  console.log('');
+  console.log(`  error: unknown command \`${process.argv[2]}'`);
+  console.log('');
+  process.exit(1);
+}
