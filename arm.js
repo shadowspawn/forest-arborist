@@ -5,8 +5,6 @@ const chalk = require('chalk');
 const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
-// Reminder: shell still listed as dependency in package.json, remove if not used
-// const shell = require('shelljs');
 
 const armConfigFilename = 'arm.json';
 const armRootFilename = '.arm-root.json';
@@ -22,38 +20,6 @@ const my = {
 function terminate(message) {
   console.log(my.errorColour(`Error: ${message}`));
   process.exit(1);
-}
-
-
-function testTest() {
-  // // code in development, not final routine
-
-  // shell playing about
-  // if (shell.exec('git --version').code !== 0) {
-  //   terminate('Error: git not available');
-  // }
-  // if (!shell.which('hg')) {
-  //   terminate('Error: git not available');
-  // }
-
-  // // Read root file and do some json mucking about
-
-  // const data = fs.readFileSync(armRootFilename);
-  // let rootObject;
-  //
-  // try {
-  //   rootObject = JSON.parse(data);
-  // } catch (err) {
-  //   terminate(`problem parsing ${armRootFilename}\n${err}`);
-  // }
-  // if (rootObject.master === undefined) {
-  //   terminate(`problem parsing ${armRootFilename}\nmissing field 'master'`);
-  // }
-  // console.log(`master folder from root config: ${rootObject.master}`);
-  //
-  // Object.keys(rootObject.alphabet).forEach((key) => {
-  //   console.log(`${key}: ${rootObject.alphabet[key]}`);
-  // });
 }
 
 
@@ -81,19 +47,13 @@ function dirExistsSync(filePath) {
 }
 
 
-function runCommand(cmd, args) {
-  const child = childProcess.spawn(cmd, args);
-  let stdoutText = '';
-  let stderrText = '';
-  child.stdout.on('data', (buffer) => { stdoutText += buffer.toString(); });
-  child.stderr.on('data', (buffer) => { stderrText += buffer.toString(); });
-  // child.stdout.on('end', () => { console.log('end'); callBack(stdoutText); });
-  child.on('close', (code) => {
+function execCommand(cmd, args) {
+  childProcess.execFile(cmd, args, (error, stdout, stderr) => {
     console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
-    if (code === 0) {
-      console.log(stdoutText);
+    if (error) {
+      console.log(my.errorColour(stderr));
     } else {
-      console.log(my.errorColour(stderrText));
+      console.log(stdout);
     }
   });
 }
@@ -131,55 +91,135 @@ function cdRootFolder() {
   } while (tryParent);
 
   if (startedInMasterFolder) {
-    terminate('Root of source tree not found. (Do you need to call \'arm init\'?)');
+    terminate('root of source tree not found. (Do you need to call "arm init"?)');
   } else {
-    terminate('Root of source tree not found. ');
+    terminate('root of source tree not found. ');
   }
 }
 
 
 function readConfig(includeMaster) {
   // Assuming already called cd to root folder
-  const rootPath = process.cwd();
   const masterFolderName = readMasterFolderName();
-  process.chdir(masterFolderName);
+  const configPath = path.resolve(masterFolderName, armConfigFilename);
 
-  const masterPath = process.cwd();
   let data;
   try {
-    data = fs.readFileSync(armConfigFilename);
+    data = fs.readFileSync(configPath);
   } catch (err) {
-    terminate(`problem opening ${masterPath}/${armConfigFilename}\n${err}`);
+    terminate(`problem opening ${configPath}\n${err}`);
   }
-  let rootObject;
+  let dependenciesObject;
   try {
-    rootObject = JSON.parse(data);
+    dependenciesObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${masterPath}/${armConfigFilename}\n${err}`);
+    terminate(`problem parsing ${configPath}\n${err}`);
   }
 
-  if (includeMaster) rootObject[masterFolderName] = masterFolderName;
-
-  process.chdir(rootPath);
-  return rootObject;
+  if (includeMaster) dependenciesObject[masterFolderName] = masterFolderName;
+  return dependenciesObject;
 }
 
 
-function showTreeStatus() {
+function doStatus() {
   const rootObject = readConfig(true);
   Object.keys(rootObject).forEach((repoPath) => {
     if (dirExistsSync(path.join(repoPath, '.hg'))) {
-      runCommand(
+      execCommand(
         'hg', ['-R', repoPath, 'status']
       );
     } else {
-      runCommand(
+      execCommand(
         'git', ['-C', repoPath, 'status', '--short']
       );
     }
   });
 }
 
+
+function findRepositories(startingFolder, callback) {
+  const itemList = fs.readdirSync(startingFolder);
+  itemList.forEach((item) => {
+    const itemPath = path.join(startingFolder, item);
+    if (dirExistsSync(itemPath)) {
+      if (dirExistsSync(path.join(itemPath, '.git'))) {
+        const origin = childProcess.execFileSync(
+          'git', ['-C', itemPath, 'config', '--get', 'remote.origin.url']
+        ).toString().trim();
+        callback(itemPath, origin);
+      } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
+        const origin = childProcess.execFileSync(
+          'hg', ['-R', itemPath, 'config', 'paths.default']
+        ).toString().trim();
+        callback(itemPath, origin);
+      } else {
+        findRepositories(itemPath, callback);
+      }
+    }
+  });
+
+
+  // var walk = function(dir, done) {
+  //   var results = [];
+  //   fs.readdir(dir, function(err, list) {
+  //     if (err) return done(err);
+  //     var pending = list.length;
+  //     if (!pending) return done(null, results);
+  //     list.forEach(function(file) {
+  //       file = path.resolve(dir, file);
+  //       fs.stat(file, function(err, stat) {
+  //         if (stat && stat.isDirectory()) {
+  //           walk(file, function(err, res) {
+  //             results = results.concat(res);
+  //             if (!--pending) done(null, results);
+  //           });
+  //         } else {
+  //           results.push(file);
+  //           if (!--pending) done(null, results);
+  //         }
+  //       });
+  //     });
+  //   });
+  // };
+}
+
+
+function doInit(options) {
+  if (!dirExistsSync('.git') && !dirExistsSync('.hg')) {
+    terminate('no .git or .hg folder here. Please run from folder of main repository.');
+  }
+  if (fileExistsSync(armConfigFilename) && !options.force) {
+    terminate(`already have ${armConfigFilename}. To overwrite use "arm init --force".`);
+  }
+
+  const masterFolder = path.basename(process.cwd());
+  const configPath = path.resolve(armConfigFilename);
+  process.chdir('..');
+
+  const dependencies = {};
+  findRepositories('.', (folder, origin) => {
+    dependencies[folder] = origin;
+  });
+  delete dependencies[masterFolder];
+  const prettyDependencies = JSON.stringify(dependencies, null, '  ');
+
+  const rootFilePath = path.resolve(armRootFilename);
+  const rootObject = { master: masterFolder };
+  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+
+  if (options.dryRun) {
+    console.log(`Dependencies to write to ${configPath}:`);
+    console.log(prettyDependencies);
+    console.log(`Master to write to ${rootFilePath}:`);
+    console.log(prettyRootObject);
+  } else {
+    fs.writeFileSync(configPath, prettyDependencies);
+    console.log(`Initialised ${configPath}`);
+
+    fs.writeFileSync(rootFilePath, prettyRootObject);
+    console.log(`Initialised ${rootFilePath}`);
+  }
+}
 
 //------------------------------------------------------------------------------
 // Command line processing
@@ -204,12 +244,13 @@ program
   });
 
 program
-  .command('_init')
+  .command('init')
   .description(`add file above master repo to mark root of source tree (${armRootFilename})`)
-  .option('-m, --master', 'master directory, defaults to current directory')
-  .action(() => {
+  .option('-f, --force', 'overwrite existing file')
+  .option('-n, --dry-run', 'do not perform actions, show what would happen')
+  .action((options) => {
     gRecognisedCommand = true;
-    terminate('not implemented yet');
+    doInit(options);
   });
 
 program
@@ -219,7 +260,6 @@ program
     gRecognisedCommand = true;
     cdRootFolder();
     console.log(process.cwd());
-    process.exit(0);
   });
 
 program
@@ -228,8 +268,7 @@ program
   .action(() => {
     gRecognisedCommand = true;
     cdRootFolder();
-    showTreeStatus();
-    // process.exit(0);
+    doStatus();
   });
 
 program
@@ -237,8 +276,7 @@ program
   .description('testing testing testing')
   .action(() => {
     gRecognisedCommand = true;
-    testTest();
-    process.exit(0);
+    console.log(chalk.yellow('test'));
   });
 
 program.parse(process.argv);
