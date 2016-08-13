@@ -13,9 +13,14 @@ const armRootFilename = '.arm-root.json';
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
 
+const my = {
+  errorColour: (text) => chalk.red(text),
+  commandColour: (text) => chalk.blue(text),
+};
+
 
 function terminate(message) {
-  console.log(chalk.red(`Error: ${message}`));
+  console.log(my.errorColour(`Error: ${message}`));
   process.exit(1);
 }
 
@@ -84,13 +89,11 @@ function runCommand(cmd, args) {
   child.stderr.on('data', (buffer) => { stderrText += buffer.toString(); });
   // child.stdout.on('end', () => { console.log('end'); callBack(stdoutText); });
   child.on('close', (code) => {
+    console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
     if (code === 0) {
-      console.log(chalk.blue(`${cmd} ${args.join(' ')}`));
       console.log(stdoutText);
     } else {
-      console.log(chalk.red(`Error running command from ${process.cwd()}`));
-      console.log(chalk.red(`  ${cmd} ${args.join(' ')}`));
-      console.log(chalk.yellow(stderrText));
+      console.log(my.errorColour(stderrText));
     }
   });
 }
