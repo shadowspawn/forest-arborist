@@ -59,7 +59,7 @@ function execCommand(cmd, args) {
 }
 
 
-function readMasterFolderName() {
+function readMasterDirectoryName() {
   const data = fs.readFileSync(armRootFilename);
   let rootObject;
   try {
@@ -74,23 +74,23 @@ function readMasterFolderName() {
 }
 
 
-function cdRootFolder() {
-  const startedInMasterFolder = fileExistsSync(armConfigFilename);
+function cdRootDirectory() {
+  const startedInMasterDirectory = fileExistsSync(armConfigFilename);
 
   let tryParent = true;
   do {
     if (fileExistsSync(armRootFilename)) {
-      readMasterFolderName(); // Sanity check
+      readMasterDirectoryName(); // Sanity check
       return;
     }
 
-    // NB: chdir('..') from '/' silently does nothing,so check we moved
+    // NB: chdir('..') from '/' silently does nothing on Mac,so check we moved
     const cwd = process.cwd();
     process.chdir('..');
     tryParent = (cwd !== process.cwd());
   } while (tryParent);
 
-  if (startedInMasterFolder) {
+  if (startedInMasterDirectory) {
     terminate('root of source tree not found. (Do you need to call "arm init"?)');
   } else {
     terminate('root of source tree not found. ');
@@ -99,9 +99,9 @@ function cdRootFolder() {
 
 
 function readConfig(includeMaster) {
-  // Assuming already called cd to root folder
-  const masterFolderName = readMasterFolderName();
-  const configPath = path.resolve(masterFolderName, armConfigFilename);
+  // Assuming already called cd to root directory
+  const masterDirectoryName = readMasterDirectoryName();
+  const configPath = path.resolve(masterDirectoryName, armConfigFilename);
 
   let data;
   try {
@@ -116,7 +116,7 @@ function readConfig(includeMaster) {
     terminate(`problem parsing ${configPath}\n${err}`);
   }
 
-  if (includeMaster) dependenciesObject[masterFolderName] = masterFolderName;
+  if (includeMaster) dependenciesObject[masterDirectoryName] = masterDirectoryName;
   return dependenciesObject;
 }
 
@@ -137,10 +137,10 @@ function doStatus() {
 }
 
 
-function findRepositories(startingFolder, callback) {
-  const itemList = fs.readdirSync(startingFolder);
+function findRepositories(startingDirectory, callback) {
+  const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
-    const itemPath = path.join(startingFolder, item);
+    const itemPath = path.join(startingDirectory, item);
     if (dirExistsSync(itemPath)) {
       if (dirExistsSync(path.join(itemPath, '.git'))) {
         const origin = childProcess.execFileSync(
@@ -184,41 +184,38 @@ function findRepositories(startingFolder, callback) {
 }
 
 
-function doInit(options) {
+function doInit() {
   if (!dirExistsSync('.git') && !dirExistsSync('.hg')) {
-    terminate('no .git or .hg folder here. Please run from folder of main repository.');
-  }
-  if (fileExistsSync(armConfigFilename) && !options.force) {
-    terminate(`already have ${armConfigFilename}. To overwrite use "arm init --force".`);
+    terminate('no .git or .hg directory here. Please run from directory of main repository.');
   }
 
-  const masterFolder = path.basename(process.cwd());
-  const configPath = path.resolve(armConfigFilename);
+  const masterDirectory = path.basename(process.cwd());
   process.chdir('..');
 
-  const dependencies = {};
-  findRepositories('.', (folder, origin) => {
-    dependencies[folder] = origin;
-  });
-  delete dependencies[masterFolder];
-  const prettyDependencies = JSON.stringify(dependencies, null, '  ');
-
-  const rootFilePath = path.resolve(armRootFilename);
-  const rootObject = { master: masterFolder };
-  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-
-  if (options.dryRun) {
-    console.log(`Dependencies to write to ${configPath}:`);
-    console.log(prettyDependencies);
-    console.log(`Master to write to ${rootFilePath}:`);
-    console.log(prettyRootObject);
+  // Dependencies
+  const configPath = path.resolve(masterDirectory, armConfigFilename);
+  if (fileExistsSync(configPath)) {
+    console.log(`Skipping dependencies, already have ${armConfigFilename}`);
   } else {
-    fs.writeFileSync(configPath, prettyDependencies);
-    console.log(`Initialised ${configPath}`);
+    const dependencies = {};
+    findRepositories('.', (directory, origin) => {
+      dependencies[directory] = origin;
+    });
+    delete dependencies[masterDirectory];
+    const prettyDependencies = JSON.stringify(dependencies, null, '  ');
 
-    fs.writeFileSync(rootFilePath, prettyRootObject);
-    console.log(`Initialised ${rootFilePath}`);
+    fs.writeFileSync(configPath, prettyDependencies);
+    console.log(`Initialised dependencies in ${armConfigFilename}`);
   }
+
+  // Root placeholder file. Safer to overwrite as low content.
+  const rootFilePath = path.resolve(armRootFilename);
+  let initialisedWord = 'Initialised';
+  if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
+  const rootObject = { master: masterDirectory };
+  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+  fs.writeFileSync(rootFilePath, prettyRootObject);
+  console.log(`${initialisedWord} marker file at root of working group: ${rootFilePath}`);
 }
 
 //------------------------------------------------------------------------------
@@ -229,9 +226,41 @@ program
 
 // Extra help
 program.on('--help', () => {
-  console.log("  See also 'arm <command> --help' to read about a specific subcommand.");
+  console.log('  Files:');
+  console.log(
+    `    ${armConfigFilename} contains repos for working group (dependencies of main repo)`);
+  console.log(`    ${armRootFilename} marks root of working group`);
+  console.log('');
+  console.log("  See also 'arm <command> --help' if there are options on a subcommand.");
   console.log('');
 });
+
+program
+  .command('init')
+  .description('add dependencies file in current repo, and marker file at root of working group')
+  .action(() => {
+    gRecognisedCommand = true;
+    // Start from master directory rather than root directory
+    doInit();
+  });
+
+program
+  .command('root')
+  .description('show the root directory of the working group')
+  .action(() => {
+    gRecognisedCommand = true;
+    cdRootDirectory();
+    console.log(process.cwd());
+  });
+
+program
+  .command('status')
+  .description('show the status of the working group')
+  .action(() => {
+    gRecognisedCommand = true;
+    cdRootDirectory();
+    doStatus();
+  });
 
 program
   .command('_install')
@@ -241,34 +270,6 @@ program
     gRecognisedCommand = true;
     readConfig();
     terminate('not fully implemented yet');
-  });
-
-program
-  .command('init')
-  .description(`add file above master repo to mark root of source tree (${armRootFilename})`)
-  .option('-f, --force', 'overwrite existing file')
-  .option('-n, --dry-run', 'do not perform actions, show what would happen')
-  .action((options) => {
-    gRecognisedCommand = true;
-    doInit(options);
-  });
-
-program
-  .command('root')
-  .description('show the root directory of the working tree')
-  .action(() => {
-    gRecognisedCommand = true;
-    cdRootFolder();
-    console.log(process.cwd());
-  });
-
-program
-  .command('status')
-  .description('show the status of the working tree')
-  .action(() => {
-    gRecognisedCommand = true;
-    cdRootFolder();
-    doStatus();
   });
 
 program
