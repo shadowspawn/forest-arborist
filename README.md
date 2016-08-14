@@ -40,3 +40,11 @@ c.f. npm package dependencies
       .arm-root.json marks root of working group
 
     See also 'arm <command> --help' if there are options on a subcommand.
+
+## Installing
+
+Requires node and npm.
+
+    npm install --global git@github.com:JohnRGee/arm.git
+
+(Or download and build the package, and add a shell alias pointing at arm.js.)
