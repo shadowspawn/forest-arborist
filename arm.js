@@ -60,17 +60,18 @@ function execCommand(cmd, args) {
 
 
 function readMasterDirectoryName() {
-  const data = fs.readFileSync(armRootFilename);
+  const armRootPath = path.resolve(armRootFilename);
+  const data = fs.readFileSync(armRootPath);
   let rootObject;
   try {
     rootObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${process.cwd()}/${armRootFilename}\n${err}`);
+    terminate(`problem parsing ${armRootPath}\n${err}`);
   }
-  if (rootObject.master === undefined) {
-    terminate(`problem parsing: ${process.cwd()}/${armRootFilename}\nmissing field 'master'`);
+  if (rootObject.masterDirectory === undefined) {
+    terminate(`problem parsing: ${armRootPath}\nmissing field 'masterDirectory'`);
   }
-  return rootObject.master;
+  return rootObject.masterDirectory;
 }
 
 
@@ -91,14 +92,14 @@ function cdRootDirectory() {
   } while (tryParent);
 
   if (startedInMasterDirectory) {
-    terminate('root of source tree not found. (Do you need to call "arm init"?)');
+    terminate('root of working group not found. (Do you need to call "arm init"?)');
   } else {
-    terminate('root of source tree not found. ');
+    terminate('root of working group not found. ');
   }
 }
 
 
-function readConfig(includeMaster) {
+function readConfigDependencies(addMaster) {
   // Assuming already called cd to root directory
   const masterDirectoryName = readMasterDirectoryName();
   const configPath = path.resolve(masterDirectoryName, armConfigFilename);
@@ -109,21 +110,25 @@ function readConfig(includeMaster) {
   } catch (err) {
     terminate(`problem opening ${configPath}\n${err}`);
   }
-  let dependenciesObject;
+
+  let configObject;
   try {
-    dependenciesObject = JSON.parse(data);
+    configObject = JSON.parse(data);
   } catch (err) {
     terminate(`problem parsing ${configPath}\n${err}`);
   }
+  if (configObject.dependencies === undefined) {
+    terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
+  }
+  if (addMaster) configObject.dependencies[masterDirectoryName] = masterDirectoryName;
 
-  if (includeMaster) dependenciesObject[masterDirectoryName] = masterDirectoryName;
-  return dependenciesObject;
+  return configObject.dependencies;
 }
 
 
 function doStatus() {
-  const rootObject = readConfig(true);
-  Object.keys(rootObject).forEach((repoPath) => {
+  const dependencies = readConfigDependencies(true);
+  Object.keys(dependencies).forEach((repoPath) => {
     if (dirExistsSync(path.join(repoPath, '.hg'))) {
       execCommand(
         'hg', ['-R', repoPath, 'status']
@@ -157,30 +162,6 @@ function findRepositories(startingDirectory, callback) {
       }
     }
   });
-
-
-  // var walk = function(dir, done) {
-  //   var results = [];
-  //   fs.readdir(dir, function(err, list) {
-  //     if (err) return done(err);
-  //     var pending = list.length;
-  //     if (!pending) return done(null, results);
-  //     list.forEach(function(file) {
-  //       file = path.resolve(dir, file);
-  //       fs.stat(file, function(err, stat) {
-  //         if (stat && stat.isDirectory()) {
-  //           walk(file, function(err, res) {
-  //             results = results.concat(res);
-  //             if (!--pending) done(null, results);
-  //           });
-  //         } else {
-  //           results.push(file);
-  //           if (!--pending) done(null, results);
-  //         }
-  //       });
-  //     });
-  //   });
-  // };
 }
 
 
@@ -202,9 +183,10 @@ function doInit() {
       dependencies[directory] = origin;
     });
     delete dependencies[masterDirectory];
-    const prettyDependencies = JSON.stringify(dependencies, null, '  ');
+    const config = { dependencies };
+    const prettyConfig = JSON.stringify(config, null, '  ');
 
-    fs.writeFileSync(configPath, prettyDependencies);
+    fs.writeFileSync(configPath, prettyConfig);
     console.log(`Initialised dependencies in ${armConfigFilename}`);
   }
 
@@ -212,7 +194,7 @@ function doInit() {
   const rootFilePath = path.resolve(armRootFilename);
   let initialisedWord = 'Initialised';
   if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
-  const rootObject = { master: masterDirectory };
+  const rootObject = { masterDirectory };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
   console.log(`${initialisedWord} marker file at root of working group: ${rootFilePath}`);
@@ -268,7 +250,7 @@ program
   .option('-n, --dry-run', 'do not perform actions, just show actions')
   .action(() => {
     gRecognisedCommand = true;
-    readConfig();
+    readConfigDependencies();
     terminate('not fully implemented yet');
   });
 
