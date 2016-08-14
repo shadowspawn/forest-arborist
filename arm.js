@@ -142,6 +142,61 @@ function doStatus() {
 }
 
 
+function isGitRemote(origin) {
+  // Hardcore: git ls-remote ${origin}
+
+  // Check local path for .git directory
+  if (origin.indexOf(':') === -1) {
+    return dirExistsSync(path.resolve(origin, '.git'));
+  }
+
+  // KISS
+  if (origin.indexOf('git') !== -1) {
+    return true;
+  }
+
+  return false;
+}
+
+
+function isHgRemote(origin) {
+  // Hardcore: hg id ${origin}
+
+  // Check local path for .hg directory
+  if (origin.indexOf(':') === -1) {
+    return dirExistsSync(path.resolve(origin, '.hg'));
+  }
+
+  // KISS unless proves inadequate.
+  if (origin.indexOf('hg') !== -1) {
+    return true;
+  }
+
+  return false;
+}
+
+
+function doInstall() {
+  const dependencies = readConfigDependencies(false);
+  Object.keys(dependencies).forEach((repoPath) => {
+    const origin = dependencies[repoPath];
+    if (dirExistsSync(repoPath)) {
+      console.log(`Skipping already present dependency: ${repoPath}`);
+    } else if (isGitRemote(origin)) {
+      execCommand(
+          'git', ['clone', origin, repoPath]
+        );
+    } else if (isHgRemote(origin)) {
+      execCommand(
+          'hg', ['clone', origin, repoPath]
+        );
+    } else {
+      console.error(`Unknown remote repository type: ${origin}`);
+    }
+  });
+}
+
+
 function findRepositories(startingDirectory, callback) {
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
@@ -246,12 +301,11 @@ program
 
 program
   .command('_install')
-  .description('install dependent repositories')
-  .option('-n, --dry-run', 'do not perform actions, just show actions')
+  .description('clone missing (new) dependent repositories')
   .action(() => {
     gRecognisedCommand = true;
-    readConfigDependencies();
-    terminate('not fully implemented yet');
+    cdRootDirectory();
+    doInstall();
   });
 
 program
