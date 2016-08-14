@@ -14,7 +14,9 @@ Future Possibilities
 * master relative remote local in dependencies, like for .hgsub
 * typescript
 * save/restore or freeze of whatever for reproducible working group state
-* repo or personal preference for rebase vs merge
+* repo or personal preference for rebase vs merge et al
+* or, support pass-through flags for repo commands with -- if useful?
+* or, options for command
 * unit tests
 
 Terminology

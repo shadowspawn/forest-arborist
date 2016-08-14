@@ -59,6 +59,13 @@ function execCommand(cmd, args) {
 }
 
 
+function execCommandSync(cmd, args) {
+  console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
+  const commandOutput = childProcess.execFileSync(cmd, args).toString().trim();
+  console.log(commandOutput);
+}
+
+
 function readMasterDirectoryName() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
@@ -255,6 +262,40 @@ function doInit() {
   console.log(`${initialisedWord} marker file at root of working group: ${rootFilePath}`);
 }
 
+
+function doClone(sourceURL, destGroupDirParam) {
+  // Put together wrapper dir and dest repo
+  const masterDirName = path.basename(sourceURL, '.git');
+  let rootDir = destGroupDirParam;
+  if (rootDir === undefined) rootDir = `${masterDirName}Group`;
+  fs.mkdirSync(rootDir);
+  const destPath = path.join(rootDir, masterDirName);
+
+  // Clone master. KISS and sync, but no progress. :-(
+  if (isGitRemote(sourceURL)) {
+    execCommandSync(
+        'git', ['clone', sourceURL, destPath]
+    );
+  } else if (isHgRemote(sourceURL)) {
+    execCommandSync(
+        'hg', ['clone', sourceURL, destPath]
+    );
+  } else {
+    console.error(`Unknown repository type: ${sourceURL}`);
+  }
+
+  process.chdir(rootDir);
+  if (!fileExistsSync(path.join(masterDirName, armConfigFilename))) {
+    console.log(my.errorColour(`Warning: stopping after clone, missing ${armConfigFilename}`));
+  } else {
+    const rootObject = { masterDirectory: masterDirName };
+    const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+    fs.writeFileSync(armRootFilename, prettyRootObject);
+    doInstall();
+  }
+}
+
+
 //------------------------------------------------------------------------------
 // Command line processing
 
@@ -297,6 +338,14 @@ program
     gRecognisedCommand = true;
     cdRootDirectory();
     doStatus();
+  });
+
+program
+  .command('_clone <source-URL> [group-dir]')
+  .description('clone remoteURL and install its dependencies beside it')
+  .action((sourceURL, destGroupPath) => {
+    gRecognisedCommand = true;
+    doClone(sourceURL, destGroupPath);
   });
 
 program

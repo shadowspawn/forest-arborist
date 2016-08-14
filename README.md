@@ -2,9 +2,11 @@
 
 Another Repository Manager
 
-Provide convenient management of a working group of repositories. Support a mixture of git and Mercurial repositories. Inspired by Mercurial subrepositories and hgh.
+Provide convenient management of a working group of repositories. Support a mixture of git and Mercurial repositories. Inspired by Mercurial subrepositories and hgh. The master and its dependencies are peers, not nested.  
 
 Use a dependencies file in the nominal master repo and a marker file in the root of the working group. Allow commands to be run from anywhere in the working group, by searching up for the marker file.
+
+Currently running repo commands in parallel, but means do not see progress... See how it goes!
 
 ## Dependencies File Format (arm.json)
 
