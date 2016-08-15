@@ -47,6 +47,6 @@ c.f. npm package dependencies
 
 Requires node and npm.
 
-    npm install --global git@github.com:JohnRGee/arm.git
+    npm install --global https://github.com/JohnRGee/arm.git
 
 (Or download and build the package, and add a shell alias pointing at arm.js.)
