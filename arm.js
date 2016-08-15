@@ -47,6 +47,29 @@ function dirExistsSync(filePath) {
 }
 
 
+// Do the command handling ourselves so user can see command output as it occurs
+// for the possibly long running commands.
+
+function runCommandChain(commandList, tailCallback) {
+  const command = commandList.shift();
+  if (command.args === undefined) command.args = [];
+  console.log(chalk.blue(`${command.cmd} ${command.args.join(' ')}`));
+
+  const child = childProcess.spawn(command.cmd, command.args);
+  // Using process.stdout.write to avoid getting extra line feeds.
+  child.stdout.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
+  child.stderr.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
+  child.on('close', (code) => { // eslint-disable-line no-unused-vars, passed code
+    console.log(''); // blank line after command output
+    if (commandList.length > 0) {
+      runCommandChain(commandList, tailCallback);
+    } else if (tailCallback !== undefined) {
+      tailCallback();
+    }
+  });
+}
+
+
 function execCommand(cmd, args) {
   childProcess.execFile(cmd, args, (error, stdout, stderr) => {
     console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
@@ -362,7 +385,11 @@ program
   .description('testing testing testing')
   .action(() => {
     gRecognisedCommand = true;
-    console.log(chalk.yellow('test'));
+    const commandList = [];
+    commandList.push({ cmd: 'ls', args: ['-ls'] });
+    commandList.push({ cmd: './slow.sh' });
+    // const list = ['./slow.sh', 'date', 'who', 'ls'];
+    runCommandChain(commandList, () => console.log('finished'));
   });
 
 program.parse(process.argv);
