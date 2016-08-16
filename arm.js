@@ -255,6 +255,9 @@ function doInit() {
   if (!dirExistsSync('.git') && !dirExistsSync('.hg')) {
     terminate('no .git or .hg directory here. Please run from directory of main repository.');
   }
+  if (fileExistsSync('.hgsub')) {
+    terminate('found .hgsub here. Please run from directory of main repository below hg master.');
+  }
 
   const masterDirectory = path.basename(process.cwd());
   process.chdir('..');
