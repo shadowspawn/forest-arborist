@@ -51,6 +51,8 @@ function dirExistsSync(filePath) {
 // for the possibly long running commands.
 
 function runCommandChain(commandList, tailCallback) {
+  if (commandList.length === 0) return;
+
   const command = commandList.shift();
   if (command.args === undefined) command.args = [];
   console.log(chalk.blue(`${command.cmd} ${command.args.join(' ')}`));
@@ -70,16 +72,16 @@ function runCommandChain(commandList, tailCallback) {
 }
 
 
-function execCommand(cmd, args) {
-  childProcess.execFile(cmd, args, (error, stdout, stderr) => {
-    console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
-    if (error) {
-      console.log(my.errorColour(stderr));
-    } else {
-      console.log(stdout);
-    }
-  });
-}
+// function execCommand(cmd, args) {
+//   childProcess.execFile(cmd, args, (error, stdout, stderr) => {
+//     console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
+//     if (error) {
+//       console.log(my.errorColour(stderr));
+//     } else {
+//       console.log(stdout);
+//     }
+//   });
+// }
 
 
 function execCommandSync(cmd, args) {
@@ -158,17 +160,20 @@ function readConfigDependencies(addMaster) {
 
 function doStatus() {
   const dependencies = readConfigDependencies(true);
+
+  const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
     if (dirExistsSync(path.join(repoPath, '.hg'))) {
-      execCommand(
-        'hg', ['-R', repoPath, 'status']
-      );
+      commandList.push({
+        cmd: 'hg', args: ['-R', repoPath, 'status'],
+      });
     } else {
-      execCommand(
-        'git', ['-C', repoPath, 'status', '--short']
-      );
+      commandList.push({
+        cmd: 'git', args: ['-C', repoPath, 'status', '--short'],
+      });
     }
   });
+  runCommandChain(commandList);
 }
 
 
@@ -208,22 +213,25 @@ function isHgRemote(origin) {
 
 function doInstall() {
   const dependencies = readConfigDependencies(false);
+
+  const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
     const origin = dependencies[repoPath];
     if (dirExistsSync(repoPath)) {
       console.log(`Skipping already present dependency: ${repoPath}`);
     } else if (isGitRemote(origin)) {
-      execCommand(
-          'git', ['clone', origin, repoPath]
-        );
+      commandList.push({
+        cmd: 'git', args: ['clone', origin, repoPath],
+      });
     } else if (isHgRemote(origin)) {
-      execCommand(
-          'hg', ['clone', origin, repoPath]
-        );
+      commandList.push({
+        cmd: 'hg', args: ['clone', origin, repoPath],
+      });
     } else {
-      console.error(`Unknown remote repository type: ${origin}`);
+      console.error(`Skipping unknown remote repository type: ${origin}`);
     }
   });
+  runCommandChain(commandList);
 }
 
 
@@ -265,7 +273,7 @@ function doInit() {
   // Dependencies
   const configPath = path.resolve(masterDirectory, armConfigFilename);
   if (fileExistsSync(configPath)) {
-    console.log(`Skipping dependencies, already have ${armConfigFilename}`);
+    console.log(`Skipping scanning for dependencies, already have ${armConfigFilename}`);
   } else {
     const dependencies = {};
     findRepositories('.', (directory, origin) => {
@@ -298,28 +306,31 @@ function doClone(sourceURL, destGroupDirParam) {
   fs.mkdirSync(rootDir);
   const destPath = path.join(rootDir, masterDirName);
 
-  // Clone master. KISS and sync, but no progress. :-(
+  // Clone master.
+  const commandList = [];
   if (isGitRemote(sourceURL)) {
-    execCommandSync(
-        'git', ['clone', sourceURL, destPath]
-    );
+    commandList.push({
+      cmd: 'git', args: ['clone', sourceURL, destPath],
+    });
   } else if (isHgRemote(sourceURL)) {
-    execCommandSync(
-        'hg', ['clone', sourceURL, destPath]
-    );
+    commandList.push({
+      cmd: 'hg', args: ['clone', sourceURL, destPath],
+    });
   } else {
     console.error(`Unknown repository type: ${sourceURL}`);
   }
-
-  process.chdir(rootDir);
-  if (!fileExistsSync(path.join(masterDirName, armConfigFilename))) {
-    console.log(my.errorColour(`Warning: stopping after clone, missing ${armConfigFilename}`));
-  } else {
-    const rootObject = { masterDirectory: masterDirName };
-    const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-    fs.writeFileSync(armRootFilename, prettyRootObject);
-    doInstall();
-  }
+  runCommandChain(commandList, () => {
+    // After cloning master...
+    process.chdir(rootDir);
+    if (!fileExistsSync(path.join(masterDirName, armConfigFilename))) {
+      console.log(my.errorColour(`Warning: stopping after clone, missing ${armConfigFilename}`));
+    } else {
+      const rootObject = { masterDirectory: masterDirName };
+      const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+      fs.writeFileSync(armRootFilename, prettyRootObject);
+      doInstall();
+    }
+  });
 }
 
 
@@ -341,12 +352,29 @@ program.on('--help', () => {
 });
 
 program
+  .command('clone <source-URL> [group-dir]')
+  .description('clone source-URL and install its dependencies beside it')
+  .action((sourceURL, destGroupPath) => {
+    gRecognisedCommand = true;
+    doClone(sourceURL, destGroupPath);
+  });
+
+program
   .command('init')
   .description('add dependencies file in current repo, and marker file at root of working group')
   .action(() => {
     gRecognisedCommand = true;
     // Start from master directory rather than root directory
     doInit();
+  });
+
+program
+  .command('install')
+  .description('clone missing (new) dependent repositories')
+  .action(() => {
+    gRecognisedCommand = true;
+    cdRootDirectory();
+    doInstall();
   });
 
 program
@@ -365,23 +393,6 @@ program
     gRecognisedCommand = true;
     cdRootDirectory();
     doStatus();
-  });
-
-program
-  .command('_clone <source-URL> [group-dir]')
-  .description('clone remoteURL and install its dependencies beside it')
-  .action((sourceURL, destGroupPath) => {
-    gRecognisedCommand = true;
-    doClone(sourceURL, destGroupPath);
-  });
-
-program
-  .command('_install')
-  .description('clone missing (new) dependent repositories')
-  .action(() => {
-    gRecognisedCommand = true;
-    cdRootDirectory();
-    doInstall();
   });
 
 program

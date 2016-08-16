@@ -2,15 +2,13 @@
 
 Another Repository Manager
 
-Provide convenient management of a working group of repositories. Support a mixture of git and Mercurial repositories. Inspired by Mercurial subrepositories and hgh. The master and its dependencies are peers, not nested.  
+Provide convenient management of a working group of repositories. Support a mixture of git and Mercurial repositories. Inspired by Mercurial subrepositories and hgh. The master and its dependencies are peers (not nested inside master like hgsub).
 
 Use a dependencies file in the nominal master repo and a marker file in the root of the working group. Allow commands to be run from anywhere in the working group, by searching up for the marker file.
 
-Currently running repo commands in parallel, but means do not see progress... See how it goes!
-
 ## Dependencies File Format (arm.json)
 
-Working directory names and remote urls for working group, relative to root.
+Working directory names and remote urls for working group, relative to group root.
 
     {"dependencies":
        {
@@ -19,8 +17,6 @@ Working directory names and remote urls for working group, relative to root.
        }
     }
 
-c.f. npm package dependencies
-
 ## Usage
 
     Usage: arm [options] [command]
@@ -28,9 +24,11 @@ c.f. npm package dependencies
 
     Commands:
 
-      init                 add dependencies file in current repo, and marker file at root of working group
-      root                 show the root directory of the working group
-      status               show the status of the working group
+      clone <source-URL> [group-dir]  clone source-URL and install its dependencies beside it
+      init                            add dependencies file in current repo, and marker file at root of working group
+      install                         clone missing (new) dependent repositories
+      root                            show the root directory of the working group
+      status                          show the status of the working group
 
     Options:
 
