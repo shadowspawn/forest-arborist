@@ -242,9 +242,10 @@ function findRepositories(startingDirectory, callback) {
           'hg', ['-R', itemPath, 'config', 'paths.default']
         ).toString().trim();
         callback(itemPath, origin);
-      } else {
-        findRepositories(itemPath, callback);
       }
+
+      // Keep searching in case of nested repos, sometimes used.
+      findRepositories(itemPath, callback);
     }
   });
 }
