@@ -1,4 +1,5 @@
 #!/usr/local/bin/node
+'uses strict';
 
 const program = require('commander');
 const chalk = require('chalk');

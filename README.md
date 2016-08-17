@@ -43,8 +43,8 @@ Working directory names and remote urls for working group, relative to group roo
 
 ## Installing
 
-Requires node and npm.
+Requires node and npm. Easy unix install:
 
     npm install --global https://github.com/JohnRGee/arm.git
 
-(Or download and build the package, and add a shell alias pointing at arm.js.)
+Or more manual, (git clone and/or) npm install and setup command for "node <installFolder>arm.js".
