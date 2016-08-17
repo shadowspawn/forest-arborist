@@ -56,9 +56,15 @@ function runCommandChain(commandList, tailCallback) {
 
   const command = commandList.shift();
   if (command.args === undefined) command.args = [];
-  console.log(chalk.blue(`${command.cmd} ${command.args.join(' ')}`));
+  let cwdDisplay = `${command.cwd}: `;
+  if (command.cwd === undefined) {
+    cwdDisplay = '';
+    command.cwd = '.';
+  }
 
-  const child = childProcess.spawn(command.cmd, command.args);
+  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${command.args.join(' ')}`));
+
+  const child = childProcess.spawn(command.cmd, command.args, { cwd: command.cwd });
   // Using process.stdout.write to avoid getting extra line feeds.
   child.stdout.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
   child.stderr.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
@@ -166,11 +172,30 @@ function doStatus() {
   Object.keys(dependencies).forEach((repoPath) => {
     if (dirExistsSync(path.join(repoPath, '.hg'))) {
       commandList.push({
-        cmd: 'hg', args: ['-R', repoPath, 'status'],
+        cmd: 'hg', args: ['status'], cwd: repoPath,
       });
     } else {
       commandList.push({
-        cmd: 'git', args: ['-C', repoPath, 'status', '--short'],
+        cmd: 'git', args: ['status', '--short'], cwd: repoPath,
+      });
+    }
+  });
+  runCommandChain(commandList);
+}
+
+
+function doOutgoing() {
+  const dependencies = readConfigDependencies(true);
+
+  const commandList = [];
+  Object.keys(dependencies).forEach((repoPath) => {
+    if (dirExistsSync(path.join(repoPath, '.hg'))) {
+      commandList.push({
+        cmd: 'hg', args: ['outgoing'], cwd: repoPath,
+      });
+    } else {
+      commandList.push({
+        cmd: 'git', args: ['log', '@{u}..'], cwd: repoPath,
       });
     }
   });
@@ -345,8 +370,8 @@ program
 program.on('--help', () => {
   console.log('  Files:');
   console.log(
-    `    ${armConfigFilename} contains repos for working group (dependencies of main repo)`);
-  console.log(`    ${armRootFilename} marks root of working group`);
+    `    ${armConfigFilename} configuration file for forest, especially dependencies`);
+  console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
   console.log("  See also 'arm <command> --help' if there are options on a subcommand.");
   console.log('');
@@ -354,7 +379,7 @@ program.on('--help', () => {
 
 program
   .command('clone <source-URL> [group-dir]')
-  .description('clone source-URL and install its dependencies beside it')
+  .description('clone source-URL and and installing its dependencies')
   .action((sourceURL, destGroupPath) => {
     gRecognisedCommand = true;
     doClone(sourceURL, destGroupPath);
@@ -362,7 +387,7 @@ program
 
 program
   .command('init')
-  .description('add dependencies file in current repo, and marker file at root of working group')
+  .description('add config file in current directory, and marker file at root of forest')
   .action(() => {
     gRecognisedCommand = true;
     // Start from master directory rather than root directory
@@ -379,8 +404,17 @@ program
   });
 
 program
+  .command('outgoing')
+  .description('show changesets not in the default push location')
+  .action(() => {
+    gRecognisedCommand = true;
+    cdRootDirectory();
+    doOutgoing();
+  });
+
+program
   .command('root')
-  .description('show the root directory of the working group')
+  .description('show the root directory of the forest')
   .action(() => {
     gRecognisedCommand = true;
     cdRootDirectory();
@@ -389,7 +423,7 @@ program
 
 program
   .command('status')
-  .description('show the status of the working group')
+  .description('show the status of each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
     cdRootDirectory();
