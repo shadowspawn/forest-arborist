@@ -7,8 +7,8 @@ const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
 
-const armConfigFilename = 'arm.json';
-const armRootFilename = '.arm-root.json';
+const armConfigFilename = 'arm.json'; // stored in nest directory
+const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
 
@@ -91,14 +91,14 @@ function runCommandChain(commandList, tailCallback) {
 // }
 
 
-function execCommandSync(cmd, args) {
-  console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
-  const commandOutput = childProcess.execFileSync(cmd, args).toString().trim();
-  console.log(commandOutput);
-}
+// function execCommandSync(cmd, args) {
+//   console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
+//   const commandOutput = childProcess.execFileSync(cmd, args).toString().trim();
+//   console.log(commandOutput);
+// }
 
 
-function readMasterDirectoryName() {
+function readConfigDirPath() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
   let rootObject;
@@ -107,20 +107,20 @@ function readMasterDirectoryName() {
   } catch (err) {
     terminate(`problem parsing ${armRootPath}\n${err}`);
   }
-  if (rootObject.masterDirectory === undefined) {
-    terminate(`problem parsing: ${armRootPath}\nmissing field 'masterDirectory'`);
+  if (rootObject.configurationDirectory === undefined) {
+    terminate(`problem parsing: ${armRootPath}\nmissing field 'configurationDirectory'`);
   }
-  return rootObject.masterDirectory;
+  return rootObject.configurationDirectory;
 }
 
 
 function cdRootDirectory() {
-  const startedInMasterDirectory = fileExistsSync(armConfigFilename);
+  const startedInConfigDirectory = fileExistsSync(armConfigFilename);
 
   let tryParent = true;
   do {
     if (fileExistsSync(armRootFilename)) {
-      readMasterDirectoryName(); // Sanity check
+      readConfigDirPath(); // Sanity check
       return;
     }
 
@@ -130,17 +130,17 @@ function cdRootDirectory() {
     tryParent = (cwd !== process.cwd());
   } while (tryParent);
 
-  if (startedInMasterDirectory) {
-    terminate('root of working group not found. (Do you need to call "arm init"?)');
+  if (startedInConfigDirectory) {
+    terminate('root of forest not found. (Do you need to call "arm init"?)');
   } else {
-    terminate('root of working group not found. ');
+    terminate('root of forest not found. ');
   }
 }
 
 
 function readConfigDependencies(addMaster) {
   // Assuming already called cd to root directory
-  const masterDirectoryName = readMasterDirectoryName();
+  const masterDirectoryName = readConfigDirPath();
   const configPath = path.resolve(masterDirectoryName, armConfigFilename);
 
   let data;
@@ -285,42 +285,40 @@ function findRepositories(startingDirectory, callback) {
 }
 
 
-function doInit() {
-  if (!dirExistsSync('.git') && !dirExistsSync('.hg')) {
-    terminate('no .git or .hg directory here. Please run from directory of main repository.');
-  }
-  if (fileExistsSync('.hgsub')) {
-    terminate('found .hgsub here. Please run from directory of main repository below hg master.');
-  }
-
-  const masterDirectory = path.basename(process.cwd());
-  process.chdir('..');
+function doInit(rootDirParam) {
+  const nestAbsolutePath = process.cwd();
+  const rootAbsolutePath = (rootDirParam === undefined)
+    ? process.cwd()
+    : path.resolve(rootDirParam);
+  process.chdir(rootAbsolutePath);
+  const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
+  const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
   // Dependencies
-  const configPath = path.resolve(masterDirectory, armConfigFilename);
+  const configPath = path.join(nestAbsolutePath, armConfigFilename);
   if (fileExistsSync(configPath)) {
-    console.log(`Skipping scanning for dependencies, already have ${armConfigFilename}`);
+    console.log(`Skipping init, already have ${armConfigFilename}`);
   } else {
     const dependencies = {};
     findRepositories('.', (directory, origin) => {
       dependencies[directory] = origin;
     });
-    delete dependencies[masterDirectory];
-    const config = { dependencies };
+    delete dependencies[nestFromRoot];
+    const config = { dependencies, rootDirectory: rootFromNest };
     const prettyConfig = JSON.stringify(config, null, '  ');
 
     fs.writeFileSync(configPath, prettyConfig);
     console.log(`Initialised dependencies in ${armConfigFilename}`);
-  }
 
-  // Root placeholder file. Safer to overwrite as low content.
-  const rootFilePath = path.resolve(armRootFilename);
-  let initialisedWord = 'Initialised';
-  if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
-  const rootObject = { masterDirectory };
-  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-  fs.writeFileSync(rootFilePath, prettyRootObject);
-  console.log(`${initialisedWord} marker file at root of working group: ${rootFilePath}`);
+    // Root placeholder file. Safer to overwrite as low content.
+    const rootFilePath = path.resolve(armRootFilename);
+    let initialisedWord = 'Initialised';
+    if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
+    const rootObject = { configurationDirectory: nestFromRoot };
+    const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+    fs.writeFileSync(rootFilePath, prettyRootObject);
+    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
+  }
 }
 
 
@@ -351,7 +349,7 @@ function doClone(sourceURL, destGroupDirParam) {
     if (!fileExistsSync(path.join(masterDirName, armConfigFilename))) {
       console.log(my.errorColour(`Warning: stopping after clone, missing ${armConfigFilename}`));
     } else {
-      const rootObject = { masterDirectory: masterDirName };
+      const rootObject = { configDirectory: masterDirName };
       const prettyRootObject = JSON.stringify(rootObject, null, '  ');
       fs.writeFileSync(armRootFilename, prettyRootObject);
       doInstall();
@@ -387,11 +385,12 @@ program
 
 program
   .command('init')
-  .description('add config file in current directory, and marker file at root of forest')
-  .action(() => {
+  .option('--root <dir>', 'root directory of forest')
+  .description('add config file in dest directory, and marker file at root of forest')
+  .action((options) => {
     gRecognisedCommand = true;
-    // Start from master directory rather than root directory
-    doInit();
+    // Sort out root directory in doInit
+    doInit(options.root);
   });
 
 program

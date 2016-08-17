@@ -1,5 +1,16 @@
 # arm
 
+Got bit out of control trying to support both nested and siblings.
+
+Rationalise:
+- arm.json needs to be at root of a repo (so we can find it for clone)
+- arm.json needs to store rootFromNest for clone (so we can mark root in install)
+
+arm-root:
+init only creates if creates arm.json (so no reinit)
+install creates if missing (since matches install feeling)
+clone creates, possibly via install
+
 Upcoming
 * install
 * clone
