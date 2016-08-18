@@ -18,6 +18,8 @@ Upcoming
 * pull/pull -u
 * update
 * branchFoo for working with (remote) branches relative to working directory
+* nest (like root)
+* id (ala hg)
 
 Future Possibilities
 * running async, but means multiple running and no progress...

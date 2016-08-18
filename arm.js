@@ -6,6 +6,7 @@ const chalk = require('chalk');
 const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
+const url = require('url');
 
 const armConfigFilename = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -98,7 +99,7 @@ function runCommandChain(commandList, tailCallback) {
 // }
 
 
-function readConfigDirPath() {
+function readConfigDirPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
   let rootObject;
@@ -107,10 +108,10 @@ function readConfigDirPath() {
   } catch (err) {
     terminate(`problem parsing ${armRootPath}\n${err}`);
   }
-  if (rootObject.configurationDirectory === undefined) {
+  if (rootObject.configDirectory === undefined) {
     terminate(`problem parsing: ${armRootPath}\nmissing field 'configurationDirectory'`);
   }
-  return rootObject.configurationDirectory;
+  return rootObject.configDirectory;
 }
 
 
@@ -120,7 +121,7 @@ function cdRootDirectory() {
   let tryParent = true;
   do {
     if (fileExistsSync(armRootFilename)) {
-      readConfigDirPath(); // Sanity check
+      readConfigDirPathFromRoot(); // Sanity check
       return;
     }
 
@@ -138,10 +139,8 @@ function cdRootDirectory() {
 }
 
 
-function readConfigDependencies(addMaster) {
-  // Assuming already called cd to root directory
-  const masterDirectoryName = readConfigDirPath();
-  const configPath = path.resolve(masterDirectoryName, armConfigFilename);
+function readConfigDependencies(nestPath, addNestToDependencies) {
+  const configPath = path.resolve(nestPath, armConfigFilename);
 
   let data;
   try {
@@ -159,14 +158,38 @@ function readConfigDependencies(addMaster) {
   if (configObject.dependencies === undefined) {
     terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
-  if (addMaster) configObject.dependencies[masterDirectoryName] = masterDirectoryName;
+  if (addNestToDependencies) configObject.dependencies[nestPath] = nestPath;
 
   return configObject.dependencies;
 }
 
 
+function readConfigRoot(nestPath) {
+  const configPath = path.resolve(nestPath, armConfigFilename);
+
+  let data;
+  try {
+    data = fs.readFileSync(configPath);
+  } catch (err) {
+    terminate(`problem opening ${configPath}\n${err}`);
+  }
+
+  let configObject;
+  try {
+    configObject = JSON.parse(data);
+  } catch (err) {
+    terminate(`problem parsing ${configPath}\n${err}`);
+  }
+  if (configObject.rootDirectory === undefined) {
+    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+  }
+  return configObject.rootDirectory;
+}
+
+
 function doStatus() {
-  const dependencies = readConfigDependencies(true);
+  const nestDirectoryName = readConfigDirPathFromRoot();
+  const dependencies = readConfigDependencies(nestDirectoryName, true);
 
   const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
@@ -185,7 +208,8 @@ function doStatus() {
 
 
 function doOutgoing() {
-  const dependencies = readConfigDependencies(true);
+  const nestDirectory = readConfigDirPathFromRoot();
+  const dependencies = readConfigDependencies(nestDirectory, true);
 
   const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
@@ -203,11 +227,27 @@ function doOutgoing() {
 }
 
 
-function isGitRemote(origin) {
-  // Hardcore: git ls-remote ${origin}
+function isURL(target) {
+  // git supports short ssh "scp like" syntax user@server:project.git
+  // url.parse is treating it as all path, so KISS and crude check.
+  if (target.indexOf('@') !== -1) return true;
 
-  // Check local path for .git directory
-  if (origin.indexOf(':') === -1) {
+  try {
+    const urlObject = url.parse(target);
+    console.log(JSON.stringify(urlObject, null, '  '));
+    const expectedProtocols = ['http:', 'https:', 'ssh:', 'git:'];
+    return (expectedProtocols.indexOf(urlObject.protocol) !== -1);
+  } catch (err) {
+    return false;
+  }
+}
+
+
+function isGitRemote(origin) {
+  // Hardcore alternative: git ls-remote ${origin}
+
+  if (!isURL(origin)) {
+    // Check local path for .git directory
     return dirExistsSync(path.resolve(origin, '.git'));
   }
 
@@ -221,10 +261,10 @@ function isGitRemote(origin) {
 
 
 function isHgRemote(origin) {
-  // Hardcore: hg id ${origin}
+  // Hardcore alternative: hg id ${origin}
 
-  // Check local path for .hg directory
-  if (origin.indexOf(':') === -1) {
+  if (!isURL(origin)) {
+    // Check local path for .hg directory
     return dirExistsSync(path.resolve(origin, '.hg'));
   }
 
@@ -238,7 +278,8 @@ function isHgRemote(origin) {
 
 
 function doInstall() {
-  const dependencies = readConfigDependencies(false);
+  const nestDirectory = readConfigDirPathFromRoot();
+  const dependencies = readConfigDependencies(nestDirectory, false);
 
   const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
@@ -254,7 +295,7 @@ function doInstall() {
         cmd: 'hg', args: ['clone', origin, repoPath],
       });
     } else {
-      console.error(`Skipping unknown remote repository type: ${origin}`);
+      console.log(my.errorColour(`Skipping unknown remote repository type: ${origin}`));
     }
   });
   runCommandChain(commandList);
@@ -314,7 +355,7 @@ function doInit(rootDirParam) {
     const rootFilePath = path.resolve(armRootFilename);
     let initialisedWord = 'Initialised';
     if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
-    const rootObject = { configurationDirectory: nestFromRoot };
+    const rootObject = { configDirectory: nestFromRoot };
     const prettyRootObject = JSON.stringify(rootObject, null, '  ');
     fs.writeFileSync(rootFilePath, prettyRootObject);
     console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
@@ -322,34 +363,44 @@ function doInit(rootDirParam) {
 }
 
 
-function doClone(sourceURL, destGroupDirParam) {
-  // Put together wrapper dir and dest repo
-  const masterDirName = path.basename(sourceURL, '.git');
-  let rootDir = destGroupDirParam;
-  if (rootDir === undefined) rootDir = `${masterDirName}Group`;
-  fs.mkdirSync(rootDir);
-  const destPath = path.join(rootDir, masterDirName);
+function doClone(source, destinationParam) {
+  // We need to know the nest directory to find the config file.
+  let destination = destinationParam;
+  if (destination !== undefined) {
+    // Git will make intermediate folders but hg will not, so harmonise.
+    if (!dirExistsSync(destination)) fs.mkdirSync(destination);
+  } else if (isURL(source)) {
+    const urlPath = url.parse(source).pathname;
+    destination = path.posix.basename(urlPath, '.git');
+  } else {
+    // file system
+    destination = path.basename(source, '.git');
+  }
 
-  // Clone master.
+  // Clone source.
   const commandList = [];
-  if (isGitRemote(sourceURL)) {
+  if (isGitRemote(source)) {
     commandList.push({
-      cmd: 'git', args: ['clone', sourceURL, destPath],
+      cmd: 'git', args: ['clone', source, destination],
     });
-  } else if (isHgRemote(sourceURL)) {
+  } else if (isHgRemote(source)) {
     commandList.push({
-      cmd: 'hg', args: ['clone', sourceURL, destPath],
+      cmd: 'hg', args: ['clone', source, destination],
     });
   } else {
-    console.error(`Unknown repository type: ${sourceURL}`);
+    terminate(`Unsure of repository type: ${source}`);
   }
   runCommandChain(commandList, () => {
-    // After cloning master...
-    process.chdir(rootDir);
-    if (!fileExistsSync(path.join(masterDirName, armConfigFilename))) {
-      console.log(my.errorColour(`Warning: stopping after clone, missing ${armConfigFilename}`));
+    console.log(`cwd is ${process.cwd()}`);
+    console.log(`destination is ${destination}`);
+    if (!fileExistsSync(path.join(destination, armConfigFilename))) {
+      console.log(my.errorColour(`Warning: stopping as did not find ${armConfigFilename}`));
     } else {
-      const rootObject = { configDirectory: masterDirName };
+      const rootFromNest = readConfigRoot(destination);
+      const rootFromHere = path.join(destination, rootFromNest);
+      const nestFromRoot = path.relative(rootFromHere, destination);
+      process.chdir(rootFromHere);
+      const rootObject = { configDirectory: nestFromRoot };
       const prettyRootObject = JSON.stringify(rootObject, null, '  ');
       fs.writeFileSync(armRootFilename, prettyRootObject);
       doInstall();
@@ -376,11 +427,11 @@ program.on('--help', () => {
 });
 
 program
-  .command('clone <source-URL> [group-dir]')
-  .description('clone source-URL and and installing its dependencies')
-  .action((sourceURL, destGroupPath) => {
+  .command('clone <source> [destination]')
+  .description('clone source into destination and and install its dependencies')
+  .action((source, destination) => {
     gRecognisedCommand = true;
-    doClone(sourceURL, destGroupPath);
+    doClone(source, destination);
   });
 
 program
