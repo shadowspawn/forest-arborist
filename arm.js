@@ -1,6 +1,9 @@
 #!/usr/local/bin/node
 'uses strict';
 
+// Naming used in this file: the repo/directory containing the config file is the nest.
+// (Following theme of root and forest...)
+
 const program = require('commander');
 const chalk = require('chalk');
 const fs = require('fs');
@@ -234,7 +237,6 @@ function isURL(target) {
 
   try {
     const urlObject = url.parse(target);
-    console.log(JSON.stringify(urlObject, null, '  '));
     const expectedProtocols = ['http:', 'https:', 'ssh:', 'git:'];
     return (expectedProtocols.indexOf(urlObject.protocol) !== -1);
   } catch (err) {
@@ -367,8 +369,7 @@ function doClone(source, destinationParam) {
   // We need to know the nest directory to find the config file.
   let destination = destinationParam;
   if (destination !== undefined) {
-    // Git will make intermediate folders but hg will not, so harmonise.
-    if (!dirExistsSync(destination)) fs.mkdirSync(destination);
+    // Leave it up to user to make intermediate directories if needed.
   } else if (isURL(source)) {
     const urlPath = url.parse(source).pathname;
     destination = path.posix.basename(urlPath, '.git');
@@ -391,8 +392,6 @@ function doClone(source, destinationParam) {
     terminate(`Unsure of repository type: ${source}`);
   }
   runCommandChain(commandList, () => {
-    console.log(`cwd is ${process.cwd()}`);
-    console.log(`destination is ${destination}`);
     if (!fileExistsSync(path.join(destination, armConfigFilename))) {
       console.log(my.errorColour(`Warning: stopping as did not find ${armConfigFilename}`));
     } else {
