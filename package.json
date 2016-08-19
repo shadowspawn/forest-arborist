@@ -1,6 +1,6 @@
 {
   "name": "@jrg/arm",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Another Repository Manager, Inspired by Mercurial subrepositories, npm, and git.",
   "private": true,
   "main": "arm.js",
