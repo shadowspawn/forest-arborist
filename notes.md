@@ -12,17 +12,17 @@ install creates if missing (since matches install feeling)
 clone creates, possibly via install
 
 Upcoming
-* install
-* clone
 * fetch/pull
 * pull/pull -u
 * update
+
+
+Future Possibilities
 * branchFoo for working with (remote) branches relative to working directory
 * nest (like root)
 * id (ala hg)
-
-Future Possibilities
-* running async, but means multiple running and no progress...
+* config edit (see git)
+* separate leading command for config calls vs tree operations?
 * origin#revision for git URLs, like Mercurial and github support (not sure of git details)
 * master relative remote local in dependencies, like for .hgsub
 * typescript
@@ -31,6 +31,7 @@ Future Possibilities
 * or, support pass-through flags for repo commands with -- if useful?
 * or, options for command
 * unit tests
+* config format test, like httpd -t
 
 Terminology
 * git
