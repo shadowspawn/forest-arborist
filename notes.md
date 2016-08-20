@@ -2,37 +2,27 @@
 
 Got bit out of control trying to support both nested and siblings.
 
-Rationalise:
-- arm.json needs to be at root of a repo (so we can find it for clone)
-- arm.json needs to store rootFromNest for clone (so we can mark root in install)
-
-arm-root:
-init only creates if creates arm.json (so no reinit)
-install creates if missing (since matches install feeling)
-clone creates, possibly via install
-
-Upcoming
-* fetch/pull
+Want
 * pull/pull -u
-* update
+* master relative remote local in dependencies, like for .hgsub
 
 
 Future Possibilities
+* save/restore or freeze of whatever for reproducible working group state
+* update
+* fetch/pull
 * add repo type check to dependency reading so do not need to warn in doStatus et al
-* branchFoo for working with (remote) branches relative to working directory
-* nest (like root)
+* branchFoo for working with (remote) branches relative to working directory (a la hgh)
 * id (ala hg)
 * config edit (see git)
 * separate leading command for config calls vs tree operations?
 * origin#revision for git URLs, like Mercurial and github support (not sure of git details)
-* master relative remote local in dependencies, like for .hgsub
 * typescript
-* save/restore or freeze of whatever for reproducible working group state
 * repo or personal preference for rebase vs merge et al
-* or, support pass-through flags for repo commands with -- if useful?
-* or, options for command
+*   or, support pass-through flags for repo commands with -- if useful?
+*   or, options for command
 * unit tests
-* config format test, like httpd -t. Check files read, and nestToRoot matches rootToNest
+* configtest, like httpd -t. Check files read, and nestToRoot matches rootToNest
 
 Terminology
 * git

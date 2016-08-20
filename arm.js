@@ -191,6 +191,65 @@ function doStatus() {
 }
 
 
+function doHgAutoMerge(repoPath) {
+  // Battle tested code from hgh tool
+  const headCount = childProcess.execFileSync(
+    'hg', ['heads', '--repository', repoPath, '--template', 'x']
+  ).length;
+  if (headCount === 1) {
+    // We just did a pull, so looking for an update.
+    const tipNode = childProcess.execFileSync(
+      'hg', ['tip', '--repository', repoPath, '--template', '{node}']
+    );
+    const parentNode = childProcess.execFileSync(
+      'hg', ['parents', '--repository', repoPath, '--template', '{node}']
+    );
+    if (tipNode !== parentNode) {
+      execCommandSync(
+        { cmd: 'hg', args: ['update'], cwd: repoPath }
+      );
+    }
+  } else {
+    try {
+      execCommandSync(
+        { cmd: 'hg', args: ['merge', '--tool', 'internal:merge'], cwd: repoPath }
+      );
+      execCommandSync(
+        { cmd: 'hg', args: ['commit', '--message', 'Merge'], cwd: repoPath }
+      );
+    } catch (err) {
+      if (err.status === 1) {
+        console.log(my.errorColour('NB: unresolved conflicts'));
+        console.log('');
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+
+function doPull() {
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  const dependencies = readConfig(nestPath, true).dependencies;
+
+  Object.keys(dependencies).forEach((repoPath) => {
+    const repoType = dependencies[repoPath].repoType;
+    if (repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['pull'], cwd: repoPath }
+      );
+    } else if (repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['pull'], cwd: repoPath }
+      );
+      doHgAutoMerge(repoPath);
+    }
+  });
+}
+
+
 function doOutgoing() {
   cdRootDirectory();
   const nestDirectory = readNestPathFromRoot();
@@ -302,7 +361,7 @@ function findRepositories(startingDirectory, callback) {
         callback(itemPath, origin, 'git');
       } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
         const origin = childProcess.execFileSync(
-          'hg', ['-R', itemPath, 'config', 'paths.default']
+          'hg', ['--repository', itemPath, 'config', 'paths.default']
         ).toString().trim();
         callback(itemPath, origin, 'hg');
       }
@@ -415,13 +474,6 @@ program
     doClone(source, destination);
   });
 
-program
-  .command('_help')
-  .description('the short help is a bit too short')
-  .action(() => {
-    gRecognisedCommand = true;
-    console.log('Help goes here…');
-  });
 
 program
   .command('init')
@@ -449,6 +501,14 @@ program
   });
 
 program
+  .command('pull')
+  .description('git-style pull, which is fetch and merge')
+  .action(() => {
+    gRecognisedCommand = true;
+    doPull();
+  });
+
+program
   .command('root')
   .description('show the root directory of the forest')
   .action(() => {
@@ -459,23 +519,19 @@ program
 
 program
   .command('status')
-  .description('show the status of each repo in the forest')
+  .description('show comcise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
     doStatus();
   });
 
-program
-  .command('_test <repository>')
-  .description('testing testing testing')
-  .action(() => {
-    gRecognisedCommand = true;
-  //   console.log(`target is ${repository}`);
-  //   if (isGitRepository(repository)) console.log('git');
-  //   if (isHgRepository(repository)) console.log('hg');
-  //   console.log('Checked.');
-    childProcess.execSync('./slow.sh', { stdio: [0, 1, 2] });
-  });
+// program
+//   .command('_test <repository>')
+//   .description('testing testing testing')
+//   .action(() => {
+//     gRecognisedCommand = true;
+//     childProcess.execSync('./slow.sh', { stdio: [0, 1, 2] });
+//   });
 
 
 program.parse(process.argv);

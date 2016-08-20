@@ -29,11 +29,13 @@ Working directory names and remote urls for forest, relative to root.
 
     Commands:
 
-      clone <source-URL> [group-dir]  clone source-URL and and installing its dependencies
-      init                            add config file in current directory, and marker file at root of forest
-      install                         clone missing (new) dependent repositories
-      root                            show the root directory of the forest
-      status                          show the status of each repo in the forest
+      clone <source> [destination]  clone source and install its dependencies
+      init [options]                add config file in current directory, and marker file at root of forest
+      install                       clone missing (new) dependent repositories
+      outgoing                      show changesets not in the default push location
+      pull                          git-style pull, which is fetch and merge
+      root                          show the root directory of the forest
+      status                        show concise status for each repo in the forest
 
     Options:
 
@@ -44,8 +46,8 @@ Working directory names and remote urls for forest, relative to root.
       arm.json configuration file for forest, especially dependencies
       .arm-root.json marks root of forest
 
-
-    See also 'arm <command> --help' if there are options on a subcommand.
+      Commands starting with an underscore are still in development.
+      See also 'arm <command> --help' if there are options on a subcommand.
 
 ## Installing
 
