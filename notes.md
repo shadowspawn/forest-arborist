@@ -18,6 +18,7 @@ Upcoming
 
 
 Future Possibilities
+* add repo type check to dependency reading so do not need to warn in doStatus et al
 * branchFoo for working with (remote) branches relative to working directory
 * nest (like root)
 * id (ala hg)
@@ -31,7 +32,7 @@ Future Possibilities
 * or, support pass-through flags for repo commands with -- if useful?
 * or, options for command
 * unit tests
-* config format test, like httpd -t
+* config format test, like httpd -t. Check files read, and nestToRoot matches rootToNest
 
 Terminology
 * git

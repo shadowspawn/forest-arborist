@@ -11,6 +11,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const url = require('url');
 const mute = require('mute');
+const myPackage = require('./package.json');
 
 const armConfigFilename = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -142,7 +143,7 @@ function cdRootDirectory() {
 }
 
 
-function readConfigDependencies(nestPath, addNestToDependencies) {
+function readConfig(nestPath, addNestToDependencies) {
   const configPath = path.resolve(nestPath, armConfigFilename);
 
   let data;
@@ -161,6 +162,9 @@ function readConfigDependencies(nestPath, addNestToDependencies) {
   if (configObject.dependencies === undefined) {
     terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
+  if (configObject.rootDirectory === undefined) {
+    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+  }
 
   if (addNestToDependencies) {
     let repoType;
@@ -169,37 +173,26 @@ function readConfigDependencies(nestPath, addNestToDependencies) {
     configObject.dependencies[nestPath] = { repoType };
   }
 
-  return configObject.dependencies;
-}
+  // Sanity check repoType so callers do not need to warn about unexpected type.
+  Object.keys(configObject.dependencies).forEach((repoPath) => {
+    const repoType = configObject.dependencies[repoPath].repoType;
+    const supportedTypes = ['git', 'hg'];
+    if (supportedTypes.indexOf(repoType) === -1) {
+      console.log(my.errorColour(
+        `Skipping entry for "${repoPath}" with unsupported repoType: ${repoType}`
+      ));
+      delete configObject.dependencies[repoPath];
+    }
+  });
 
-
-function readConfigRoot(nestPath) {
-  const configPath = path.resolve(nestPath, armConfigFilename);
-
-  let data;
-  try {
-    data = fs.readFileSync(configPath);
-  } catch (err) {
-    terminate(`problem opening ${configPath}\n${err}`);
-  }
-
-  let configObject;
-  try {
-    configObject = JSON.parse(data);
-  } catch (err) {
-    terminate(`problem parsing ${configPath}\n${err}`);
-  }
-  if (configObject.rootDirectory === undefined) {
-    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
-  }
-  return configObject.rootDirectory;
+  return configObject;
 }
 
 
 function doStatus() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfigDependencies(nestPath, true);
+  const dependencies = readConfig(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -211,8 +204,6 @@ function doStatus() {
       execCommandSync(
         { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
       );
-    } else {
-      console.log(my.errorColour(`Skipping repo with unrecognised type: ${repoPath} ${repoType}`));
     }
   });
 }
@@ -220,7 +211,7 @@ function doStatus() {
 
 function doOutgoing() {
   const nestDirectory = readNestPathFromRoot();
-  const dependencies = readConfigDependencies(nestDirectory, true);
+  const dependencies = readConfig(nestDirectory, true).dependencies;
 
   const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
@@ -319,28 +310,45 @@ function isHgRemote(origin) {
 }
 
 
-function doInstall() {
-  const nestDirectory = readNestPathFromRoot();
-  const dependencies = readConfigDependencies(nestDirectory, false);
+function writeRootFile(rootFilePath, nestFromRoot) {
+  let initialisedWord = 'Initialised';
+  if (fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
+  const rootObject = { configDirectory: nestFromRoot };
+  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+  fs.writeFileSync(rootFilePath, prettyRootObject);
+  if (nestFromRoot === '') {
+    console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
+  } else {
+    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
+  }
+}
 
-  const commandList = [];
+
+function doInstall() {
+  let configObject;
+  if (fileExistsSync(armConfigFilename)) {
+    // Probably being called during setup, before root file added.
+    configObject = readConfig('.');
+    const rootAbsolutePath = path.resolve(configObject.rootDirectory);
+    const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
+    writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+  }
+
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  if (configObject === undefined) configObject = readConfig(nestPath);
+  const dependencies = configObject.dependencies;
+
   Object.keys(dependencies).forEach((repoPath) => {
-    const origin = dependencies[repoPath];
     if (dirExistsSync(repoPath)) {
       console.log(`Skipping already present dependency: ${repoPath}`);
-    } else if (isGitRemote(origin)) {
-      commandList.push({
-        cmd: 'git', args: ['clone', origin, repoPath],
-      });
-    } else if (isHgRemote(origin)) {
-      commandList.push({
-        cmd: 'hg', args: ['clone', origin, repoPath],
-      });
     } else {
-      console.log(my.errorColour(`Skipping unknown remote repository type: ${origin}`));
+      const entry = dependencies[repoPath];
+      execCommandSync({
+        cmd: entry.repoType, args: ['clone', entry.origin, repoPath],
+      });
     }
   });
-  runCommandChain(commandList);
 }
 
 
@@ -368,20 +376,6 @@ function findRepositories(startingDirectory, callback) {
 }
 
 
-function writeRootFile(rootFilePath, nestFromRoot) {
-  let initialisedWord = 'Initialised';
-  if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
-  const rootObject = { configDirectory: nestFromRoot };
-  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-  fs.writeFileSync(rootFilePath, prettyRootObject);
-  if (nestFromRoot === '') {
-    console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
-  } else {
-    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
-  }
-}
-
-
 function doInit(rootDirParam) {
   const configPath = path.resolve(armConfigFilename);
   if (fileExistsSync(configPath)) {
@@ -391,15 +385,19 @@ function doInit(rootDirParam) {
 
   // Sort out nest and root paths
   const nestAbsolutePath = process.cwd();
-  const rootAbsolutePath = (rootDirParam === undefined)
-    ? process.cwd()
-    : path.resolve(rootDirParam);
+  let rootAbsolutePath;
+  if (rootDirParam === undefined) {
+    rootAbsolutePath = process.cwd();
+    console.log('Scanning for nested dependencies…');
+  } else {
+    rootAbsolutePath = path.resolve(rootDirParam);
+    console.log('Scanning for dependencies from root…');
+  }
   const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
   // Dependencies
   process.chdir(rootAbsolutePath);
-  console.log('Scanning for dependencies…');
   const dependencies = {};
   findRepositories('.', (directory, origin, repoType) => {
     dependencies[directory] = { origin, repoType };
@@ -447,7 +445,7 @@ function doClone(source, destinationParam) {
     if (!fileExistsSync(path.join(destination, armConfigFilename))) {
       console.log(my.errorColour(`Warning: stopping as did not find ${armConfigFilename}`));
     } else {
-      const rootFromNest = readConfigRoot(destination);
+      const rootFromNest = readConfig(destination).rootDirectory;
       const rootFromHere = path.join(destination, rootFromNest);
       const nestFromRoot = path.relative(rootFromHere, destination);
       process.chdir(rootFromHere);
@@ -464,7 +462,7 @@ function doClone(source, destinationParam) {
 // Command line processing
 
 program
-  .version('0.0.1');
+  .version(myPackage.version);
 
 // Extra help
 program.on('--help', () => {
@@ -504,11 +502,10 @@ program
   });
 
 program
-  .command('_install')
+  .command('install')
   .description('clone missing (new) dependent repositories')
   .action(() => {
     gRecognisedCommand = true;
-    cdRootDirectory();
     doInstall();
   });
 
