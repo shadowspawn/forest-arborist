@@ -50,8 +50,7 @@ Developer
 * [node ES6 support](http://node.green)
 * [Building command line tools with Node.js](https://developer.atlassian.com/blog/2015/11/scripting-with-node/) from Atlassian
 
-Shell utility
+Interesting
 * [shelljs](http://documentup.com/arturadib/shelljs#command-reference)
-
-Async
 * [async](http://caolan.github.io/async/)
+* [defaults](https://www.npmjs.com/package/defaults)

@@ -10,6 +10,7 @@ const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
 const url = require('url');
+const mute = require('mute');
 
 const armConfigFilename = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -52,8 +53,8 @@ function dirExistsSync(filePath) {
 }
 
 
-// Do the command handling ourselves so user can see command output as it occurs
-// for the possibly long running commands.
+// Do the command handling ourselves so user can see command output immediatley
+// as it occurs.
 
 function runCommandChain(commandList, tailCallback) {
   if (commandList.length === 0) return;
@@ -83,26 +84,26 @@ function runCommandChain(commandList, tailCallback) {
 }
 
 
-// function execCommand(cmd, args) {
-//   childProcess.execFile(cmd, args, (error, stdout, stderr) => {
-//     console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
-//     if (error) {
-//       console.log(my.errorColour(stderr));
-//     } else {
-//       console.log(stdout);
-//     }
-//   });
-// }
+function execCommandSync(commandParam) {
+  const command = commandParam;
+  if (command.args === undefined) command.args = [];
+  let cwdDisplay = `${command.cwd}: `;
+  if (command.cwd === undefined || command.cwd === '') {
+    cwdDisplay = '(root): ';
+    command.cwd = '.';
+  }
+
+  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${command.args.join(' ')}`));
+  // Note: he stdio option hooks up child stream to parent so we get live progress.
+  childProcess.execFileSync(
+      command.cmd, command.args,
+      { cwd: command.cwd, stdio: [0, 1, 2] }
+    );
+  console.log(''); // blank line after command output
+}
 
 
-// function execCommandSync(cmd, args) {
-//   console.log(my.commandColour(`${cmd} ${args.join(' ')}`));
-//   const commandOutput = childProcess.execFileSync(cmd, args).toString().trim();
-//   console.log(commandOutput);
-// }
-
-
-function readConfigDirPathFromRoot() {
+function readNestPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
   let rootObject;
@@ -119,23 +120,22 @@ function readConfigDirPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInConfigDirectory = fileExistsSync(armConfigFilename);
+  const startedInNestDirectory = fileExistsSync(armConfigFilename);
 
   let tryParent = true;
   do {
     if (fileExistsSync(armRootFilename)) {
-      readConfigDirPathFromRoot(); // Sanity check
       return;
     }
 
-    // NB: chdir('..') from '/' silently does nothing on Mac,so check we moved
+    // NB: chdir('..') from '/' silently does nothing on Mac, so check we moved
     const cwd = process.cwd();
     process.chdir('..');
     tryParent = (cwd !== process.cwd());
   } while (tryParent);
 
-  if (startedInConfigDirectory) {
-    terminate('root of forest not found. (Do you need to call "arm init"?)');
+  if (startedInNestDirectory) {
+    terminate('root of forest not found. (Do you need to call "arm install"?)');
   } else {
     terminate('root of forest not found. ');
   }
@@ -161,7 +161,13 @@ function readConfigDependencies(nestPath, addNestToDependencies) {
   if (configObject.dependencies === undefined) {
     terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
-  if (addNestToDependencies) configObject.dependencies[nestPath] = nestPath;
+
+  if (addNestToDependencies) {
+    let repoType;
+    if (dirExistsSync(path.join(nestPath, '.git'))) repoType = 'git';
+    else if (dirExistsSync(path.join(nestPath, '.hg'))) repoType = 'hg';
+    configObject.dependencies[nestPath] = { repoType };
+  }
 
   return configObject.dependencies;
 }
@@ -191,27 +197,29 @@ function readConfigRoot(nestPath) {
 
 
 function doStatus() {
-  const nestDirectoryName = readConfigDirPathFromRoot();
-  const dependencies = readConfigDependencies(nestDirectoryName, true);
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  const dependencies = readConfigDependencies(nestPath, true);
 
-  const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
-    if (dirExistsSync(path.join(repoPath, '.hg'))) {
-      commandList.push({
-        cmd: 'hg', args: ['status'], cwd: repoPath,
-      });
+    const repoType = dependencies[repoPath].repoType;
+    if (repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['status'], cwd: repoPath }
+      );
+    } else if (repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
+      );
     } else {
-      commandList.push({
-        cmd: 'git', args: ['status', '--short'], cwd: repoPath,
-      });
+      console.log(my.errorColour(`Skipping repo with unrecognised type: ${repoPath} ${repoType}`));
     }
   });
-  runCommandChain(commandList);
 }
 
 
 function doOutgoing() {
-  const nestDirectory = readConfigDirPathFromRoot();
+  const nestDirectory = readNestPathFromRoot();
   const dependencies = readConfigDependencies(nestDirectory, true);
 
   const commandList = [];
@@ -227,6 +235,38 @@ function doOutgoing() {
     }
   });
   runCommandChain(commandList);
+}
+
+
+function isGitRepository(repository) {
+  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
+  try {
+    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'git', ['ls-remote', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
+}
+
+
+function isHgRepository(repository) {
+  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
+  try {
+    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'hg', ['id', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
 }
 
 
@@ -280,7 +320,7 @@ function isHgRemote(origin) {
 
 
 function doInstall() {
-  const nestDirectory = readConfigDirPathFromRoot();
+  const nestDirectory = readNestPathFromRoot();
   const dependencies = readConfigDependencies(nestDirectory, false);
 
   const commandList = [];
@@ -313,12 +353,12 @@ function findRepositories(startingDirectory, callback) {
         const origin = childProcess.execFileSync(
           'git', ['-C', itemPath, 'config', '--get', 'remote.origin.url']
         ).toString().trim();
-        callback(itemPath, origin);
+        callback(itemPath, origin, 'git');
       } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
         const origin = childProcess.execFileSync(
           'hg', ['-R', itemPath, 'config', 'paths.default']
         ).toString().trim();
-        callback(itemPath, origin);
+        callback(itemPath, origin, 'hg');
       }
 
       // Keep searching in case of nested repos, sometimes used.
@@ -328,40 +368,52 @@ function findRepositories(startingDirectory, callback) {
 }
 
 
+function writeRootFile(rootFilePath, nestFromRoot) {
+  let initialisedWord = 'Initialised';
+  if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
+  const rootObject = { configDirectory: nestFromRoot };
+  const prettyRootObject = JSON.stringify(rootObject, null, '  ');
+  fs.writeFileSync(rootFilePath, prettyRootObject);
+  if (nestFromRoot === '') {
+    console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
+  } else {
+    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
+  }
+}
+
+
 function doInit(rootDirParam) {
+  const configPath = path.resolve(armConfigFilename);
+  if (fileExistsSync(configPath)) {
+    console.log(`Skipping init, already have ${armConfigFilename}`);
+    return;
+  }
+
+  // Sort out nest and root paths
   const nestAbsolutePath = process.cwd();
   const rootAbsolutePath = (rootDirParam === undefined)
     ? process.cwd()
     : path.resolve(rootDirParam);
-  process.chdir(rootAbsolutePath);
   const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
   // Dependencies
-  const configPath = path.join(nestAbsolutePath, armConfigFilename);
-  if (fileExistsSync(configPath)) {
-    console.log(`Skipping init, already have ${armConfigFilename}`);
-  } else {
-    const dependencies = {};
-    findRepositories('.', (directory, origin) => {
-      dependencies[directory] = origin;
-    });
-    delete dependencies[nestFromRoot];
-    const config = { dependencies, rootDirectory: rootFromNest };
-    const prettyConfig = JSON.stringify(config, null, '  ');
+  process.chdir(rootAbsolutePath);
+  console.log('Scanning for dependencies…');
+  const dependencies = {};
+  findRepositories('.', (directory, origin, repoType) => {
+    dependencies[directory] = { origin, repoType };
+    console.log(`  ${directory}`);
+  });
+  delete dependencies[nestFromRoot];
+  const config = { dependencies, rootDirectory: rootFromNest };
+  const prettyConfig = JSON.stringify(config, null, '  ');
 
-    fs.writeFileSync(configPath, prettyConfig);
-    console.log(`Initialised dependencies in ${armConfigFilename}`);
+  fs.writeFileSync(configPath, prettyConfig);
+  console.log(`Initialised dependencies in ${armConfigFilename}`);
 
-    // Root placeholder file. Safer to overwrite as low content.
-    const rootFilePath = path.resolve(armRootFilename);
-    let initialisedWord = 'Initialised';
-    if (fileExistsSync(armRootFilename)) initialisedWord = 'Reinitialised';
-    const rootObject = { configDirectory: nestFromRoot };
-    const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-    fs.writeFileSync(rootFilePath, prettyRootObject);
-    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
-  }
+  // Root placeholder file. Safer to overwrite as low content.
+  writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
 }
 
 
@@ -421,12 +473,13 @@ program.on('--help', () => {
     `    ${armConfigFilename} configuration file for forest, especially dependencies`);
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
+  console.log('  Commands starting with an underscore are still in development.');
   console.log("  See also 'arm <command> --help' if there are options on a subcommand.");
   console.log('');
 });
 
 program
-  .command('clone <source> [destination]')
+  .command('_clone <source> [destination]')
   .description('clone source into destination and and install its dependencies')
   .action((source, destination) => {
     gRecognisedCommand = true;
@@ -434,17 +487,24 @@ program
   });
 
 program
+  .command('_help')
+  .description('the short help is a bit too short')
+  .action(() => {
+    gRecognisedCommand = true;
+    console.log('Help goes here…');
+  });
+
+program
   .command('init')
-  .option('--root <dir>', 'root directory of forest')
-  .description('add config file in dest directory, and marker file at root of forest')
+  .option('--root <dir>', 'root directory of forest if not current directory')
+  .description('add config file in current directory, and marker file at root of forest')
   .action((options) => {
     gRecognisedCommand = true;
-    // Sort out root directory in doInit
     doInit(options.root);
   });
 
 program
-  .command('install')
+  .command('_install')
   .description('clone missing (new) dependent repositories')
   .action(() => {
     gRecognisedCommand = true;
@@ -453,7 +513,7 @@ program
   });
 
 program
-  .command('outgoing')
+  .command('_outgoing')
   .description('show changesets not in the default push location')
   .action(() => {
     gRecognisedCommand = true;
@@ -475,21 +535,21 @@ program
   .description('show the status of each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
-    cdRootDirectory();
     doStatus();
   });
 
 program
-  .command('_test')
+  .command('_test <repository>')
   .description('testing testing testing')
   .action(() => {
     gRecognisedCommand = true;
-    const commandList = [];
-    commandList.push({ cmd: 'ls', args: ['-ls'] });
-    commandList.push({ cmd: './slow.sh' });
-    // const list = ['./slow.sh', 'date', 'who', 'ls'];
-    runCommandChain(commandList, () => console.log('finished'));
+  //   console.log(`target is ${repository}`);
+  //   if (isGitRepository(repository)) console.log('git');
+  //   if (isHgRepository(repository)) console.log('hg');
+  //   console.log('Checked.');
+    childProcess.execSync('./slow.sh', { stdio: [0, 1, 2] });
   });
+
 
 program.parse(process.argv);
 
