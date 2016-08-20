@@ -54,37 +54,6 @@ function dirExistsSync(filePath) {
 }
 
 
-// Do the command handling ourselves so user can see command output immediatley
-// as it occurs.
-
-function runCommandChain(commandList, tailCallback) {
-  if (commandList.length === 0) return;
-
-  const command = commandList.shift();
-  if (command.args === undefined) command.args = [];
-  let cwdDisplay = `${command.cwd}: `;
-  if (command.cwd === undefined) {
-    cwdDisplay = '';
-    command.cwd = '.';
-  }
-
-  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${command.args.join(' ')}`));
-
-  const child = childProcess.spawn(command.cmd, command.args, { cwd: command.cwd });
-  // Using process.stdout.write to avoid getting extra line feeds.
-  child.stdout.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
-  child.stderr.on('data', (buffer) => { process.stdout.write(buffer.toString()); });
-  child.on('close', (code) => { // eslint-disable-line no-unused-vars, passed code
-    console.log(''); // blank line after command output
-    if (commandList.length > 0) {
-      runCommandChain(commandList, tailCallback);
-    } else if (tailCallback !== undefined) {
-      tailCallback();
-    }
-  });
-}
-
-
 function execCommandSync(commandParam) {
   const command = commandParam;
   if (command.args === undefined) command.args = [];
@@ -93,13 +62,26 @@ function execCommandSync(commandParam) {
     cwdDisplay = '(root): ';
     command.cwd = '.';
   }
+  if (command.suppressContext) cwdDisplay = '';
 
-  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${command.args.join(' ')}`));
-  // Note: he stdio option hooks up child stream to parent so we get live progress.
-  childProcess.execFileSync(
-      command.cmd, command.args,
-      { cwd: command.cwd, stdio: [0, 1, 2] }
-    );
+  // Trying hard to get a possibly copy-and-paste command.
+  let quotedArgs = '';
+  if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
+  quotedArgs = quotedArgs.replace(/\n/g, '\\n');
+  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
+
+  try {
+    // Note: he stdio option hooks up child stream to parent so we get live progress.
+    childProcess.execFileSync(
+        command.cmd, command.args,
+        { cwd: command.cwd, stdio: [0, 1, 2] }
+      );
+  } catch (err) {
+    // Some commands return non-zero for expecte situations
+    if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {
+      throw err;
+    }
+  }
   console.log(''); // blank line after command output
 }
 
@@ -196,13 +178,13 @@ function doStatus() {
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'hg') {
-      execCommandSync(
-        { cmd: 'hg', args: ['status'], cwd: repoPath }
-      );
-    } else if (repoType === 'git') {
+    if (repoType === 'git') {
       execCommandSync(
         { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
+      );
+    } else if (repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['status'], cwd: repoPath }
       );
     }
   });
@@ -210,22 +192,27 @@ function doStatus() {
 
 
 function doOutgoing() {
+  cdRootDirectory();
   const nestDirectory = readNestPathFromRoot();
   const dependencies = readConfig(nestDirectory, true).dependencies;
 
-  const commandList = [];
   Object.keys(dependencies).forEach((repoPath) => {
-    if (dirExistsSync(path.join(repoPath, '.hg'))) {
-      commandList.push({
-        cmd: 'hg', args: ['outgoing'], cwd: repoPath,
-      });
-    } else {
-      commandList.push({
-        cmd: 'git', args: ['log', '@{u}..'], cwd: repoPath,
-      });
+    const repoType = dependencies[repoPath].repoType;
+    if (repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['log', '@{u}..', '--oneline'], cwd: repoPath }
+      );
+    } else if (repoType === 'hg') {
+      // Outgoing returns 1 if there are no outgoing changes.
+      execCommandSync(
+        { cmd: 'hg',
+          args: ['outgoing', '--quiet', '--template', '{node|short} {desc|firstline}\n'],
+          cwd: repoPath,
+          allowedShellStatus: 1,
+        }
+      );
     }
   });
-  runCommandChain(commandList);
 }
 
 
@@ -258,55 +245,6 @@ function isHgRepository(repository) {
     unmute();
     return false;
   }
-}
-
-
-function isURL(target) {
-  // git supports short ssh "scp like" syntax user@server:project.git
-  // url.parse is treating it as all path, so KISS and crude check.
-  if (target.indexOf('@') !== -1) return true;
-
-  try {
-    const urlObject = url.parse(target);
-    const expectedProtocols = ['http:', 'https:', 'ssh:', 'git:'];
-    return (expectedProtocols.indexOf(urlObject.protocol) !== -1);
-  } catch (err) {
-    return false;
-  }
-}
-
-
-function isGitRemote(origin) {
-  // Hardcore alternative: git ls-remote ${origin}
-
-  if (!isURL(origin)) {
-    // Check local path for .git directory
-    return dirExistsSync(path.resolve(origin, '.git'));
-  }
-
-  // KISS
-  if (origin.indexOf('git') !== -1) {
-    return true;
-  }
-
-  return false;
-}
-
-
-function isHgRemote(origin) {
-  // Hardcore alternative: hg id ${origin}
-
-  if (!isURL(origin)) {
-    // Check local path for .hg directory
-    return dirExistsSync(path.resolve(origin, '.hg'));
-  }
-
-  // KISS unless proves inadequate.
-  if (origin.indexOf('hg') !== -1) {
-    return true;
-  }
-
-  return false;
 }
 
 
@@ -344,9 +282,9 @@ function doInstall() {
       console.log(`Skipping already present dependency: ${repoPath}`);
     } else {
       const entry = dependencies[repoPath];
-      execCommandSync({
-        cmd: entry.repoType, args: ['clone', entry.origin, repoPath],
-      });
+      execCommandSync(
+        { cmd: entry.repoType, args: ['clone', entry.origin, repoPath], suppressContext: true }
+      );
     }
   });
 }
@@ -416,11 +354,12 @@ function doInit(rootDirParam) {
 
 
 function doClone(source, destinationParam) {
-  // We need to know the nest directory to find the config file.
+  // We need to know the nest directory to find the config file after the clone.
   let destination = destinationParam;
   if (destination !== undefined) {
     // Leave it up to user to make intermediate directories if needed.
-  } else if (isURL(source)) {
+  } else if (source.indexOf('/') !== -1) {
+    // Might be URL or a posix path.
     const urlPath = url.parse(source).pathname;
     destination = path.posix.basename(urlPath, '.git');
   } else {
@@ -429,32 +368,24 @@ function doClone(source, destinationParam) {
   }
 
   // Clone source.
-  const commandList = [];
-  if (isGitRemote(source)) {
-    commandList.push({
-      cmd: 'git', args: ['clone', source, destination],
-    });
-  } else if (isHgRemote(source)) {
-    commandList.push({
-      cmd: 'hg', args: ['clone', source, destination],
-    });
+  if (isGitRepository(source)) {
+    execCommandSync(
+      { cmd: 'git', args: ['clone', source, destination], suppressContext: true }
+    );
+  } else if (isHgRepository(source)) {
+    execCommandSync(
+      { cmd: 'hg', args: ['clone', source, destination], suppressContext: true }
+    );
   } else {
-    terminate(`Unsure of repository type: ${source}`);
+    terminate(`Unable to determine repository type: ${source}`);
   }
-  runCommandChain(commandList, () => {
-    if (!fileExistsSync(path.join(destination, armConfigFilename))) {
-      console.log(my.errorColour(`Warning: stopping as did not find ${armConfigFilename}`));
-    } else {
-      const rootFromNest = readConfig(destination).rootDirectory;
-      const rootFromHere = path.join(destination, rootFromNest);
-      const nestFromRoot = path.relative(rootFromHere, destination);
-      process.chdir(rootFromHere);
-      const rootObject = { configDirectory: nestFromRoot };
-      const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-      fs.writeFileSync(armRootFilename, prettyRootObject);
-      doInstall();
-    }
-  });
+
+  if (!fileExistsSync(path.join(destination, armConfigFilename))) {
+    terminate(`Warning: stopping as did not find ${armConfigFilename}`);
+  }
+
+  process.chdir(destination);
+  doInstall();
 }
 
 
@@ -477,8 +408,8 @@ program.on('--help', () => {
 });
 
 program
-  .command('_clone <source> [destination]')
-  .description('clone source into destination and and install its dependencies')
+  .command('clone <source> [destination]')
+  .description('clone source and install its dependencies')
   .action((source, destination) => {
     gRecognisedCommand = true;
     doClone(source, destination);
@@ -510,11 +441,10 @@ program
   });
 
 program
-  .command('_outgoing')
+  .command('outgoing')
   .description('show changesets not in the default push location')
   .action(() => {
     gRecognisedCommand = true;
-    cdRootDirectory();
     doOutgoing();
   });
 
