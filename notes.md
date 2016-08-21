@@ -1,18 +1,20 @@
 # arm
 
-Got bit out of control trying to support both nested and siblings.
-
-Want
-* pull/pull -u
-* master relative remote local in dependencies, like for .hgsub
-
+Next
+* fetch/pull
 
 Future Possibilities
-* save/restore or freeze of whatever for reproducible working group state
+* save/restore or freeze of whatever for reproducible working group state.
+* branching workflows, when they evolve?!
+*   e.g. forest master/develop ?
+*   multiple control files, e.g. HRVMasterStable ?
+* something to check for merges already in progress etc, check, pure expectedProtocols
+* is short status too short, use longer status by default? See how goes.
 * update
-* fetch/pull
-* add repo type check to dependency reading so do not need to warn in doStatus et al
-* branchFoo for working with (remote) branches relative to working directory (a la hgh)
+* hg only workflows
+*   branchIncoming for working with (remote) branches relative to working directory (a la hgh)
+*   master relative origin in dependencies
+*   use .hgsub like .arm-root automatically (needs relative repo support)
 * id (ala hg)
 * config edit (see git)
 * separate leading command for config calls vs tree operations?

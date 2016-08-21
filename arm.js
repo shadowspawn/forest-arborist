@@ -191,6 +191,26 @@ function doStatus() {
 }
 
 
+function doFetch() {
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  const dependencies = readConfig(nestPath, true).dependencies;
+
+  Object.keys(dependencies).forEach((repoPath) => {
+    const repoType = dependencies[repoPath].repoType;
+    if (repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['fetch'], cwd: repoPath }
+      );
+    } else if (repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['pull'], cwd: repoPath }
+      );
+    }
+  });
+}
+
+
 function doHgAutoMerge(repoPath) {
   // Battle tested code from hgh tool
   const headCount = childProcess.execFileSync(
@@ -462,6 +482,7 @@ program.on('--help', () => {
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
+  console.log('  See https://github.com/JohnRGee/arm.git for usage overview.');
   console.log("  See also 'arm <command> --help' if there are options on a subcommand.");
   console.log('');
 });
@@ -474,6 +495,14 @@ program
     doClone(source, destination);
   });
 
+
+program
+  .command('fetch')
+  .description('fetch branches and tags from origin remote')
+  .action(() => {
+    gRecognisedCommand = true;
+    doFetch();
+  });
 
 program
   .command('init')
