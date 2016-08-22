@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/arm",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Another Repository Manager, inspired by Mercurial subrepositories, npm, and git.",
   "private": false,
   "main": "arm.js",
@@ -8,9 +8,9 @@
     "arm": "./arm.js"
   },
   "repository": {
-      "type": "git",
-      "url": "https://github.com/JohnRGee/arm.git"
-    },
+    "type": "git",
+    "url": "https://github.com/JohnRGee/arm.git"
+  },
   "scripts": {
     "pwd": "pwd",
     "lint": "./node_modules/eslint/bin/eslint.js arm.js",
