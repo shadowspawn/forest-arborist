@@ -64,13 +64,16 @@ arm.json specifies working directory names and origin repositories for forest, r
 
 Requires node and npm. Easy unix install:
 
-    npm install --global https://github.com/JohnRGee/arm.git
+    npm install -g @shadowspawn/arm
 
-On Windows or to manage install location and command yourself:
+To manage install location and command yourself:
 
-    npm install https://github.com/JohnRGee/arm.git
+    git clone https://github.com/JohnRGee/arm.git
+    cd arm
+    npm install
+    node arm.js
 
-and setup command to run "node <installFolder>arm.js".
+i.e. setup command to run "node <installFolder>arm.js".
 
 ## Status
 
