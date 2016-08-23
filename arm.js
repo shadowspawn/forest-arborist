@@ -216,9 +216,11 @@ function doFetch() {
 function doHgAutoMerge(repoPath) {
   // Battle tested code from hgh tool
   const headCount = childProcess.execFileSync(
-    'hg', ['heads', '--repository', repoPath, '--template', 'x']
+    'hg', ['heads', '.', '--repository', repoPath, '--template', 'x']
   ).length;
-  if (headCount === 1) {
+  if (headCount === 0) {
+    // Brand new repo, nothing to do
+  } else if (headCount === 1) {
     // We just did a pull, so looking for an update.
     const tipNode = childProcess.execFileSync(
       'hg', ['tip', '--repository', repoPath, '--template', '{node}']
