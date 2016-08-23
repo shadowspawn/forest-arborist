@@ -1,4 +1,6 @@
-#!/usr/local/bin/node
+#!/usr/bin/env node
+// Shebang uses absolute path, but may vary between Mac and Lin, so env for portability.
+
 'uses strict';
 
 // Naming used in this file: the repo/directory containing the config file is the nest.
