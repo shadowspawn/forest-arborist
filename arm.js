@@ -560,7 +560,7 @@ program
 
 program
   .command('status')
-  .description('show comcise status for each repo in the forest')
+  .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
     doStatus();
