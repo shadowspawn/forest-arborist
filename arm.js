@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Shebang uses absolute path, but may vary between Mac and Lin, so env for portability.
 
-'uses strict';
+'use strict'; // eslint-disable-line strict
 
 // Naming used in this file: the repo/directory containing the config file is the nest.
 // (Following theme of root and forest...)

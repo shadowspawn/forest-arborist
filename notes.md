@@ -2,6 +2,7 @@
 
 Next
 * fetch/pull
+* script for merging develop into master, bump version, push, npm publish
 
 Future Possibilities
 * save/restore or freeze of whatever for reproducible working group state.
