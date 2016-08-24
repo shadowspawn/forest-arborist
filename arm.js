@@ -374,6 +374,10 @@ function doInstall() {
 
 
 function findRepositories(startingDirectory, callback) {
+  if (startingDirectory === '.hg' || startingDirectory === '.git') {
+    return; // No point searching inside control folders
+  }
+
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
     const itemPath = path.join(startingDirectory, item);
@@ -390,7 +394,7 @@ function findRepositories(startingDirectory, callback) {
         callback(itemPath, origin, 'hg');
       }
 
-      // Keep searching in case of nested repos, sometimes used.
+      // Keep searching in case of nested repos.
       findRepositories(itemPath, callback);
     }
   });
@@ -401,6 +405,10 @@ function doInit(rootDirParam) {
   const configPath = path.resolve(armConfigFilename);
   if (fileExistsSync(configPath)) {
     console.log(`Skipping init, already have ${armConfigFilename}`);
+    return;
+  }
+  if (fileExistsSync('.hgsub')) {
+    console.log('Skipping init, found .hgsub. Suggest use sibling init for subrepositories.');
     return;
   }
 
