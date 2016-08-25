@@ -62,9 +62,9 @@ arm.json specifies working directory names and origin repositories for forest, r
 
 ## Installing
 
-Requires node and npm. Easy unix install:
+Requires node and npm. Easy install:
 
-    npm install -g @shadowspawn/arm
+    npm install --global @shadowspawn/arm
 
 To manage install location and command yourself:
 
