@@ -56,6 +56,29 @@ function dirExistsSync(filePath) {
 }
 
 
+function getUnrecognisedArgs() {
+  const args = program.args[0];
+
+  // commander is passing "self" as final parameter for undocumented reasons!
+  if ((args.length > 0) && (typeof args[args.length - 1] === 'object')) {
+    args.pop();
+  }
+
+  return args;
+}
+
+
+function assertRecognisedArgs() {
+  const unrecognisedArgs = getUnrecognisedArgs();
+  if (unrecognisedArgs.length > 0) {
+    console.log('');
+    console.log(`  error: unexpected extra args: ${unrecognisedArgs}`);
+    console.log('');
+    process.exit(1);
+  }
+}
+
+
 function execCommandSync(commandParam) {
   const command = commandParam;
   if (command.args === undefined) command.args = [];
@@ -480,6 +503,28 @@ function doClone(source, destinationParam) {
 }
 
 
+function doForEach(args) {
+  if (args.length === 0) terminate('No foreach command specified');
+  const cmd = args.shift();
+
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  const dependencies = readConfig(nestPath, true).dependencies;
+
+  Object.keys(dependencies).forEach((repoPath) => {
+    if (args.length > 0) {
+      execCommandSync(
+        { cmd, args, cwd: repoPath }
+      );
+    } else {
+      execCommandSync(
+        { cmd, cwd: repoPath }
+      );
+    }
+  });
+}
+
+
 //------------------------------------------------------------------------------
 // Command line processing
 
@@ -504,6 +549,7 @@ program
   .description('clone source and install its dependencies')
   .action((source, destination) => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doClone(source, destination);
   });
 
@@ -513,6 +559,7 @@ program
   .description('fetch branches and tags from origin remote')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doFetch();
   });
 
@@ -522,6 +569,7 @@ program
   .description('add config file in current directory, and marker file at root of forest')
   .action((options) => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doInit(options.root);
   });
 
@@ -530,6 +578,7 @@ program
   .description('clone missing (new) dependent repositories')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doInstall();
   });
 
@@ -538,6 +587,7 @@ program
   .description('show changesets not in the default push location')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doOutgoing();
   });
 
@@ -546,6 +596,7 @@ program
   .description('git-style pull, which is fetch and merge')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doPull();
   });
 
@@ -554,6 +605,7 @@ program
   .description('show the root directory of the forest')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     cdRootDirectory();
     console.log(process.cwd());
   });
@@ -563,16 +615,18 @@ program
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
+    assertRecognisedArgs();
     doStatus();
   });
 
-// program
-//   .command('_test <repository>')
-//   .description('testing testing testing')
-//   .action(() => {
-//     gRecognisedCommand = true;
-//     childProcess.execSync('./slow.sh', { stdio: [0, 1, 2] });
-//   });
+program
+  .command('_foreach')
+  .description('run specified command on forest, e.g. "arm _foreach -- pwd"')
+  .arguments('[command...]')
+  .action((command) => {
+    gRecognisedCommand = true;
+    doForEach(command);
+  });
 
 
 program.parse(process.argv);
@@ -582,7 +636,7 @@ if (process.argv.length === 2) {
   program.help();
 }
 
-// Error in the same style as command uses for unknown option
+// Error2 in the same style as command uses for unknown option
 if (!gRecognisedCommand) {
   console.log('');
   console.log(`  error: unknown command \`${process.argv[2]}'`);
