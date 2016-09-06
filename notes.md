@@ -8,23 +8,24 @@ Next
   * deploy: npm publish, git push
 * foreach
 * snapshot
-
+  * save
+  * restore
+  * clone --snapshot? Might not make sense for git.
 
 Future Possibilities
 * save/restore or freeze of whatever for reproducible working group state [snapshot?]
 * branching workflows, when they evolve?!
-*   e.g. forest master/develop ?
-*   multiple control files, e.g. HRVMasterStable ?
+  * e.g. forest master/develop ?
+  * multiple control files, e.g. HRVMasterStable ?
 * something to check for merges already in progress etc, check, pure expectedProtocols
 * is short status too short, use longer status by default? See how goes.
-* update
+* update? Does not exist as such for git, but can achieve similar.
 * hg only workflows
-*   branchIncoming for working with (remote) branches relative to working directory (a la hgh)
-*   master relative origin in dependencies
-*   use .hgsub like .arm-root automatically (needs relative repo support)
+  * --fork for working with (remote) branches relative to working directory (a la hgh)
+  * master relative origin in dependencies
+  * use .hgsub like .arm-root automatically (needs relative repo support)
 * id (ala hg) [snapshot?]
 * config edit (see git)
-* separate leading command for config calls vs tree operations?
 * origin#revision for git URLs, like Mercurial and github support (not sure of git details)
 * typescript
 * repo or personal preference for rebase vs merge et al
