@@ -1,11 +1,17 @@
 # arm
 
 Next
-* fetch/pull
 * script for merging develop into master, bump version, push, npm publish
+  * sanity checks, lint, dependencies
+  * copy-up: checkout master, merge develop
+  * npm version patch
+  * deploy: npm publish, git push
+* foreach
+* snapshot
+
 
 Future Possibilities
-* save/restore or freeze of whatever for reproducible working group state.
+* save/restore or freeze of whatever for reproducible working group state [snapshot?]
 * branching workflows, when they evolve?!
 *   e.g. forest master/develop ?
 *   multiple control files, e.g. HRVMasterStable ?
@@ -16,7 +22,7 @@ Future Possibilities
 *   branchIncoming for working with (remote) branches relative to working directory (a la hgh)
 *   master relative origin in dependencies
 *   use .hgsub like .arm-root automatically (needs relative repo support)
-* id (ala hg)
+* id (ala hg) [snapshot?]
 * config edit (see git)
 * separate leading command for config calls vs tree operations?
 * origin#revision for git URLs, like Mercurial and github support (not sure of git details)

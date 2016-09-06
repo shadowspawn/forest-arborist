@@ -525,6 +525,31 @@ function doForEach(args) {
 }
 
 
+function doSnapshot() {
+  cdRootDirectory();
+  const nestPath = readNestPathFromRoot();
+  const dependencies = readConfig(nestPath, true).dependencies;
+
+  const snapshot = {};
+  Object.keys(dependencies).forEach((repoPath) => {
+    const repoType = dependencies[repoPath].repoType;
+    let id;
+    if (repoType === 'git') {
+      id = childProcess.execFileSync(
+        'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
+      ).toString().trim();
+    } else if (repoType === 'hg') {
+      id = childProcess.execFileSync(
+        'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
+      ).toString().trim();
+    }
+    snapshot[repoPath] = id;
+  });
+  const prettySnapshot = JSON.stringify(snapshot, null, '  ');
+  console.log(prettySnapshot);
+}
+
+
 //------------------------------------------------------------------------------
 // Command line processing
 
@@ -628,6 +653,14 @@ program
     doForEach(command);
   });
 
+program
+  .command('_snapshot [save|restore]')
+  .description('display state of forest')
+  .action((command) => {
+    gRecognisedCommand = true;
+    if (command !== undefined) console.log(my.errorColour('save and restore not implemented yet'));
+    doSnapshot();
+  });
 
 program.parse(process.argv);
 
