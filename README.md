@@ -79,4 +79,4 @@ i.e. setup command to run "node <installFolder>arm.js".
 
 Pre-release. "arm init" is great for trying out on an existing checkout.
 
-Active development on OS X. Limited testing on Microsoft Windows.
+Active development on macOS. Limited testing on Linux and Microsoft Windows.
