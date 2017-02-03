@@ -96,13 +96,13 @@ function execCommandSync(commandParam) {
   console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
 
   try {
-    // Note: he stdio option hooks up child stream to parent so we get live progress.
+    // Note: the stdio option hooks up child stream to parent so we get live progress.
     childProcess.execFileSync(
         command.cmd, command.args,
         { cwd: command.cwd, stdio: [0, 1, 2] }
       );
   } catch (err) {
-    // Some commands return non-zero for expecte situations
+    // Some commands return non-zero for expected situations
     if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {
       throw err;
     }
@@ -322,6 +322,41 @@ function doOutgoing() {
 }
 
 
+function getOrigin(repoPath, repoType) {
+  let origin;
+  if (repoType === 'git') {
+    try {
+      origin = childProcess.execFileSync(
+        'git', ['-C', repoPath, 'config', '--get', 'remote.origin.url']
+      ).toString().trim();
+    } catch (err) {
+      // May have created repo locally and does not yet have an origin
+      origin = null;
+    }
+  } else if (repoType === 'hg') {
+    origin = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'config', 'paths.default']
+    ).toString().trim();
+  }
+  return origin;
+}
+
+
+function getBranch(repoPath, repoType) {
+  let branch;
+  if (repoType === 'git') {
+    branch = childProcess.execFileSync(
+       'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
+    ).toString().trim();
+  } else if (repoType === 'hg') {
+    branch = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'branch']
+    ).toString().trim();
+  }
+  return branch;
+}
+
+
 function isGitRepository(repository) {
   const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
   try {
@@ -406,15 +441,9 @@ function findRepositories(startingDirectory, callback) {
     const itemPath = path.join(startingDirectory, item);
     if (dirExistsSync(itemPath)) {
       if (dirExistsSync(path.join(itemPath, '.git'))) {
-        const origin = childProcess.execFileSync(
-          'git', ['-C', itemPath, 'config', '--get', 'remote.origin.url']
-        ).toString().trim();
-        callback(itemPath, origin, 'git');
+        callback(itemPath, 'git');
       } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
-        const origin = childProcess.execFileSync(
-          'hg', ['--repository', itemPath, 'config', 'paths.default']
-        ).toString().trim();
-        callback(itemPath, origin, 'hg');
+        callback(itemPath, 'hg');
       }
 
       // Keep searching in case of nested repos.
@@ -451,9 +480,11 @@ function doInit(rootDirParam) {
   // Dependencies
   process.chdir(rootAbsolutePath);
   const dependencies = {};
-  findRepositories('.', (directory, origin, repoType) => {
-    dependencies[directory] = { origin, repoType };
+  findRepositories('.', (directory, repoType) => {
     console.log(`  ${directory}`);
+    const origin = getOrigin(directory, repoType);
+    const checkout = getBranch(directory, repoType);
+    dependencies[directory] = { origin, repoType, checkout };
   });
   delete dependencies[nestFromRoot];
   const config = { dependencies, rootDirectory: rootFromNest };
