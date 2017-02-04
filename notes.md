@@ -1,40 +1,35 @@
 # arm
 
-Next
+Backlog
+* initial branch on clone/install
+* identify external vs normal
+* treat external differently for checkout, leave default branch to server
+* switch branch support for non-external
+
+Future Possibilities
+* origin references relative to main needed for forks
+* detecting clean before doing suspect operations?
+* qualifier for clone of siblings so creates wrapper folder
 * script for merging develop into master, bump version, push, npm publish
   * sanity checks, lint, dependencies
   * copy-up: checkout master, merge develop
   * npm version patch
   * deploy: npm publish, git push
-* foreach
 * snapshot
   * save
   * restore
   * clone --snapshot? Might not make sense for git.
-
-Future Possibilities
 * save/restore or freeze of whatever for reproducible working group state [snapshot?]
-* branching workflows, when they evolve?!
-  * e.g. forest master/develop ?
-  * multiple control files, e.g. HRVMasterStable ?
+* multiple manifest files, e.g. HRVMasterStable ?
+  * move manifest to .arm folder?
 * something to check for merges already in progress etc, check, pure expectedProtocols
-* is short status too short, use longer status by default? See how goes.
-* update? Does not exist as such for git, but can achieve similar.
-* hg only workflows
-  * --fork for working with (remote) branches relative to working directory (a la hgh)
-  * master relative origin in dependencies
-  * use .hgsub like .arm-root automatically (needs relative repo support)
-* id (ala hg) [snapshot?]
 * config edit (see git)
-* origin#revision for git URLs, like Mercurial and github support (not sure of git details)
-* typescript
 * repo or personal preference for rebase vs merge et al
 *   or, support pass-through flags for repo commands with -- if useful?
 *   or, options for command
 * unit tests
-* configtest, like httpd -t. Check files read, and nestToRoot matches rootToNest
 
-Terminology
+Terminology Inspirations
 * git
 * Mercurial
 * npm

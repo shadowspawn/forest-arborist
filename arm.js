@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Shebang uses absolute path, but may vary between Mac and Lin, so env for portability.
+// Node location may vary between Mac and Lin, so env for portability.
 
 'use strict'; // eslint-disable-line strict
 
@@ -22,6 +22,7 @@ let gRecognisedCommand = false; // Seems there should be a tidier way...
 
 const my = {
   errorColour: (text) => chalk.red(text),
+  warningColour: (text) => chalk.yellow(text),
   commandColour: (text) => chalk.blue(text),
 };
 
@@ -68,7 +69,9 @@ function getUnrecognisedArgs() {
 }
 
 
-function assertRecognisedArgs() {
+function assertNoArgs() {
+  // commander does not complain if arguments are supplied for commands
+  // which do not have any. Do some checking ourselves.
   const unrecognisedArgs = getUnrecognisedArgs();
   if (unrecognisedArgs.length > 0) {
     console.log('');
@@ -459,10 +462,10 @@ function doInit(rootDirParam) {
     console.log(`Skipping init, already have ${armConfigFilename}`);
     return;
   }
-  if (fileExistsSync('.hgsub')) {
-    console.log('Skipping init, found .hgsub. Suggest use sibling init for subrepositories.');
-    return;
-  }
+  // if (fileExistsSync('.hgsub')) {
+  //   console.log('Skipping init, found .hgsub. Suggest use sibling init for subrepositories.');
+  //   return;
+  // }
 
   // Sort out nest and root paths
   const nestAbsolutePath = process.cwd();
@@ -483,6 +486,9 @@ function doInit(rootDirParam) {
   findRepositories('.', (directory, repoType) => {
     console.log(`  ${directory}`);
     const origin = getOrigin(directory, repoType);
+    if (origin === null) {
+      console.log(my.warningColour('    (origin not specified)'));
+    }
     const checkout = getBranch(directory, repoType);
     dependencies[directory] = { origin, repoType, checkout };
   });
@@ -493,8 +499,13 @@ function doInit(rootDirParam) {
   fs.writeFileSync(configPath, prettyConfig);
   console.log(`Initialised dependencies in ${armConfigFilename}`);
 
-  // Root placeholder file. Safer to overwrite as low content.
+  // Root placeholder file. Safe to overwrite as low content.
   writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+
+  // Offer clue for possible sibling init situation.
+  if (Object.keys(dependencies).length === 0) {
+    console.log('(No dependencies found. For a sibling repo layout use "arm init --root ..")');
+  }
 }
 
 
@@ -591,7 +602,7 @@ program
 program.on('--help', () => {
   console.log('  Files:');
   console.log(
-    `    ${armConfigFilename} configuration file for forest, especially dependencies`);
+    `    ${armConfigFilename} manifest file for forest`);
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
@@ -605,7 +616,6 @@ program
   .description('clone source and install its dependencies')
   .action((source, destination) => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
     doClone(source, destination);
   });
 
@@ -615,7 +625,7 @@ program
   .description('fetch branches and tags from origin remote')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doFetch();
   });
 
@@ -625,7 +635,7 @@ program
   .description('add config file in current directory, and marker file at root of forest')
   .action((options) => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doInit(options.root);
   });
 
@@ -634,7 +644,7 @@ program
   .description('clone missing (new) dependent repositories')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doInstall();
   });
 
@@ -643,7 +653,7 @@ program
   .description('show changesets not in the default push location')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doOutgoing();
   });
 
@@ -652,7 +662,7 @@ program
   .description('git-style pull, which is fetch and merge')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doPull();
   });
 
@@ -661,7 +671,7 @@ program
   .description('show the root directory of the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     cdRootDirectory();
     console.log(process.cwd());
   });
@@ -671,13 +681,13 @@ program
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doStatus();
   });
 
 program
-  .command('_foreach')
-  .description('run specified command on forest, e.g. "arm _foreach -- pwd"')
+  .command('foreach')
+  .description('run specified command on forest, e.g. "arm foreach -- pwd"')
   .arguments('[command...]')
   .action((command) => {
     gRecognisedCommand = true;
