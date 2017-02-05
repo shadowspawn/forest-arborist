@@ -1,14 +1,24 @@
 # arm
 
+pinCheckout (left out of pull and branching)
+lockBranch (left out of branching)
+free? (unpinned, unlocked)
+
 Backlog
-* initial branch on clone/install
-* identify external vs normal
-* treat external differently for checkout, leave default branch to server
-* switch branch support for non-external
+* detect branch on init
+* detect lockBranch on init
+* set lockBranch on clone
+* cope with detached head, pinCheckout
+* forfree
+* support re-install
+* manifest edit ?
+* manifest show ?
 
 Future Possibilities
 * origin references relative to main needed for forks
+* install could/should reapply checkout steps (not clone)
 * detecting clean before doing suspect operations?
+  * detect detached head before moving away? Prob can't.
 * qualifier for clone of siblings so creates wrapper folder
 * script for merging develop into master, bump version, push, npm publish
   * sanity checks, lint, dependencies
@@ -22,6 +32,8 @@ Future Possibilities
 * save/restore or freeze of whatever for reproducible working group state [snapshot?]
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
+  * manifest list
+  * handle clone with no default manifest and no manifest specified
 * something to check for merges already in progress etc, check, pure expectedProtocols
 * config edit (see git)
 * repo or personal preference for rebase vs merge et al

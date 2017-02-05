@@ -22,7 +22,6 @@ let gRecognisedCommand = false; // Seems there should be a tidier way...
 
 const my = {
   errorColour: (text) => chalk.red(text),
-  warningColour: (text) => chalk.yellow(text),
   commandColour: (text) => chalk.blue(text),
 };
 
@@ -348,6 +347,7 @@ function getOrigin(repoPath, repoType) {
 function getBranch(repoPath, repoType) {
   let branch;
   if (repoType === 'git') {
+    // This will fail if have detached head, but works for norml branch and empty repo
     branch = childProcess.execFileSync(
        'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
     ).toString().trim();
@@ -426,9 +426,28 @@ function doInstall() {
       console.log(`Skipping already present dependency: ${repoPath}`);
     } else {
       const entry = dependencies[repoPath];
+      const args = ['clone'];
+      if (entry.lockBranch !== null) {
+        if (entry.repoType === 'git') {
+          args.push('--branch', entry.lockBranch);
+        } if (entry.repoType === 'hg') {
+          args.push('--updaterev', entry.lockBranch);
+        }
+      }
+      args.push(entry.origin, repoPath);
       execCommandSync(
-        { cmd: entry.repoType, args: ['clone', entry.origin, repoPath], suppressContext: true }
+        { cmd: entry.repoType, args, suppressContext: true }
       );
+
+        // execCommandSync(
+        //   { cmd: entry.repoType,
+        //     args: ['clone', '--no-checkout', entry.origin, repoPath],
+        //     suppressContext: true,
+        //   }
+        // );
+        // execCommandSync(
+        //   { cmd: entry.repoType, args: ['checkout', branch], cwd: repoPath }
+        // );
     }
   });
 }
@@ -487,10 +506,10 @@ function doInit(rootDirParam) {
     console.log(`  ${directory}`);
     const origin = getOrigin(directory, repoType);
     if (origin === null) {
-      console.log(my.warningColour('    (origin not specified)'));
+      console.log(my.errorColour('    (origin not specified)'));
     }
-    const checkout = getBranch(directory, repoType);
-    dependencies[directory] = { origin, repoType, checkout };
+    const lockBranch = getBranch(directory, repoType);
+    dependencies[directory] = { origin, repoType, lockBranch };
   });
   delete dependencies[nestFromRoot];
   const config = { dependencies, rootDirectory: rootFromNest };
