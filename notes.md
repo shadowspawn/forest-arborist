@@ -5,9 +5,6 @@ lockBranch (left out of branching)
 free? (unpinned, unlocked)
 
 Backlog
-* detect branch on init
-* detect lockBranch on init
-* set lockBranch on clone
 * cope with detached head, pinCheckout
 * forfree
 * support re-install
@@ -34,6 +31,8 @@ Future Possibilities
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
+* support pinning via a command, and unpinning
+* support locking via a command, and unlocking ?
 * something to check for merges already in progress etc, check, pure expectedProtocols
 * config edit (see git)
 * repo or personal preference for rebase vs merge et al

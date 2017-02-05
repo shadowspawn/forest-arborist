@@ -347,10 +347,16 @@ function getOrigin(repoPath, repoType) {
 function getBranch(repoPath, repoType) {
   let branch;
   if (repoType === 'git') {
-    // This will fail if have detached head, but works for norml branch and empty repo
-    branch = childProcess.execFileSync(
-       'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
-    ).toString().trim();
+    const unmute = mute();
+    try {
+      // This will fail if have detached head, but does work for an empty repo
+      branch = childProcess.execFileSync(
+         'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
+      ).toString().trim();
+    } catch (err) {
+      branch = undefined;
+    }
+    unmute();
   } else if (repoType === 'hg') {
     branch = childProcess.execFileSync(
       'hg', ['--repository', repoPath, 'branch']
@@ -360,8 +366,24 @@ function getBranch(repoPath, repoType) {
 }
 
 
+function getRevision(repoPath, repoType) {
+  let revision;
+  if (repoType === 'git') {
+    revision = childProcess.execFileSync(
+       'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
+    ).toString().trim();
+  } else if (repoType === 'hg') {
+    // TODO: find hg changeset
+    revision = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'id']
+    ).toString().trim();
+  }
+  return revision;
+}
+
+
 function isGitRepository(repository) {
-  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
+  const unmute = mute();
   try {
     // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
@@ -377,7 +399,7 @@ function isGitRepository(repository) {
 
 
 function isHgRepository(repository) {
-  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
+  const unmute = mute();
   try {
     // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
@@ -414,6 +436,7 @@ function doInstall() {
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
     writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+    console.log();
   }
 
   cdRootDirectory();
@@ -427,27 +450,38 @@ function doInstall() {
     } else {
       const entry = dependencies[repoPath];
       const args = ['clone'];
-      if (entry.lockBranch !== null) {
+      // Add arguments for lockBranch
+      if (entry.lockBranch !== undefined) {
         if (entry.repoType === 'git') {
           args.push('--branch', entry.lockBranch);
         } if (entry.repoType === 'hg') {
           args.push('--updaterev', entry.lockBranch);
         }
       }
+      // Suppress checkout for pinRevison
+      if (entry.pinRevision !== undefined) {
+        if (entry.repoType === 'git') {
+          args.push('--no-checkout');
+        } if (entry.repoType === 'hg') {
+          args.push('--noupdate');
+        }
+      }
       args.push(entry.origin, repoPath);
-      execCommandSync(
-        { cmd: entry.repoType, args, suppressContext: true }
-      );
+      // Clone command ready!
+      execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
 
-        // execCommandSync(
-        //   { cmd: entry.repoType,
-        //     args: ['clone', '--no-checkout', entry.origin, repoPath],
-        //     suppressContext: true,
-        //   }
-        // );
-        // execCommandSync(
-        //   { cmd: entry.repoType, args: ['checkout', branch], cwd: repoPath }
-        // );
+      // Second commnd to checkout pinned revision
+      if (entry.pinRevision !== undefined) {
+        if (entry.repoType === 'git') {
+          execCommandSync(
+            { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
+          );
+        } else if (entry.repoType === 'hg') {
+          execCommandSync(
+            { cmd: 'git', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
+          );
+        }
+      }
     }
   });
 }
@@ -499,17 +533,41 @@ function doInit(rootDirParam) {
   const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
-  // Dependencies
+  // Find nest origin
+  let nestOrigin = null;
+  if (dirExistsSync('.git')) {
+    nestOrigin = getOrigin('.', 'git');
+  } else if (dirExistsSync('.hg')) {
+    nestOrigin = getOrigin('.', 'hg');
+  }
+  const nestOriginDir = path.posix.dirname(nestOrigin);
+
+  // Dependencies (implicitly finds nest too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
   findRepositories('.', (directory, repoType) => {
     console.log(`  ${directory}`);
     const origin = getOrigin(directory, repoType);
+    dependencies[directory] = { origin, repoType };
+
     if (origin === null) {
       console.log(my.errorColour('    (origin not specified)'));
+    } else {
+      const originDir = path.posix.dirname(origin);
+      if (originDir === nestOriginDir) {
+        // Store as relative path?
+      } else {
+        const lockBranch = getBranch(directory, repoType);
+        if (lockBranch === undefined) {
+          const revision = getRevision(directory, repoType);
+          console.log(`    (pinned revision to ${revision})`);
+          dependencies[directory].pinRevision = revision;
+        } else {
+          console.log(`    (locked branch to ${lockBranch})`);
+          dependencies[directory].lockBranch = lockBranch;
+        }
+      }
     }
-    const lockBranch = getBranch(directory, repoType);
-    dependencies[directory] = { origin, repoType, lockBranch };
   });
   delete dependencies[nestFromRoot];
   const config = { dependencies, rootDirectory: rootFromNest };
