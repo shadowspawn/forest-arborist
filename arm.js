@@ -15,7 +15,7 @@ const url = require('url');
 const mute = require('mute');
 const myPackage = require('./package.json');
 
-const armConfigFilename = 'arm.json'; // stored in nest directory
+const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
@@ -130,7 +130,7 @@ function readNestPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInNestDirectory = fileExistsSync(armConfigFilename);
+  const startedInNestDirectory = fileExistsSync(armManifest);
 
   let tryParent = true;
   do {
@@ -152,8 +152,8 @@ function cdRootDirectory() {
 }
 
 
-function readConfig(nestPath, addNestToDependencies) {
-  const configPath = path.resolve(nestPath, armConfigFilename);
+function readManifest(nestPath, addNestToDependencies) {
+  const configPath = path.resolve(nestPath, armManifest);
 
   let data;
   try {
@@ -201,7 +201,7 @@ function readConfig(nestPath, addNestToDependencies) {
 function doStatus() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -221,7 +221,7 @@ function doStatus() {
 function doFetch() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -238,7 +238,7 @@ function doFetch() {
 }
 
 
-function doHgAutoMerge(repoPath) {
+function hgAutoMerge(repoPath) {
   // Battle tested code from hgh tool
   const headCount = childProcess.execFileSync(
     'hg', ['heads', '.', '--repository', repoPath, '--template', 'x']
@@ -281,7 +281,7 @@ function doHgAutoMerge(repoPath) {
 function doPull() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -293,7 +293,7 @@ function doPull() {
       execCommandSync(
         { cmd: 'hg', args: ['pull'], cwd: repoPath }
       );
-      doHgAutoMerge(repoPath);
+      hgAutoMerge(repoPath);
     }
   });
 }
@@ -302,7 +302,7 @@ function doPull() {
 function doOutgoing() {
   cdRootDirectory();
   const nestDirectory = readNestPathFromRoot();
-  const dependencies = readConfig(nestDirectory, true).dependencies;
+  const dependencies = readManifest(nestDirectory, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -382,6 +382,58 @@ function getRevision(repoPath, repoType) {
 }
 
 
+function cloneEntry(entry, repoPath, freeBranch) {
+  // Determine target branch for clone
+  let branch;
+  if (entry.pinRevision !== undefined) {
+    console.log(`# ${repoPath}: cloning pinned revision`);
+    branch = undefined;
+  } else if (entry.lockBranch !== undefined) {
+    console.log(`# ${repoPath}: cloning locked branch`);
+    branch = entry.lockBranch;
+  } else if (freeBranch !== undefined) {
+    console.log(`# ${repoPath}: cloning free repo on requested branch`);
+    branch = freeBranch;
+  } else {
+    console.log(`# ${repoPath}: cloning free repo`);
+  }
+
+  const args = ['clone'];
+  if (branch !== undefined) {
+    if (entry.repoType === 'git') {
+      args.push('--branch', branch);
+    } if (entry.repoType === 'hg') {
+      args.push('--updaterev', branch);
+    }
+  }
+
+  // Suppress checkout for pinRevison
+  if (entry.pinRevision !== undefined) {
+    if (entry.repoType === 'git') {
+      args.push('--no-checkout');
+    } if (entry.repoType === 'hg') {
+      args.push('--noupdate');
+    }
+  }
+  args.push(entry.origin, repoPath);
+  // Clone command ready!
+  execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
+
+  // Second commnd to checkout pinned revision
+  if (entry.pinRevision !== undefined) {
+    if (entry.repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
+      );
+    } else if (entry.repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'git', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
+      );
+    }
+  }
+}
+
+
 function isGitRepository(repository) {
   const unmute = mute();
   try {
@@ -428,11 +480,11 @@ function writeRootFile(rootFilePath, nestFromRoot) {
 }
 
 
-function doInstall() {
+function doInstall(freeBranch) {
   let configObject;
-  if (fileExistsSync(armConfigFilename)) {
+  if (fileExistsSync(armManifest)) {
     // Probably being called during setup, before root file added.
-    configObject = readConfig('.');
+    configObject = readManifest('.');
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
     writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
@@ -441,7 +493,7 @@ function doInstall() {
 
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  if (configObject === undefined) configObject = readConfig(nestPath);
+  if (configObject === undefined) configObject = readManifest(nestPath);
   const dependencies = configObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
@@ -449,39 +501,7 @@ function doInstall() {
       console.log(`Skipping already present dependency: ${repoPath}`);
     } else {
       const entry = dependencies[repoPath];
-      const args = ['clone'];
-      // Add arguments for lockBranch
-      if (entry.lockBranch !== undefined) {
-        if (entry.repoType === 'git') {
-          args.push('--branch', entry.lockBranch);
-        } if (entry.repoType === 'hg') {
-          args.push('--updaterev', entry.lockBranch);
-        }
-      }
-      // Suppress checkout for pinRevison
-      if (entry.pinRevision !== undefined) {
-        if (entry.repoType === 'git') {
-          args.push('--no-checkout');
-        } if (entry.repoType === 'hg') {
-          args.push('--noupdate');
-        }
-      }
-      args.push(entry.origin, repoPath);
-      // Clone command ready!
-      execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
-
-      // Second commnd to checkout pinned revision
-      if (entry.pinRevision !== undefined) {
-        if (entry.repoType === 'git') {
-          execCommandSync(
-            { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
-          );
-        } else if (entry.repoType === 'hg') {
-          execCommandSync(
-            { cmd: 'git', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
-          );
-        }
-      }
+      cloneEntry(entry, repoPath, freeBranch);
     }
   });
 }
@@ -510,9 +530,9 @@ function findRepositories(startingDirectory, callback) {
 
 
 function doInit(rootDirParam) {
-  const configPath = path.resolve(armConfigFilename);
+  const configPath = path.resolve(armManifest);
   if (fileExistsSync(configPath)) {
-    console.log(`Skipping init, already have ${armConfigFilename}`);
+    console.log(`Skipping init, already have ${armManifest}`);
     return;
   }
   // if (fileExistsSync('.hgsub')) {
@@ -556,6 +576,7 @@ function doInit(rootDirParam) {
       const originDir = path.posix.dirname(origin);
       if (originDir === nestOriginDir) {
         // Store as relative path?
+        console.log('    (free)');
       } else {
         const lockBranch = getBranch(directory, repoType);
         if (lockBranch === undefined) {
@@ -574,7 +595,7 @@ function doInit(rootDirParam) {
   const prettyConfig = JSON.stringify(config, null, '  ');
 
   fs.writeFileSync(configPath, prettyConfig);
-  console.log(`Initialised dependencies in ${armConfigFilename}`);
+  console.log(`Initialised dependencies in ${armManifest}`);
 
   // Root placeholder file. Safe to overwrite as low content.
   writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
@@ -586,7 +607,7 @@ function doInit(rootDirParam) {
 }
 
 
-function doClone(source, destinationParam) {
+function doClone(source, destinationParam, options) {
   // We need to know the nest directory to find the config file after the clone.
   let destination = destinationParam;
   if (destination !== undefined) {
@@ -601,36 +622,39 @@ function doClone(source, destinationParam) {
   }
 
   // Clone source.
+  const nestEntry = { origin: source };
   if (isGitRepository(source)) {
-    execCommandSync(
-      { cmd: 'git', args: ['clone', source, destination], suppressContext: true }
-    );
+    nestEntry.repoType = 'git';
   } else if (isHgRepository(source)) {
-    execCommandSync(
-      { cmd: 'hg', args: ['clone', source, destination], suppressContext: true }
-    );
-  } else {
-    terminate(`Unable to determine repository type: ${source}`);
+    nestEntry.repoType = 'hg';
   }
+  cloneEntry(nestEntry, destination, options.branch);
 
-  if (!fileExistsSync(path.join(destination, armConfigFilename))) {
-    terminate(`Warning: stopping as did not find ${armConfigFilename}`);
+  if (!fileExistsSync(path.join(destination, armManifest))) {
+    terminate(`Warning: stopping as did not find ${armManifest}`);
   }
 
   process.chdir(destination);
-  doInstall();
+  doInstall(options.branch);
 }
 
 
-function doForEach(args) {
+function doForEach(internalOptions, args) {
   if (args.length === 0) terminate('No foreach command specified');
   const cmd = args.shift();
 
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
+    if (internalOptions.freeOnly) {
+      const entry = dependencies[repoPath];
+      if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
+        return; // return from forEach function call, so continue
+      }
+    }
+
     if (args.length > 0) {
       execCommandSync(
         { cmd, args, cwd: repoPath }
@@ -647,7 +671,7 @@ function doForEach(args) {
 function doSnapshot() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   const snapshot = {};
   Object.keys(dependencies).forEach((repoPath) => {
@@ -679,7 +703,7 @@ program
 program.on('--help', () => {
   console.log('  Files:');
   console.log(
-    `    ${armConfigFilename} manifest file for forest`);
+    `    ${armManifest} manifest file for forest`);
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
@@ -690,10 +714,11 @@ program.on('--help', () => {
 
 program
   .command('clone <source> [destination]')
+  .option('--branch <branchname>', 'branch to checkout for free repos')
   .description('clone source and install its dependencies')
-  .action((source, destination) => {
+  .action((source, destination, options) => {
     gRecognisedCommand = true;
-    doClone(source, destination);
+    doClone(source, destination, options);
   });
 
 
@@ -718,11 +743,12 @@ program
 
 program
   .command('install')
+  .option('--branch <branchname>', 'branch to checkout for free dependent repos')
   .description('clone missing (new) dependent repositories')
-  .action(() => {
+  .action((options) => {
     gRecognisedCommand = true;
     assertNoArgs();
-    doInstall();
+    doInstall(options.branch);
   });
 
 program
@@ -764,11 +790,20 @@ program
 
 program
   .command('foreach')
-  .description('run specified command on forest, e.g. "arm foreach -- pwd"')
+  .description('run specified command on each repo in the forest, e.g. "arm foreach -- pwd"')
   .arguments('[command...]')
   .action((command) => {
     gRecognisedCommand = true;
-    doForEach(command);
+    doForEach({}, command);
+  });
+
+program
+  .command('_forfree')
+  .description('run specified command on repos which are not locked or pinned')
+  .arguments('[command...]')
+  .action((command) => {
+    gRecognisedCommand = true;
+    doForEach({ freeOnly: true }, command);
   });
 
 program

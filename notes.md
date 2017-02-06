@@ -5,15 +5,13 @@ lockBranch (left out of branching)
 free? (unpinned, unlocked)
 
 Backlog
-* cope with detached head, pinCheckout
-* forfree
+* branch parameter for clone
 * support re-install
 * manifest edit ?
 * manifest show ?
 
 Future Possibilities
 * origin references relative to main needed for forks
-* install could/should reapply checkout steps (not clone)
 * detecting clean before doing suspect operations?
   * detect detached head before moving away? Prob can't.
 * qualifier for clone of siblings so creates wrapper folder
@@ -31,7 +29,7 @@ Future Possibilities
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
-* support pinning via a command, and unpinning
+* support pinning via a command, and unpinning (have not done getRevision for hg yet)
 * support locking via a command, and unlocking ?
 * something to check for merges already in progress etc, check, pure expectedProtocols
 * config edit (see git)
