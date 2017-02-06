@@ -466,6 +466,83 @@ function isHgRepository(repository) {
 }
 
 
+function parseRepository(repository) {
+  // See GIT URLS on https://git-scm.com/docs/git-clone
+  // See "hg help urls"
+  // Parsing for git covers hg as well, sweet!
+  const result = {};
+  const parsed = url.parse(repository);
+  const recognisedProtocols = ['ssh:', 'git:', 'http:', 'https:', 'ftp:', 'ftps:', 'file:'];
+  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
+    result.protocol = parsed.protocol;
+    result.pathname = parsed.pathname;
+  } else {
+    // git variation.
+    //   An alternative scp-like syntax may also be used with the ssh protocol:
+    //     [user@]host.xz:path/to/repo.git/
+    //   This syntax is only recognized if there are no slashes before the first colon.
+    const slashPos = repository.indexOf('/');
+    const colonPos = repository.indexOf(':');
+    if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
+      result.protocol = 'scp';
+      result.pathname = repository.substring(colonPos + 1);
+    } else {
+      // (Not supporting hg #revision here yet, add if needed.)
+      result.protocol = 'local';
+      result.pathname = repository;
+    }
+  }
+
+  return result;
+}
+
+
+function tryParseAllGitFormats() {
+  // See GIT URLS on https://git-scm.com/docs/git-clone
+  const testURLS = [
+    'ssh://user@host.xz:123/path/to/repo.git/',
+    'git://host.xz:123/path/to/repo.git/',
+    'http://host.xz:123/path/to/repo.git/',
+    'https://host.xz:123/path/to/repo.git/',
+    'ftp://host.xz:123/path/to/repo.git/',
+    'ftps://host.xz:123/path/to/repo.git/',
+    'user@host.xz:path/to/repo.git/',
+    'host.xz:path/to/repo.git/',
+    '/path/to/repo.git/',
+    'file:///path/to/repo.git/',
+  ];
+  console.log('=== Trying git url formats ===');
+  testURLS.forEach((repoPath) => {
+    console.log(`Parsing ${repoPath}`);
+    const parsed = parseRepository(repoPath);
+    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+  });
+}
+
+
+function tryParseAllHgFormats() {
+  // From "hg help urls". These can all have #revision on end.
+  const testURLS = [
+    'local/filesystem/path',
+    'file://local/filesystem/path',
+    'http://user:pass@host:123/path',
+    'https://user:pass@host:123/path',
+    'ssh://user@host:123/path',
+  ];
+  console.log('=== Trying hg url formats ===');
+  testURLS.forEach((repoPath) => {
+    console.log(`Parsing ${repoPath}`);
+    let parsed = parseRepository(repoPath);
+    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+
+    const qualified = `${repoPath}#revision`;
+    console.log(`Parsing ${qualified}`);
+    parsed = parseRepository(qualified);
+    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+  });
+}
+
+
 function writeRootFile(rootFilePath, nestFromRoot) {
   let initialisedWord = 'Initialised';
   if (fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
@@ -612,14 +689,18 @@ function doClone(source, destinationParam, options) {
   let destination = destinationParam;
   if (destination !== undefined) {
     // Leave it up to user to make intermediate directories if needed.
-  } else if (source.indexOf('/') !== -1) {
-    // Might be URL or a posix path.
-    const urlPath = url.parse(source).pathname;
-    destination = path.posix.basename(urlPath, '.git');
   } else {
-    // file system
-    destination = path.basename(source, '.git');
+    destination = path.posix.basename(parseRepository(source).pathname, '.git');
   }
+
+  // else if (source.indexOf('/') !== -1) {
+  //   // Might be URL or a posix path.
+  //   const urlPath = url.parse(source).pathname;
+  //   destination = path.posix.basename(urlPath, '.git');
+  // } else {
+  //   // file system
+  //   destination = path.basename(source, '.git');
+  // }
 
   // Clone source.
   const nestEntry = { origin: source };
@@ -813,6 +894,15 @@ program
     gRecognisedCommand = true;
     if (command !== undefined) console.log(my.errorColour('save and restore not implemented yet'));
     doSnapshot();
+  });
+
+program
+  .command('_test')
+  .description('test')
+  .action(() => {
+    gRecognisedCommand = true;
+    tryParseAllGitFormats();
+    tryParseAllHgFormats();
   });
 
 program.parse(process.argv);

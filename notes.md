@@ -5,12 +5,16 @@ lockBranch (left out of branching)
 free? (unpinned, unlocked)
 
 Backlog
-* branch parameter for clone
-* support re-install
-* manifest edit ?
-* manifest show ?
+* relative path, hard!
+  * git submodule looks for ./ or ../ at start of path (like I considered!)
+  * stick ssh: in front of ssh
 
 Future Possibilities
+* support re-install? softly softly
+  * note: pull supports --ff-only
+  * note checkout branch aborts if would lose uncommitted changes
+* manifest edit ?
+* manifest show ?
 * origin references relative to main needed for forks
 * detecting clean before doing suspect operations?
   * detect detached head before moving away? Prob can't.
@@ -23,7 +27,7 @@ Future Possibilities
 * snapshot
   * save
   * restore
-  * clone --snapshot? Might not make sense for git.
+  * clone --snapshot? Used pinned version of manifest as format??
 * save/restore or freeze of whatever for reproducible working group state [snapshot?]
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
@@ -59,3 +63,6 @@ Interesting
 * [shelljs](http://documentup.com/arturadib/shelljs#command-reference)
 * [async](http://caolan.github.io/async/)
 * [defaults](https://www.npmjs.com/package/defaults)
+
+git clone supported url and local path formats
+* https://git-scm.com/docs/git-clone
