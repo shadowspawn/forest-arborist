@@ -7,7 +7,16 @@ free? (unpinned, unlocked)
 Backlog
 * relative path, hard!
   * git submodule looks for ./ or ../ at start of path (like I considered!)
-  * stick ssh: in front of ssh
+  * got the relative path!
+  * write relative path into manifest
+  * turn relative origin into absolute origin in readManifest? Bit sneaky.
+* do we need makeBranch? checkout + branch + track/origin for push
+  * from current? from develop? from origin/develop?
+  * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
+* do we need switchBranch? Just checkout.
+
+Shortcomings
+* Windows paths in sameParsedOriginDir, path.relative et al?
 
 Future Possibilities
 * support re-install? softly softly
@@ -15,10 +24,9 @@ Future Possibilities
   * note checkout branch aborts if would lose uncommitted changes
 * manifest edit ?
 * manifest show ?
-* origin references relative to main needed for forks
 * detecting clean before doing suspect operations?
   * detect detached head before moving away? Prob can't.
-* qualifier for clone of siblings so creates wrapper folder
+* qualifier for clone of siblings so creates wrapper folder ?
 * script for merging develop into master, bump version, push, npm publish
   * sanity checks, lint, dependencies
   * copy-up: checkout master, merge develop
@@ -64,5 +72,5 @@ Interesting
 * [async](http://caolan.github.io/async/)
 * [defaults](https://www.npmjs.com/package/defaults)
 
-git clone supported url and local path formats
-* https://git-scm.com/docs/git-clone
+git-flow equivalent git commands
+* https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac

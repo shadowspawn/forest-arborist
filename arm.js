@@ -113,6 +113,118 @@ function execCommandSync(commandParam) {
 }
 
 
+function isRelativePath(pathname) {
+  if (pathname === null || pathname === undefined) { return false; }
+
+  return pathname.startsWith('./') || pathname.startsWith('../');
+}
+
+
+function isGitRepository(repository) {
+  const unmute = mute();
+  try {
+    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'git', ['ls-remote', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
+}
+
+
+function isHgRepository(repository) {
+  const unmute = mute();
+  try {
+    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'hg', ['id', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
+}
+
+
+function resolveOrigin(parsedOrigin, relativePath) {
+  const temp = path.posix.resolve(parsedOrigin.pathname, relativePath);
+  const absolutePathname = path.posix.normalize(temp);
+
+  // Do the fake protocols first
+  if (parsedOrigin.protocol === 'local') {
+    return absolutePathname;
+  } else if (parsedOrigin.protocol === 'scp') {
+    return `${parsedOrigin.authAndHost}${absolutePathname}`;
+  }
+
+  // Proper protocol! Tweak path and reconstruct full URL.
+  const parsedTemp = url.parse(parsedOrigin.href);
+  parsedTemp.pathname = absolutePathname;
+  return url.format(parsedTemp);
+}
+
+
+function sameParsedOriginDir(origin1, origin2) {
+  if (origin1.protocol !== origin2.protocol) return false;
+
+  // Do the fake protocols first
+  if (origin1.protocol === 'local') {
+    return (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
+  } else if (origin1.protocol === 'scp') {
+    return (origin1.authAndHost === origin2.authAndHost)
+      && (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
+  }
+
+  // Proper protocol! Tweak path and reconstruct full URL for dir.
+  const dir1 = url.parse(origin1.href);
+  dir1.pathname = path.posix.dirname(dir1.pathname);
+  const dir2 = url.parse(origin2.href);
+  dir2.pathname = path.posix.dirname(dir2.pathname);
+  return url.format(dir1) === url.format(dir2);
+}
+
+
+function parseRepository(repository) {
+  // See GIT URLS on https://git-scm.com/docs/git-clone
+  // See "hg help urls"
+  // Parsing for git covers hg as well, sweet!
+  const result = {};
+  const parsed = url.parse(repository);
+  const recognisedProtocols = ['ssh:', 'git:', 'http:', 'https:', 'ftp:', 'ftps:', 'file:'];
+  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
+    result.protocol = parsed.protocol;
+    result.pathname = parsed.pathname;
+    result.href = parsed.href;
+  } else {
+    // git variation.
+    //   An alternative scp-like syntax may also be used with the ssh protocol:
+    //     [user@]host.xz:path/to/repo.git/
+    //   This syntax is only recognized if there are no slashes before the first colon.
+    const slashPos = repository.indexOf('/');
+    const colonPos = repository.indexOf(':');
+    if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
+      result.protocol = 'scp';
+      result.pathname = repository.substring(colonPos + 1);
+      result.authAndHost = repository.substring(0, colonPos);
+      console.log(`result.authAndHost is ${result.authAndHost}`);
+    } else {
+      // 1. Not supporting hg #revision here yet, add if needed.
+      // 2. Do we need to support windows local paths?
+      result.protocol = 'local';
+      result.pathname = repository;
+    }
+  }
+
+  return result;
+}
+
+
 function readNestPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
@@ -152,6 +264,42 @@ function cdRootDirectory() {
 }
 
 
+function getRepoTypeForLocalPath(repoPath) {
+  if (dirExistsSync(path.join(repoPath, '.git'))) {
+    return 'git';
+  } else if (dirExistsSync(path.join(repoPath, '.hg'))) {
+    return 'hg';
+  }
+
+  return undefined;
+}
+
+
+function getOrigin(repoPath, repoTypeParam) {
+  let origin;
+  let repoType = repoTypeParam;
+  if (repoType === undefined) {
+    repoType = getRepoTypeForLocalPath(repoPath);
+  }
+
+  if (repoType === 'git') {
+    try {
+      origin = childProcess.execFileSync(
+        'git', ['-C', repoPath, 'config', '--get', 'remote.origin.url']
+      ).toString().trim();
+    } catch (err) {
+      // May have created repo locally and does not yet have an origin
+      origin = null;
+    }
+  } else if (repoType === 'hg') {
+    origin = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'config', 'paths.default']
+    ).toString().trim();
+  }
+  return origin;
+}
+
+
 function readManifest(nestPath, addNestToDependencies) {
   const configPath = path.resolve(nestPath, armManifest);
 
@@ -175,22 +323,28 @@ function readManifest(nestPath, addNestToDependencies) {
     terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
+  const nestRepoType = getRepoTypeForLocalPath(nestPath);
+  const nestOrigin = getOrigin(nestPath, nestRepoType);
+  const parsedNestOrigin = parseRepository(nestOrigin);
   if (addNestToDependencies) {
-    let repoType;
-    if (dirExistsSync(path.join(nestPath, '.git'))) repoType = 'git';
-    else if (dirExistsSync(path.join(nestPath, '.hg'))) repoType = 'hg';
-    configObject.dependencies[nestPath] = { repoType };
+    configObject.dependencies[nestPath] = { origin: nestOrigin, repoType: nestOrigin };
   }
 
-  // Sanity check repoType so callers do not need to warn about unexpected type.
   Object.keys(configObject.dependencies).forEach((repoPath) => {
-    const repoType = configObject.dependencies[repoPath].repoType;
+    // Sanity check repoType so callers do not need to warn about unexpected type.
+    const entry = configObject.dependencies[repoPath];
     const supportedTypes = ['git', 'hg'];
-    if (supportedTypes.indexOf(repoType) === -1) {
+    if (supportedTypes.indexOf(entry.repoType) === -1) {
       console.log(my.errorColour(
-        `Skipping entry for "${repoPath}" with unsupported repoType: ${repoType}`
+        `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
       ));
       delete configObject.dependencies[repoPath];
+      return; // early exit from foreach
+    }
+
+    // Turn relative repos into absolute repos.
+    if (isRelativePath(entry.origin)) {
+      entry.origin = resolveOrigin(parsedNestOrigin, entry.origin);
     }
   });
 
@@ -324,26 +478,6 @@ function doOutgoing() {
 }
 
 
-function getOrigin(repoPath, repoType) {
-  let origin;
-  if (repoType === 'git') {
-    try {
-      origin = childProcess.execFileSync(
-        'git', ['-C', repoPath, 'config', '--get', 'remote.origin.url']
-      ).toString().trim();
-    } catch (err) {
-      // May have created repo locally and does not yet have an origin
-      origin = null;
-    }
-  } else if (repoType === 'hg') {
-    origin = childProcess.execFileSync(
-      'hg', ['--repository', repoPath, 'config', 'paths.default']
-    ).toString().trim();
-  }
-  return origin;
-}
-
-
 function getBranch(repoPath, repoType) {
   let branch;
   if (repoType === 'git') {
@@ -434,113 +568,50 @@ function cloneEntry(entry, repoPath, freeBranch) {
 }
 
 
-function isGitRepository(repository) {
-  const unmute = mute();
-  try {
-    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'git', ['ls-remote', repository]
-    );
-    unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
-  }
-}
+// function tryParseAllGitFormats() {
+//   // See GIT URLS on https://git-scm.com/docs/git-clone
+//   const testURLS = [
+//     'ssh://user@host.xz:123/path/to/repo.git/',
+//     'git://host.xz:123/path/to/repo.git/',
+//     'http://host.xz:123/path/to/repo.git/',
+//     'https://host.xz:123/path/to/repo.git/',
+//     'ftp://host.xz:123/path/to/repo.git/',
+//     'ftps://host.xz:123/path/to/repo.git/',
+//     'user@host.xz:path/to/repo.git/',
+//     'host.xz:path/to/repo.git/',
+//     '/path/to/repo.git/',
+//     'file:///path/to/repo.git/',
+//   ];
+//   console.log('=== Trying git url formats ===');
+//   testURLS.forEach((repoPath) => {
+//     console.log(`Parsing ${repoPath}`);
+//     const parsed = parseRepository(repoPath);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//   });
+// }
 
 
-function isHgRepository(repository) {
-  const unmute = mute();
-  try {
-    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'hg', ['id', repository]
-    );
-    unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
-  }
-}
-
-
-function parseRepository(repository) {
-  // See GIT URLS on https://git-scm.com/docs/git-clone
-  // See "hg help urls"
-  // Parsing for git covers hg as well, sweet!
-  const result = {};
-  const parsed = url.parse(repository);
-  const recognisedProtocols = ['ssh:', 'git:', 'http:', 'https:', 'ftp:', 'ftps:', 'file:'];
-  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
-    result.protocol = parsed.protocol;
-    result.pathname = parsed.pathname;
-  } else {
-    // git variation.
-    //   An alternative scp-like syntax may also be used with the ssh protocol:
-    //     [user@]host.xz:path/to/repo.git/
-    //   This syntax is only recognized if there are no slashes before the first colon.
-    const slashPos = repository.indexOf('/');
-    const colonPos = repository.indexOf(':');
-    if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
-      result.protocol = 'scp';
-      result.pathname = repository.substring(colonPos + 1);
-    } else {
-      // (Not supporting hg #revision here yet, add if needed.)
-      result.protocol = 'local';
-      result.pathname = repository;
-    }
-  }
-
-  return result;
-}
-
-
-function tryParseAllGitFormats() {
-  // See GIT URLS on https://git-scm.com/docs/git-clone
-  const testURLS = [
-    'ssh://user@host.xz:123/path/to/repo.git/',
-    'git://host.xz:123/path/to/repo.git/',
-    'http://host.xz:123/path/to/repo.git/',
-    'https://host.xz:123/path/to/repo.git/',
-    'ftp://host.xz:123/path/to/repo.git/',
-    'ftps://host.xz:123/path/to/repo.git/',
-    'user@host.xz:path/to/repo.git/',
-    'host.xz:path/to/repo.git/',
-    '/path/to/repo.git/',
-    'file:///path/to/repo.git/',
-  ];
-  console.log('=== Trying git url formats ===');
-  testURLS.forEach((repoPath) => {
-    console.log(`Parsing ${repoPath}`);
-    const parsed = parseRepository(repoPath);
-    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-  });
-}
-
-
-function tryParseAllHgFormats() {
-  // From "hg help urls". These can all have #revision on end.
-  const testURLS = [
-    'local/filesystem/path',
-    'file://local/filesystem/path',
-    'http://user:pass@host:123/path',
-    'https://user:pass@host:123/path',
-    'ssh://user@host:123/path',
-  ];
-  console.log('=== Trying hg url formats ===');
-  testURLS.forEach((repoPath) => {
-    console.log(`Parsing ${repoPath}`);
-    let parsed = parseRepository(repoPath);
-    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-
-    const qualified = `${repoPath}#revision`;
-    console.log(`Parsing ${qualified}`);
-    parsed = parseRepository(qualified);
-    console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-  });
-}
+// function tryParseAllHgFormats() {
+//   // From "hg help urls". These can all have #revision on end.
+//   const testURLS = [
+//     'local/filesystem/path',
+//     'file://local/filesystem/path',
+//     'http://user:pass@host:123/path',
+//     'https://user:pass@host:123/path',
+//     'ssh://user@host:123/path',
+//   ];
+//   console.log('=== Trying hg url formats ===');
+//   testURLS.forEach((repoPath) => {
+//     console.log(`Parsing ${repoPath}`);
+//     let parsed = parseRepository(repoPath);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//
+//     const qualified = `${repoPath}#revision`;
+//     console.log(`Parsing ${qualified}`);
+//     parsed = parseRepository(qualified);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//   });
+// }
 
 
 function writeRootFile(rootFilePath, nestFromRoot) {
@@ -612,10 +683,6 @@ function doInit(rootDirParam) {
     console.log(`Skipping init, already have ${armManifest}`);
     return;
   }
-  // if (fileExistsSync('.hgsub')) {
-  //   console.log('Skipping init, found .hgsub. Suggest use sibling init for subrepositories.');
-  //   return;
-  // }
 
   // Sort out nest and root paths
   const nestAbsolutePath = process.cwd();
@@ -631,13 +698,7 @@ function doInit(rootDirParam) {
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
   // Find nest origin
-  let nestOrigin = null;
-  if (dirExistsSync('.git')) {
-    nestOrigin = getOrigin('.', 'git');
-  } else if (dirExistsSync('.hg')) {
-    nestOrigin = getOrigin('.', 'hg');
-  }
-  const nestOriginDir = path.posix.dirname(nestOrigin);
+  const parsedNestOrigin = parseRepository(getOrigin('.'));
 
   // Dependencies (implicitly finds nest too, but that gets deleted)
   process.chdir(rootAbsolutePath);
@@ -645,26 +706,32 @@ function doInit(rootDirParam) {
   findRepositories('.', (directory, repoType) => {
     console.log(`  ${directory}`);
     const origin = getOrigin(directory, repoType);
-    dependencies[directory] = { origin, repoType };
+    const entry = { origin, repoType };
 
     if (origin === null) {
       console.log(my.errorColour('    (origin not specified)'));
     } else {
-      const originDir = path.posix.dirname(origin);
-      if (originDir === nestOriginDir) {
-        // Store as relative path?
+      const parsedOrigin = parseRepository(origin);
+      // We are doing simple auto detection of relative path, siblings on server
+      if (sameParsedOriginDir(parsedOrigin, parsedNestOrigin)) {
         console.log('    (free)');
+        // Like git submodule, require relative paths to start with ./ or ../
+        const relativePath = path.posix.relative(parsedNestOrigin.pathname, parsedOrigin.pathname);
+        if (isRelativePath(relativePath)) {
+          entry.origin = relativePath;
+        }
       } else {
         const lockBranch = getBranch(directory, repoType);
         if (lockBranch === undefined) {
           const revision = getRevision(directory, repoType);
           console.log(`    (pinned revision to ${revision})`);
-          dependencies[directory].pinRevision = revision;
+          entry.pinRevision = revision;
         } else {
           console.log(`    (locked branch to ${lockBranch})`);
-          dependencies[directory].lockBranch = lockBranch;
+          entry.lockBranch = lockBranch;
         }
       }
+      dependencies[directory] = entry;
     }
   });
   delete dependencies[nestFromRoot];
@@ -692,15 +759,6 @@ function doClone(source, destinationParam, options) {
   } else {
     destination = path.posix.basename(parseRepository(source).pathname, '.git');
   }
-
-  // else if (source.indexOf('/') !== -1) {
-  //   // Might be URL or a posix path.
-  //   const urlPath = url.parse(source).pathname;
-  //   destination = path.posix.basename(urlPath, '.git');
-  // } else {
-  //   // file system
-  //   destination = path.basename(source, '.git');
-  // }
 
   // Clone source.
   const nestEntry = { origin: source };
@@ -901,8 +959,9 @@ program
   .description('test')
   .action(() => {
     gRecognisedCommand = true;
-    tryParseAllGitFormats();
-    tryParseAllHgFormats();
+    // tryParseAllGitFormats();
+    // tryParseAllHgFormats();
+    console.log(path.posix.relative('a', 'b'));
   });
 
 program.parse(process.argv);
