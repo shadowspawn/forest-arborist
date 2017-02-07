@@ -860,7 +860,7 @@ program.on('--help', () => {
 
 program
   .command('clone <source> [destination]')
-  .option('--branch <branchname>', 'branch to checkout for free repos')
+  .option('-b, --branch <branchname>', 'branch to checkout for free repos')
   .description('clone source and install its dependencies')
   .action((source, destination, options) => {
     gRecognisedCommand = true;
@@ -889,7 +889,7 @@ program
 
 program
   .command('install')
-  .option('--branch <branchname>', 'branch to checkout for free dependent repos')
+  .option('-b, --branch <branchname>', 'branch to checkout for free dependent repos')
   .description('clone missing (new) dependent repositories')
   .action((options) => {
     gRecognisedCommand = true;
