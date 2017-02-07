@@ -5,17 +5,13 @@ lockBranch (left out of branching)
 free? (unpinned, unlocked)
 
 Backlog
-* relative path, hard!
-  * git submodule looks for ./ or ../ at start of path (like I considered!)
-  * got the relative path!
-  * write relative path into manifest
-  * turn relative origin into absolute origin in readManifest? Bit sneaky.
 * do we need makeBranch? checkout + branch + track/origin for push
   * from current? from develop? from origin/develop?
   * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
 * do we need switchBranch? Just checkout.
 
 Shortcomings
+* outgoing fails for detached head
 * Windows paths in sameParsedOriginDir, path.relative et al?
 
 Future Possibilities

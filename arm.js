@@ -327,7 +327,7 @@ function readManifest(nestPath, addNestToDependencies) {
   const nestOrigin = getOrigin(nestPath, nestRepoType);
   const parsedNestOrigin = parseRepository(nestOrigin);
   if (addNestToDependencies) {
-    configObject.dependencies[nestPath] = { origin: nestOrigin, repoType: nestOrigin };
+    configObject.dependencies[nestPath] = { origin: nestOrigin, repoType: nestRepoType };
   }
 
   Object.keys(configObject.dependencies).forEach((repoPath) => {
@@ -462,7 +462,14 @@ function doOutgoing() {
     const repoType = dependencies[repoPath].repoType;
     if (repoType === 'git') {
       execCommandSync(
-        { cmd: 'git', args: ['log', '@{u}..', '--oneline'], cwd: repoPath }
+        // http://stackoverflow.com/questions/2016901/viewing-unpushed-git-commits
+        // Started with "git log @{u}.." but that fails for detached head."
+        // The following does not list changes which have been pushed to some but not all branches,
+        // but otherwise pretty cool!
+        { cmd: 'git',
+          args: ['log', '--branches', '--not', '--remotes', '--decorate', '--oneline'],
+          cwd: repoPath }
+        // log
       );
     } else if (repoType === 'hg') {
       // Outgoing returns 1 if there are no outgoing changes.
