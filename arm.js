@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Shebang uses absolute path, but may vary between Mac and Lin, so env for portability.
+// Node location may vary between Mac and Lin, so env for portability.
 
 'use strict'; // eslint-disable-line strict
 
@@ -15,7 +15,7 @@ const url = require('url');
 const mute = require('mute');
 const myPackage = require('./package.json');
 
-const armConfigFilename = 'arm.json'; // stored in nest directory
+const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
@@ -68,7 +68,9 @@ function getUnrecognisedArgs() {
 }
 
 
-function assertRecognisedArgs() {
+function assertNoArgs() {
+  // commander does not complain if arguments are supplied for commands
+  // which do not have any. Do some checking ourselves.
   const unrecognisedArgs = getUnrecognisedArgs();
   if (unrecognisedArgs.length > 0) {
     console.log('');
@@ -96,18 +98,130 @@ function execCommandSync(commandParam) {
   console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
 
   try {
-    // Note: he stdio option hooks up child stream to parent so we get live progress.
+    // Note: the stdio option hooks up child stream to parent so we get live progress.
     childProcess.execFileSync(
         command.cmd, command.args,
         { cwd: command.cwd, stdio: [0, 1, 2] }
       );
   } catch (err) {
-    // Some commands return non-zero for expecte situations
+    // Some commands return non-zero for expected situations
     if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {
       throw err;
     }
   }
   console.log(''); // blank line after command output
+}
+
+
+function isRelativePath(pathname) {
+  if (pathname === null || pathname === undefined) { return false; }
+
+  return pathname.startsWith('./') || pathname.startsWith('../');
+}
+
+
+function isGitRepository(repository) {
+  const unmute = mute();
+  try {
+    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'git', ['ls-remote', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
+}
+
+
+function isHgRepository(repository) {
+  const unmute = mute();
+  try {
+    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
+    childProcess.execFileSync(
+      'hg', ['id', repository]
+    );
+    unmute();
+    return true;
+  } catch (err) {
+    unmute();
+    return false;
+  }
+}
+
+
+function resolveOrigin(parsedOrigin, relativePath) {
+  const temp = path.posix.resolve(parsedOrigin.pathname, relativePath);
+  const absolutePathname = path.posix.normalize(temp);
+
+  // Do the fake protocols first
+  if (parsedOrigin.protocol === 'local') {
+    return absolutePathname;
+  } else if (parsedOrigin.protocol === 'scp') {
+    return `${parsedOrigin.authAndHost}${absolutePathname}`;
+  }
+
+  // Proper protocol! Tweak path and reconstruct full URL.
+  const parsedTemp = url.parse(parsedOrigin.href);
+  parsedTemp.pathname = absolutePathname;
+  return url.format(parsedTemp);
+}
+
+
+function sameParsedOriginDir(origin1, origin2) {
+  if (origin1.protocol !== origin2.protocol) return false;
+
+  // Do the fake protocols first
+  if (origin1.protocol === 'local') {
+    return (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
+  } else if (origin1.protocol === 'scp') {
+    return (origin1.authAndHost === origin2.authAndHost)
+      && (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
+  }
+
+  // Proper protocol! Tweak path and reconstruct full URL for dir.
+  const dir1 = url.parse(origin1.href);
+  dir1.pathname = path.posix.dirname(dir1.pathname);
+  const dir2 = url.parse(origin2.href);
+  dir2.pathname = path.posix.dirname(dir2.pathname);
+  return url.format(dir1) === url.format(dir2);
+}
+
+
+function parseRepository(repository) {
+  // See GIT URLS on https://git-scm.com/docs/git-clone
+  // See "hg help urls"
+  // Parsing for git covers hg as well, sweet!
+  const result = {};
+  const parsed = url.parse(repository);
+  const recognisedProtocols = ['ssh:', 'git:', 'http:', 'https:', 'ftp:', 'ftps:', 'file:'];
+  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
+    result.protocol = parsed.protocol;
+    result.pathname = parsed.pathname;
+    result.href = parsed.href;
+  } else {
+    // git variation.
+    //   An alternative scp-like syntax may also be used with the ssh protocol:
+    //     [user@]host.xz:path/to/repo.git/
+    //   This syntax is only recognized if there are no slashes before the first colon.
+    const slashPos = repository.indexOf('/');
+    const colonPos = repository.indexOf(':');
+    if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
+      result.protocol = 'scp';
+      result.pathname = repository.substring(colonPos + 1);
+      result.authAndHost = repository.substring(0, colonPos);
+      console.log(`result.authAndHost is ${result.authAndHost}`);
+    } else {
+      // 1. Not supporting hg #revision here yet, add if needed.
+      // 2. Do we need to support windows local paths?
+      result.protocol = 'local';
+      result.pathname = repository;
+    }
+  }
+
+  return result;
 }
 
 
@@ -128,7 +242,7 @@ function readNestPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInNestDirectory = fileExistsSync(armConfigFilename);
+  const startedInNestDirectory = fileExistsSync(armManifest);
 
   let tryParent = true;
   do {
@@ -150,8 +264,44 @@ function cdRootDirectory() {
 }
 
 
-function readConfig(nestPath, addNestToDependencies) {
-  const configPath = path.resolve(nestPath, armConfigFilename);
+function getRepoTypeForLocalPath(repoPath) {
+  if (dirExistsSync(path.join(repoPath, '.git'))) {
+    return 'git';
+  } else if (dirExistsSync(path.join(repoPath, '.hg'))) {
+    return 'hg';
+  }
+
+  return undefined;
+}
+
+
+function getOrigin(repoPath, repoTypeParam) {
+  let origin;
+  let repoType = repoTypeParam;
+  if (repoType === undefined) {
+    repoType = getRepoTypeForLocalPath(repoPath);
+  }
+
+  if (repoType === 'git') {
+    try {
+      origin = childProcess.execFileSync(
+        'git', ['-C', repoPath, 'config', '--get', 'remote.origin.url']
+      ).toString().trim();
+    } catch (err) {
+      // May have created repo locally and does not yet have an origin
+      origin = null;
+    }
+  } else if (repoType === 'hg') {
+    origin = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'config', 'paths.default']
+    ).toString().trim();
+  }
+  return origin;
+}
+
+
+function readManifest(nestPath, addNestToDependencies) {
+  const configPath = path.resolve(nestPath, armManifest);
 
   let data;
   try {
@@ -173,22 +323,28 @@ function readConfig(nestPath, addNestToDependencies) {
     terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
+  const nestRepoType = getRepoTypeForLocalPath(nestPath);
+  const nestOrigin = getOrigin(nestPath, nestRepoType);
+  const parsedNestOrigin = parseRepository(nestOrigin);
   if (addNestToDependencies) {
-    let repoType;
-    if (dirExistsSync(path.join(nestPath, '.git'))) repoType = 'git';
-    else if (dirExistsSync(path.join(nestPath, '.hg'))) repoType = 'hg';
-    configObject.dependencies[nestPath] = { repoType };
+    configObject.dependencies[nestPath] = { origin: nestOrigin, repoType: nestRepoType };
   }
 
-  // Sanity check repoType so callers do not need to warn about unexpected type.
   Object.keys(configObject.dependencies).forEach((repoPath) => {
-    const repoType = configObject.dependencies[repoPath].repoType;
+    // Sanity check repoType so callers do not need to warn about unexpected type.
+    const entry = configObject.dependencies[repoPath];
     const supportedTypes = ['git', 'hg'];
-    if (supportedTypes.indexOf(repoType) === -1) {
+    if (supportedTypes.indexOf(entry.repoType) === -1) {
       console.log(my.errorColour(
-        `Skipping entry for "${repoPath}" with unsupported repoType: ${repoType}`
+        `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
       ));
       delete configObject.dependencies[repoPath];
+      return; // early exit from foreach
+    }
+
+    // Turn relative repos into absolute repos.
+    if (isRelativePath(entry.origin)) {
+      entry.origin = resolveOrigin(parsedNestOrigin, entry.origin);
     }
   });
 
@@ -199,7 +355,7 @@ function readConfig(nestPath, addNestToDependencies) {
 function doStatus() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -219,7 +375,7 @@ function doStatus() {
 function doFetch() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -236,7 +392,7 @@ function doFetch() {
 }
 
 
-function doHgAutoMerge(repoPath) {
+function hgAutoMerge(repoPath) {
   // Battle tested code from hgh tool
   const headCount = childProcess.execFileSync(
     'hg', ['heads', '.', '--repository', repoPath, '--template', 'x']
@@ -279,19 +435,24 @@ function doHgAutoMerge(repoPath) {
 function doPull() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'git') {
-      execCommandSync(
-        { cmd: 'git', args: ['pull'], cwd: repoPath }
-      );
-    } else if (repoType === 'hg') {
-      execCommandSync(
-        { cmd: 'hg', args: ['pull'], cwd: repoPath }
-      );
-      doHgAutoMerge(repoPath);
+    const entry = dependencies[repoPath];
+    if (entry.pinRevision !== undefined) {
+      console.log(`Skipping pinned repo: ${repoPath}\n`);
+    } else {
+      const repoType = entry.repoType;
+      if (repoType === 'git') {
+        execCommandSync(
+          { cmd: 'git', args: ['pull'], cwd: repoPath }
+        );
+      } else if (repoType === 'hg') {
+        execCommandSync(
+          { cmd: 'hg', args: ['pull'], cwd: repoPath }
+        );
+        hgAutoMerge(repoPath);
+      }
     }
   });
 }
@@ -300,13 +461,20 @@ function doPull() {
 function doOutgoing() {
   cdRootDirectory();
   const nestDirectory = readNestPathFromRoot();
-  const dependencies = readConfig(nestDirectory, true).dependencies;
+  const dependencies = readManifest(nestDirectory, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
     if (repoType === 'git') {
       execCommandSync(
-        { cmd: 'git', args: ['log', '@{u}..', '--oneline'], cwd: repoPath }
+        // http://stackoverflow.com/questions/2016901/viewing-unpushed-git-commits
+        // Started with "git log @{u}.." but that fails for detached head."
+        // The following does not list changes which have been pushed to some but not all branches,
+        // but otherwise pretty cool!
+        { cmd: 'git',
+          args: ['log', '--branches', '--not', '--remotes', '--decorate', '--oneline'],
+          cwd: repoPath }
+        // log
       );
     } else if (repoType === 'hg') {
       // Outgoing returns 1 if there are no outgoing changes.
@@ -322,36 +490,140 @@ function doOutgoing() {
 }
 
 
-function isGitRepository(repository) {
-  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
-  try {
-    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'git', ['ls-remote', repository]
-    );
+function getBranch(repoPath, repoType) {
+  let branch;
+  if (repoType === 'git') {
+    const unmute = mute();
+    try {
+      // This will fail if have detached head, but does work for an empty repo
+      branch = childProcess.execFileSync(
+         'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
+      ).toString().trim();
+    } catch (err) {
+      branch = undefined;
+    }
     unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
+  } else if (repoType === 'hg') {
+    branch = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'branch']
+    ).toString().trim();
+  }
+  return branch;
+}
+
+
+function getRevision(repoPath, repoType) {
+  let revision;
+  if (repoType === 'git') {
+    revision = childProcess.execFileSync(
+       'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
+    ).toString().trim();
+  } else if (repoType === 'hg') {
+    // TODO: find hg changeset
+    revision = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'id']
+    ).toString().trim();
+  }
+  return revision;
+}
+
+
+function cloneEntry(entry, repoPath, freeBranch) {
+  // Determine target branch for clone
+  let branch;
+  if (entry.pinRevision !== undefined) {
+    console.log(`# ${repoPath}: cloning pinned revision`);
+    branch = undefined;
+  } else if (entry.lockBranch !== undefined) {
+    console.log(`# ${repoPath}: cloning locked branch`);
+    branch = entry.lockBranch;
+  } else if (freeBranch !== undefined) {
+    console.log(`# ${repoPath}: cloning free repo on requested branch`);
+    branch = freeBranch;
+  } else {
+    console.log(`# ${repoPath}: cloning free repo`);
+  }
+
+  const args = ['clone'];
+  if (branch !== undefined) {
+    if (entry.repoType === 'git') {
+      args.push('--branch', branch);
+    } if (entry.repoType === 'hg') {
+      args.push('--updaterev', branch);
+    }
+  }
+
+  // Suppress checkout for pinRevision
+  if (entry.pinRevision !== undefined) {
+    if (entry.repoType === 'git') {
+      args.push('--no-checkout');
+    } if (entry.repoType === 'hg') {
+      args.push('--noupdate');
+    }
+  }
+  args.push(entry.origin, repoPath);
+  // Clone command ready!
+  execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
+
+  // Second commnd to checkout pinned revision
+  if (entry.pinRevision !== undefined) {
+    if (entry.repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
+      );
+    } else if (entry.repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'git', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
+      );
+    }
   }
 }
 
 
-function isHgRepository(repository) {
-  const unmute = mute(); // Did not manage to suppress output using stdio, so use mute.
-  try {
-    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'hg', ['id', repository]
-    );
-    unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
-  }
-}
+// function tryParseAllGitFormats() {
+//   // See GIT URLS on https://git-scm.com/docs/git-clone
+//   const testURLS = [
+//     'ssh://user@host.xz:123/path/to/repo.git/',
+//     'git://host.xz:123/path/to/repo.git/',
+//     'http://host.xz:123/path/to/repo.git/',
+//     'https://host.xz:123/path/to/repo.git/',
+//     'ftp://host.xz:123/path/to/repo.git/',
+//     'ftps://host.xz:123/path/to/repo.git/',
+//     'user@host.xz:path/to/repo.git/',
+//     'host.xz:path/to/repo.git/',
+//     '/path/to/repo.git/',
+//     'file:///path/to/repo.git/',
+//   ];
+//   console.log('=== Trying git url formats ===');
+//   testURLS.forEach((repoPath) => {
+//     console.log(`Parsing ${repoPath}`);
+//     const parsed = parseRepository(repoPath);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//   });
+// }
+
+
+// function tryParseAllHgFormats() {
+//   // From "hg help urls". These can all have #revision on end.
+//   const testURLS = [
+//     'local/filesystem/path',
+//     'file://local/filesystem/path',
+//     'http://user:pass@host:123/path',
+//     'https://user:pass@host:123/path',
+//     'ssh://user@host:123/path',
+//   ];
+//   console.log('=== Trying hg url formats ===');
+//   testURLS.forEach((repoPath) => {
+//     console.log(`Parsing ${repoPath}`);
+//     let parsed = parseRepository(repoPath);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//
+//     const qualified = `${repoPath}#revision`;
+//     console.log(`Parsing ${qualified}`);
+//     parsed = parseRepository(qualified);
+//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
+//   });
+// }
 
 
 function writeRootFile(rootFilePath, nestFromRoot) {
@@ -368,19 +640,20 @@ function writeRootFile(rootFilePath, nestFromRoot) {
 }
 
 
-function doInstall() {
+function doInstall(freeBranch) {
   let configObject;
-  if (fileExistsSync(armConfigFilename)) {
+  if (fileExistsSync(armManifest)) {
     // Probably being called during setup, before root file added.
-    configObject = readConfig('.');
+    configObject = readManifest('.');
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
     writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+    console.log();
   }
 
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  if (configObject === undefined) configObject = readConfig(nestPath);
+  if (configObject === undefined) configObject = readManifest(nestPath);
   const dependencies = configObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
@@ -388,9 +661,7 @@ function doInstall() {
       console.log(`Skipping already present dependency: ${repoPath}`);
     } else {
       const entry = dependencies[repoPath];
-      execCommandSync(
-        { cmd: entry.repoType, args: ['clone', entry.origin, repoPath], suppressContext: true }
-      );
+      cloneEntry(entry, repoPath, freeBranch);
     }
   });
 }
@@ -406,15 +677,9 @@ function findRepositories(startingDirectory, callback) {
     const itemPath = path.join(startingDirectory, item);
     if (dirExistsSync(itemPath)) {
       if (dirExistsSync(path.join(itemPath, '.git'))) {
-        const origin = childProcess.execFileSync(
-          'git', ['-C', itemPath, 'config', '--get', 'remote.origin.url']
-        ).toString().trim();
-        callback(itemPath, origin, 'git');
+        callback(itemPath, 'git');
       } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
-        const origin = childProcess.execFileSync(
-          'hg', ['--repository', itemPath, 'config', 'paths.default']
-        ).toString().trim();
-        callback(itemPath, origin, 'hg');
+        callback(itemPath, 'hg');
       }
 
       // Keep searching in case of nested repos.
@@ -425,13 +690,9 @@ function findRepositories(startingDirectory, callback) {
 
 
 function doInit(rootDirParam) {
-  const configPath = path.resolve(armConfigFilename);
+  const configPath = path.resolve(armManifest);
   if (fileExistsSync(configPath)) {
-    console.log(`Skipping init, already have ${armConfigFilename}`);
-    return;
-  }
-  if (fileExistsSync('.hgsub')) {
-    console.log('Skipping init, found .hgsub. Suggest use sibling init for subrepositories.');
+    console.log(`Skipping init, already have ${armManifest}`);
     return;
   }
 
@@ -448,70 +709,103 @@ function doInit(rootDirParam) {
   const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
-  // Dependencies
+  // Find nest origin
+  const parsedNestOrigin = parseRepository(getOrigin('.'));
+
+  // Dependencies (implicitly finds nest too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
-  findRepositories('.', (directory, origin, repoType) => {
-    dependencies[directory] = { origin, repoType };
+  findRepositories('.', (directory, repoType) => {
     console.log(`  ${directory}`);
+    const origin = getOrigin(directory, repoType);
+    const entry = { origin, repoType };
+
+    if (origin === null) {
+      console.log(my.errorColour('    (origin not specified)'));
+    } else {
+      const parsedOrigin = parseRepository(origin);
+      // We are doing simple auto detection of relative path, siblings on server
+      if (sameParsedOriginDir(parsedOrigin, parsedNestOrigin)) {
+        console.log('    (free)');
+        // Like git submodule, require relative paths to start with ./ or ../
+        const relativePath = path.posix.relative(parsedNestOrigin.pathname, parsedOrigin.pathname);
+        if (isRelativePath(relativePath)) {
+          entry.origin = relativePath;
+        }
+      } else {
+        const lockBranch = getBranch(directory, repoType);
+        if (lockBranch === undefined) {
+          const revision = getRevision(directory, repoType);
+          console.log(`    (pinned revision to ${revision})`);
+          entry.pinRevision = revision;
+        } else {
+          console.log(`    (locked branch to ${lockBranch})`);
+          entry.lockBranch = lockBranch;
+        }
+      }
+      dependencies[directory] = entry;
+    }
   });
   delete dependencies[nestFromRoot];
   const config = { dependencies, rootDirectory: rootFromNest };
   const prettyConfig = JSON.stringify(config, null, '  ');
 
   fs.writeFileSync(configPath, prettyConfig);
-  console.log(`Initialised dependencies in ${armConfigFilename}`);
+  console.log(`Initialised dependencies in ${armManifest}`);
 
-  // Root placeholder file. Safer to overwrite as low content.
+  // Root placeholder file. Safe to overwrite as low content.
   writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+
+  // Offer clue for possible sibling init situation.
+  if (Object.keys(dependencies).length === 0) {
+    console.log('(No dependencies found. For a sibling repo layout use "arm init --root ..")');
+  }
 }
 
 
-function doClone(source, destinationParam) {
+function doClone(source, destinationParam, options) {
   // We need to know the nest directory to find the config file after the clone.
   let destination = destinationParam;
   if (destination !== undefined) {
     // Leave it up to user to make intermediate directories if needed.
-  } else if (source.indexOf('/') !== -1) {
-    // Might be URL or a posix path.
-    const urlPath = url.parse(source).pathname;
-    destination = path.posix.basename(urlPath, '.git');
   } else {
-    // file system
-    destination = path.basename(source, '.git');
+    destination = path.posix.basename(parseRepository(source).pathname, '.git');
   }
 
   // Clone source.
+  const nestEntry = { origin: source };
   if (isGitRepository(source)) {
-    execCommandSync(
-      { cmd: 'git', args: ['clone', source, destination], suppressContext: true }
-    );
+    nestEntry.repoType = 'git';
   } else if (isHgRepository(source)) {
-    execCommandSync(
-      { cmd: 'hg', args: ['clone', source, destination], suppressContext: true }
-    );
-  } else {
-    terminate(`Unable to determine repository type: ${source}`);
+    nestEntry.repoType = 'hg';
   }
+  cloneEntry(nestEntry, destination, options.branch);
 
-  if (!fileExistsSync(path.join(destination, armConfigFilename))) {
-    terminate(`Warning: stopping as did not find ${armConfigFilename}`);
+  if (!fileExistsSync(path.join(destination, armManifest))) {
+    terminate(`Warning: stopping as did not find ${armManifest}`);
   }
 
   process.chdir(destination);
-  doInstall();
+  doInstall(options.branch);
 }
 
 
-function doForEach(args) {
+function doForEach(internalOptions, args) {
   if (args.length === 0) terminate('No foreach command specified');
   const cmd = args.shift();
 
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
+    if (internalOptions.freeOnly) {
+      const entry = dependencies[repoPath];
+      if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
+        return; // return from forEach function call, so continue
+      }
+    }
+
     if (args.length > 0) {
       execCommandSync(
         { cmd, args, cwd: repoPath }
@@ -528,7 +822,7 @@ function doForEach(args) {
 function doSnapshot() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readConfig(nestPath, true).dependencies;
+  const dependencies = readManifest(nestPath, true).dependencies;
 
   const snapshot = {};
   Object.keys(dependencies).forEach((repoPath) => {
@@ -560,7 +854,7 @@ program
 program.on('--help', () => {
   console.log('  Files:');
   console.log(
-    `    ${armConfigFilename} configuration file for forest, especially dependencies`);
+    `    ${armManifest} manifest file for forest`);
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
@@ -571,11 +865,11 @@ program.on('--help', () => {
 
 program
   .command('clone <source> [destination]')
+  .option('-b, --branch <branchname>', 'branch to checkout for free repos')
   .description('clone source and install its dependencies')
-  .action((source, destination) => {
+  .action((source, destination, options) => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
-    doClone(source, destination);
+    doClone(source, destination, options);
   });
 
 
@@ -584,7 +878,7 @@ program
   .description('fetch branches and tags from origin remote')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doFetch();
   });
 
@@ -594,17 +888,18 @@ program
   .description('add config file in current directory, and marker file at root of forest')
   .action((options) => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doInit(options.root);
   });
 
 program
   .command('install')
+  .option('-b, --branch <branchname>', 'branch to checkout for free dependent repos')
   .description('clone missing (new) dependent repositories')
-  .action(() => {
+  .action((options) => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
-    doInstall();
+    assertNoArgs();
+    doInstall(options.branch);
   });
 
 program
@@ -612,7 +907,7 @@ program
   .description('show changesets not in the default push location')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doOutgoing();
   });
 
@@ -621,7 +916,7 @@ program
   .description('git-style pull, which is fetch and merge')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doPull();
   });
 
@@ -630,7 +925,7 @@ program
   .description('show the root directory of the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     cdRootDirectory();
     console.log(process.cwd());
   });
@@ -640,17 +935,26 @@ program
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertRecognisedArgs();
+    assertNoArgs();
     doStatus();
   });
 
 program
-  .command('_foreach')
-  .description('run specified command on forest, e.g. "arm _foreach -- pwd"')
+  .command('foreach')
+  .description('run specified command on each repo in the forest, e.g. "arm foreach -- pwd"')
   .arguments('[command...]')
   .action((command) => {
     gRecognisedCommand = true;
-    doForEach(command);
+    doForEach({}, command);
+  });
+
+program
+  .command('_forfree')
+  .description('run specified command on repos which are not locked or pinned')
+  .arguments('[command...]')
+  .action((command) => {
+    gRecognisedCommand = true;
+    doForEach({ freeOnly: true }, command);
   });
 
 program
@@ -660,6 +964,16 @@ program
     gRecognisedCommand = true;
     if (command !== undefined) console.log(my.errorColour('save and restore not implemented yet'));
     doSnapshot();
+  });
+
+program
+  .command('_test')
+  .description('test')
+  .action(() => {
+    gRecognisedCommand = true;
+    // tryParseAllGitFormats();
+    // tryParseAllHgFormats();
+    console.log(path.posix.relative('a', 'b'));
   });
 
 program.parse(process.argv);
