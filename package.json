@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/arm",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "Another Repository Manager, inspired by Mercurial subrepositories, npm, and git.",
   "private": false,
   "main": "arm.js",
