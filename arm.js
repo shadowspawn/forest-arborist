@@ -438,16 +438,21 @@ function doPull() {
   const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'git') {
-      execCommandSync(
-        { cmd: 'git', args: ['pull'], cwd: repoPath }
-      );
-    } else if (repoType === 'hg') {
-      execCommandSync(
-        { cmd: 'hg', args: ['pull'], cwd: repoPath }
-      );
-      hgAutoMerge(repoPath);
+    const entry = dependencies[repoPath];
+    if (entry.pinRevision !== undefined) {
+      console.log(`Skipping pinned repo: ${repoPath}\n`);
+    } else {
+      const repoType = entry.repoType;
+      if (repoType === 'git') {
+        execCommandSync(
+          { cmd: 'git', args: ['pull'], cwd: repoPath }
+        );
+      } else if (repoType === 'hg') {
+        execCommandSync(
+          { cmd: 'hg', args: ['pull'], cwd: repoPath }
+        );
+        hgAutoMerge(repoPath);
+      }
     }
   });
 }
@@ -548,7 +553,7 @@ function cloneEntry(entry, repoPath, freeBranch) {
     }
   }
 
-  // Suppress checkout for pinRevison
+  // Suppress checkout for pinRevision
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === 'git') {
       args.push('--no-checkout');
