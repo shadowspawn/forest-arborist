@@ -1,27 +1,27 @@
 # arm
 
-pinCheckout (left out of pull and branching)
-lockBranch (left out of branching)
-free? (unpinned, unlocked)
-
 Backlog
+* decide what to do with clone target after find out whether nested??
+  * nested: arm clone a b, end up with nested a called b
+  * sibling: arm clone a b, end up with a inside b (at least for ..)
+  * can handle arbitrary depth for init, but not for clone! Could store nestPath...
+   * make path for nestedPath
+   * move initial checkout to nestPath
+
+Known Issues
+* do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
+
+Future Possibilities
 * do we need makeBranch? checkout + branch + track/origin for push
   * from current? from develop? from origin/develop?
   * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
 * do we need switchBranch? Just checkout.
-
-Shortcomings
-* outgoing fails for detached head
-* Windows paths in sameParsedOriginDir, path.relative et al?
-
-Future Possibilities
 * support re-install? softly softly
   * note: pull supports --ff-only
   * note checkout branch aborts if would lose uncommitted changes
-* manifest edit ?
-* manifest show ?
 * detecting clean before doing suspect operations?
   * detect detached head before moving away? Prob can't.
+  * detect merges in progress
 * qualifier for clone of siblings so creates wrapper folder ?
 * script for merging develop into master, bump version, push, npm publish
   * sanity checks, lint, dependencies
@@ -31,15 +31,24 @@ Future Possibilities
 * snapshot
   * save
   * restore
-  * clone --snapshot? Used pinned version of manifest as format??
-* save/restore or freeze of whatever for reproducible working group state [snapshot?]
+  * clone and install ?
+  * ss abbreviation for snapshot ?
+  * syntax, playing
+   * arm snapshot save out.json
+   * arm snapshot --save out.json
+   * arm snapshot --out out.json
+   * arm clone --snapshot x
+   * arm install --snapshot x
+   * arm restore [filename]
+   * arm ss write foo
+   * arm ss read foo
+   * write save --out (pipe)
+   * read restore load (pipe)
+   * --full to make a clonable file? Or treat clonable as different than state.
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
-* support pinning via a command, and unpinning (have not done getRevision for hg yet)
-* support locking via a command, and unlocking ?
-* something to check for merges already in progress etc, check, pure expectedProtocols
 * config edit (see git)
 * repo or personal preference for rebase vs merge et al
 *   or, support pass-through flags for repo commands with -- if useful?

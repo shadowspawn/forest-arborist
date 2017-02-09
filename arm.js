@@ -519,9 +519,8 @@ function getRevision(repoPath, repoType) {
        'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
     ).toString().trim();
   } else if (repoType === 'hg') {
-    // TODO: find hg changeset
     revision = childProcess.execFileSync(
-      'hg', ['--repository', repoPath, 'id']
+      'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
     ).toString().trim();
   }
   return revision;
@@ -822,24 +821,24 @@ function doForEach(internalOptions, args) {
 function doSnapshot() {
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  const dependencies = readManifest(nestPath, true).dependencies;
+  const manifest = readManifest(nestPath);
 
-  const snapshot = {};
-  Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    let id;
-    if (repoType === 'git') {
-      id = childProcess.execFileSync(
-        'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
-      ).toString().trim();
-    } else if (repoType === 'hg') {
-      id = childProcess.execFileSync(
-        'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
-      ).toString().trim();
-    }
-    snapshot[repoPath] = id;
+  // Rewrite dependencies with fixed revision and absolute repo.
+  Object.keys(manifest.dependencies).forEach((repoPath) => {
+    const entry = manifest.dependencies[repoPath];
+    // KISS, get current repo
+    entry.origin = getOrigin(repoPath, entry.repoType);
+    entry.pinRevision = getRevision(repoPath, entry.repoType);
   });
-  const prettySnapshot = JSON.stringify(snapshot, null, '  ');
+
+  const nestRepoType = getRepoTypeForLocalPath(nestPath);
+  manifest.mainRepo = {
+    repoPath: nestPath,
+    origin: getOrigin(nestPath, nestRepoType),
+    pinRevision: getRevision(nestPath, nestRepoType),
+  };
+
+  const prettySnapshot = JSON.stringify(manifest, null, '  ');
   console.log(prettySnapshot);
 }
 
