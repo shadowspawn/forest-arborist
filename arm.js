@@ -857,11 +857,12 @@ function doSnapshot() {
     entry.pinRevision = getRevision(repoPath, entry.repoType);
   });
 
-  const nestRepoType = getRepoTypeForLocalPath(nestPath);
-  manifest.mainRepo = {
-    repoPath: nestPath,
-    origin: getOrigin(nestPath, nestRepoType),
-    pinRevision: getRevision(nestPath, nestRepoType),
+  let nestPathNotBlank = nestPath;
+  if (nestPathNotBlank === '') nestPathNotBlank = '.';
+  const nestRepoType = getRepoTypeForLocalPath(nestPathNotBlank);
+  manifest.nestRepo = {
+    origin: getOrigin(nestPathNotBlank, nestRepoType),
+    pinRevision: getRevision(nestPathNotBlank, nestRepoType),
   };
 
   const prettySnapshot = JSON.stringify(manifest, null, '  ');

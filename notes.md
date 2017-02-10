@@ -1,12 +1,6 @@
 # arm
 
 Backlog
-* decide what to do with clone target after find out whether nested??
-  * nested: arm clone a b, end up with nested a called b
-  * sibling: arm clone a b, end up with a inside b (at least for ..)
-  * can handle arbitrary depth for init, but not for clone! Could store nestPath...
-   * make path for nestedPath
-   * move initial checkout to nestPath
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
@@ -15,15 +9,15 @@ Future Possibilities
 * do we need makeBranch? checkout + branch + track/origin for push
   * from current? from develop? from origin/develop?
   * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
-* do we need switchBranch? Just checkout.
+* do we need switchBranch? (Just checkout?)
 * support re-install? softly softly
   * note: pull supports --ff-only
   * note checkout branch aborts if would lose uncommitted changes
 * detecting clean before doing suspect operations?
   * detect detached head before moving away? Prob can't.
   * detect merges in progress
-* qualifier for clone of siblings so creates wrapper folder ?
-* script for merging develop into master, bump version, push, npm publish
+* arm development script for
+  * merging develop into master, bump version, push, npm publish?
   * sanity checks, lint, dependencies
   * copy-up: checkout master, merge develop
   * npm version patch
