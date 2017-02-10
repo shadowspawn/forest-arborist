@@ -862,11 +862,36 @@ function doSnapshot() {
   const nestRepoType = getRepoTypeForLocalPath(nestPathNotBlank);
   manifest.nestRepo = {
     origin: getOrigin(nestPathNotBlank, nestRepoType),
+    repoType: nestRepoType,
     pinRevision: getRevision(nestPathNotBlank, nestRepoType),
   };
 
   const prettySnapshot = JSON.stringify(manifest, null, '  ');
   console.log(prettySnapshot);
+}
+
+
+function doRestore(snapshotPath) {
+  if (!fileExistsSync(snapshotPath)) terminate('Snapshot file not found');
+
+  let data;
+  try {
+    data = fs.readFileSync(snapshotPath);
+  } catch (err) {
+    terminate(`problem opening ${snapshotPath}\n${err}`);
+  }
+
+  let snapshotObject;
+  try {
+    snapshotObject = JSON.parse(data);
+  } catch (err) {
+    terminate(`problem parsing ${snapshotPath}\n${err}`);
+  }
+
+  // Nest repo first
+  const nestRepoEntry = snapshotObject.nestRepo;
+  const destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
+  cloneEntry(nestRepoEntry, destination);
 }
 
 
@@ -984,12 +1009,19 @@ program
   });
 
 program
-  .command('_snapshot [save|restore]')
+  .command('_snapshot')
   .description('display state of forest')
-  .action((command) => {
+  .action(() => {
     gRecognisedCommand = true;
-    if (command !== undefined) console.log(my.errorColour('save and restore not implemented yet'));
     doSnapshot();
+  });
+
+program
+  .command('_restore <snapshot>')
+  .description('restore state of forest')
+  .action((snapshot) => {
+    gRecognisedCommand = true;
+    doRestore(snapshot);
   });
 
 program
