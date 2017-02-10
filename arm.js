@@ -691,6 +691,7 @@ function doInit(rootDirParam) {
   const configPath = path.resolve(armManifest);
   if (fileExistsSync(configPath)) {
     console.log(`Skipping init, already have ${armManifest}`);
+    console.log('(Delete it to start over, or did you want "arm install"?)');
     return;
   }
 
@@ -790,11 +791,27 @@ function doClone(source, destinationParam, options) {
   cloneEntry(nestEntry, destination, options.branch);
 
   if (!fileExistsSync(path.join(destination, armManifest))) {
-    terminate(`Warning: stopping as did not find ${armManifest}`);
+    terminate(`Warning: stopping as did not find manifest ${armManifest}`);
   }
 
-  process.chdir(destination);
+  const manifest = readManifest(destination);
+  if (manifest.nestPathFromRoot !== undefined && manifest.nestPathFromRoot !== '') {
+    // Play shell game for sibling layout, using destination as a wrapper folder.
+    console.log('Using sibling repo layout.');
+    const tempDir = fs.mkdtempSync('./');
+    fs.renameSync(destination, path.join(tempDir, destination));
+    fs.mkdirSync(destination);
+    const nestPathFromHere = path.join(destination, manifest.nestPathFromRoot);
+    fs.renameSync(path.join(tempDir, destination), nestPathFromHere);
+    fs.rmdirSync(tempDir);
+    process.chdir(nestPathFromHere);
+  } else {
+    process.chdir(destination);
+  }
+
   doInstall(options.branch);
+
+  console.log(`Created repo forest in ${destination}`);
 }
 
 
