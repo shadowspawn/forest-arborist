@@ -234,10 +234,10 @@ function readNestPathFromRoot() {
   } catch (err) {
     terminate(`problem parsing ${armRootPath}\n${err}`);
   }
-  if (rootObject.configDirectory === undefined) {
-    terminate(`problem parsing: ${armRootPath}\nmissing field 'configurationDirectory'`);
+  if (rootObject.nestPath === undefined) {
+    terminate(`problem parsing: ${armRootPath}\nmissing field 'nestPath'`);
   }
-  return rootObject.configDirectory;
+  return rootObject.nestPath;
 }
 
 
@@ -289,7 +289,6 @@ function getOrigin(repoPath, repoTypeParam) {
       ).toString().trim();
     } catch (err) {
       // May have created repo locally and does not yet have an origin
-      origin = null;
     }
   } else if (repoType === 'hg') {
     origin = childProcess.execFileSync(
@@ -625,13 +624,13 @@ function cloneEntry(entry, repoPath, freeBranch) {
 // }
 
 
-function writeRootFile(rootFilePath, nestFromRoot) {
+function writeRootFile(rootFilePath, nestPath) {
   let initialisedWord = 'Initialised';
   if (fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
-  const rootObject = { configDirectory: nestFromRoot };
+  const rootObject = { nestPath };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
-  if (nestFromRoot === '') {
+  if (nestPath === '') {
     console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
   } else {
     console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
@@ -695,6 +694,19 @@ function doInit(rootDirParam) {
     return;
   }
 
+  // Find nest origin, if we can.
+  const nestRepoType = getRepoTypeForLocalPath('.');
+  if (nestRepoType === undefined) {
+    terminate('Expecting current directory to have a repository. (KISS)');
+  }
+  const nestOrigin = getOrigin('.', nestRepoType);
+  let parsedNestOrigin;
+  if (nestOrigin === undefined) {
+    console.log(my.errorColour('(origin not specified for starting repo)'));
+  } else {
+    parsedNestOrigin = parseRepository(nestOrigin);
+  }
+
   // Sort out nest and root paths
   const nestAbsolutePath = process.cwd();
   let rootAbsolutePath;
@@ -708,9 +720,6 @@ function doInit(rootDirParam) {
   const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
   const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
 
-  // Find nest origin
-  const parsedNestOrigin = parseRepository(getOrigin('.'));
-
   // Dependencies (implicitly finds nest too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
@@ -719,7 +728,7 @@ function doInit(rootDirParam) {
     const origin = getOrigin(directory, repoType);
     const entry = { origin, repoType };
 
-    if (origin === null) {
+    if (origin === undefined) {
       console.log(my.errorColour('    (origin not specified)'));
     } else {
       const parsedOrigin = parseRepository(origin);
@@ -746,7 +755,7 @@ function doInit(rootDirParam) {
     }
   });
   delete dependencies[nestFromRoot];
-  const config = { dependencies, rootDirectory: rootFromNest };
+  const config = { dependencies, rootDirectory: rootFromNest, nestPathFromRoot: nestFromRoot };
   const prettyConfig = JSON.stringify(config, null, '  ');
 
   fs.writeFileSync(configPath, prettyConfig);
