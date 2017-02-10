@@ -797,7 +797,7 @@ function doClone(source, destinationParam, options) {
   const manifest = readManifest(destination);
   if (manifest.nestPathFromRoot !== undefined && manifest.nestPathFromRoot !== '') {
     // Play shell game for sibling layout, using destination as a wrapper folder.
-    console.log('Using sibling repo layout.');
+    console.log('Using sibling repo layout');
     const tempDir = fs.mkdtempSync('./');
     fs.renameSync(destination, path.join(tempDir, destination));
     fs.mkdirSync(destination);
