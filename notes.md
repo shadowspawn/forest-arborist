@@ -1,15 +1,12 @@
 # arm
 
 Backlog
-* restore
- * copy-and-paste, get things working!
- * destination
- * group commands
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
 
 Future Possibilities
+* group commands sensibly (i.e. reorder)
 * do we need makeBranch? checkout + branch + track/origin for push
   * from current? from develop? from origin/develop?
   * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
@@ -26,36 +23,12 @@ Future Possibilities
   * copy-up: checkout master, merge develop
   * npm version patch
   * deploy: npm publish, git push
-* snapshot
-  * save
-  * restore
-  * clone and install ?
-  * restore and reset ?
-  * ss abbreviation for snapshot ?
-  * syntax, playing
-   * arm snapshot save out.json
-   * arm snapshot --save out.json
-   * arm snapshot --out out.json
-   * arm clone --snapshot x
-   * arm install --snapshot x
-   * arm restore [filename]
-   * arm ss write foo
-   * arm ss read foo
-   * write save --out (pipe)
-   * read restore load (pipe)
-   * --full to make a clonable file? Or treat clonable as different than state.
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
-* config edit (see git)
-* repo or personal preference for rebase vs merge et al
-*   or, support pass-through flags for repo commands with -- if useful?
-*   or, options for command
 * unit tests
 * probably problems with windows path names for origin of hg repos
-* version number in files?
-* fetch is low value, just use foreach?
 * status is somewhat low value, but is more compact...
 
 Terminology Inspirations

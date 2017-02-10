@@ -371,26 +371,6 @@ function doStatus() {
 }
 
 
-function doFetch() {
-  cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  const dependencies = readManifest(nestPath, true).dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'git') {
-      execCommandSync(
-        { cmd: 'git', args: ['fetch'], cwd: repoPath }
-      );
-    } else if (repoType === 'hg') {
-      execCommandSync(
-        { cmd: 'hg', args: ['pull'], cwd: repoPath }
-      );
-    }
-  });
-}
-
-
 function hgAutoMerge(repoPath) {
   // Battle tested code from hgh tool
   const headCount = childProcess.execFileSync(
@@ -869,7 +849,7 @@ function doSnapshot() {
 }
 
 
-function doRestore(snapshotPath, destinationParam) {
+function doRecreate(snapshotPath, destinationParam) {
   if (!fileExistsSync(snapshotPath)) terminate('Snapshot file not found');
 
   // Read snapshot
@@ -893,7 +873,7 @@ function doRestore(snapshotPath, destinationParam) {
     destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
   }
 
-  // Restore nest repo first
+  // Clone nest repo first
   if (snapshotObject.nestPathFromRoot !== undefined && snapshotObject.snapshotObject !== '') {
     // Sibling layout. Make wrapper directory.
     fs.mkdirSync(destination);
@@ -902,7 +882,7 @@ function doRestore(snapshotPath, destinationParam) {
   }
   cloneEntry(nestRepoEntry, destination);
 
-  // Restore dependent repos
+  // Clone dependent repos
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -944,20 +924,10 @@ program
     doClone(source, destination, options);
   });
 
-
-program
-  .command('fetch')
-  .description('fetch branches and tags from origin remote')
-  .action(() => {
-    gRecognisedCommand = true;
-    assertNoArgs();
-    doFetch();
-  });
-
 program
   .command('init')
   .option('--root <dir>', 'root directory of forest if not current directory')
-  .description('add config file in current directory, and marker file at root of forest')
+  .description('add manifest in current directory, and marker file at root of forest')
   .action((options) => {
     gRecognisedCommand = true;
     assertNoArgs();
@@ -976,7 +946,7 @@ program
 
 program
   .command('outgoing')
-  .description('show changesets not in the default push location')
+  .description('show new changesets that have not been pushed')
   .action(() => {
     gRecognisedCommand = true;
     assertNoArgs();
@@ -1038,11 +1008,11 @@ program
   });
 
 program
-  .command('_restore <snapshot> [destination]')
-  .description('restore state of forest')
+  .command('_recreate <snapshot> [destination]')
+  .description('clone repos to recreate forest in past state')
   .action((snapshot, destination) => {
     gRecognisedCommand = true;
-    doRestore(snapshot, destination);
+    doRecreate(snapshot, destination);
   });
 
 program
