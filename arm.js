@@ -153,19 +153,20 @@ function isHgRepository(repository) {
 
 
 function resolveOrigin(parsedOrigin, relativePath) {
-  const temp = path.posix.resolve(parsedOrigin.pathname, relativePath);
-  const absolutePathname = path.posix.normalize(temp);
-
   // Do the fake protocols first
   if (parsedOrigin.protocol === 'local') {
-    return absolutePathname;
+    const temp = path.posix.resolve(parsedOrigin.pathname, relativePath);
+    return path.posix.normalize(temp);
   } else if (parsedOrigin.protocol === 'scp') {
-    return `${parsedOrigin.authAndHost}${absolutePathname}`;
+    const temp = path.join(parsedOrigin.pathname, relativePath);
+    const absolutePathname = path.posix.normalize(temp);
+    return `${parsedOrigin.authAndHost}:${absolutePathname}`;
   }
 
   // Proper protocol! Tweak path and reconstruct full URL.
   const parsedTemp = url.parse(parsedOrigin.href);
-  parsedTemp.pathname = absolutePathname;
+  const temp2 = path.join(parsedOrigin.pathname, relativePath);
+  parsedTemp.pathname = path.posix.normalize(temp2);
   return url.format(parsedTemp);
 }
 
@@ -212,7 +213,6 @@ function parseRepository(repository) {
       result.protocol = 'scp';
       result.pathname = repository.substring(colonPos + 1);
       result.authAndHost = repository.substring(0, colonPos);
-      console.log(`result.authAndHost is ${result.authAndHost}`);
     } else {
       // 1. Not supporting hg #revision here yet, add if needed.
       // 2. Do we need to support windows local paths?
