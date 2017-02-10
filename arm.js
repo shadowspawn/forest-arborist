@@ -306,20 +306,20 @@ function readManifest(nestPath, addNestToDependencies) {
   try {
     data = fs.readFileSync(configPath);
   } catch (err) {
-    terminate(`problem opening ${configPath}\n${err}`);
+    terminate(`Problem opening ${configPath}\n${err}`);
   }
 
   let configObject;
   try {
     configObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${configPath}\n${err}`);
+    terminate(`Problem parsing ${configPath}\n${err}`);
   }
   if (configObject.dependencies === undefined) {
-    terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
+    terminate(`Problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
   if (configObject.rootDirectory === undefined) {
-    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+    terminate(`Problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
   const nestRepoType = getRepoTypeForLocalPath(nestPath);
@@ -775,9 +775,7 @@ function doInit(rootDirParam) {
 function doClone(source, destinationParam, options) {
   // We need to know the nest directory to find the config file after the clone.
   let destination = destinationParam;
-  if (destination !== undefined) {
-    // Leave it up to user to make intermediate directories if needed.
-  } else {
+  if (destination === undefined) {
     destination = path.posix.basename(parseRepository(source).pathname, '.git');
   }
 
@@ -871,27 +869,50 @@ function doSnapshot() {
 }
 
 
-function doRestore(snapshotPath) {
+function doRestore(snapshotPath, destinationParam) {
   if (!fileExistsSync(snapshotPath)) terminate('Snapshot file not found');
 
+  // Read snapshot
   let data;
   try {
     data = fs.readFileSync(snapshotPath);
   } catch (err) {
-    terminate(`problem opening ${snapshotPath}\n${err}`);
+    terminate(`Problem opening ${snapshotPath}\n${err}`);
   }
-
   let snapshotObject;
   try {
     snapshotObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${snapshotPath}\n${err}`);
+    terminate(`Problem parsing ${snapshotPath}\n${err}`);
   }
 
-  // Nest repo first
   const nestRepoEntry = snapshotObject.nestRepo;
-  const destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
+
+  let destination = destinationParam;
+  if (destination === undefined) {
+    destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
+  }
+
+  // Restore nest repo first
+  if (snapshotObject.nestPathFromRoot !== undefined && snapshotObject.snapshotObject !== '') {
+    // Sibling layout. Make wrapper directory.
+    fs.mkdirSync(destination);
+    process.chdir(destination);
+    destination = snapshotObject.nestPathFromRoot;
+  }
   cloneEntry(nestRepoEntry, destination);
+
+  // Restore dependent repos
+  const dependencies = snapshotObject.dependencies;
+  Object.keys(dependencies).forEach((repoPath) => {
+    const entry = dependencies[repoPath];
+    cloneEntry(entry, repoPath);
+  });
+
+  // Install root file
+  const rootAbsolutePath = path.resolve(destination, snapshotObject.rootDirectory);
+  const nestFromRoot = path.relative(rootAbsolutePath, path.resolve(destination));
+  writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
 }
 
 
@@ -1017,11 +1038,11 @@ program
   });
 
 program
-  .command('_restore <snapshot>')
+  .command('_restore <snapshot> [destination]')
   .description('restore state of forest')
-  .action((snapshot) => {
+  .action((snapshot, destination) => {
     gRecognisedCommand = true;
-    doRestore(snapshot);
+    doRestore(snapshot, destination);
   });
 
 program

@@ -1,6 +1,10 @@
 # arm
 
 Backlog
+* restore
+ * copy-and-paste, get things working!
+ * destination
+ * group commands
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
@@ -26,6 +30,7 @@ Future Possibilities
   * save
   * restore
   * clone and install ?
+  * restore and reset ?
   * ss abbreviation for snapshot ?
   * syntax, playing
    * arm snapshot save out.json
@@ -48,6 +53,10 @@ Future Possibilities
 *   or, support pass-through flags for repo commands with -- if useful?
 *   or, options for command
 * unit tests
+* probably problems with windows path names for origin of hg repos
+* version number in files?
+* fetch is low value, just use foreach?
+* status is somewhat low value, but is more compact...
 
 Terminology Inspirations
 * git
