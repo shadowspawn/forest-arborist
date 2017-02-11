@@ -558,10 +558,18 @@ function doMakeBranch(branch, startPoint, publish) {
         );
       }
     } else if (repoType === 'hg') {
-      console.log('Not implemented yet');
-      // execCommandSync(
-      //   { cmd: 'hg', args: ['update', branch], cwd: repoPath }
-      // );
+      if (startPoint !== undefined) {
+        execCommandSync({ cmd: 'hg', args: ['update', startPoint], cwd: repoPath });
+      }
+      execCommandSync({ cmd: 'hg', args: ['branch', branch], cwd: repoPath });
+      if (publish) {
+        execCommandSync(
+          { cmd: 'hg', args: ['commit', '--message', 'Create branch'], cwd: repoPath }
+        );
+        execCommandSync(
+          { cmd: 'hg', args: ['push', '--branch', branch, '--new-branch'], cwd: repoPath }
+        );
+      }
     }
   });
 }
