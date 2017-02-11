@@ -992,7 +992,7 @@ program.on('--help', () => {
   console.log('  Files:');
   console.log(
     `    ${armManifest} manifest file for forest`);
-  console.log(`    ${armRootFilename} marks root of forest`);
+  console.log(`    ${armRootFilename} marks root of forest (do not commit to VCS)`);
   console.log('');
   console.log('  Forest management: clone, init, install');
   console.log('  Utility: status, pull, outgoing, for-each, for-free');

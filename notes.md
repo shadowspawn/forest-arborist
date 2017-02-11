@@ -15,6 +15,7 @@ Known Issues
 * hg
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
+* Say goodbye to bisect
 
 Backlog Possibles
 * support re-install? softly softly
@@ -39,6 +40,7 @@ Backlog Possibles
  * hg X == for --hg hg X ?
 * put clues into manifest for manual editing?
 * tidier if use '.' rather than '' for nested rootDirectory et al ?
+* tip to put .arm-root in ignore file?
 
 Terminology Inspirations
 * git
@@ -64,3 +66,11 @@ Interesting
 
 git-flow equivalent git commands
 * https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac
+
+Other Approaches
+* git submodules
+* git subtree
+* (google) repo
+* braid
+* gits (git slave)
+* mr (multiple repositories)
