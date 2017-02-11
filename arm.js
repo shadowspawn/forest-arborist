@@ -923,7 +923,7 @@ program.on('--help', () => {
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
   console.log('  See https://github.com/JohnRGee/arm.git for usage overview.');
-  console.log("  See also 'arm <command> --help' if there are options on a subcommand.");
+  console.log("  See also 'arm <command> --help' for command options and further help.");
   console.log('');
 });
 
@@ -940,6 +940,17 @@ program
   .command('init')
   .option('--root <dir>', 'root directory of forest if not current directory')
   .description('add manifest in current directory, and marker file at root of forest')
+  .on('--help', () => {
+    console.log('  Use init to create the manifest based on your current sandpit. ');
+    console.log('  Run from your main repo and it finds the dependent repos.');
+    console.log('');
+    console.log('  Examples:');
+    console.log('    For a forest layout with dependent repos nested in the main repo:');
+    console.log('         arm init');
+    console.log('');
+    console.log('    For a forest layout with sibling repositories:');
+    console.log('         arm init --root ..');
+  })
   .action((options) => {
     gRecognisedCommand = true;
     assertNoArgs();
@@ -968,6 +979,9 @@ program
 program
   .command('pull')
   .description('git-style pull, which is fetch and merge')
+  .on('--help', () => {
+    console.log('  Target repos: free and branch-locked, excludes repos pinned to a revision');
+  })
   .action(() => {
     gRecognisedCommand = true;
     assertNoArgs();
@@ -1003,7 +1017,7 @@ program
   });
 
 program
-  .command('_forfree')
+  .command('forfree')
   .description('run specified command on repos which are not locked or pinned')
   .arguments('[command...]')
   .action((command) => {

@@ -1,12 +1,9 @@
 # arm
 
 Backlog
-* snapshot showing lockBranch?
+* try what is needed for create and switch branch
 
-Known Issues
-* do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
-
-Future Possibilities
+Backlog Possibles
 * group commands sensibly (i.e. reorder)
 * do we need makeBranch? checkout + branch + track/origin for push
   * from current? from develop? from origin/develop?
@@ -15,9 +12,6 @@ Future Possibilities
 * support re-install? softly softly
   * note: pull supports --ff-only
   * note checkout branch aborts if would lose uncommitted changes
-* detecting clean before doing suspect operations?
-  * detect detached head before moving away? Prob can't.
-  * detect merges in progress
 * arm development script for
   * merging develop into master, bump version, push, npm publish?
   * sanity checks, lint, dependencies
@@ -31,6 +25,13 @@ Future Possibilities
 * unit tests
 * probably problems with windows path names for origin of hg repos
 * status is somewhat low value, but is more compact...
+* for
+ * --pinned --locked --free --all
+ * --git --hg (default to all, but supports mixed repo types!)
+
+Known Issues
+* do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
+* hg support may be less tested
 
 Terminology Inspirations
 * git
