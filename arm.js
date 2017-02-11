@@ -994,6 +994,11 @@ program.on('--help', () => {
     `    ${armManifest} manifest file for forest`);
   console.log(`    ${armRootFilename} marks root of forest`);
   console.log('');
+  console.log('  Forest management: clone, init, install');
+  console.log('  Utility: status, pull, outgoing, for-each, for-free');
+  console.log('  Branch: make-branch, switch');
+  console.log('  Reproducible state: snapshot, recreate, restore');
+  console.log('');
   console.log('  Commands starting with an underscore are still in development.');
   console.log('  See https://github.com/JohnRGee/arm.git for usage overview.');
   console.log("  See also 'arm <command> --help' for command options and further help.");
@@ -1041,12 +1046,12 @@ program
   });
 
 program
-  .command('outgoing')
-  .description('show new changesets that have not been pushed')
+  .command('status')
+  .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
     assertNoArgs();
-    doOutgoing();
+    doStatus();
   });
 
 program
@@ -1062,6 +1067,15 @@ program
   });
 
 program
+  .command('outgoing')
+  .description('show new changesets that have not been pushed')
+  .action(() => {
+    gRecognisedCommand = true;
+    assertNoArgs();
+    doOutgoing();
+  });
+
+program
   .command('root')
   .description('show the root directory of the forest')
   .action(() => {
@@ -1069,15 +1083,6 @@ program
     assertNoArgs();
     cdRootDirectory();
     console.log(process.cwd());
-  });
-
-program
-  .command('status')
-  .description('show concise status for each repo in the forest')
-  .action(() => {
-    gRecognisedCommand = true;
-    assertNoArgs();
-    doStatus();
   });
 
 program
@@ -1099,7 +1104,24 @@ program
   });
 
 program
-  .command('_snapshot')
+  .command('switch <branch>')
+  .description('switch branch of free repos')
+  .action((branch) => {
+    gRecognisedCommand = true;
+    doSwitch(branch);
+  });
+
+program
+  .command('make-branch <branch> [start_point]')
+  .option('-p, --publish', 'push newly created branch')
+  .description('create new branch in free repos')
+  .action((branch, startPoint, options) => {
+    gRecognisedCommand = true;
+    doMakeBranch(branch, startPoint, options.publish);
+  });
+
+program
+  .command('snapshot')
   .alias('ss')
   .description('display state of forest')
   .action(() => {
@@ -1108,7 +1130,7 @@ program
   });
 
 program
-  .command('_recreate <snapshot> [destination]')
+  .command('recreate <snapshot> [destination]')
   .description('clone repos to recreate forest in past state')
   .action((snapshot, destination) => {
     gRecognisedCommand = true;
@@ -1116,20 +1138,12 @@ program
   });
 
 program
-  .command('_switch <branch>')
-  .description('switch branch of free repos')
-  .action((branch) => {
+  .command('_restore <snapshot>')
+  .description('checkout repos to restore forest in past state')
+  .action((snapshot) => {
     gRecognisedCommand = true;
-    doSwitch(branch);
-  });
-
-program
-  .command('_make-branch <branch> [start_point]')
-  .option('-p, --publish', 'push newly created branch')
-  .description('create new branch')
-  .action((branch, startPoint, options) => {
-    gRecognisedCommand = true;
-    doMakeBranch(branch, startPoint, options.publish);
+    if (snapshot) ; // Lint fir unused variable
+    console.log('Not implemented yet');
   });
 
 // Hidden command for trying things out

@@ -4,22 +4,19 @@ Backlog
 
 Known Issues
 * warn when init on empty repo??? Because:
- * "hg pull" on empty repo causes error
  * "arm outgoing" fails for empty git repo
  * "arm clone" fails for locked empty git repo
  * "arm make-branch" publish fails for branch in empty repo
-* "hg push" returns status 1 so breaks for-each
-* if "hg pull" gets nothing then no need to call "hg update"
-* stack dump when command fails
-* Try operations with changes
- * "arm pull" claims on detached head when have local changes?
+ * "hg pull" on empty repo causes error
+* stack dump when command fails (cosmetic)
+* Try operations with changes in repo, check fail elegantly
+ * "arm pull" claims on detached head when have local changes? (Might have been empty branch problem)
+* local origin on Windows probably not working (need support for Windows path in multiple places)
+* hg
+ * "hg push" returns status 1 so breaks for-each
+ * if "hg pull" gets nothing then no need to call "hg update"
 
 Backlog Possibles
-* group commands sensibly (i.e. reorder)
-* do we need makeBranch? checkout + branch + track/origin for push
-  * from current? from develop? from origin/develop?
-  * http://stackoverflow.com/questions/6089294/why-do-i-need-to-do-set-upstream-all-the-time
-* do we need switchBranch? (Just checkout?)
 * support re-install? softly softly
   * note: pull supports --ff-only
   * note checkout branch aborts if would lose uncommitted changes
@@ -33,9 +30,8 @@ Backlog Possibles
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
-* unit tests
-* probably problems with windows path names for origin of hg repos
-* status is somewhat low value, but is more compact...
+* unit tests (URLs, nested operations, sibling operations, pin/lock/free)
+* typescript
 * for
  * --pinned --locked --free --all
  * --git --hg (default to all, but supports mixed repo types!)
@@ -43,10 +39,6 @@ Backlog Possibles
  * hg X == for --hg hg X ?
 * put clues into manifest for manual editing?
 * tidier if use '.' rather than '' for nested rootDirectory et al ?
-
-Known Issues
-* do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
-* hg support may be less tested
 
 Terminology Inspirations
 * git
