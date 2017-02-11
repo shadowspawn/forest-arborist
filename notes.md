@@ -28,6 +28,8 @@ Backlog Possibles
 * for
  * --pinned --locked --free --all
  * --git --hg (default to all, but supports mixed repo types!)
+ * git X == for --git git X ?
+ * hg X == for --hg hg X ?
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?

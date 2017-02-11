@@ -377,7 +377,7 @@ function readManifest(nestPath, addNestToDependencies) {
         `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
       ));
       delete configObject.dependencies[repoPath];
-      return; // early exit from foreach
+      return; // continue forEach
     }
 
     // Turn relative repos into absolute repos.
@@ -505,6 +505,63 @@ function doOutgoing() {
           allowedShellStatus: 1,
         }
       );
+    }
+  });
+}
+
+
+function doSwitch(branch) {
+  cdRootDirectory();
+  const nestDirectory = readNestPathFromRoot();
+  const dependencies = readManifest(nestDirectory, true).dependencies;
+
+  Object.keys(dependencies).forEach((repoPath) => {
+    const entry = dependencies[repoPath];
+    if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
+      return; // continue forEach
+    }
+
+    const repoType = entry.repoType;
+    if (repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['checkout', branch], cwd: repoPath }
+      );
+    } else if (repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['update', branch], cwd: repoPath }
+      );
+    }
+  });
+}
+
+
+function doMakeBranch(branch, startPoint, publish) {
+  cdRootDirectory();
+  const nestDirectory = readNestPathFromRoot();
+  const dependencies = readManifest(nestDirectory, true).dependencies;
+
+  Object.keys(dependencies).forEach((repoPath) => {
+    const entry = dependencies[repoPath];
+    if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
+      return; // continue forEach
+    }
+
+    const repoType = entry.repoType;
+    if (repoType === 'git') {
+      // Could check for remote branch using "git fetch origin ${branch}" ?
+      const args = ['checkout', '-b', branch];
+      if (startPoint !== undefined) args.push(startPoint);
+      execCommandSync({ cmd: 'git', args, cwd: repoPath });
+      if (publish) {
+        execCommandSync(
+          { cmd: 'git', args: ['push', '--set-upstream', 'origin', branch], cwd: repoPath }
+        );
+      }
+    } else if (repoType === 'hg') {
+      console.log('Not implemented yet');
+      // execCommandSync(
+      //   { cmd: 'hg', args: ['update', branch], cwd: repoPath }
+      // );
     }
   });
 }
@@ -809,7 +866,7 @@ function doForEach(internalOptions, args) {
     if (internalOptions.freeOnly) {
       const entry = dependencies[repoPath];
       if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
-        return; // return from forEach function call, so continue
+        return; // continue forEach
       }
     }
 
@@ -1008,7 +1065,7 @@ program
   });
 
 program
-  .command('foreach')
+  .command('for-each')
   .description('run specified command on each repo in the forest, e.g. "arm foreach -- pwd"')
   .arguments('[command...]')
   .action((command) => {
@@ -1017,7 +1074,7 @@ program
   });
 
 program
-  .command('forfree')
+  .command('for-free')
   .description('run specified command on repos which are not locked or pinned')
   .arguments('[command...]')
   .action((command) => {
@@ -1027,6 +1084,7 @@ program
 
 program
   .command('_snapshot')
+  .alias('ss')
   .description('display state of forest')
   .action(() => {
     gRecognisedCommand = true;
@@ -1042,7 +1100,25 @@ program
   });
 
 program
-  .command('_test')
+  .command('_switch <branch>')
+  .description('switch branch of free repos')
+  .action((branch) => {
+    gRecognisedCommand = true;
+    doSwitch(branch);
+  });
+
+program
+  .command('_make-branch <branch> [start_point]')
+  .option('-p, --publish', 'push newly created branch')
+  .description('create new branch')
+  .action((branch, startPoint, options) => {
+    gRecognisedCommand = true;
+    doMakeBranch(branch, startPoint, options.publish);
+  });
+
+// Hidden command for trying things out
+program
+  .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
     gRecognisedCommand = true;
