@@ -1,6 +1,7 @@
 # arm
 
 Backlog
+* snapshot showing lockBranch?
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?

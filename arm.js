@@ -13,6 +13,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const url = require('url');
 const mute = require('mute');
+const shellQuote = require('shell-quote');
 const myPackage = require('./package.json');
 
 const armManifest = 'arm.json'; // stored in nest directory
@@ -92,9 +93,10 @@ function execCommandSync(commandParam) {
   if (command.suppressContext) cwdDisplay = '';
 
   // Trying hard to get a possibly copy-and-paste command.
-  let quotedArgs = '';
-  if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
-  quotedArgs = quotedArgs.replace(/\n/g, '\\n');
+  // let quotedArgs = '';
+  // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
+  // quotedArgs = quotedArgs.replace(/\n/g, '\\n');
+  const quotedArgs = shellQuote.quote(command.args);
   console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
 
   try {
@@ -299,6 +301,43 @@ function getOrigin(repoPath, repoTypeParam) {
 }
 
 
+function getBranch(repoPath, repoType) {
+  let branch;
+  if (repoType === 'git') {
+    const unmute = mute();
+    try {
+      // This will fail if have detached head, but does work for an empty repo
+      branch = childProcess.execFileSync(
+         'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
+      ).toString().trim();
+    } catch (err) {
+      branch = undefined;
+    }
+    unmute();
+  } else if (repoType === 'hg') {
+    branch = childProcess.execFileSync(
+      'hg', ['--repository', repoPath, 'branch']
+    ).toString().trim();
+  }
+  return branch;
+}
+
+
+function getRevision(repoPath, repoType) {
+  let revision;
+  if (repoType === 'git') {
+    revision = childProcess.execFileSync(
+       'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
+    ).toString().trim();
+  } else if (repoType === 'hg') {
+    revision = childProcess.execFileSync(
+      'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
+    ).toString().trim();
+  }
+  return revision;
+}
+
+
 function readManifest(nestPath, addNestToDependencies) {
   const configPath = path.resolve(nestPath, armManifest);
 
@@ -357,12 +396,12 @@ function doStatus() {
   const dependencies = readManifest(nestPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'git') {
+    const entry = dependencies[repoPath];
+    if (entry.repoType === 'git') {
       execCommandSync(
         { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
       );
-    } else if (repoType === 'hg') {
+    } else if (entry.repoType === 'hg') {
       execCommandSync(
         { cmd: 'hg', args: ['status'], cwd: repoPath }
       );
@@ -420,6 +459,8 @@ function doPull() {
     const entry = dependencies[repoPath];
     if (entry.pinRevision !== undefined) {
       console.log(`Skipping pinned repo: ${repoPath}\n`);
+    } else if (getBranch(repoPath, entry.repoType) === undefined) {
+      console.log(`Skipping repo with detached HEAD: ${repoPath}\n`);
     } else {
       const repoType = entry.repoType;
       if (repoType === 'git') {
@@ -466,43 +507,6 @@ function doOutgoing() {
       );
     }
   });
-}
-
-
-function getBranch(repoPath, repoType) {
-  let branch;
-  if (repoType === 'git') {
-    const unmute = mute();
-    try {
-      // This will fail if have detached head, but does work for an empty repo
-      branch = childProcess.execFileSync(
-         'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
-      ).toString().trim();
-    } catch (err) {
-      branch = undefined;
-    }
-    unmute();
-  } else if (repoType === 'hg') {
-    branch = childProcess.execFileSync(
-      'hg', ['--repository', repoPath, 'branch']
-    ).toString().trim();
-  }
-  return branch;
-}
-
-
-function getRevision(repoPath, repoType) {
-  let revision;
-  if (repoType === 'git') {
-    revision = childProcess.execFileSync(
-       'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
-    ).toString().trim();
-  } else if (repoType === 'hg') {
-    revision = childProcess.execFileSync(
-      'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
-    ).toString().trim();
-  }
-  return revision;
 }
 
 
@@ -704,9 +708,9 @@ function doInit(rootDirParam) {
   // Dependencies (implicitly finds nest too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
-  findRepositories('.', (directory, repoType) => {
-    console.log(`  ${directory}`);
-    const origin = getOrigin(directory, repoType);
+  findRepositories('.', (repoPath, repoType) => {
+    console.log(`  ${repoPath}`);
+    const origin = getOrigin(repoPath, repoType);
     const entry = { origin, repoType };
 
     if (origin === undefined) {
@@ -722,9 +726,9 @@ function doInit(rootDirParam) {
           entry.origin = relativePath;
         }
       } else {
-        const lockBranch = getBranch(directory, repoType);
+        const lockBranch = getBranch(repoPath, repoType);
         if (lockBranch === undefined) {
-          const revision = getRevision(directory, repoType);
+          const revision = getRevision(repoPath, repoType);
           console.log(`    (pinned revision to ${revision})`);
           entry.pinRevision = revision;
         } else {
@@ -732,7 +736,7 @@ function doInit(rootDirParam) {
           entry.lockBranch = lockBranch;
         }
       }
-      dependencies[directory] = entry;
+      dependencies[repoPath] = entry;
     }
   });
   delete dependencies[nestFromRoot];
@@ -827,24 +831,32 @@ function doSnapshot() {
   const nestPath = readNestPathFromRoot();
   const manifest = readManifest(nestPath);
 
-  // Rewrite dependencies with fixed revision and absolute repo.
+  // Create dependencies with fixed revision and absolute repo.
+  const dependencies = {};
   Object.keys(manifest.dependencies).forEach((repoPath) => {
     const entry = manifest.dependencies[repoPath];
-    // KISS, get current repo
-    entry.origin = getOrigin(repoPath, entry.repoType);
-    entry.pinRevision = getRevision(repoPath, entry.repoType);
+    dependencies[repoPath] = {
+      origin: getOrigin(repoPath, entry.repoType), // KISS, want absolute
+      repoType: entry.repoType,
+      pinRevision: getRevision(repoPath, entry.repoType),
+    };
   });
+  const snapshot = {
+    dependencies,
+    rootDirectory: manifest.rootDirectory,
+    nestPathFromRoot: manifest.nestPathFromRoot,
+  };
 
   let nestPathNotBlank = nestPath;
   if (nestPathNotBlank === '') nestPathNotBlank = '.';
   const nestRepoType = getRepoTypeForLocalPath(nestPathNotBlank);
-  manifest.nestRepo = {
+  snapshot.nestRepo = {
     origin: getOrigin(nestPathNotBlank, nestRepoType),
     repoType: nestRepoType,
     pinRevision: getRevision(nestPathNotBlank, nestRepoType),
   };
 
-  const prettySnapshot = JSON.stringify(manifest, null, '  ');
+  const prettySnapshot = JSON.stringify(snapshot, null, '  ');
   console.log(prettySnapshot);
 }
 
