@@ -576,6 +576,15 @@ function doMakeBranch(branch, startPoint, publish) {
 
 
 function cloneEntry(entry, repoPath, freeBranch) {
+  // Mercurial does not support making intermediate folders,
+  // this just copes with one deep.
+  if (entry.repoType === 'hg') {
+    const parentDir = path.dirname(repoPath);
+    if (parentDir !== '.' && !dirExistsSync(parentDir)) {
+      fs.mkdirSync(parentDir);
+    }
+  }
+
   // Determine target branch for clone
   let branch;
   if (entry.pinRevision !== undefined) {
@@ -620,7 +629,7 @@ function cloneEntry(entry, repoPath, freeBranch) {
       );
     } else if (entry.repoType === 'hg') {
       execCommandSync(
-        { cmd: 'git', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
+        { cmd: 'hg', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
       );
     }
   }

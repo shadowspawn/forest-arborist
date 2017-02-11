@@ -1,7 +1,7 @@
 # arm
 
 Backlog
-* try what is needed for create and switch branch
+* hg status has \n
 
 Backlog Possibles
 * group commands sensibly (i.e. reorder)
@@ -30,6 +30,7 @@ Backlog Possibles
  * --git --hg (default to all, but supports mixed repo types!)
  * git X == for --git git X ?
  * hg X == for --hg hg X ?
+* put clues into manifest for manual editing?
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?
