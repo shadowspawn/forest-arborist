@@ -1,7 +1,18 @@
 # arm
 
 Backlog
-* hg status has \n
+
+Known Issues
+* warn when init on empty repo??? Because:
+ * "hg pull" on empty repo causes error
+ * "arm outgoing" fails for empty git repo
+ * "arm clone" fails for locked empty git repo
+ * "arm make-branch" publish fails for branch in empty repo
+* "hg push" returns status 1 so breaks for-each
+* if "hg pull" gets nothing then no need to call "hg update"
+* stack dump when command fails
+* Try operations with changes
+ * "arm pull" claims on detached head when have local changes?
 
 Backlog Possibles
 * group commands sensibly (i.e. reorder)
@@ -31,6 +42,7 @@ Backlog Possibles
  * git X == for --git git X ?
  * hg X == for --hg hg X ?
 * put clues into manifest for manual editing?
+* tidier if use '.' rather than '' for nested rootDirectory et al ?
 
 Known Issues
 * do we need support for Windows paths in sameParsedOriginDir, path.relative et al?

@@ -86,7 +86,7 @@ function execCommandSync(commandParam) {
   const command = commandParam;
   if (command.args === undefined) command.args = [];
   let cwdDisplay = `${command.cwd}: `;
-  if (command.cwd === undefined || command.cwd === '') {
+  if (command.cwd === undefined || command.cwd === '' || command.cwd === '.') {
     cwdDisplay = '(root): ';
     command.cwd = '.';
   }
@@ -95,8 +95,8 @@ function execCommandSync(commandParam) {
   // Trying hard to get a possibly copy-and-paste command.
   // let quotedArgs = '';
   // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
-  // quotedArgs = quotedArgs.replace(/\n/g, '\\n');
-  const quotedArgs = shellQuote.quote(command.args);
+  let quotedArgs = shellQuote.quote(command.args);
+  quotedArgs = quotedArgs.replace(/\n/g, '\\n');
   console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
 
   try {
@@ -365,7 +365,9 @@ function readManifest(nestPath, addNestToDependencies) {
   const nestOrigin = getOrigin(nestPath, nestRepoType);
   const parsedNestOrigin = parseRepository(nestOrigin);
   if (addNestToDependencies) {
-    configObject.dependencies[nestPath] = { origin: nestOrigin, repoType: nestRepoType };
+    let nestPathNotBlank = nestPath;
+    if (nestPathNotBlank === '') nestPathNotBlank = '.';
+    configObject.dependencies[nestPathNotBlank] = { origin: nestOrigin, repoType: nestRepoType };
   }
 
   Object.keys(configObject.dependencies).forEach((repoPath) => {
@@ -688,11 +690,7 @@ function writeRootFile(rootFilePath, nestPath) {
   const rootObject = { nestPath };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
-  if (nestPath === '') {
-    console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
-  } else {
-    console.log(`${initialisedWord} marker file at root of forest: ${rootFilePath}`);
-  }
+  console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
 }
 
 
@@ -955,18 +953,21 @@ function doRecreate(snapshotPath, destinationParam) {
   const nestRepoEntry = snapshotObject.nestRepo;
 
   let destination = destinationParam;
-  if (destination === undefined) {
+  if (destination === undefined || destination === '') {
     destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
   }
 
   // Clone nest repo first
-  if (snapshotObject.nestPathFromRoot !== undefined && snapshotObject.snapshotObject !== '') {
+  if (snapshotObject.nestPathFromRoot !== undefined && snapshotObject.nestPathFromRoot !== '') {
     // Sibling layout. Make wrapper directory.
     fs.mkdirSync(destination);
     process.chdir(destination);
     destination = snapshotObject.nestPathFromRoot;
+    cloneEntry(nestRepoEntry, destination);
+  } else {
+    cloneEntry(nestRepoEntry, destination);
+    process.chdir(destination);
   }
-  cloneEntry(nestRepoEntry, destination);
 
   // Clone dependent repos
   const dependencies = snapshotObject.dependencies;
@@ -976,9 +977,7 @@ function doRecreate(snapshotPath, destinationParam) {
   });
 
   // Install root file
-  const rootAbsolutePath = path.resolve(destination, snapshotObject.rootDirectory);
-  const nestFromRoot = path.relative(rootAbsolutePath, path.resolve(destination));
-  writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+  writeRootFile(path.resolve(armRootFilename), snapshotObject.nestPathFromRoot);
 }
 
 
