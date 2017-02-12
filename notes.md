@@ -15,25 +15,21 @@ Known Issues
 * hg
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
+ * not auto-detecting pinned revision (could do it by detecting not on tip)
 * Say goodbye to bisect
 
 Backlog Possibles
-* support re-install? softly softly
-  * note: pull supports --ff-only
-  * note checkout branch aborts if would lose uncommitted changes
 * arm development script for
-  * merging develop into master, bump version, push, npm publish?
   * sanity checks, lint, dependencies
   * copy-up: checkout master, merge develop
-  * npm version patch
-  * deploy: npm publish, git push
+  * publish: npm version patch, (git push), npm publish
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified
 * unit tests (URLs, nested operations, sibling operations, pin/lock/free)
 * typescript
-* for
+* for-fun
  * --pinned --locked --free --all
  * --git --hg (default to all, but supports mixed repo types!)
  * git X == for --git git X ?
@@ -41,6 +37,7 @@ Backlog Possibles
 * put clues into manifest for manual editing?
 * tidier if use '.' rather than '' for nested rootDirectory et al ?
 * tip to put .arm-root in ignore file?
+* helper for modifying manifest? (see gitslave and gitsubmodule for ideas)
 
 Terminology Inspirations
 * git

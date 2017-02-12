@@ -345,20 +345,20 @@ function readManifest(nestPath, addNestToDependencies) {
   try {
     data = fs.readFileSync(configPath);
   } catch (err) {
-    terminate(`Problem opening ${configPath}\n${err}`);
+    terminate(`problem opening ${configPath}\n${err}`);
   }
 
   let configObject;
   try {
     configObject = JSON.parse(data);
   } catch (err) {
-    terminate(`Problem parsing ${configPath}\n${err}`);
+    terminate(`problem parsing ${configPath}\n${err}`);
   }
   if (configObject.dependencies === undefined) {
-    terminate(`Problem parsing: ${configPath}\nmissing field 'dependencies'`);
+    terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
   if (configObject.rootDirectory === undefined) {
-    terminate(`Problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
   const nestRepoType = getRepoTypeForLocalPath(nestPath);
@@ -578,8 +578,8 @@ function doMakeBranch(branch, startPoint, publish) {
 
 
 function cloneEntry(entry, repoPath, freeBranch) {
-  // Mercurial does not support making intermediate folders,
-  // this just copes with one deep.
+  // Mercurial does not support making intermediate folders.
+  // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === 'hg') {
     const parentDir = path.dirname(repoPath);
     if (parentDir !== '.' && !dirExistsSync(parentDir)) {
@@ -634,6 +634,38 @@ function cloneEntry(entry, repoPath, freeBranch) {
         { cmd: 'hg', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
       );
     }
+  }
+}
+
+
+function checkoutEntry(entry, repoPath, freeBranch) {
+  // Determine target for checkout
+  let revision;
+  if (entry.pinRevision !== undefined) {
+    console.log(`# ${repoPath}: checkout pinned revision`);
+    revision = entry.pinRevision;
+  } else if (entry.lockBranch !== undefined) {
+    console.log(`# ${repoPath}: checkout locked branch`);
+    revision = entry.lockBranch;
+  } else if (freeBranch !== undefined) {
+    console.log(`# ${repoPath}: checkout free repo on requested branch`);
+    revision = freeBranch;
+  } else {
+    console.log(`# ${repoPath}: skipping free repo`);
+  }
+
+  if (revision !== undefined) {
+    if (entry.repoType === 'git') {
+      execCommandSync(
+        { cmd: 'git', args: ['checkout', '--quiet', revision], cwd: repoPath }
+      );
+    } else if (entry.repoType === 'hg') {
+      execCommandSync(
+        { cmd: 'hg', args: ['update', '--rev', revision], cwd: repoPath }
+      );
+    }
+  } else {
+    console.log('');
   }
 }
 
@@ -694,11 +726,11 @@ function writeRootFile(rootFilePath, nestPath) {
 }
 
 
-function doInstall(freeBranch) {
+function doInstall(freeBranch, includeNestInInstall) {
   let configObject;
+  // Might be called before root file added, so look for manifest first.
   if (fileExistsSync(armManifest)) {
-    // Probably being called during setup, before root file added.
-    configObject = readManifest('.');
+    configObject = readManifest('.', includeNestInInstall);
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
     writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
@@ -707,14 +739,14 @@ function doInstall(freeBranch) {
 
   cdRootDirectory();
   const nestPath = readNestPathFromRoot();
-  if (configObject === undefined) configObject = readManifest(nestPath);
+  if (configObject === undefined) configObject = readManifest(nestPath, includeNestInInstall);
   const dependencies = configObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
+    const entry = dependencies[repoPath];
     if (dirExistsSync(repoPath)) {
-      console.log(`Skipping already present dependency: ${repoPath}`);
+      checkoutEntry(entry, repoPath, freeBranch);
     } else {
-      const entry = dependencies[repoPath];
       cloneEntry(entry, repoPath, freeBranch);
     }
   });
@@ -754,7 +786,7 @@ function doInit(rootDirParam) {
   // Find nest origin, if we can.
   const nestRepoType = getRepoTypeForLocalPath('.');
   if (nestRepoType === undefined) {
-    terminate('Expecting current directory to have a repository. (KISS)');
+    terminate('expecting current directory to have a repository. (KISS)');
   }
   const nestOrigin = getOrigin('.', nestRepoType);
   let parsedNestOrigin;
@@ -845,7 +877,7 @@ function doClone(source, destinationParam, options) {
   cloneEntry(nestEntry, destination, options.branch);
 
   if (!fileExistsSync(path.join(destination, armManifest))) {
-    terminate(`Warning: stopping as did not find manifest ${armManifest}`);
+    terminate(`stopping as did not find manifest ${armManifest}`);
   }
 
   const manifest = readManifest(destination);
@@ -863,14 +895,14 @@ function doClone(source, destinationParam, options) {
     process.chdir(destination);
   }
 
-  doInstall(options.branch);
+  doInstall(options.branch, false);
 
   console.log(`Created repo forest in ${destination}`);
 }
 
 
 function doForEach(internalOptions, args) {
-  if (args.length === 0) terminate('No foreach command specified');
+  if (args.length === 0) terminate('no for command specified');
   const cmd = args.shift();
 
   cdRootDirectory();
@@ -934,20 +966,20 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fileExistsSync(snapshotPath)) terminate('Snapshot file not found');
+  if (!fileExistsSync(snapshotPath)) terminate('snapshot file not found');
 
   // Read snapshot
   let data;
   try {
     data = fs.readFileSync(snapshotPath);
   } catch (err) {
-    terminate(`Problem opening ${snapshotPath}\n${err}`);
+    terminate(`problem opening ${snapshotPath}\n${err}`);
   }
   let snapshotObject;
   try {
     snapshotObject = JSON.parse(data);
   } catch (err) {
-    terminate(`Problem parsing ${snapshotPath}\n${err}`);
+    terminate(`problem parsing ${snapshotPath}\n${err}`);
   }
 
   const nestRepoEntry = snapshotObject.nestRepo;
@@ -1042,7 +1074,7 @@ program
   .action((options) => {
     gRecognisedCommand = true;
     assertNoArgs();
-    doInstall(options.branch);
+    doInstall(options.branch, true);
   });
 
 program
