@@ -11,12 +11,13 @@ const chalk = require('chalk');
 const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
-const mute = require('mute');
 const shellQuote = require('shell-quote');
 const myPackage = require('./package.json');
 
 // Local lib
 const dvcsUrl = require('./lib/dvcs-url');
+const repo = require('./lib/repo');
+const fsh = require('./lib/fsh'); // fs helper
 
 const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -32,30 +33,6 @@ const my = {
 function terminate(message) {
   console.log(my.errorColour(`Error: ${message}`));
   process.exit(1);
-}
-
-
-function fileExistsSync(filePath) {
-  try {
-    return fs.statSync(filePath).isFile();
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      return false;
-    }
-    throw err;
-  }
-}
-
-
-function dirExistsSync(filePath) {
-  try {
-    return fs.statSync(filePath).isDirectory();
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      return false;
-    }
-    throw err;
-  }
 }
 
 
@@ -124,38 +101,6 @@ function isRelativePath(pathname) {
 }
 
 
-function isGitRepository(repository) {
-  const unmute = mute();
-  try {
-    // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'git', ['ls-remote', repository]
-    );
-    unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
-  }
-}
-
-
-function isHgRepository(repository) {
-  const unmute = mute();
-  try {
-    // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
-    childProcess.execFileSync(
-      'hg', ['id', repository]
-    );
-    unmute();
-    return true;
-  } catch (err) {
-    unmute();
-    return false;
-  }
-}
-
-
 function readNestPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
@@ -173,11 +118,11 @@ function readNestPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInNestDirectory = fileExistsSync(armManifest);
+  const startedInNestDirectory = fsh.fileExistsSync(armManifest);
 
   let tryParent = true;
   do {
-    if (fileExistsSync(armRootFilename)) {
+    if (fsh.fileExistsSync(armRootFilename)) {
       return;
     }
 
@@ -192,78 +137,6 @@ function cdRootDirectory() {
   } else {
     terminate('root of forest not found. ');
   }
-}
-
-
-function getRepoTypeForLocalPath(repoPath) {
-  if (dirExistsSync(path.join(repoPath, '.git'))) {
-    return 'git';
-  } else if (dirExistsSync(path.join(repoPath, '.hg'))) {
-    return 'hg';
-  }
-
-  return undefined;
-}
-
-
-function getOrigin(repoPath, repoTypeParam) {
-  let origin;
-  let repoType = repoTypeParam;
-  if (repoType === undefined) {
-    repoType = getRepoTypeForLocalPath(repoPath);
-  }
-
-  if (repoType === 'git') {
-    try {
-      origin = childProcess.execFileSync(
-        'git', ['-C', repoPath, 'config', '--get', 'remote.origin.url']
-      ).toString().trim();
-    } catch (err) {
-      // May have created repo locally and does not yet have an origin
-    }
-  } else if (repoType === 'hg') {
-    origin = childProcess.execFileSync(
-      'hg', ['--repository', repoPath, 'config', 'paths.default']
-    ).toString().trim();
-  }
-  return origin;
-}
-
-
-function getBranch(repoPath, repoType) {
-  let branch;
-  if (repoType === 'git') {
-    const unmute = mute();
-    try {
-      // This will fail if have detached head, but does work for an empty repo
-      branch = childProcess.execFileSync(
-         'git', ['symbolic-ref', '--short', 'HEAD'], { cwd: repoPath }
-      ).toString().trim();
-    } catch (err) {
-      branch = undefined;
-    }
-    unmute();
-  } else if (repoType === 'hg') {
-    branch = childProcess.execFileSync(
-      'hg', ['--repository', repoPath, 'branch']
-    ).toString().trim();
-  }
-  return branch;
-}
-
-
-function getRevision(repoPath, repoType) {
-  let revision;
-  if (repoType === 'git') {
-    revision = childProcess.execFileSync(
-       'git', ['rev-parse', 'HEAD'], { cwd: repoPath }
-    ).toString().trim();
-  } else if (repoType === 'hg') {
-    revision = childProcess.execFileSync(
-      'hg', ['log', '--rev', '.', '--template', '{node}'], { cwd: repoPath }
-    ).toString().trim();
-  }
-  return revision;
 }
 
 
@@ -290,8 +163,8 @@ function readManifest(nestPath, addNestToDependencies) {
     terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
-  const nestRepoType = getRepoTypeForLocalPath(nestPath);
-  const nestOrigin = getOrigin(nestPath, nestRepoType);
+  const nestRepoType = repo.getRepoTypeForLocalPath(nestPath);
+  const nestOrigin = repo.getOrigin(nestPath, nestRepoType);
   const parsedNestOrigin = dvcsUrl.parse(nestOrigin);
   if (addNestToDependencies) {
     let nestPathNotBlank = nestPath;
@@ -390,7 +263,7 @@ function doPull() {
     const entry = dependencies[repoPath];
     if (entry.pinRevision !== undefined) {
       console.log(`Skipping pinned repo: ${repoPath}\n`);
-    } else if (getBranch(repoPath, entry.repoType) === undefined) {
+    } else if (repo.getBranch(repoPath, entry.repoType) === undefined) {
       console.log(`Skipping repo with detached HEAD: ${repoPath}\n`);
     } else {
       const repoType = entry.repoType;
@@ -511,7 +384,7 @@ function cloneEntry(entry, repoPath, freeBranch) {
   // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === 'hg') {
     const parentDir = path.dirname(repoPath);
-    if (parentDir !== '.' && !dirExistsSync(parentDir)) {
+    if (parentDir !== '.' && !fsh.dirExistsSync(parentDir)) {
       fs.mkdirSync(parentDir);
     }
   }
@@ -603,7 +476,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 
 function writeRootFile(rootFilePath, nestPath) {
   let initialisedWord = 'Initialised';
-  if (fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
+  if (fsh.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
   const rootObject = { nestPath };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
@@ -614,7 +487,7 @@ function writeRootFile(rootFilePath, nestPath) {
 function doInstall(freeBranch, includeNestInInstall) {
   let configObject;
   // Might be called before root file added, so look for manifest first.
-  if (fileExistsSync(armManifest)) {
+  if (fsh.fileExistsSync(armManifest)) {
     configObject = readManifest('.', includeNestInInstall);
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
@@ -629,7 +502,7 @@ function doInstall(freeBranch, includeNestInInstall) {
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (dirExistsSync(repoPath)) {
+    if (fsh.dirExistsSync(repoPath)) {
       checkoutEntry(entry, repoPath, freeBranch);
     } else {
       cloneEntry(entry, repoPath, freeBranch);
@@ -646,10 +519,10 @@ function findRepositories(startingDirectory, callback) {
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
     const itemPath = path.join(startingDirectory, item);
-    if (dirExistsSync(itemPath)) {
-      if (dirExistsSync(path.join(itemPath, '.git'))) {
+    if (fsh.dirExistsSync(itemPath)) {
+      if (fsh.dirExistsSync(path.join(itemPath, '.git'))) {
         callback(itemPath, 'git');
-      } else if (dirExistsSync(path.join(itemPath, '.hg'))) {
+      } else if (fsh.dirExistsSync(path.join(itemPath, '.hg'))) {
         callback(itemPath, 'hg');
       }
 
@@ -662,18 +535,18 @@ function findRepositories(startingDirectory, callback) {
 
 function doInit(rootDirParam) {
   const configPath = path.resolve(armManifest);
-  if (fileExistsSync(configPath)) {
+  if (fsh.fileExistsSync(configPath)) {
     console.log(`Skipping init, already have ${armManifest}`);
     console.log('(Delete it to start over, or did you want "arm install"?)');
     return;
   }
 
   // Find nest origin, if we can.
-  const nestRepoType = getRepoTypeForLocalPath('.');
+  const nestRepoType = repo.getRepoTypeForLocalPath('.');
   if (nestRepoType === undefined) {
     terminate('expecting current directory to have a repository. (KISS)');
   }
-  const nestOrigin = getOrigin('.', nestRepoType);
+  const nestOrigin = repo.getOrigin('.', nestRepoType);
   let parsedNestOrigin;
   if (nestOrigin === undefined) {
     console.log(my.errorColour('(origin not specified for starting repo)'));
@@ -699,7 +572,7 @@ function doInit(rootDirParam) {
   const dependencies = {};
   findRepositories('.', (repoPath, repoType) => {
     console.log(`  ${repoPath}`);
-    const origin = getOrigin(repoPath, repoType);
+    const origin = repo.getOrigin(repoPath, repoType);
     const entry = { origin, repoType };
 
     if (origin === undefined) {
@@ -715,9 +588,9 @@ function doInit(rootDirParam) {
           entry.origin = relativePath;
         }
       } else {
-        const lockBranch = getBranch(repoPath, repoType);
+        const lockBranch = repo.getBranch(repoPath, repoType);
         if (lockBranch === undefined) {
-          const revision = getRevision(repoPath, repoType);
+          const revision = repo.getRevision(repoPath, repoType);
           console.log(`    (pinned revision to ${revision})`);
           entry.pinRevision = revision;
         } else {
@@ -754,14 +627,14 @@ function doClone(source, destinationParam, options) {
 
   // Clone source.
   const nestEntry = { origin: source };
-  if (isGitRepository(source)) {
+  if (repo.isGitRepository(source)) {
     nestEntry.repoType = 'git';
-  } else if (isHgRepository(source)) {
+  } else if (repo.isHgRepository(source)) {
     nestEntry.repoType = 'hg';
   }
   cloneEntry(nestEntry, destination, options.branch);
 
-  if (!fileExistsSync(path.join(destination, armManifest))) {
+  if (!fsh.fileExistsSync(path.join(destination, armManifest))) {
     terminate(`stopping as did not find manifest ${armManifest}`);
   }
 
@@ -825,9 +698,9 @@ function doSnapshot() {
   Object.keys(manifest.dependencies).forEach((repoPath) => {
     const entry = manifest.dependencies[repoPath];
     dependencies[repoPath] = {
-      origin: getOrigin(repoPath, entry.repoType), // KISS, want absolute
+      origin: repo.getOrigin(repoPath, entry.repoType), // KISS, want absolute
       repoType: entry.repoType,
-      pinRevision: getRevision(repoPath, entry.repoType),
+      pinRevision: repo.getRevision(repoPath, entry.repoType),
     };
   });
   const snapshot = {
@@ -838,11 +711,11 @@ function doSnapshot() {
 
   let nestPathNotBlank = nestPath;
   if (nestPathNotBlank === '') nestPathNotBlank = '.';
-  const nestRepoType = getRepoTypeForLocalPath(nestPathNotBlank);
+  const nestRepoType = repo.getRepoTypeForLocalPath(nestPathNotBlank);
   snapshot.nestRepo = {
-    origin: getOrigin(nestPathNotBlank, nestRepoType),
+    origin: repo.getOrigin(nestPathNotBlank, nestRepoType),
     repoType: nestRepoType,
-    pinRevision: getRevision(nestPathNotBlank, nestRepoType),
+    pinRevision: repo.getRevision(nestPathNotBlank, nestRepoType),
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, '  ');
@@ -851,7 +724,7 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fileExistsSync(snapshotPath)) terminate('snapshot file not found');
+  if (!fsh.fileExistsSync(snapshotPath)) terminate('snapshot file not found');
 
   // Read snapshot
   let data;
