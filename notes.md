@@ -9,7 +9,7 @@ Known Issues
  * "arm make-branch" publish fails for branch in empty repo
  * "hg pull" on empty repo causes error
 * stack dump when command fails (cosmetic)
-* Try operations with changes in repo, check fail elegantly
+* Test operations with changes in repo, check fail elegantly
  * "arm pull" claims on detached head when have local changes? (Might have been empty branch problem)
 * local origin on Windows probably not working (need support for Windows path in multiple places)
 * hg

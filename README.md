@@ -39,15 +39,20 @@ arm.json specifies working directory names and origin repositories for forest, r
 
     Commands:
 
-      clone [options] <source> [destination]  clone source and install its dependencies
-      fetch                                   fetch branches and tags from origin remote
-      init [options]                          add config file in current directory, and marker file at root of forest
-      install [options]                       clone missing (new) dependent repositories
-      outgoing                                show changesets not in the default push location
-      pull                                    git-style pull, which is fetch and merge
-      root                                    show the root directory of the forest
-      status                                  show concise status for each repo in the forest
-      foreach [command...]                    run specified command on each repo in the forest, e.g. "arm foreach -- pwd"
+      clone [options] <source> [destination]        clone source and install its dependencies
+      init [options]                                add manifest in current directory, and marker file at root of forest
+      install [options]                             clone missing (new) dependent repositories
+      status                                        show concise status for each repo in the forest
+      pull                                          git-style pull, which is fetch and merge
+      outgoing                                      show new changesets that have not been pushed
+      root                                          show the root directory of the forest
+      for-each [command...]                         run specified command on each repo in the forest, e.g. "arm foreach -- pwd"
+      for-free [command...]                         run specified command on repos which are not locked or pinned
+      switch <branch>                               switch branch of free repos
+      make-branch [options] <branch> [start_point]  create new branch in free repos
+      snapshot|ss                                   display state of forest
+      recreate <snapshot> [destination]             clone repos to recreate forest in past state
+      \_restore <snapshot>                            checkout repos to restore forest in past state
 
     Options:
 
@@ -55,12 +60,21 @@ arm.json specifies working directory names and origin repositories for forest, r
       -V, --version  output the version number
 
     Files:
-      arm.json configuration file for forest, especially dependencies
-      .arm-root.json marks root of forest
+    arm.json manifest file for forest
+    .arm-root.json marks root of forest (do not commit to VCS)
+
+    Forest management: clone, init, install
+    Utility: status, pull, outgoing, for-each, for-free
+    Branch: make-branch, switch
+    Reproducible state: snapshot, recreate, restore
 
     Commands starting with an underscore are still in development.
-    See also https://github.com/JohnRGee/arm.git for usage overview.
-    See also 'arm <command> --help' if there are options on a subcommand.
+    See https://github.com/JohnRGee/arm.git for usage overview.
+    See also 'arm <command> --help' for command options and further help.
+
+## Example Usage
+
+(ToDo) Examples of forest management, utility, branch, and reproducible state.
 
 ## Installing
 
@@ -81,4 +95,4 @@ i.e. setup command to run "node <installFolder>arm.js".
 
 Pre-release. "arm init" is great for trying out on an existing checkout.
 
-Active development on Mac OS X. Limited testing on Microsoft Windows and Linux.
+Main development on Mac OS X. Limited testing on Microsoft Windows and Linux.
