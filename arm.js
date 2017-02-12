@@ -651,7 +651,9 @@ function checkoutEntry(entry, repoPath, freeBranch) {
     console.log(`# ${repoPath}: checkout free repo on requested branch`);
     revision = freeBranch;
   } else {
-    console.log(`# ${repoPath}: skipping free repo`);
+    let displayName = repoPath;
+    if (displayName === '' || displayName === '.') displayName = '(root)';
+    console.log(`# ${displayName}: skipping free repo`);
   }
 
   if (revision !== undefined) {
@@ -1079,6 +1081,7 @@ program
 
 program
   .command('status')
+  .alias('st')
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;

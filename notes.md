@@ -3,6 +3,7 @@
 Backlog
 
 Known Issues
+* miss the a of arm, and you just typed rm...
 * warn when init on empty repo??? Because:
  * "arm outgoing" fails for empty git repo
  * "arm clone" fails for locked empty git repo
@@ -19,14 +20,14 @@ Known Issues
 * Say goodbye to bisect
 
 Backlog Possibles
+* multiple manifest files, e.g. HRVMasterStable ?
+  * move manifest to .arm folder?
+  * manifest list
+  * handle clone with no default manifest and no manifest specified, list manifests
 * arm development script for
   * sanity checks, lint, dependencies
   * copy-up: checkout master, merge develop
   * publish: npm version patch, (git push), npm publish
-* multiple manifest files, e.g. HRVMasterStable ?
-  * move manifest to .arm folder?
-  * manifest list
-  * handle clone with no default manifest and no manifest specified
 * unit tests (URLs, nested operations, sibling operations, pin/lock/free)
 * typescript
 * for-fun
@@ -36,8 +37,11 @@ Backlog Possibles
  * hg X == for --hg hg X ?
 * put clues into manifest for manual editing?
 * tidier if use '.' rather than '' for nested rootDirectory et al ?
-* tip to put .arm-root in ignore file?
-* helper for modifying manifest? (see gitslave and gitsubmodule for ideas)
+* help for modifying dependencies in manifest?
+  * add/remove
+  * pin/lock/free/auto
+  * relative/absolute (rarer!)
+  * see gitslave and gitsubmodule and npm for examples of command support
 
 Terminology Inspirations
 * git
