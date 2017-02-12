@@ -11,10 +11,12 @@ const chalk = require('chalk');
 const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
-const url = require('url');
 const mute = require('mute');
 const shellQuote = require('shell-quote');
 const myPackage = require('./package.json');
+
+// Local lib
+const dvcsUrl = require('./lib/dvcs-url');
 
 const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -154,79 +156,6 @@ function isHgRepository(repository) {
 }
 
 
-function resolveOrigin(parsedOrigin, relativePath) {
-  // Do the fake protocols first
-  if (parsedOrigin.protocol === 'local') {
-    const temp = path.posix.resolve(parsedOrigin.pathname, relativePath);
-    return path.posix.normalize(temp);
-  } else if (parsedOrigin.protocol === 'scp') {
-    const temp = path.join(parsedOrigin.pathname, relativePath);
-    const absolutePathname = path.posix.normalize(temp);
-    return `${parsedOrigin.authAndHost}:${absolutePathname}`;
-  }
-
-  // Proper protocol! Tweak path and reconstruct full URL.
-  const parsedTemp = url.parse(parsedOrigin.href);
-  const temp2 = path.join(parsedOrigin.pathname, relativePath);
-  parsedTemp.pathname = path.posix.normalize(temp2);
-  return url.format(parsedTemp);
-}
-
-
-function sameParsedOriginDir(origin1, origin2) {
-  if (origin1.protocol !== origin2.protocol) return false;
-
-  // Do the fake protocols first
-  if (origin1.protocol === 'local') {
-    return (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
-  } else if (origin1.protocol === 'scp') {
-    return (origin1.authAndHost === origin2.authAndHost)
-      && (path.posix.dirname(origin1.pathname) === path.posix.dirname(origin2.pathname));
-  }
-
-  // Proper protocol! Tweak path and reconstruct full URL for dir.
-  const dir1 = url.parse(origin1.href);
-  dir1.pathname = path.posix.dirname(dir1.pathname);
-  const dir2 = url.parse(origin2.href);
-  dir2.pathname = path.posix.dirname(dir2.pathname);
-  return url.format(dir1) === url.format(dir2);
-}
-
-
-function parseRepository(repository) {
-  // See GIT URLS on https://git-scm.com/docs/git-clone
-  // See "hg help urls"
-  // Parsing for git covers hg as well, sweet!
-  const result = {};
-  const parsed = url.parse(repository);
-  const recognisedProtocols = ['ssh:', 'git:', 'http:', 'https:', 'ftp:', 'ftps:', 'file:'];
-  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
-    result.protocol = parsed.protocol;
-    result.pathname = parsed.pathname;
-    result.href = parsed.href;
-  } else {
-    // git variation.
-    //   An alternative scp-like syntax may also be used with the ssh protocol:
-    //     [user@]host.xz:path/to/repo.git/
-    //   This syntax is only recognized if there are no slashes before the first colon.
-    const slashPos = repository.indexOf('/');
-    const colonPos = repository.indexOf(':');
-    if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
-      result.protocol = 'scp';
-      result.pathname = repository.substring(colonPos + 1);
-      result.authAndHost = repository.substring(0, colonPos);
-    } else {
-      // 1. Not supporting hg #revision here yet, add if needed.
-      // 2. Do we need to support windows local paths?
-      result.protocol = 'local';
-      result.pathname = repository;
-    }
-  }
-
-  return result;
-}
-
-
 function readNestPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
@@ -363,7 +292,7 @@ function readManifest(nestPath, addNestToDependencies) {
 
   const nestRepoType = getRepoTypeForLocalPath(nestPath);
   const nestOrigin = getOrigin(nestPath, nestRepoType);
-  const parsedNestOrigin = parseRepository(nestOrigin);
+  const parsedNestOrigin = dvcsUrl.parse(nestOrigin);
   if (addNestToDependencies) {
     let nestPathNotBlank = nestPath;
     if (nestPathNotBlank === '') nestPathNotBlank = '.';
@@ -384,7 +313,7 @@ function readManifest(nestPath, addNestToDependencies) {
 
     // Turn relative repos into absolute repos.
     if (isRelativePath(entry.origin)) {
-      entry.origin = resolveOrigin(parsedNestOrigin, entry.origin);
+      entry.origin = dvcsUrl.resolve(parsedNestOrigin, entry.origin);
     }
   });
 
@@ -672,52 +601,6 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 }
 
 
-// function tryParseAllGitFormats() {
-//   // See GIT URLS on https://git-scm.com/docs/git-clone
-//   const testURLS = [
-//     'ssh://user@host.xz:123/path/to/repo.git/',
-//     'git://host.xz:123/path/to/repo.git/',
-//     'http://host.xz:123/path/to/repo.git/',
-//     'https://host.xz:123/path/to/repo.git/',
-//     'ftp://host.xz:123/path/to/repo.git/',
-//     'ftps://host.xz:123/path/to/repo.git/',
-//     'user@host.xz:path/to/repo.git/',
-//     'host.xz:path/to/repo.git/',
-//     '/path/to/repo.git/',
-//     'file:///path/to/repo.git/',
-//   ];
-//   console.log('=== Trying git url formats ===');
-//   testURLS.forEach((repoPath) => {
-//     console.log(`Parsing ${repoPath}`);
-//     const parsed = parseRepository(repoPath);
-//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-//   });
-// }
-
-
-// function tryParseAllHgFormats() {
-//   // From "hg help urls". These can all have #revision on end.
-//   const testURLS = [
-//     'local/filesystem/path',
-//     'file://local/filesystem/path',
-//     'http://user:pass@host:123/path',
-//     'https://user:pass@host:123/path',
-//     'ssh://user@host:123/path',
-//   ];
-//   console.log('=== Trying hg url formats ===');
-//   testURLS.forEach((repoPath) => {
-//     console.log(`Parsing ${repoPath}`);
-//     let parsed = parseRepository(repoPath);
-//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-//
-//     const qualified = `${repoPath}#revision`;
-//     console.log(`Parsing ${qualified}`);
-//     parsed = parseRepository(qualified);
-//     console.log(`  ${parsed.protocol} ${parsed.pathname}`);
-//   });
-// }
-
-
 function writeRootFile(rootFilePath, nestPath) {
   let initialisedWord = 'Initialised';
   if (fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
@@ -795,7 +678,7 @@ function doInit(rootDirParam) {
   if (nestOrigin === undefined) {
     console.log(my.errorColour('(origin not specified for starting repo)'));
   } else {
-    parsedNestOrigin = parseRepository(nestOrigin);
+    parsedNestOrigin = dvcsUrl.parse(nestOrigin);
   }
 
   // Sort out nest and root paths
@@ -822,9 +705,9 @@ function doInit(rootDirParam) {
     if (origin === undefined) {
       console.log(my.errorColour('    (origin not specified)'));
     } else {
-      const parsedOrigin = parseRepository(origin);
+      const parsedOrigin = dvcsUrl.parse(origin);
       // We are doing simple auto detection of relative path, siblings on server
-      if (sameParsedOriginDir(parsedOrigin, parsedNestOrigin)) {
+      if (dvcsUrl.sameObjectDir(parsedOrigin, parsedNestOrigin)) {
         console.log('    (free)');
         // Like git submodule, require relative paths to start with ./ or ../
         const relativePath = path.posix.relative(parsedNestOrigin.pathname, parsedOrigin.pathname);
@@ -866,7 +749,7 @@ function doClone(source, destinationParam, options) {
   // We need to know the nest directory to find the config file after the clone.
   let destination = destinationParam;
   if (destination === undefined) {
-    destination = path.posix.basename(parseRepository(source).pathname, '.git');
+    destination = path.posix.basename(dvcsUrl.parse(source).pathname, '.git');
   }
 
   // Clone source.
@@ -988,7 +871,7 @@ function doRecreate(snapshotPath, destinationParam) {
 
   let destination = destinationParam;
   if (destination === undefined || destination === '') {
-    destination = path.posix.basename(parseRepository(nestRepoEntry.origin).pathname, '.git');
+    destination = path.posix.basename(dvcsUrl.parse(nestRepoEntry.origin).pathname, '.git');
   }
 
   // Clone nest repo first
@@ -1187,8 +1070,6 @@ program
   .description('test')
   .action(() => {
     gRecognisedCommand = true;
-    // tryParseAllGitFormats();
-    // tryParseAllHgFormats();
     console.log(path.posix.relative('a', 'b'));
   });
 

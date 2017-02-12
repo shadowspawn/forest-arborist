@@ -2,6 +2,10 @@
 
 Backlog
 
+Version Plan (even/odd, linked different than published)
+* bump version and do not tag after publish
+* bump version with tag just before publish
+
 Known Issues
 * miss the a of arm, and you just typed rm...
 * warn when init on empty repo??? Because:
@@ -29,6 +33,8 @@ Backlog Possibles
   * copy-up: checkout master, merge develop
   * publish: npm version patch, (git push), npm publish
 * unit tests (URLs, nested operations, sibling operations, pin/lock/free)
+ * https://evanhahn.com/how-do-i-jasmine/
+ * https://jasmine.github.io/2.0/introduction.html
 * typescript
 * for-fun
  * --pinned --locked --free --all
