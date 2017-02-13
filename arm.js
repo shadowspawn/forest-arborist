@@ -113,6 +113,10 @@ function readNestPathFromRoot() {
   if (rootObject.nestPath === undefined) {
     terminate(`problem parsing: ${armRootPath}\nmissing field 'nestPath'`);
   }
+
+  // Fix up blank nestPath. KISS.
+  if (rootObject.nestPath === '') return '.';
+
   return rootObject.nestPath;
 }
 
