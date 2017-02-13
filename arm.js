@@ -17,7 +17,7 @@ const myPackage = require('./package.json');
 // Local lib
 const dvcsUrl = require('./lib/dvcs-url');
 const repo = require('./lib/repo');
-const fsh = require('./lib/fsh'); // fs helper
+const fsX = require('./lib/fsExtra'); // fs helper
 
 const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
@@ -122,11 +122,11 @@ function readNestPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInNestDirectory = fsh.fileExistsSync(armManifest);
+  const startedInNestDirectory = fsX.fileExistsSync(armManifest);
 
   let tryParent = true;
   do {
-    if (fsh.fileExistsSync(armRootFilename)) {
+    if (fsX.fileExistsSync(armRootFilename)) {
       return;
     }
 
@@ -388,7 +388,7 @@ function cloneEntry(entry, repoPath, freeBranch) {
   // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === 'hg') {
     const parentDir = path.dirname(repoPath);
-    if (parentDir !== '.' && !fsh.dirExistsSync(parentDir)) {
+    if (parentDir !== '.' && !fsX.dirExistsSync(parentDir)) {
       fs.mkdirSync(parentDir);
     }
   }
@@ -480,7 +480,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 
 function writeRootFile(rootFilePath, nestPath) {
   let initialisedWord = 'Initialised';
-  if (fsh.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
+  if (fsX.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
   const rootObject = { nestPath };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
@@ -491,7 +491,7 @@ function writeRootFile(rootFilePath, nestPath) {
 function doInstall(freeBranch, includeNestInInstall) {
   let configObject;
   // Might be called before root file added, so look for manifest first.
-  if (fsh.fileExistsSync(armManifest)) {
+  if (fsX.fileExistsSync(armManifest)) {
     configObject = readManifest('.', includeNestInInstall);
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
     const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
@@ -506,7 +506,7 @@ function doInstall(freeBranch, includeNestInInstall) {
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (fsh.dirExistsSync(repoPath)) {
+    if (fsX.dirExistsSync(repoPath)) {
       checkoutEntry(entry, repoPath, freeBranch);
     } else {
       cloneEntry(entry, repoPath, freeBranch);
@@ -523,10 +523,10 @@ function findRepositories(startingDirectory, callback) {
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
     const itemPath = path.join(startingDirectory, item);
-    if (fsh.dirExistsSync(itemPath)) {
-      if (fsh.dirExistsSync(path.join(itemPath, '.git'))) {
+    if (fsX.dirExistsSync(itemPath)) {
+      if (fsX.dirExistsSync(path.join(itemPath, '.git'))) {
         callback(itemPath, 'git');
-      } else if (fsh.dirExistsSync(path.join(itemPath, '.hg'))) {
+      } else if (fsX.dirExistsSync(path.join(itemPath, '.hg'))) {
         callback(itemPath, 'hg');
       }
 
@@ -539,7 +539,7 @@ function findRepositories(startingDirectory, callback) {
 
 function doInit(rootDirParam) {
   const configPath = path.resolve(armManifest);
-  if (fsh.fileExistsSync(configPath)) {
+  if (fsX.fileExistsSync(configPath)) {
     console.log(`Skipping init, already have ${armManifest}`);
     console.log('(Delete it to start over, or did you want "arm install"?)');
     return;
@@ -638,7 +638,7 @@ function doClone(source, destinationParam, options) {
   }
   cloneEntry(nestEntry, destination, options.branch);
 
-  if (!fsh.fileExistsSync(path.join(destination, armManifest))) {
+  if (!fsX.fileExistsSync(path.join(destination, armManifest))) {
     terminate(`stopping as did not find manifest ${armManifest}`);
   }
 
@@ -728,7 +728,7 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fsh.fileExistsSync(snapshotPath)) terminate('snapshot file not found');
+  if (!fsX.fileExistsSync(snapshotPath)) terminate('snapshot file not found');
 
   // Read snapshot
   let data;
