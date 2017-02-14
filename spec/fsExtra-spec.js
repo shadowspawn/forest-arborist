@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-describe('fsh (fs helper):', () => {
+describe('fsh (fs extras):', () => {
   it('dirExistsSync', () => {
     const tempFolder1 = fs.mkdtempSync(os.tmpdir() + path.sep);
     const tempFile1 = path.resolve(tempFolder1, 'delete.me');
