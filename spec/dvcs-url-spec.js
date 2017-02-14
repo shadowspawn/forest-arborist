@@ -6,7 +6,7 @@ const dvcsUrl = require('../lib/dvcs-url');
 describe('recognise git URL protocols', () => {
   const pathname = '/path/to/repo.git/';
 
-  it('ssh', () => {
+  it('git ssh', () => {
     // ssh://[user@]host.xz[:port]/path/to/repo.git/
     const variations = [
       'ssh://user@host.xz:123/path/to/repo.git/',
@@ -34,7 +34,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('http', () => {
+  it('git http', () => {
     // http[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       'http://host.xz:123/path/to/repo.git/',
@@ -47,7 +47,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('https', () => {
+  it('git https', () => {
     // http[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       'https://host.xz:123/path/to/repo.git/',
@@ -60,7 +60,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('ftp', () => {
+  it('git ftp', () => {
     // ftp[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       'ftp://host.xz:123/path/to/repo.git/',
@@ -73,7 +73,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('ftps', () => {
+  it('git ftps', () => {
     // ftp[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       'ftps://host.xz:123/path/to/repo.git/',
@@ -86,7 +86,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('file', () => {
+  it('git file', () => {
     // file:///path/to/repo.git/
     const variations = [
       'file:///path/to/repo.git/',
@@ -98,7 +98,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('scp', () => {
+  it('git scp', () => {
     // [user@]host.xz:path/to/repo.git/
     const variations = [
       'user@host.xz:path/to/repo.git/',
@@ -111,7 +111,7 @@ describe('recognise git URL protocols', () => {
     });
   });
 
-  it('path-posix', () => {
+  it('git path-posix', () => {
     // /path/to/repo.git/
     const variations = [
       '/path/to/repo.git/',
@@ -126,17 +126,81 @@ describe('recognise git URL protocols', () => {
 
 
 describe('recognise hg URL protocols', () => {
-  const pathname = '/path/to/repo.git/';
+  const pathname = '/path/to/repo';
 
-  it('path-posix', () => {
-    // /path/to/repo.git/
+  // These are a subset of the git URLs apart from the #revision,
+  // and optional [path], and we are ignoring both until needed.
+
+  it('hg ssh', () => {
+    // ssh://[user@]host[:port]/[path][#revision]
     const variations = [
-      '/path/to/repo.git/',
+      'ssh://user@host:123/path/to/repo',
+      'ssh://host:123/path/to/repo',
+      'ssh://user@host/path/to/repo',
+      'ssh://host/path/to/repo',
+    ];
+    variations.forEach((url) => {
+      const parsed = dvcsUrl.parse(url);
+      expect(parsed.protocol).toEqual('ssh:');
+      expect(parsed.pathname).toEqual(pathname);
+    });
+  });
+
+  it('hg http', () => {
+    // http://[user[:pass]@]host[:port]/[path][#revision]
+    // Add test for
+    const variations = [
+      'http://user:pass@host:123/path/to/repo',
+      'http://host:123/path/to/repo',
+      'http://user@host/path/to/repo',
+      'http://user:pass@host/path/to/repo',
+    ];
+    variations.forEach((url) => {
+      const parsed = dvcsUrl.parse(url);
+      expect(parsed.protocol).toEqual('http:');
+      expect(parsed.pathname).toEqual(pathname);
+    });
+  });
+
+  it('hg https', () => {
+    // http://[user[:pass]@]host[:port]/[path][#revision]
+    // (Is path really optional?))
+    const variations = [
+      'https://user:pass@host:123/path/to/repo',
+      'https://host:123/path/to/repo',
+      'https://user@host/path/to/repo',
+      'https://user:pass@host/path/to/repo',
+    ];
+    variations.forEach((url) => {
+      const parsed = dvcsUrl.parse(url);
+      expect(parsed.protocol).toEqual('https:');
+      expect(parsed.pathname).toEqual(pathname);
+    });
+  });
+
+  it('hg path-posix', () => {
+    // local/filesystem/path[#revision]
+    const variations = [
+      'local/filesystem/path',
     ];
     variations.forEach((url) => {
       const parsed = dvcsUrl.parse(url);
       expect(parsed.protocol).toEqual('path-posix');
-      expect(parsed.pathname).toEqual(pathname);
+      expect(parsed.pathname).toEqual('local/filesystem/path');
+    });
+  });
+
+  it('hg file', () => {
+    // file://local/filesystem/path[#revision]
+    // Urk, strips the local unless we have three slashes!
+    // Perhaps partial not supported by url?
+    const variations = [
+      'file:///local/filesystem/path',
+    ];
+    variations.forEach((url) => {
+      const parsed = dvcsUrl.parse(url);
+      expect(parsed.protocol).toEqual('file:');
+      expect(parsed.pathname).toEqual('/local/filesystem/path');
     });
   });
 });
