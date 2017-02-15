@@ -44,7 +44,6 @@ Backlog Possibles
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
-* finish changing use of "config" in code to "manifest"
 
 Terminology Inspirations
 * git

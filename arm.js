@@ -139,30 +139,30 @@ function cdRootDirectory() {
 
 
 function readManifest(mainPath, addMainToDependencies) {
-  const configPath = path.resolve(mainPath, armManifest);
+  const manifestPath = path.resolve(mainPath, armManifest);
 
   let data;
   try {
-    data = fs.readFileSync(configPath);
+    data = fs.readFileSync(manifestPath);
   } catch (err) {
-    util.terminate(`problem opening ${configPath}\n${err}`);
+    util.terminate(`problem opening ${manifestPath}\n${err}`);
   }
 
-  let configObject;
+  let manifestObject;
   try {
-    configObject = JSON.parse(data);
+    manifestObject = JSON.parse(data);
   } catch (err) {
-    util.terminate(`problem parsing ${configPath}\n${err}`);
+    util.terminate(`problem parsing ${manifestPath}\n${err}`);
   }
-  if (configObject.dependencies === undefined) {
-    util.terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
+  if (manifestObject.dependencies === undefined) {
+    util.terminate(`problem parsing: ${manifestPath}\nmissing field 'dependencies'`);
   }
-  if (configObject.rootDirectory === undefined) {
-    util.terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+  if (manifestObject.rootDirectory === undefined) {
+    util.terminate(`problem parsing: ${manifestPath}\nmissing field 'rootDirectory'`);
   }
   // Support old naming at least for a little while... (nest -> main)
-  if (configObject.nestPathFromRoot !== undefined) {
-    configObject.mainPathFromRoot = configObject.nestPathFromRoot;
+  if (manifestObject.nestPathFromRoot !== undefined) {
+    manifestObject.mainPathFromRoot = manifestObject.nestPathFromRoot;
   }
 
   const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
@@ -171,18 +171,18 @@ function readManifest(mainPath, addMainToDependencies) {
   if (addMainToDependencies) {
     let mainPathNotBlank = mainPath;
     if (mainPathNotBlank === '') mainPathNotBlank = '.';
-    configObject.dependencies[mainPathNotBlank] = { origin: mainOrigin, repoType: mainRepoType };
+    manifestObject.dependencies[mainPathNotBlank] = { origin: mainOrigin, repoType: mainRepoType };
   }
 
-  Object.keys(configObject.dependencies).forEach((repoPath) => {
+  Object.keys(manifestObject.dependencies).forEach((repoPath) => {
     // Sanity check repoType so callers do not need to warn about unexpected type.
-    const entry = configObject.dependencies[repoPath];
+    const entry = manifestObject.dependencies[repoPath];
     const supportedTypes = ['git', 'hg'];
     if (supportedTypes.indexOf(entry.repoType) === -1) {
       console.log(util.errorColour(
         `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
       ));
-      delete configObject.dependencies[repoPath];
+      delete manifestObject.dependencies[repoPath];
       return; // continue forEach
     }
 
@@ -192,7 +192,7 @@ function readManifest(mainPath, addMainToDependencies) {
     }
   });
 
-  return configObject;
+  return manifestObject;
 }
 
 
@@ -487,11 +487,11 @@ function writeRootFile(rootFilePath, mainPath) {
 
 
 function doInstall(freeBranch, includeMainInInstall) {
-  let configObject;
+  let manifestObject;
   // Might be called before root file added, so look for manifest first.
   if (fsX.fileExistsSync(armManifest)) {
-    configObject = readManifest('.', includeMainInInstall);
-    const rootAbsolutePath = path.resolve(configObject.rootDirectory);
+    manifestObject = readManifest('.', includeMainInInstall);
+    const rootAbsolutePath = path.resolve(manifestObject.rootDirectory);
     const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
     writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
     console.log();
@@ -499,8 +499,8 @@ function doInstall(freeBranch, includeMainInInstall) {
 
   cdRootDirectory();
   const mainPath = readMainPathFromRoot();
-  if (configObject === undefined) configObject = readManifest(mainPath, includeMainInInstall);
-  const dependencies = configObject.dependencies;
+  if (manifestObject === undefined) manifestObject = readManifest(mainPath, includeMainInInstall);
+  const dependencies = manifestObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -536,8 +536,8 @@ function findRepositories(startingDirectory, callback) {
 
 
 function doInit(rootDirParam) {
-  const configPath = path.resolve(armManifest);
-  if (fsX.fileExistsSync(configPath)) {
+  const manifestPath = path.resolve(armManifest);
+  if (fsX.fileExistsSync(manifestPath)) {
     console.log(`Skipping init, already have ${armManifest}`);
     console.log('(Delete it to start over, or did you want "arm install"?)');
     return;
@@ -617,7 +617,7 @@ function doInit(rootDirParam) {
   ];
   const prettyManifest = JSON.stringify(manifest, null, '  ');
 
-  fs.writeFileSync(configPath, prettyManifest);
+  fs.writeFileSync(manifestPath, prettyManifest);
   console.log(`Initialised dependencies in ${armManifest}`);
 
   // Root placeholder file. Safe to overwrite as low content.
@@ -631,7 +631,7 @@ function doInit(rootDirParam) {
 
 
 function doClone(source, destinationParam, options) {
-  // We need to know the main directory to find the config file after the clone.
+  // We need to know the main directory to find the manifest file after the clone.
   let destination = destinationParam;
   if (destination === undefined) {
     destination = path.posix.basename(dvcsUrl.parse(source).pathname, '.git');
