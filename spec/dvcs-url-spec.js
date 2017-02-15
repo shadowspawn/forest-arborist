@@ -3,7 +3,7 @@
 const dvcsUrl = require('../lib/dvcs-url');
 
 
-describe('recognise git URL protocols', () => {
+describe('dvcs-url recognise git URL protocols', () => {
   const pathname = '/path/to/repo.git/';
 
   it('git ssh', () => {
@@ -125,7 +125,7 @@ describe('recognise git URL protocols', () => {
 });
 
 
-describe('recognise hg URL protocols', () => {
+describe('dvcs-url recognise hg URL protocols', () => {
   const pathname = '/path/to/repo';
 
   // These are a subset of the git URLs apart from the #revision,
@@ -202,5 +202,37 @@ describe('recognise hg URL protocols', () => {
       expect(parsed.protocol).toEqual('file:');
       expect(parsed.pathname).toEqual('/local/filesystem/path');
     });
+  });
+});
+
+
+describe('dvcs-url resolve', () => {
+  it('ssh-like protocols', () => {
+    // Most of the protocols look like ssh
+    const base = 'ssh://user@host:123/path/to/repo';
+    const parsedBase = dvcsUrl.parse(base);
+    const result = dvcsUrl.resolve(parsedBase, '../other');
+    expect(result).toEqual('ssh://user@host:123/path/to/other');
+  });
+
+  it('file protocol', () => {
+    const base = 'file:///path/to/repo.git/';
+    const parsedBase = dvcsUrl.parse(base);
+    const result = dvcsUrl.resolve(parsedBase, '../other.git');
+    expect(result).toEqual('file:///path/to/other.git');
+  });
+
+  it('custom scp protocol', () => {
+    const base = 'user@host.xz:path/to/repo.git/';
+    const parsedBase = dvcsUrl.parse(base);
+    const result = dvcsUrl.resolve(parsedBase, '../other.git');
+    expect(result).toEqual('user@host.xz:path/to/other.git');
+  });
+
+  it('custom path-posix protocol', () => {
+    const base = '/path/to/repo.git/';
+    const parsedBase = dvcsUrl.parse(base);
+    const result = dvcsUrl.resolve(parsedBase, '../other.git');
+    expect(result).toEqual('/path/to/other.git');
   });
 });
