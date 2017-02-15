@@ -13,7 +13,6 @@ Known Issues
  * "arm clone" fails for locked empty git repo
  * "arm make-branch" publish fails for branch in empty repo
  * "hg pull" on empty repo causes error
-* stack dump when command fails (cosmetic)
 * Test operations with changes in repo, check fail elegantly
  * "arm pull" claims on detached head when have local changes? (Might have been empty branch problem)
 * local origin on Windows probably not working (need support for Windows path in multiple places)
@@ -23,17 +22,14 @@ Known Issues
  * not auto-detecting pinned revision (could do it by detecting not on tip)
 * Say goodbye to bisect
 * using colours for logging errors and commands, but will clash with some terminal colours!
+* flat gitlab layout means might default to a lot of relative repos, keep an eye.
 
 Backlog Possibles
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
   * handle clone with no default manifest and no manifest specified, list manifests
-* arm development script for
-  * sanity checks, lint, dependencies
-  * copy-up: checkout master, merge develop
-  * publish: npm version patch, (git push), npm publish
-* unit tests (URLs, nested operations, sibling operations, pin/lock/free)
+* unit tests (nested operations, sibling operations, pin/lock/free)
  * https://evanhahn.com/how-do-i-jasmine/
  * https://jasmine.github.io/2.0/introduction.html
 * typescript

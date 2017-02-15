@@ -572,7 +572,7 @@ function doInit(rootDirParam) {
     } else {
       const parsedOrigin = dvcsUrl.parse(origin);
       // We are doing simple auto detection of relative path, siblings on server
-      if (dvcsUrl.sameObjectDir(parsedOrigin, parsedNestOrigin)) {
+      if (dvcsUrl.sameDir(parsedOrigin, parsedNestOrigin)) {
         console.log('    (free)');
         // Like git submodule, require relative paths to start with ./ or ../
         const relativePath = path.posix.relative(parsedNestOrigin.pathname, parsedOrigin.pathname);
@@ -594,10 +594,20 @@ function doInit(rootDirParam) {
     }
   });
   delete dependencies[nestFromRoot];
-  const config = { dependencies, rootDirectory: rootFromNest, nestPathFromRoot: nestFromRoot };
-  const prettyConfig = JSON.stringify(config, null, '  ');
+  const manifest = { dependencies, rootDirectory: rootFromNest, nestPathFromRoot: nestFromRoot };
+  manifest.tipsForManualEditing = [
+    'The origin property for dependencies can be an URL ',
+    '  or a relative path which is relative to the main repo origin.)',
+    'The key for the dependencies map is the local relative path from the root directory.',
+    'Use forward slashes in paths (e.g. path/to not path\to).',
+    'Dependent repos come in three flavours, determined by the properties:',
+    '  1) if has pinRevision property, repo pinned to specified revision or tag (commit-ish)',
+    '  2) if has lockBranch property, repo locked to specified branch',
+    '  3) otherwise, repo is free and included in branch affecting commands',
+  ];
+  const prettyManifest = JSON.stringify(manifest, null, '  ');
 
-  fs.writeFileSync(configPath, prettyConfig);
+  fs.writeFileSync(configPath, prettyManifest);
   console.log(`Initialised dependencies in ${armManifest}`);
 
   // Root placeholder file. Safe to overwrite as low content.
@@ -767,7 +777,8 @@ function doRecreate(snapshotPath, destinationParam) {
 // Command line processing
 
 program
-  .version(myPackage.version);
+  .version(myPackage.version)
+  .option('--debug', 'include debugging information, such as stack dumps');
 
 // Extra help
 program.on('--help', () => {
@@ -936,7 +947,14 @@ program
     console.log(path.posix.relative('a', 'b'));
   });
 
-program.parse(process.argv);
+try {
+  program.parse(process.argv);
+} catch (err) {
+  if (program.opts().debug) {
+    console.log(`${err.stack}`);
+  }
+  util.terminate(`caught exception with message ${err.message}`);
+}
 
 // Show help if no command specified.
 if (process.argv.length === 2) {
