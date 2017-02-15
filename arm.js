@@ -8,8 +8,7 @@
 
  // eslint-disable-line strict
 
-// Naming used in this file: the repo/directory containing the config file is the nest.
-// (Following theme of root and forest...)
+// Naming used in this file: the repo/directory containing the manifest file is the main repo.
 
 const program = require('commander');
 const fs = require('fs');
@@ -24,7 +23,7 @@ const repo = require('./lib/repo');
 const fsX = require('./lib/fsExtra');
 const util = require('./lib/util');
 
-const armManifest = 'arm.json'; // stored in nest directory
+const armManifest = 'arm.json'; // stored in main directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
@@ -94,7 +93,7 @@ function isRelativePath(pathname) {
 }
 
 
-function readNestPathFromRoot() {
+function readMainPathFromRoot() {
   const armRootPath = path.resolve(armRootFilename);
   const data = fs.readFileSync(armRootPath);
   let rootObject;
@@ -103,19 +102,19 @@ function readNestPathFromRoot() {
   } catch (err) {
     util.terminate(`problem parsing ${armRootPath}\n${err}`);
   }
-  if (rootObject.nestPath === undefined) {
-    util.terminate(`problem parsing: ${armRootPath}\nmissing field 'nestPath'`);
+  if (rootObject.mainPath === undefined) {
+    util.terminate(`problem parsing: ${armRootPath}\nmissing field 'mainPath'`);
   }
 
-  // Fix up blank nestPath. KISS.
-  if (rootObject.nestPath === '') return '.';
+  // Fix up blank mainPath. KISS.
+  if (rootObject.mainPath === '') return '.';
 
-  return rootObject.nestPath;
+  return rootObject.mainPath;
 }
 
 
 function cdRootDirectory() {
-  const startedInNestDirectory = fsX.fileExistsSync(armManifest);
+  const startedInMainDirectory = fsX.fileExistsSync(armManifest);
 
   let tryParent = true;
   do {
@@ -129,7 +128,7 @@ function cdRootDirectory() {
     tryParent = (cwd !== process.cwd());
   } while (tryParent);
 
-  if (startedInNestDirectory) {
+  if (startedInMainDirectory) {
     util.terminate('root of forest not found. (Do you need to call "arm install"?)');
   } else {
     util.terminate('root of forest not found. ');
@@ -137,8 +136,8 @@ function cdRootDirectory() {
 }
 
 
-function readManifest(nestPath, addNestToDependencies) {
-  const configPath = path.resolve(nestPath, armManifest);
+function readManifest(mainPath, addMainToDependencies) {
+  const configPath = path.resolve(mainPath, armManifest);
 
   let data;
   try {
@@ -160,13 +159,13 @@ function readManifest(nestPath, addNestToDependencies) {
     util.terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
-  const nestRepoType = repo.getRepoTypeForLocalPath(nestPath);
-  const nestOrigin = repo.getOrigin(nestPath, nestRepoType);
-  const parsedNestOrigin = dvcsUrl.parse(nestOrigin);
-  if (addNestToDependencies) {
-    let nestPathNotBlank = nestPath;
-    if (nestPathNotBlank === '') nestPathNotBlank = '.';
-    configObject.dependencies[nestPathNotBlank] = { origin: nestOrigin, repoType: nestRepoType };
+  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
+  const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
+  const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
+  if (addMainToDependencies) {
+    let mainPathNotBlank = mainPath;
+    if (mainPathNotBlank === '') mainPathNotBlank = '.';
+    configObject.dependencies[mainPathNotBlank] = { origin: mainOrigin, repoType: mainRepoType };
   }
 
   Object.keys(configObject.dependencies).forEach((repoPath) => {
@@ -183,7 +182,7 @@ function readManifest(nestPath, addNestToDependencies) {
 
     // Turn relative repos into absolute repos.
     if (isRelativePath(entry.origin)) {
-      entry.origin = dvcsUrl.resolve(parsedNestOrigin, entry.origin);
+      entry.origin = dvcsUrl.resolve(parsedMainOrigin, entry.origin);
     }
   });
 
@@ -193,8 +192,8 @@ function readManifest(nestPath, addNestToDependencies) {
 
 function doStatus() {
   cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  const dependencies = readManifest(nestPath, true).dependencies;
+  const mainPath = readMainPathFromRoot();
+  const dependencies = readManifest(mainPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -253,8 +252,8 @@ function hgAutoMerge(repoPath) {
 
 function doPull() {
   cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  const dependencies = readManifest(nestPath, true).dependencies;
+  const mainPath = readMainPathFromRoot();
+  const dependencies = readManifest(mainPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -281,8 +280,8 @@ function doPull() {
 
 function doOutgoing() {
   cdRootDirectory();
-  const nestDirectory = readNestPathFromRoot();
-  const dependencies = readManifest(nestDirectory, true).dependencies;
+  const mainDirectory = readMainPathFromRoot();
+  const dependencies = readManifest(mainDirectory, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -313,8 +312,8 @@ function doOutgoing() {
 
 function doSwitch(branch) {
   cdRootDirectory();
-  const nestDirectory = readNestPathFromRoot();
-  const dependencies = readManifest(nestDirectory, true).dependencies;
+  const mainDirectory = readMainPathFromRoot();
+  const dependencies = readManifest(mainDirectory, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -338,8 +337,8 @@ function doSwitch(branch) {
 
 function doMakeBranch(branch, startPoint, publish) {
   cdRootDirectory();
-  const nestDirectory = readNestPathFromRoot();
-  const dependencies = readManifest(nestDirectory, true).dependencies;
+  const mainDirectory = readMainPathFromRoot();
+  const dependencies = readManifest(mainDirectory, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -471,30 +470,30 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 }
 
 
-function writeRootFile(rootFilePath, nestPath) {
+function writeRootFile(rootFilePath, mainPath) {
   let initialisedWord = 'Initialised';
   if (fsX.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
-  const rootObject = { nestPath };
+  const rootObject = { mainPath };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
   console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
 }
 
 
-function doInstall(freeBranch, includeNestInInstall) {
+function doInstall(freeBranch, includeMainInInstall) {
   let configObject;
   // Might be called before root file added, so look for manifest first.
   if (fsX.fileExistsSync(armManifest)) {
-    configObject = readManifest('.', includeNestInInstall);
+    configObject = readManifest('.', includeMainInInstall);
     const rootAbsolutePath = path.resolve(configObject.rootDirectory);
-    const nestFromRoot = path.relative(rootAbsolutePath, process.cwd());
-    writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+    const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
+    writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
     console.log();
   }
 
   cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  if (configObject === undefined) configObject = readManifest(nestPath, includeNestInInstall);
+  const mainPath = readMainPathFromRoot();
+  if (configObject === undefined) configObject = readManifest(mainPath, includeMainInInstall);
   const dependencies = configObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
@@ -538,21 +537,21 @@ function doInit(rootDirParam) {
     return;
   }
 
-  // Find nest origin, if we can.
-  const nestRepoType = repo.getRepoTypeForLocalPath('.');
-  if (nestRepoType === undefined) {
+  // Find main origin, if we can.
+  const mainRepoType = repo.getRepoTypeForLocalPath('.');
+  if (mainRepoType === undefined) {
     util.terminate('expecting current directory to have a repository. (KISS)');
   }
-  const nestOrigin = repo.getOrigin('.', nestRepoType);
-  let parsedNestOrigin;
-  if (nestOrigin === undefined) {
+  const mainOrigin = repo.getOrigin('.', mainRepoType);
+  let parsedMainOrigin;
+  if (mainOrigin === undefined) {
     console.log(util.errorColour('(origin not specified for starting repo)'));
   } else {
-    parsedNestOrigin = dvcsUrl.parse(nestOrigin);
+    parsedMainOrigin = dvcsUrl.parse(mainOrigin);
   }
 
-  // Sort out nest and root paths
-  const nestAbsolutePath = process.cwd();
+  // Sort out main and root paths
+  const mainAbsolutePath = process.cwd();
   let rootAbsolutePath;
   if (rootDirParam === undefined) {
     rootAbsolutePath = process.cwd();
@@ -561,10 +560,10 @@ function doInit(rootDirParam) {
     rootAbsolutePath = path.resolve(rootDirParam);
     console.log('Scanning for dependencies from root…');
   }
-  const nestFromRoot = path.relative(rootAbsolutePath, nestAbsolutePath);
-  const rootFromNest = path.relative(nestAbsolutePath, rootAbsolutePath);
+  const mainFromRoot = path.relative(rootAbsolutePath, mainAbsolutePath);
+  const rootFromMain = path.relative(mainAbsolutePath, rootAbsolutePath);
 
-  // Dependencies (implicitly finds nest too, but that gets deleted)
+  // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
   findRepositories('.', (repoPath, repoType) => {
@@ -577,10 +576,10 @@ function doInit(rootDirParam) {
     } else {
       const parsedOrigin = dvcsUrl.parse(origin);
       // We are doing simple auto detection of relative path, siblings on server
-      if (dvcsUrl.sameDir(parsedOrigin, parsedNestOrigin)) {
+      if (dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin)) {
         console.log('    (free)');
         // Like git submodule, require relative paths to start with ./ or ../
-        const relativePath = path.posix.relative(parsedNestOrigin.pathname, parsedOrigin.pathname);
+        const relativePath = path.posix.relative(parsedMainOrigin.pathname, parsedOrigin.pathname);
         if (isRelativePath(relativePath)) {
           entry.origin = relativePath;
         }
@@ -598,8 +597,8 @@ function doInit(rootDirParam) {
       dependencies[repoPath] = entry;
     }
   });
-  delete dependencies[nestFromRoot];
-  const manifest = { dependencies, rootDirectory: rootFromNest, nestPathFromRoot: nestFromRoot };
+  delete dependencies[mainFromRoot];
+  const manifest = { dependencies, rootDirectory: rootFromMain, mainPathFromRoot: mainFromRoot };
   manifest.tipsForManualEditing = [
     'The origin property for dependencies can be an URL ',
     '  or a relative path which is relative to the main repo origin.)',
@@ -616,7 +615,7 @@ function doInit(rootDirParam) {
   console.log(`Initialised dependencies in ${armManifest}`);
 
   // Root placeholder file. Safe to overwrite as low content.
-  writeRootFile(path.join(rootAbsolutePath, armRootFilename), nestFromRoot);
+  writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
 
   // Offer clue for possible sibling init situation.
   if (Object.keys(dependencies).length === 0) {
@@ -626,36 +625,36 @@ function doInit(rootDirParam) {
 
 
 function doClone(source, destinationParam, options) {
-  // We need to know the nest directory to find the config file after the clone.
+  // We need to know the main directory to find the config file after the clone.
   let destination = destinationParam;
   if (destination === undefined) {
     destination = path.posix.basename(dvcsUrl.parse(source).pathname, '.git');
   }
 
   // Clone source.
-  const nestEntry = { origin: source };
+  const mainEntry = { origin: source };
   if (repo.isGitRepository(source)) {
-    nestEntry.repoType = 'git';
+    mainEntry.repoType = 'git';
   } else if (repo.isHgRepository(source)) {
-    nestEntry.repoType = 'hg';
+    mainEntry.repoType = 'hg';
   }
-  cloneEntry(nestEntry, destination, options.branch);
+  cloneEntry(mainEntry, destination, options.branch);
 
   if (!fsX.fileExistsSync(path.join(destination, armManifest))) {
     util.terminate(`stopping as did not find manifest ${armManifest}`);
   }
 
   const manifest = readManifest(destination);
-  if (manifest.nestPathFromRoot !== undefined && manifest.nestPathFromRoot !== '') {
+  if (manifest.mainPathFromRoot !== undefined && manifest.mainPathFromRoot !== '') {
     // Play shell game for sibling layout, using destination as a wrapper folder.
     console.log('Using sibling repo layout');
     const tempDir = fs.mkdtempSync('./');
     fs.renameSync(destination, path.join(tempDir, destination));
     fs.mkdirSync(destination);
-    const nestPathFromHere = path.join(destination, manifest.nestPathFromRoot);
-    fs.renameSync(path.join(tempDir, destination), nestPathFromHere);
+    const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
+    fs.renameSync(path.join(tempDir, destination), mainPathFromHere);
     fs.rmdirSync(tempDir);
-    process.chdir(nestPathFromHere);
+    process.chdir(mainPathFromHere);
   } else {
     process.chdir(destination);
   }
@@ -671,8 +670,8 @@ function doForEach(internalOptions, args) {
   const cmd = args.shift();
 
   cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  const dependencies = readManifest(nestPath, true).dependencies;
+  const mainPath = readMainPathFromRoot();
+  const dependencies = readManifest(mainPath, true).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     if (internalOptions.freeOnly) {
@@ -697,8 +696,8 @@ function doForEach(internalOptions, args) {
 
 function doSnapshot() {
   cdRootDirectory();
-  const nestPath = readNestPathFromRoot();
-  const manifest = readManifest(nestPath);
+  const mainPath = readMainPathFromRoot();
+  const manifest = readManifest(mainPath);
 
   // Create dependencies with fixed revision and absolute repo.
   const dependencies = {};
@@ -713,16 +712,16 @@ function doSnapshot() {
   const snapshot = {
     dependencies,
     rootDirectory: manifest.rootDirectory,
-    nestPathFromRoot: manifest.nestPathFromRoot,
+    mainPathFromRoot: manifest.mainPathFromRoot,
   };
 
-  let nestPathNotBlank = nestPath;
-  if (nestPathNotBlank === '') nestPathNotBlank = '.';
-  const nestRepoType = repo.getRepoTypeForLocalPath(nestPathNotBlank);
-  snapshot.nestRepo = {
-    origin: repo.getOrigin(nestPathNotBlank, nestRepoType),
-    repoType: nestRepoType,
-    pinRevision: repo.getRevision(nestPathNotBlank, nestRepoType),
+  let mainPathNotBlank = mainPath;
+  if (mainPathNotBlank === '') mainPathNotBlank = '.';
+  const mainRepoType = repo.getRepoTypeForLocalPath(mainPathNotBlank);
+  snapshot.mainRepo = {
+    origin: repo.getOrigin(mainPathNotBlank, mainRepoType),
+    repoType: mainRepoType,
+    pinRevision: repo.getRevision(mainPathNotBlank, mainRepoType),
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, '  ');
@@ -747,22 +746,22 @@ function doRecreate(snapshotPath, destinationParam) {
     util.terminate(`problem parsing ${snapshotPath}\n${err}`);
   }
 
-  const nestRepoEntry = snapshotObject.nestRepo;
+  const mainRepoEntry = snapshotObject.mainRepo;
 
   let destination = destinationParam;
   if (destination === undefined || destination === '') {
-    destination = path.posix.basename(dvcsUrl.parse(nestRepoEntry.origin).pathname, '.git');
+    destination = path.posix.basename(dvcsUrl.parse(mainRepoEntry.origin).pathname, '.git');
   }
 
-  // Clone nest repo first
-  if (snapshotObject.nestPathFromRoot !== undefined && snapshotObject.nestPathFromRoot !== '') {
+  // Clone main repo first
+  if (snapshotObject.mainPathFromRoot !== undefined && snapshotObject.mainPathFromRoot !== '') {
     // Sibling layout. Make wrapper directory.
     fs.mkdirSync(destination);
     process.chdir(destination);
-    destination = snapshotObject.nestPathFromRoot;
-    cloneEntry(nestRepoEntry, destination);
+    destination = snapshotObject.mainPathFromRoot;
+    cloneEntry(mainRepoEntry, destination);
   } else {
-    cloneEntry(nestRepoEntry, destination);
+    cloneEntry(mainRepoEntry, destination);
     process.chdir(destination);
   }
 
@@ -774,7 +773,7 @@ function doRecreate(snapshotPath, destinationParam) {
   });
 
   // Install root file
-  writeRootFile(path.resolve(armRootFilename), snapshotObject.nestPathFromRoot);
+  writeRootFile(path.resolve(armRootFilename), snapshotObject.mainPathFromRoot);
 }
 
 

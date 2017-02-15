@@ -20,9 +20,9 @@ Known Issues
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
  * not auto-detecting pinned revision (could do it by detecting not on tip)
-* Say goodbye to bisect
+* Say goodbye to simple bisect, not storing state by design.
 * using colours for logging errors and commands, but will clash with some terminal colours!
-* flat gitlab layout means might default to a lot of relative repos, keep an eye.
+* flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
 
 Backlog Possibles
 * multiple manifest files, e.g. HRVMasterStable ?
@@ -38,14 +38,12 @@ Backlog Possibles
  * --git --hg (default to all, but supports mixed repo types!)
  * git X == for --git git X ?
  * hg X == for --hg hg X ?
-* put clues into manifest for manual editing?
 * tidier if use '.' rather than '' for nested rootDirectory et al ?
 * help for modifying dependencies in manifest?
   * add/remove
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
-* "main" would be less special than "nest", change everywhere?
 
 Terminology Inspirations
 * git
