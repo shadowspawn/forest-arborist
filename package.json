@@ -15,7 +15,7 @@
   "scripts": {
     "copy-up": "git checkout master && git merge develop && echo \"tip: run npm version patch, then npm publish\"",
     "postpublish": "git push && git checkout develop && git merge master && npm --no-git-tag-version version patch",
-    "lint": "./node_modules/eslint/bin/eslint.js arm.js",
+    "lint": "./node_modules/eslint/bin/eslint.js arm.js lib/** spec/**",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "John Gee",

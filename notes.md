@@ -7,7 +7,7 @@ Version Plan (even/odd, linked different than published)
 * bump version with tag just before publish
 
 Known Issues
-* miss the a of arm, and you just typed rm...
+* miss the a off arm, and you just typed rm. That could suck!
 * warn when init on empty repo??? Because:
  * "arm outgoing" fails for empty git repo
  * "arm clone" fails for locked empty git repo
@@ -45,6 +45,7 @@ Backlog Possibles
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
+* "main" would be less special than "nest", change everywhere?
 
 Terminology Inspirations
 * git
