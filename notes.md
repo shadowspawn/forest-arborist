@@ -22,6 +22,7 @@ Known Issues
  * if "hg pull" gets nothing then no need to call "hg update"
  * not auto-detecting pinned revision (could do it by detecting not on tip)
 * Say goodbye to bisect
+* using colours for logging errors and commands, but will clash with some terminal colours!
 
 Backlog Possibles
 * multiple manifest files, e.g. HRVMasterStable ?

@@ -7,7 +7,6 @@
 // (Following theme of root and forest...)
 
 const program = require('commander');
-const chalk = require('chalk');
 const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
@@ -17,24 +16,13 @@ const myPackage = require('./package.json');
 // Local lib
 const dvcsUrl = require('./lib/dvcs-url');
 const repo = require('./lib/repo');
-const fsX = require('./lib/fsExtra'); // fs helper
+const fsX = require('./lib/fsExtra');
+const util = require('./lib/util');
 
 const armManifest = 'arm.json'; // stored in nest directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
-
-const my = {
-  errorColour: (text) => chalk.red(text),
-  commandColour: (text) => chalk.blue(text),
-};
-
-
-function terminate(message) {
-  console.log(my.errorColour(`Error: ${message}`));
-  process.exit(1);
-}
-
 
 function getUnrecognisedArgs() {
   const args = program.args[0];
@@ -76,7 +64,7 @@ function execCommandSync(commandParam) {
   // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
   let quotedArgs = shellQuote.quote(command.args);
   quotedArgs = quotedArgs.replace(/\n/g, '\\n');
-  console.log(chalk.blue(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
+  console.log(util.commandColour(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
 
   try {
     // Note: the stdio option hooks up child stream to parent so we get live progress.
@@ -108,10 +96,10 @@ function readNestPathFromRoot() {
   try {
     rootObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${armRootPath}\n${err}`);
+    util.terminate(`problem parsing ${armRootPath}\n${err}`);
   }
   if (rootObject.nestPath === undefined) {
-    terminate(`problem parsing: ${armRootPath}\nmissing field 'nestPath'`);
+    util.terminate(`problem parsing: ${armRootPath}\nmissing field 'nestPath'`);
   }
 
   // Fix up blank nestPath. KISS.
@@ -137,9 +125,9 @@ function cdRootDirectory() {
   } while (tryParent);
 
   if (startedInNestDirectory) {
-    terminate('root of forest not found. (Do you need to call "arm install"?)');
+    util.terminate('root of forest not found. (Do you need to call "arm install"?)');
   } else {
-    terminate('root of forest not found. ');
+    util.terminate('root of forest not found. ');
   }
 }
 
@@ -151,20 +139,20 @@ function readManifest(nestPath, addNestToDependencies) {
   try {
     data = fs.readFileSync(configPath);
   } catch (err) {
-    terminate(`problem opening ${configPath}\n${err}`);
+    util.terminate(`problem opening ${configPath}\n${err}`);
   }
 
   let configObject;
   try {
     configObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${configPath}\n${err}`);
+    util.terminate(`problem parsing ${configPath}\n${err}`);
   }
   if (configObject.dependencies === undefined) {
-    terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
+    util.terminate(`problem parsing: ${configPath}\nmissing field 'dependencies'`);
   }
   if (configObject.rootDirectory === undefined) {
-    terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+    util.terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
   }
 
   const nestRepoType = repo.getRepoTypeForLocalPath(nestPath);
@@ -181,7 +169,7 @@ function readManifest(nestPath, addNestToDependencies) {
     const entry = configObject.dependencies[repoPath];
     const supportedTypes = ['git', 'hg'];
     if (supportedTypes.indexOf(entry.repoType) === -1) {
-      console.log(my.errorColour(
+      console.log(util.errorColour(
         `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
       ));
       delete configObject.dependencies[repoPath];
@@ -248,7 +236,7 @@ function hgAutoMerge(repoPath) {
       );
     } catch (err) {
       if (err.status === 1) {
-        console.log(my.errorColour('NB: unresolved conflicts'));
+        console.log(util.errorColour('NB: unresolved conflicts'));
         console.log('');
       } else {
         throw err;
@@ -429,7 +417,7 @@ function cloneEntry(entry, repoPath, freeBranch) {
   // Clone command ready!
   execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
 
-  // Second commnd to checkout pinned revision
+  // Second command to checkout pinned revision
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === 'git') {
       execCommandSync(
@@ -548,12 +536,12 @@ function doInit(rootDirParam) {
   // Find nest origin, if we can.
   const nestRepoType = repo.getRepoTypeForLocalPath('.');
   if (nestRepoType === undefined) {
-    terminate('expecting current directory to have a repository. (KISS)');
+    util.terminate('expecting current directory to have a repository. (KISS)');
   }
   const nestOrigin = repo.getOrigin('.', nestRepoType);
   let parsedNestOrigin;
   if (nestOrigin === undefined) {
-    console.log(my.errorColour('(origin not specified for starting repo)'));
+    console.log(util.errorColour('(origin not specified for starting repo)'));
   } else {
     parsedNestOrigin = dvcsUrl.parse(nestOrigin);
   }
@@ -580,7 +568,7 @@ function doInit(rootDirParam) {
     const entry = { origin, repoType };
 
     if (origin === undefined) {
-      console.log(my.errorColour('    (origin not specified)'));
+      console.log(util.errorColour('    (origin not specified)'));
     } else {
       const parsedOrigin = dvcsUrl.parse(origin);
       // We are doing simple auto detection of relative path, siblings on server
@@ -639,7 +627,7 @@ function doClone(source, destinationParam, options) {
   cloneEntry(nestEntry, destination, options.branch);
 
   if (!fsX.fileExistsSync(path.join(destination, armManifest))) {
-    terminate(`stopping as did not find manifest ${armManifest}`);
+    util.terminate(`stopping as did not find manifest ${armManifest}`);
   }
 
   const manifest = readManifest(destination);
@@ -664,7 +652,7 @@ function doClone(source, destinationParam, options) {
 
 
 function doForEach(internalOptions, args) {
-  if (args.length === 0) terminate('no for command specified');
+  if (args.length === 0) util.terminate('no for command specified');
   const cmd = args.shift();
 
   cdRootDirectory();
@@ -728,20 +716,20 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fsX.fileExistsSync(snapshotPath)) terminate('snapshot file not found');
+  if (!fsX.fileExistsSync(snapshotPath)) util.terminate('snapshot file not found');
 
   // Read snapshot
   let data;
   try {
     data = fs.readFileSync(snapshotPath);
   } catch (err) {
-    terminate(`problem opening ${snapshotPath}\n${err}`);
+    util.terminate(`problem opening ${snapshotPath}\n${err}`);
   }
   let snapshotObject;
   try {
     snapshotObject = JSON.parse(data);
   } catch (err) {
-    terminate(`problem parsing ${snapshotPath}\n${err}`);
+    util.terminate(`problem parsing ${snapshotPath}\n${err}`);
   }
 
   const nestRepoEntry = snapshotObject.nestRepo;
@@ -841,7 +829,6 @@ program
 
 program
   .command('status')
-  .alias('st')
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
@@ -917,7 +904,6 @@ program
 
 program
   .command('snapshot')
-  .alias('ss')
   .description('display state of forest')
   .action(() => {
     gRecognisedCommand = true;
