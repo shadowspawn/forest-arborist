@@ -23,6 +23,7 @@ Known Issues
 * Say goodbye to simple bisect, not storing state by design.
 * using colours for logging errors and commands, but will clash with some terminal colours!
 * flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
+* no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 Backlog Possibles
 * multiple manifest files, e.g. HRVMasterStable ?
@@ -44,6 +45,7 @@ Backlog Possibles
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
+* assertNoArgs is unreliable and relying on internal detail
 
 Terminology Inspirations
 * git

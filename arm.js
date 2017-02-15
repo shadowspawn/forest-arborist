@@ -6,9 +6,7 @@
 
 'use strict';
 
- // eslint-disable-line strict
-
-// Naming used in this file: the repo/directory containing the manifest file is the main repo.
+// Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
 const program = require('commander');
 const fs = require('fs');
@@ -27,30 +25,6 @@ const armManifest = 'arm.json'; // stored in main directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
 let gRecognisedCommand = false; // Seems there should be a tidier way...
-
-function getUnrecognisedArgs() {
-  const args = program.args[0];
-
-  // commander is passing "self" as final parameter for undocumented reasons!
-  if ((args.length > 0) && (typeof args[args.length - 1] === 'object')) {
-    args.pop();
-  }
-
-  return args;
-}
-
-
-function assertNoArgs() {
-  // commander does not complain if arguments are supplied for commands
-  // which do not have any. Do some checking ourselves.
-  const unrecognisedArgs = getUnrecognisedArgs();
-  if (unrecognisedArgs.length > 0) {
-    console.log('');
-    console.log(`  error: unexpected extra args: ${unrecognisedArgs}`);
-    console.log('');
-    process.exit(1);
-  }
-}
 
 
 function execCommandSync(commandParam) {
@@ -643,6 +617,9 @@ function doClone(source, destinationParam, options) {
     mainEntry.repoType = 'git';
   } else if (repo.isHgRepository(source)) {
     mainEntry.repoType = 'hg';
+  } else {
+    console.log('(Does the source repo exist?)');
+    util.terminate(`failed to find repository type for ${source}`);
   }
   cloneEntry(mainEntry, destination, options.branch);
 
@@ -671,9 +648,10 @@ function doClone(source, destinationParam, options) {
 }
 
 
-function doForEach(internalOptions, args) {
-  if (args.length === 0) util.terminate('no for command specified');
-  const cmd = args.shift();
+function doForEach(internalOptions, cmd, args) {
+  console.log(cmd);
+  console.log(args);
+  // const cmd = args.shift();
 
   cdRootDirectory();
   const mainPath = readMainPathFromRoot();
@@ -736,7 +714,7 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fsX.fileExistsSync(snapshotPath)) util.terminate('snapshot file not found');
+  if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
 
   // Read snapshot
   let data;
@@ -834,7 +812,6 @@ program
   })
   .action((options) => {
     gRecognisedCommand = true;
-    assertNoArgs();
     doInit(options.root);
   });
 
@@ -844,7 +821,6 @@ program
   .description('clone missing (new) dependent repositories')
   .action((options) => {
     gRecognisedCommand = true;
-    assertNoArgs();
     doInstall(options.branch, true);
   });
 
@@ -853,7 +829,6 @@ program
   .description('show concise status for each repo in the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertNoArgs();
     doStatus();
   });
 
@@ -865,7 +840,6 @@ program
   })
   .action(() => {
     gRecognisedCommand = true;
-    assertNoArgs();
     doPull();
   });
 
@@ -874,7 +848,6 @@ program
   .description('show new changesets that have not been pushed')
   .action(() => {
     gRecognisedCommand = true;
-    assertNoArgs();
     doOutgoing();
   });
 
@@ -883,27 +856,26 @@ program
   .description('show the root directory of the forest')
   .action(() => {
     gRecognisedCommand = true;
-    assertNoArgs();
     cdRootDirectory();
     console.log(process.cwd());
   });
 
 program
   .command('for-each')
-  .description('run specified command on each repo in the forest, e.g. "arm foreach -- pwd"')
-  .arguments('[command...]')
-  .action((command) => {
+  .description('run specified command on each repo in the forest, e.g. "arm for-each ls -- -al"')
+  .arguments('<command> [args...]')
+  .action((command, args) => {
     gRecognisedCommand = true;
-    doForEach({}, command);
+    doForEach({}, command, args);
   });
 
 program
   .command('for-free')
   .description('run specified command on repos which are not locked or pinned')
-  .arguments('[command...]')
-  .action((command) => {
+  .arguments('<command> [args...]')
+  .action((command, args) => {
     gRecognisedCommand = true;
-    doForEach({ freeOnly: true }, command);
+    doForEach({ freeOnly: true }, command, args);
   });
 
 program
@@ -971,7 +943,7 @@ if (process.argv.length === 2) {
   program.help();
 }
 
-// Error2 in the same style as command uses for unknown option
+// Error in the same style as command uses for unknown option
 if (!gRecognisedCommand) {
   console.log('');
   console.log(`  error: unknown command \`${process.argv[2]}'`);
