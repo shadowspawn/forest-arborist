@@ -102,6 +102,8 @@ function readMainPathFromRoot() {
   } catch (err) {
     util.terminate(`problem parsing ${armRootPath}\n${err}`);
   }
+  // Support old naming at least for a little while... (nest -> main)
+  if (rootObject.nestPath !== undefined) rootObject.mainPath = rootObject.nestPath;
   if (rootObject.mainPath === undefined) {
     util.terminate(`problem parsing: ${armRootPath}\nmissing field 'mainPath'`);
   }
@@ -157,6 +159,10 @@ function readManifest(mainPath, addMainToDependencies) {
   }
   if (configObject.rootDirectory === undefined) {
     util.terminate(`problem parsing: ${configPath}\nmissing field 'rootDirectory'`);
+  }
+  // Support old naming at least for a little while... (nest -> main)
+  if (configObject.nestPathFromRoot !== undefined) {
+    configObject.mainPathFromRoot = configObject.nestPathFromRoot;
   }
 
   const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
