@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 // Node location may vary between Mac and Lin, so env for portability.
 
-'use strict'; // eslint-disable-line strict
+// Do we still need strict? Was needed for an older node, and eslint thinks not needed.
+/* eslint strict: [0, "global"] */
+
+'use strict';
+
+ // eslint-disable-line strict
 
 // Naming used in this file: the repo/directory containing the config file is the nest.
 // (Following theme of root and forest...)
@@ -289,8 +294,8 @@ function doOutgoing() {
         // but otherwise pretty cool!
         { cmd: 'git',
           args: ['log', '--branches', '--not', '--remotes', '--decorate', '--oneline'],
-          cwd: repoPath }
-        // log
+          cwd: repoPath,
+        }
       );
     } else if (repoType === 'hg') {
       // Outgoing returns 1 if there are no outgoing changes.

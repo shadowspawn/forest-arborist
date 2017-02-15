@@ -1,4 +1,4 @@
-'use strict'; // eslint-disable-line strict
+/* eslint-env jasmine */
 
 const dvcsUrl = require('../lib/dvcs-url');
 

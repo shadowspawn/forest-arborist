@@ -1,4 +1,4 @@
-'use strict'; // eslint-disable-line strict
+/* eslint-env jasmine */
 
 const fsX = require('../lib/fsExtra');
 const os = require('os');
