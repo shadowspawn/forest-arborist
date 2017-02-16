@@ -82,10 +82,7 @@ function readMainPathFromRoot() {
     util.terminate(`problem parsing: ${armRootPath}\nmissing field 'mainPath'`);
   }
 
-  // Fix up blank mainPath. KISS.
-  if (rootObject.mainPath === '') return '.';
-
-  return rootObject.mainPath;
+  return util.normalizeToPosix(rootObject.mainPath);
 }
 
 
@@ -143,9 +140,8 @@ function readManifest(mainPath, addMainToDependencies) {
   const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
   const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
   if (addMainToDependencies) {
-    let mainPathNotBlank = mainPath;
-    if (mainPathNotBlank === '') mainPathNotBlank = '.';
-    manifestObject.dependencies[mainPathNotBlank] = { origin: mainOrigin, repoType: mainRepoType };
+    const mainNormalized = util.normalizeToPosix(mainPath);
+    manifestObject.dependencies[mainNormalized] = { origin: mainOrigin, repoType: mainRepoType };
   }
 
   Object.keys(manifestObject.dependencies).forEach((repoPath) => {
@@ -453,7 +449,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 function writeRootFile(rootFilePath, mainPath) {
   let initialisedWord = 'Initialised';
   if (fsX.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
-  const rootObject = { mainPath };
+  const rootObject = { mainPath: util.normalizeToPosix(mainPath) };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
   fs.writeFileSync(rootFilePath, prettyRootObject);
   console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
@@ -546,7 +542,8 @@ function doInit(rootDirParam) {
   // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies = {};
-  findRepositories('.', (repoPath, repoType) => {
+  findRepositories('.', (repoPathParam, repoType) => {
+    const repoPath = util.normalizeToPosix(repoPathParam);
     console.log(`  ${repoPath}`);
     const origin = repo.getOrigin(repoPath, repoType);
     const entry = { origin, repoType };
@@ -578,17 +575,21 @@ function doInit(rootDirParam) {
     }
   });
   delete dependencies[mainFromRoot];
-  const manifest = { dependencies, rootDirectory: rootFromMain, mainPathFromRoot: mainFromRoot };
-  manifest.tipsForManualEditing = [
-    'The origin property for dependencies can be an URL ',
-    '  or a relative path which is relative to the main repo origin.)',
-    'The key for the dependencies map is the local relative path from the root directory.',
-    'Use forward slashes in paths (e.g. path/to not path\to).',
-    'Dependent repos come in three flavours, determined by the properties:',
-    '  1) if has pinRevision property, repo pinned to specified revision or tag (commit-ish)',
-    '  2) if has lockBranch property, repo locked to specified branch',
-    '  3) otherwise, repo is free and included in branch affecting commands',
-  ];
+  const manifest = {
+    dependencies,
+    rootDirectory: util.normalizeToPosix(rootFromMain),
+    mainPathFromRoot: util.normalizeToPosix(mainFromRoot),
+    tipsForManualEditing: [
+      'The origin property for dependencies can be an URL ',
+      '  or a relative path which is relative to the main repo origin.)',
+      'The key for the dependencies map is the local relative path from the root directory.',
+      'Use forward slashes in paths (e.g. path/to not path\to).',
+      'Dependent repos come in three flavours, determined by the properties:',
+      '  1) if has pinRevision property, repo pinned to specified revision or tag (commit-ish)',
+      '  2) if has lockBranch property, repo locked to specified branch',
+      '  3) otherwise, repo is free and included in branch affecting commands',
+    ],
+  };
   const prettyManifest = JSON.stringify(manifest, null, '  ');
 
   fs.writeFileSync(manifestPath, prettyManifest);
@@ -699,13 +700,11 @@ function doSnapshot() {
     mainPathFromRoot: manifest.mainPathFromRoot,
   };
 
-  let mainPathNotBlank = mainPath;
-  if (mainPathNotBlank === '') mainPathNotBlank = '.';
-  const mainRepoType = repo.getRepoTypeForLocalPath(mainPathNotBlank);
+  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
   snapshot.mainRepo = {
-    origin: repo.getOrigin(mainPathNotBlank, mainRepoType),
+    origin: repo.getOrigin(mainPath, mainRepoType),
     repoType: mainRepoType,
-    pinRevision: repo.getRevision(mainPathNotBlank, mainRepoType),
+    pinRevision: repo.getRevision(mainPath, mainRepoType),
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, '  ');
@@ -926,7 +925,7 @@ program
   .description('test')
   .action(() => {
     gRecognisedCommand = true;
-    console.log(path.posix.relative('a', 'b'));
+    console.log(`[${path.normalize('')}]`);
   });
 
 try {

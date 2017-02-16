@@ -3,7 +3,7 @@
 Backlog
 * rename git repository and npm package
   * http://stackoverflow.com/questions/28371669/renaming-a-published-npm-module
-* need support for relative path for dependencies on Windows being posix
+* need support for creating relative path for dependencies on Windows as posix
 
 Version Plan (even/odd, linked different than published)
 * bump version and do not tag after publish
