@@ -1,13 +1,15 @@
 # arm
 
 Backlog
+* rename git repository and npm package
+  * http://stackoverflow.com/questions/28371669/renaming-a-published-npm-module
+* need support for relative path for dependencies on Windows being posix
 
 Version Plan (even/odd, linked different than published)
 * bump version and do not tag after publish
 * bump version with tag just before publish
 
 Known Issues
-* miss the a off arm, and you just typed rm. That could suck!
 * warn when init on empty repo??? Because:
  * "arm outgoing" fails for empty git repo
  * "arm clone" fails for locked empty git repo
@@ -46,6 +48,7 @@ Backlog Possibles
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
 * assertNoArgs is unreliable and relying on internal detail
+* might be able to detect un-matched commands cleanly with .command('*')
 
 Terminology Inspirations
 * git
