@@ -1,6 +1,4 @@
-# arm
-
-Forest Arborist (fab)
+# Forest Arborist
 
 Provide convenient operations on a forest of repositories. The forest can be nested under a main repo or siblings in a plain directory. Support both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories.
 
@@ -43,7 +41,7 @@ arm.json specifies working directory names and origin repositories for forest, r
       pull                                          git-style pull, which is fetch and merge
       outgoing                                      show new changesets that have not been pushed
       root                                          show the root directory of the forest
-      for-each [command...]                         run specified command on each repo in the forest, e.g. "arm foreach -- pwd"
+      for-each [command...]                         run specified command on each repo in the forest, e.g. "fab foreach -- pwd"
       for-free [command...]                         run specified command on repos which are not locked or pinned
       switch <branch>                               switch branch of free repos
       make-branch [options] <branch> [start_point]  create new branch in free repos
@@ -66,7 +64,7 @@ arm.json specifies working directory names and origin repositories for forest, r
     Reproducible state: snapshot, recreate, restore
 
     Commands starting with an underscore are still in development.
-    See https://github.com/JohnRGee/arm.git for usage overview.
+    See https://github.com/JohnRGee/forest-arborist.git for usage overview.
     See also 'fab <command> --help' for command options and further help.
 
 ## Example Usage
@@ -79,20 +77,18 @@ Requires node and npm. Easy install:
 
     npm install --global @shadowspawn/arm
 
-To manage install location and command yourself:
+For more flexibility during development:
 
-    git clone https://github.com/JohnRGee/arm.git
-    cd arm
+    git clone https://github.com/JohnRGee/forest-arborist.git
+    cd forest-arborist
     npm install
-    node arm.js
-
-i.e. setup command to run "node <installFolder>arm.js".
+    npm link
 
 ## Status
 
 Pre-release. Still in flux, breaking changes coming:
-* to support multiple manifests
-* rename from arm to forest-arborist (fab)
+* renaming package from arm to forest-arborist (fab)
+* changes to support multiple manifests
 
 "fab init" is great for trying out on an existing checkout.
 
