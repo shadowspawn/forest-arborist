@@ -24,8 +24,6 @@ const util = require('./lib/util');
 const armManifest = 'arm.json'; // stored in main directory
 const armRootFilename = '.arm-root.json'; // stored in root directory
 
-let gRecognisedCommand = false; // Seems there should be a tidier way...
-
 
 function execCommandSync(commandParam) {
   const command = commandParam;
@@ -765,7 +763,7 @@ function doRecreate(snapshotPath, destinationParam) {
 
 program
   .version(myPackage.version)
-  .option('--debug', 'include debugging information, such as stack dumps');
+  .option('--debug', 'include debugging information, such as stack dump');
 
 // Extra help
 program.on('--help', () => {
@@ -790,7 +788,6 @@ program
   .option('-b, --branch <branchname>', 'branch to checkout for free repos')
   .description('clone source and install its dependencies')
   .action((source, destination, options) => {
-    gRecognisedCommand = true;
     doClone(source, destination, options);
   });
 
@@ -810,7 +807,6 @@ program
     console.log('         arm init --root ..');
   })
   .action((options) => {
-    gRecognisedCommand = true;
     doInit(options.root);
   });
 
@@ -819,7 +815,6 @@ program
   .option('-b, --branch <branchname>', 'branch to checkout for free dependent repos')
   .description('clone missing (new) dependent repositories')
   .action((options) => {
-    gRecognisedCommand = true;
     doInstall(options.branch, true);
   });
 
@@ -827,7 +822,6 @@ program
   .command('status')
   .description('show concise status for each repo in the forest')
   .action(() => {
-    gRecognisedCommand = true;
     doStatus();
   });
 
@@ -838,7 +832,6 @@ program
     console.log('  Target repos: free and branch-locked, excludes repos pinned to a revision');
   })
   .action(() => {
-    gRecognisedCommand = true;
     doPull();
   });
 
@@ -846,7 +839,6 @@ program
   .command('outgoing')
   .description('show new changesets that have not been pushed')
   .action(() => {
-    gRecognisedCommand = true;
     doOutgoing();
   });
 
@@ -854,7 +846,6 @@ program
   .command('root')
   .description('show the root directory of the forest')
   .action(() => {
-    gRecognisedCommand = true;
     cdRootDirectory();
     console.log(process.cwd());
   });
@@ -864,7 +855,6 @@ program
   .description('run specified command on each repo in the forest, e.g. "arm for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    gRecognisedCommand = true;
     doForEach({}, command, args);
   });
 
@@ -873,7 +863,6 @@ program
   .description('run specified command on repos which are not locked or pinned')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    gRecognisedCommand = true;
     doForEach({ freeOnly: true }, command, args);
   });
 
@@ -881,7 +870,6 @@ program
   .command('switch <branch>')
   .description('switch branch of free repos')
   .action((branch) => {
-    gRecognisedCommand = true;
     doSwitch(branch);
   });
 
@@ -890,7 +878,6 @@ program
   .option('-p, --publish', 'push newly created branch')
   .description('create new branch in free repos')
   .action((branch, startPoint, options) => {
-    gRecognisedCommand = true;
     doMakeBranch(branch, startPoint, options.publish);
   });
 
@@ -898,7 +885,6 @@ program
   .command('snapshot')
   .description('display state of forest')
   .action(() => {
-    gRecognisedCommand = true;
     doSnapshot();
   });
 
@@ -906,7 +892,6 @@ program
   .command('recreate <snapshot> [destination]')
   .description('clone repos to recreate forest in past state')
   .action((snapshot, destination) => {
-    gRecognisedCommand = true;
     doRecreate(snapshot, destination);
   });
 
@@ -914,7 +899,6 @@ program
   .command('_restore <snapshot>')
   .description('checkout repos to restore forest in past state')
   .action((snapshot) => {
-    gRecognisedCommand = true;
     if (snapshot) ; // Lint fir unused variable
     console.log('Not implemented yet');
   });
@@ -924,8 +908,20 @@ program
   .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
-    gRecognisedCommand = true;
     console.log(`[${path.normalize('')}]`);
+  });
+
+// Catch-all, unrecognised command.
+program
+  .command('*')
+  .action((command) => {
+    // Tempting to try passing through to for-each, but primary
+    // focus is management. KISS.
+    // Display error in same style commander uses for unrecognised options.
+    console.log('');
+    console.log(`  error: unknown command \`${command}'`);
+    console.log('');
+    process.exit(1);
   });
 
 try {
@@ -940,12 +936,4 @@ try {
 // Show help if no command specified.
 if (process.argv.length === 2) {
   program.help();
-}
-
-// Error in the same style as command uses for unknown option
-if (!gRecognisedCommand) {
-  console.log('');
-  console.log(`  error: unknown command \`${process.argv[2]}'`);
-  console.log('');
-  process.exit(1);
 }
