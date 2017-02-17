@@ -651,10 +651,6 @@ function doClone(source, destinationParam, options) {
 
 
 function doForEach(internalOptions, cmd, args) {
-  console.log(cmd);
-  console.log(args);
-  // const cmd = args.shift();
-
   cdRootDirectory();
   const mainPath = readMainPathFromRoot();
   const dependencies = readManifest(mainPath, true).dependencies;

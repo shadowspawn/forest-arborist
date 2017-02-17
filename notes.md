@@ -1,32 +1,23 @@
 # Forest Arborist
 
 ## Backlog
-* rename npm package
-  * http://stackoverflow.com/questions/28371669/renaming-a-published-npm-module
-* need support for creating relative path for dependencies on Windows as posix
 
 ## jasmine Issues
 (clean)
 
 ## Known Issues
-* warn when init on empty repo??? Because:
- * "arm outgoing" fails for empty git repo
- * "arm clone" fails for locked empty git repo
- * "arm make-branch" publish fails for branch in empty repo
- * "hg pull" on empty repo causes error
-* Test operations with changes in repo, check fail elegantly
- * "arm pull" claims on detached head when have local changes? (Might have been empty branch problem)
 * local origin on Windows probably not working (need support for Windows path in multiple places)
-* hg
+* hg specific issues (low priority at moment)
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
  * not auto-detecting pinned revision (could do it by detecting not on tip)
-* Say goodbye to simple bisect, not storing state by design.
-* using colours for logging errors and commands, but will clash with some terminal colours!
+* Say goodbye to simple bisect, not storing state. Sadly this is By Design!
+* using colours for logging errors and commands, but clashes with some terminal colours!
 * flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
+* Test before operations on forest which break if changes in repo do not get half way?
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
@@ -40,7 +31,6 @@
  * --git --hg (default to all, but supports mixed repo types!)
  * git X == for --git git X ?
  * hg X == for --hg hg X ?
-* tidier if use '.' rather than '' for nested rootDirectory et al ?
 * help for modifying dependencies in manifest?
   * add/remove
   * pin/lock/free/auto
@@ -49,9 +39,11 @@
 
 ## Patterns
 
-Version Plan (even/odd, linked different than published)
-* bump version and do not tag after publish
-* bump version with tag just before publish
+Version Plan
+* Use different versions on master (published) and develop (linked work in progress).
+* Tag version on master to match the published version.
+* Do not tag version on develop since changes.
+* See copy-up and copy-down run commands.
 
 Terminology Inspirations
 * git
