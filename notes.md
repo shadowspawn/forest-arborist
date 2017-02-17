@@ -6,7 +6,7 @@
 * need support for creating relative path for dependencies on Windows as posix
 
 ## jasmine Issues
-* Lin: fs.mkdtempSync is not a function (old node)
+(clean)
 
 ## Known Issues
 * warn when init on empty repo??? Because:
