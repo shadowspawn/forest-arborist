@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/forest-arborist",
-  "version": "0.0.23",
+  "version": "0.1.0",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
   "private": false,
   "preferGlobal": true,
@@ -25,7 +25,7 @@
     "commander": "^2.9.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
-    "tmp": "0.1.0"
+    "tmp": "^0.0.31"
   },
   "devDependencies": {
     "eslint": "^3.14.1",
