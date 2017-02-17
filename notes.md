@@ -23,8 +23,6 @@
   * manifest list
   * handle clone with no default manifest and no manifest specified, list manifests
 * unit tests (nested operations, sibling operations, pin/lock/free)
- * https://evanhahn.com/how-do-i-jasmine/
- * https://jasmine.github.io/2.0/introduction.html
 * typescript
 * for-fun
  * --pinned --locked --free --all
@@ -36,6 +34,7 @@
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
+* restore could reset dangling repos to null revision
 
 ## Patterns
 

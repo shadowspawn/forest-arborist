@@ -66,20 +66,42 @@ function isRelativePath(pathname) {
 }
 
 
-function readMainPathFromRoot() {
-  const armRootPath = path.resolve(armRootFilename);
-  const data = fs.readFileSync(armRootPath);
+function readJson(targetPath, requiredProperties) {
+  let data;
+  try {
+    data = fs.readFileSync(targetPath);
+  } catch (err) {
+    util.terminate(`problem opening ${targetPath}\n${err}`);
+  }
+
   let rootObject;
   try {
     rootObject = JSON.parse(data);
   } catch (err) {
-    util.terminate(`problem parsing ${armRootPath}\n${err}`);
+    util.terminate(`problem parsing ${targetPath}\n${err}`);
   }
-  // Support old naming at least for a little while... (nest -> main)
-  if (rootObject.nestPath !== undefined) rootObject.mainPath = rootObject.nestPath;
-  if (rootObject.mainPath === undefined) {
-    util.terminate(`problem parsing: ${armRootPath}\nmissing field 'mainPath'`);
+
+  // Sanity check. Possible errors due to hand editing, but during development
+  // usually unsupported old file formats!
+  if (requiredProperties !== undefined) {
+    for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
+      const required = requiredProperties[index];
+      if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
+        util.terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
+      }
+      if (rootObject[required] === undefined) {
+        util.terminate(`problem parsing: ${targetPath}\nUndefined value for property '${required}'`);
+      }
+    }
   }
+
+  return rootObject;
+}
+
+
+function readMainPathFromRoot() {
+  const armRootPath = path.resolve(armRootFilename);
+  const rootObject = readJson(armRootPath, ['mainPath']);
 
   return util.normalizeToPosix(rootObject.mainPath);
 }
@@ -110,37 +132,17 @@ function cdRootDirectory() {
 
 function readManifest(mainPath, addMainToDependencies) {
   const manifestPath = path.resolve(mainPath, armManifest);
-
-  let data;
-  try {
-    data = fs.readFileSync(manifestPath);
-  } catch (err) {
-    util.terminate(`problem opening ${manifestPath}\n${err}`);
-  }
-
-  let manifestObject;
-  try {
-    manifestObject = JSON.parse(data);
-  } catch (err) {
-    util.terminate(`problem parsing ${manifestPath}\n${err}`);
-  }
-  if (manifestObject.dependencies === undefined) {
-    util.terminate(`problem parsing: ${manifestPath}\nmissing field 'dependencies'`);
-  }
-  if (manifestObject.rootDirectory === undefined) {
-    util.terminate(`problem parsing: ${manifestPath}\nmissing field 'rootDirectory'`);
-  }
-  // Support old naming at least for a little while... (nest -> main)
-  if (manifestObject.nestPathFromRoot !== undefined) {
-    manifestObject.mainPathFromRoot = manifestObject.nestPathFromRoot;
-  }
+  const manifestObject = readJson(
+    manifestPath,
+    ['dependencies', 'rootDirectory', 'mainPathFromRoot']
+  );
 
   const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
   const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
   const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
   if (addMainToDependencies) {
-    const mainNormalized = util.normalizeToPosix(mainPath);
-    manifestObject.dependencies[mainNormalized] = { origin: mainOrigin, repoType: mainRepoType };
+    manifestObject.dependencies[manifestObject.mainPathFromRoot] =
+      { origin: mainOrigin, repoType: mainRepoType };
   }
 
   Object.keys(manifestObject.dependencies).forEach((repoPath) => {
@@ -710,22 +712,10 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
-
-  // Read snapshot
-  let data;
-  try {
-    data = fs.readFileSync(snapshotPath);
-  } catch (err) {
-    util.terminate(`problem opening ${snapshotPath}\n${err}`);
-  }
-  let snapshotObject;
-  try {
-    snapshotObject = JSON.parse(data);
-  } catch (err) {
-    util.terminate(`problem parsing ${snapshotPath}\n${err}`);
-  }
-
+  const snapshotObject = readJson(
+    snapshotPath,
+    ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
+  );
   const mainRepoEntry = snapshotObject.mainRepo;
 
   let destination = destinationParam;
@@ -733,19 +723,20 @@ function doRecreate(snapshotPath, destinationParam) {
     destination = path.posix.basename(dvcsUrl.parse(mainRepoEntry.origin).pathname, '.git');
   }
 
-  // Clone main repo first
-  if (snapshotObject.mainPathFromRoot !== undefined && snapshotObject.mainPathFromRoot !== '') {
-    // Sibling layout. Make wrapper directory.
+  // Clone main repo first and cd to root
+  const mainPathFromRoot = util.normalizeToPosix(snapshotObject.mainPathFromRoot);
+  if (mainPathFromRoot !== '.') {
+    // Sibling layout. Make wrapper root directory.
     fs.mkdirSync(destination);
     process.chdir(destination);
-    destination = snapshotObject.mainPathFromRoot;
+    destination = mainPathFromRoot;
     cloneEntry(mainRepoEntry, destination);
   } else {
     cloneEntry(mainRepoEntry, destination);
     process.chdir(destination);
   }
 
-  // Clone dependent repos
+  // Clone dependent repos.
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -754,6 +745,35 @@ function doRecreate(snapshotPath, destinationParam) {
 
   // Install root file
   writeRootFile(path.resolve(armRootFilename), snapshotObject.mainPathFromRoot);
+
+  console.log(`Recreated repo forest from snapshot to ${destination}`);
+  console.log('(use install to get a current checkout again, like "fab install -b develop")');
+}
+
+
+function doRestore(snapshotPath) {
+  if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
+
+  const snapshotObject = readJson(
+    snapshotPath,
+    ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
+  );
+  cdRootDirectory();
+
+  checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
+
+  const dependencies = snapshotObject.dependencies;
+  Object.keys(dependencies).forEach((repoPath) => {
+    const entry = dependencies[repoPath];
+    if (fsX.dirExistsSync(repoPath)) {
+      checkoutEntry(entry, repoPath);
+    } else {
+      cloneEntry(entry, repoPath);
+    }
+  });
+
+  console.log('Restored repo forest from snapshot');
+  console.log('(use install to get a current checkout again, like "fab install -b develop")');
 }
 
 
@@ -895,11 +915,10 @@ program
   });
 
 program
-  .command('_restore <snapshot>')
+  .command('restore <snapshot>')
   .description('checkout repos to restore forest in past state')
   .action((snapshot) => {
-    if (snapshot) ; // Lint fir unused variable
-    console.log('Not implemented yet');
+    doRestore(snapshot);
   });
 
 // Hidden command for trying things out

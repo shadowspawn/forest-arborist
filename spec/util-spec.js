@@ -11,7 +11,8 @@ describe('util:', () => {
     const nativePath = path.join('a', 'b', 'c');
     expect(util.normalizeToPosix(nativePath)).toEqual('a/b/c');
 
-    // Clean up, but main point is turn '' into '.'
+    // Produce a single identity form for path.
     expect(util.normalizeToPosix('')).toEqual('.');
+    expect(util.normalizeToPosix()).toEqual('.');
   });
 });
