@@ -1,5 +1,7 @@
 /* eslint-env jasmine */
 
+'use strict';
+
 const dvcsUrl = require('../lib/dvcs-url');
 
 

@@ -1,5 +1,7 @@
 /* eslint-env jasmine */
 
+'use strict';
+
 const path = require('path');
 const util = require('../lib/util');
 

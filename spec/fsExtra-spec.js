@@ -1,5 +1,7 @@
 /* eslint-env jasmine */
 
+'use strict';
+
 const fsX = require('../lib/fsExtra');
 const os = require('os');
 const fs = require('fs');
