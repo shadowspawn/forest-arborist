@@ -1,15 +1,14 @@
-# arm
+# Forest Arborist
 
-Backlog
-* rename git repository and npm package
+## Backlog
+* rename npm package
   * http://stackoverflow.com/questions/28371669/renaming-a-published-npm-module
 * need support for creating relative path for dependencies on Windows as posix
 
-Version Plan (even/odd, linked different than published)
-* bump version and do not tag after publish
-* bump version with tag just before publish
+## jasmine Issues
+* Lin: fs.mkdtempSync is not a function (old node)
 
-Known Issues
+## Known Issues
 * warn when init on empty repo??? Because:
  * "arm outgoing" fails for empty git repo
  * "arm clone" fails for locked empty git repo
@@ -27,7 +26,7 @@ Known Issues
 * flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
-Backlog Possibles
+## Backlog Musing
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
@@ -47,8 +46,12 @@ Backlog Possibles
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
-* assertNoArgs is unreliable and relying on internal detail
-* might be able to detect un-matched commands cleanly with .command('*')
+
+## Patterns
+
+Version Plan (even/odd, linked different than published)
+* bump version and do not tag after publish
+* bump version with tag just before publish
 
 Terminology Inspirations
 * git
@@ -71,6 +74,7 @@ Interesting
 * [shelljs](http://documentup.com/arturadib/shelljs#command-reference)
 * [async](http://caolan.github.io/async/)
 * [defaults](https://www.npmjs.com/package/defaults)
+* [omnipath](https://www.npmjs.com/package/omnipath) for transparent consistent handling of paths and urls
 
 git-flow equivalent git commands
 * https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac
