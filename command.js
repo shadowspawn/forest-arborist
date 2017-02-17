@@ -13,9 +13,10 @@ const fs = require('fs');
 const childProcess = require('child_process');
 const path = require('path');
 const shellQuote = require('shell-quote');
-const myPackage = require('./package.json');
+const tmp = require('tmp');
 
-// Local lib
+// Mine
+const myPackage = require('./package.json');
 const dvcsUrl = require('./lib/dvcs-url');
 const repo = require('./lib/repo');
 const fsX = require('./lib/fsExtra');
@@ -630,12 +631,14 @@ function doClone(source, destinationParam, options) {
   if (manifest.mainPathFromRoot !== undefined && manifest.mainPathFromRoot !== '') {
     // Play shell game for sibling layout, using destination as a wrapper folder.
     console.log('Using sibling repo layout');
-    const tempDir = fs.mkdtempSync('./');
-    fs.renameSync(destination, path.join(tempDir, destination));
+    const tmpObj = tmp.dirSync({ dir: '.' }); // local to folder
+    console.log();
+    fs.renameSync(destination, path.join(tmpObj.name, destination));
     fs.mkdirSync(destination);
     const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
-    fs.renameSync(path.join(tempDir, destination), mainPathFromHere);
-    fs.rmdirSync(tempDir);
+    fs.renameSync(path.join(tmpObj.name, destination), mainPathFromHere);
+    fs.rmdirSync(tmpObj.name); // Should be auto-deleted but something breaking that?
+
     process.chdir(mainPathFromHere);
   } else {
     process.chdir(destination);
@@ -908,7 +911,10 @@ program
   .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
-    console.log(`[${path.normalize('')}]`);
+    const tmpDir1 = tmp.dirSync();
+    console.log(tmpDir1);
+    const tmpDir2 = tmp.dirSync({ dir: '.' });
+    console.log(tmpDir2);
   });
 
 // Catch-all, unrecognised command.
