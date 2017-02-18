@@ -416,9 +416,11 @@ function cloneEntry(entry, repoPath, freeBranch) {
 function checkoutEntry(entry, repoPath, freeBranch) {
   // Determine target for checkout
   let revision;
+  let gitConfig = [];
   if (entry.pinRevision !== undefined) {
     console.log(`# ${repoPath}: checkout pinned revision`);
     revision = entry.pinRevision;
+    gitConfig = ['-c', 'advice.detachedHead=false'];
   } else if (entry.lockBranch !== undefined) {
     console.log(`# ${repoPath}: checkout locked branch`);
     revision = entry.lockBranch;
@@ -434,7 +436,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
   if (revision !== undefined) {
     if (entry.repoType === 'git') {
       execCommandSync(
-        { cmd: 'git', args: ['checkout', '--quiet', revision], cwd: repoPath }
+        { cmd: 'git', args: gitConfig.concat(['checkout', revision]), cwd: repoPath }
       );
     } else if (entry.repoType === 'hg') {
       execCommandSync(
@@ -747,7 +749,7 @@ function doRecreate(snapshotPath, destinationParam) {
   writeRootFile(path.resolve(armRootFilename), snapshotObject.mainPathFromRoot);
 
   console.log(`Recreated repo forest from snapshot to ${destination}`);
-  console.log('(use install to get a current checkout again, like "fab install -b develop")');
+  console.log('(use install to get a current checkout again, like "fab install -b develop", or git "fab install -b @{-1}")');
 }
 
 
@@ -773,7 +775,7 @@ function doRestore(snapshotPath) {
   });
 
   console.log('Restored repo forest from snapshot');
-  console.log('(use install to get a current checkout again, like "fab install -b develop")');
+  console.log('(use install to get a current checkout again, like "fab install -b develop", or git "fab install -b @{-1}")');
 }
 
 

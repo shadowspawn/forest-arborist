@@ -18,6 +18,7 @@
 
 ## Backlog Musing
 * Test before operations on forest which break if changes in repo do not get half way?
+ * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 * multiple manifest files, e.g. HRVMasterStable ?
   * move manifest to .arm folder?
   * manifest list
@@ -35,6 +36,9 @@
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
 * restore could reset dangling repos to null revision
+* install could do fetch for pinned revisions (in case has changed)
+* install could do pull for existing repos
+* install should switch branch on main before reading manifest when changing branch
 
 ## Patterns
 
