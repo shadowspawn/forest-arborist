@@ -16,7 +16,7 @@
     "copy-up": "git checkout master && git merge develop && echo \"tip: run npm version patch, then npm publish\"",
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version patch",
     "lint": "./node_modules/eslint/bin/eslint.js command.js lib/** spec/**",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine"
   },
   "author": "John Gee",
   "license": "ISC",

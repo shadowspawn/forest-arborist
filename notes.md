@@ -1,6 +1,10 @@
 # Forest Arborist
 
 ## Backlog
+* manifest
+ * .fab
+ * default.json
+ * mac_manifest.json, win.json
 
 ## jasmine Issues
 (clean)

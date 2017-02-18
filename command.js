@@ -22,8 +22,8 @@ const repo = require('./lib/repo');
 const fsX = require('./lib/fsExtra');
 const util = require('./lib/util');
 
-const armManifest = 'arm.json'; // stored in main directory
-const armRootFilename = '.arm-root.json'; // stored in root directory
+const fabManifest = '.fab/manifest.json'; // stored in main directory
+const armRootFilename = '.fab-root.json'; // stored in root directory
 
 
 function execCommandSync(commandParam) {
@@ -108,7 +108,7 @@ function readMainPathFromRoot() {
 
 
 function cdRootDirectory() {
-  const startedInMainDirectory = fsX.fileExistsSync(armManifest);
+  const startedInMainDirectory = fsX.fileExistsSync(fabManifest);
 
   let tryParent = true;
   do {
@@ -131,7 +131,7 @@ function cdRootDirectory() {
 
 
 function readManifest(mainPath, addMainToDependencies) {
-  const manifestPath = path.resolve(mainPath, armManifest);
+  const manifestPath = path.resolve(mainPath, fabManifest);
   const manifestObject = readJson(
     manifestPath,
     ['dependencies', 'rootDirectory', 'mainPathFromRoot']
@@ -462,7 +462,7 @@ function writeRootFile(rootFilePath, mainPath) {
 function doInstall(freeBranch, includeMainInInstall) {
   let manifestObject;
   // Might be called before root file added, so look for manifest first.
-  if (fsX.fileExistsSync(armManifest)) {
+  if (fsX.fileExistsSync(fabManifest)) {
     manifestObject = readManifest('.', includeMainInInstall);
     const rootAbsolutePath = path.resolve(manifestObject.rootDirectory);
     const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
@@ -509,9 +509,9 @@ function findRepositories(startingDirectory, callback) {
 
 
 function doInit(rootDirParam) {
-  const manifestPath = path.resolve(armManifest);
+  const manifestPath = path.resolve(fabManifest);
   if (fsX.fileExistsSync(manifestPath)) {
-    console.log(`Skipping init, already have ${armManifest}`);
+    console.log(`Skipping init, already have ${fabManifest}`);
     console.log('(Delete it to start over, or did you want "arm install"?)');
     return;
   }
@@ -595,8 +595,10 @@ function doInit(rootDirParam) {
   };
   const prettyManifest = JSON.stringify(manifest, null, '  ');
 
+  const manifestDir = path.dirname(manifestPath);
+  if (!fsX.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
   fs.writeFileSync(manifestPath, prettyManifest);
-  console.log(`Initialised dependencies in ${armManifest}`);
+  console.log(`Initialised dependencies in ${fabManifest}`);
 
   // Root placeholder file. Safe to overwrite as low content.
   writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
@@ -627,8 +629,8 @@ function doClone(source, destinationParam, options) {
   }
   cloneEntry(mainEntry, destination, options.branch);
 
-  if (!fsX.fileExistsSync(path.join(destination, armManifest))) {
-    util.terminate(`stopping as did not find manifest ${armManifest}`);
+  if (!fsX.fileExistsSync(path.join(destination, fabManifest))) {
+    util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 
   const manifest = readManifest(destination);
@@ -790,7 +792,7 @@ program
 program.on('--help', () => {
   console.log('  Files:');
   console.log(
-    `    ${armManifest} manifest file for forest`);
+    `    ${fabManifest} manifest file for forest`);
   console.log(`    ${armRootFilename} marks root of forest (do not commit to VCS)`);
   console.log('');
   console.log('  Forest management: clone, init, install');
