@@ -22,14 +22,14 @@ const repo = require('./lib/repo');
 const fsX = require('./lib/fsExtra');
 const util = require('./lib/util');
 
-const armRootFilename = '.fab-root.json'; // stored in root directory
+const fabRootFilename = '.fab-root.json'; // stored in root directory
 
 
 function manifestPath(options) {
   let manifest;
   // filename
-  if (options.flavour !== undefined) {
-    manifest = `${options.flavour}_manifest`;
+  if (options.manifest !== undefined) {
+    manifest = `${options.manifest}_manifest.json`;
   } else {
     manifest = 'manifest.json';
   }
@@ -117,11 +117,16 @@ function readJson(targetPath, requiredProperties) {
 }
 
 
-function readMainPathFromRoot() {
-  const armRootPath = path.resolve(armRootFilename);
-  const rootObject = readJson(armRootPath, ['mainPath']);
+function readRootFile() {
+  // Use absolute path so appears in any errors
+  const fabRootPath = path.resolve(fabRootFilename);
+  const rootObject = readJson(fabRootPath, ['mainPath']);
+  // rootObject may alsp have manifest property.
 
-  return util.normalizeToPosix(rootObject.mainPath);
+  // Santise inputs: normalise mainPath
+  rootObject.mainPath = util.normalizeToPosix(rootObject.mainPath);
+
+  return rootObject;
 }
 
 
@@ -130,7 +135,7 @@ function cdRootDirectory() {
 
   let tryParent = true;
   do {
-    if (fsX.fileExistsSync(armRootFilename)) {
+    if (fsX.fileExistsSync(fabRootFilename)) {
       return;
     }
 
@@ -141,23 +146,38 @@ function cdRootDirectory() {
   } while (tryParent);
 
   if (startedInMainDirectory) {
-    util.terminate('root of forest not found. (Do you need to call "arm install"?)');
+    util.terminate('root of forest not found. (Do you need to call "fab install"?)');
   } else {
     util.terminate('root of forest not found. ');
   }
 }
 
 
-function readManifest(mainPath, addMainToDependencies) {
+// function readManifestX(mainPath, addMainToDependencies) {
+function readManifest(options) {
+  // options properties: fromRoot or mainPath and manifest, addMainToDependencies
+  let mainPath;
+  let fabManifest;
+  if (options.fromRoot) {
+    const rootObject = readRootFile();
+    mainPath = rootObject.mainPath;
+    fabManifest = manifestPath({ mainPath, manifest: rootObject.manifest });
+  } else {
+    mainPath = options.mainPath;
+    fabManifest = manifestPath({ mainPath, manifest: options.manifest });
+  }
   const manifestObject = readJson(
-    manifestPath({ mainPath }),
+    fabManifest,
     ['dependencies', 'rootDirectory', 'mainPathFromRoot']
   );
+  // Cleanup as may have been edited or old versions.
+  manifestObject.rootDirectory = util.normalizeToPosix(manifestObject.rootDirectory);
+  manifestObject.mainPathFromRoot = util.normalizeToPosix(manifestObject.mainPathFromRoot);
 
   const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
   const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
   const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
-  if (addMainToDependencies) {
+  if (options.addMainToDependencies) {
     manifestObject.dependencies[manifestObject.mainPathFromRoot] =
       { origin: mainOrigin, repoType: mainRepoType };
   }
@@ -186,8 +206,7 @@ function readManifest(mainPath, addMainToDependencies) {
 
 function doStatus() {
   cdRootDirectory();
-  const mainPath = readMainPathFromRoot();
-  const dependencies = readManifest(mainPath, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -246,8 +265,7 @@ function hgAutoMerge(repoPath) {
 
 function doPull() {
   cdRootDirectory();
-  const mainPath = readMainPathFromRoot();
-  const dependencies = readManifest(mainPath, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -274,8 +292,7 @@ function doPull() {
 
 function doOutgoing() {
   cdRootDirectory();
-  const mainDirectory = readMainPathFromRoot();
-  const dependencies = readManifest(mainDirectory, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -306,8 +323,7 @@ function doOutgoing() {
 
 function doSwitch(branch) {
   cdRootDirectory();
-  const mainDirectory = readMainPathFromRoot();
-  const dependencies = readManifest(mainDirectory, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -331,8 +347,7 @@ function doSwitch(branch) {
 
 function doMakeBranch(branch, startPoint, publish) {
   cdRootDirectory();
-  const mainDirectory = readMainPathFromRoot();
-  const dependencies = readManifest(mainDirectory, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -466,21 +481,35 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 }
 
 
-function writeRootFile(rootFilePath, mainPath) {
+function writeRootFile(options) {
+  // options properties: rootFilePath, mainPath, manifest
+
   let initialisedWord = 'Initialised';
-  if (fsX.fileExistsSync(rootFilePath)) initialisedWord = 'Reinitialised';
-  const rootObject = { mainPath: util.normalizeToPosix(mainPath), manifest: '' };
+  if (fsX.fileExistsSync(options.rootFilePath)) initialisedWord = 'Reinitialised';
+  const rootObject = {
+    mainPath: util.normalizeToPosix(options.mainPath),
+    manifest: options.manifest,
+  };
   const prettyRootObject = JSON.stringify(rootObject, null, '  ');
-  fs.writeFileSync(rootFilePath, prettyRootObject);
-  console.log(`${initialisedWord} marker file at root of forest: ${armRootFilename}`);
+  fs.writeFileSync(options.rootFilePath, prettyRootObject);
+  console.log(`${initialisedWord} marker file at root of forest: ${fabRootFilename}`);
 }
 
 
-function doInstall(freeBranch, includeMainInInstall) {
-  const manifestObject = readManifest('.', includeMainInInstall);
+function doInstall(options) {
+  // Use same branch as main for free branches
+  const manifestObject = readManifest({
+    mainPath: '.',
+    manifest: options.manifest,
+  });
   const rootAbsolutePath = path.resolve(manifestObject.rootDirectory);
   const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
-  writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
+  const freeBranch = repo.getBranch('.');
+  writeRootFile({
+    rootFilePath: path.join(rootAbsolutePath, fabRootFilename),
+    mainPath: mainFromRoot,
+    manifest: options.manifest,
+  });
   console.log();
 
   cdRootDirectory();
@@ -519,11 +548,11 @@ function findRepositories(startingDirectory, callback) {
 }
 
 
-function doInit(rootDirParam) {
-  const relManifestPath = manifestPath({});
+function doInit(options) {
+  const relManifestPath = manifestPath({ manifest: options.manifest });
   if (fsX.fileExistsSync(relManifestPath)) {
     console.log(`Skipping init, already have ${relManifestPath}`);
-    console.log('(Delete it to start over, or did you want "arm install"?)');
+    console.log('(Delete it to start over, or did you want "fab install"?)');
     return;
   }
   const absManifestOath = path.resolve('.', relManifestPath);
@@ -544,11 +573,11 @@ function doInit(rootDirParam) {
   // Sort out main and root paths
   const mainAbsolutePath = process.cwd();
   let rootAbsolutePath;
-  if (rootDirParam === undefined) {
+  if (options.root === undefined) {
     rootAbsolutePath = process.cwd();
     console.log('Scanning for nested dependencies…');
   } else {
-    rootAbsolutePath = path.resolve(rootDirParam);
+    rootAbsolutePath = path.resolve(options.root);
     console.log('Scanning for dependencies from root…');
   }
   const mainFromRoot = path.relative(rootAbsolutePath, mainAbsolutePath);
@@ -613,11 +642,15 @@ function doInit(rootDirParam) {
   console.log(`Initialised dependencies in ${relManifestPath}`);
 
   // Root placeholder file. Safe to overwrite as low content.
-  writeRootFile(path.join(rootAbsolutePath, armRootFilename), mainFromRoot);
+  writeRootFile({
+    rootFilePath: path.join(rootAbsolutePath, fabRootFilename),
+    mainPath: mainFromRoot,
+    manifest: options.manifest,
+  });
 
   // Offer clue for possible sibling init situation.
   if (Object.keys(dependencies).length === 0) {
-    console.log('(No dependencies found. For a sibling repo layout use "arm init --root ..")');
+    console.log('(No dependencies found. For a sibling repo layout use "fab init --root ..")');
   }
 }
 
@@ -646,7 +679,10 @@ function doClone(source, destinationParam, options) {
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 
-  const manifest = readManifest(destination);
+  const manifest = readManifest({
+    mainPath: destination,
+    manifest: options.manifest,
+  });
   if (manifest.mainPathFromRoot !== undefined && manifest.mainPathFromRoot !== '') {
     // Play shell game for sibling layout, using destination as a wrapper folder.
     console.log('Using sibling repo layout');
@@ -663,7 +699,7 @@ function doClone(source, destinationParam, options) {
     process.chdir(destination);
   }
 
-  doInstall(options.branch, false);
+  doInstall({ manifest: options.manifest });
 
   console.log(`Created repo forest in ${destination}`);
 }
@@ -671,8 +707,7 @@ function doClone(source, destinationParam, options) {
 
 function doForEach(internalOptions, cmd, args) {
   cdRootDirectory();
-  const mainPath = readMainPathFromRoot();
-  const dependencies = readManifest(mainPath, true).dependencies;
+  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     if (internalOptions.freeOnly) {
@@ -697,8 +732,8 @@ function doForEach(internalOptions, cmd, args) {
 
 function doSnapshot() {
   cdRootDirectory();
-  const mainPath = readMainPathFromRoot();
-  const manifest = readManifest(mainPath);
+  const rootObject = readRootFile();
+  const manifest = readManifest({ fromRoot: true });
 
   // Create dependencies with fixed revision and absolute repo.
   const dependencies = {};
@@ -714,8 +749,10 @@ function doSnapshot() {
     dependencies,
     rootDirectory: manifest.rootDirectory,
     mainPathFromRoot: manifest.mainPathFromRoot,
+    manifest: rootObject.manifest,
   };
 
+  const mainPath = rootObject.mainPath;
   const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
   snapshot.mainRepo = {
     origin: repo.getOrigin(mainPath, mainRepoType),
@@ -761,10 +798,14 @@ function doRecreate(snapshotPath, destinationParam) {
   });
 
   // Install root file
-  writeRootFile(path.resolve(armRootFilename), snapshotObject.mainPathFromRoot);
+  writeRootFile({
+    rootFilePath: path.resolve(fabRootFilename),
+    mainPath: snapshotObject.mainPathFromRoot,
+    manifest: snapshotObject.manifest,
+  });
 
   console.log(`Recreated repo forest from snapshot to ${destination}`);
-  console.log('(use install to get a current checkout again, like "fab install -b develop", or git "fab install -b @{-1}")');
+  // console.log('(use restore -" to get a current checkout again');
 }
 
 
@@ -790,7 +831,7 @@ function doRestore(snapshotPath) {
   });
 
   console.log('Restored repo forest from snapshot');
-  console.log('(use install to get a current checkout again, like "fab install -b develop", or git "fab install -b @{-1}")');
+  // console.log('(use restore -" to get a current checkout again');
 }
 
 
@@ -806,7 +847,7 @@ program.on('--help', () => {
   console.log('  Files:');
   console.log(
     `    ${manifestPath({})} default manifest for forest`);
-  console.log(`    ${armRootFilename} marks root of forest (do not commit to VCS)`);
+  console.log(`    ${fabRootFilename} marks root of forest (do not commit to VCS)`);
   console.log('');
   console.log('  Forest management: clone, init, install');
   console.log('  Utility: status, pull, outgoing, for-each, for-free');
@@ -814,14 +855,15 @@ program.on('--help', () => {
   console.log('  Reproducible state: snapshot, recreate, restore');
   console.log('');
   console.log('  Commands starting with an underscore are still in development.');
-  console.log('  See https://github.com/JohnRGee/arm.git for usage overview.');
-  console.log("  See also 'arm <command> --help' for command options and further help.");
+  console.log('  See https://github.com/JohnRGee/forest-arborist.git for usage overview.');
+  console.log("  See also 'fab <command> --help' for command options and further help.");
   console.log('');
 });
 
 program
   .command('clone <source> [destination]')
   .option('-b, --branch <branchname>', 'branch to checkout for free repos')
+  .option('-m, --manifest <name>', 'custom manifest file')
   .description('clone source and install its dependencies')
   .action((source, destination, options) => {
     doClone(source, destination, options);
@@ -830,6 +872,7 @@ program
 program
   .command('init')
   .option('--root <dir>', 'root directory of forest if not current directory')
+  .option('-m, --manifest <name>', 'custom manifest file')
   .description('add manifest in current directory, and marker file at root of forest')
   .on('--help', () => {
     console.log('  Use init to create the manifest based on your current sandpit. ');
@@ -837,24 +880,24 @@ program
     console.log('');
     console.log('  Examples:');
     console.log('    For a forest layout with dependent repos nested in the main repo:');
-    console.log('         arm init');
+    console.log('         fab init');
     console.log('');
     console.log('    For a forest layout with sibling repositories:');
-    console.log('         arm init --root ..');
+    console.log('         rab init --root ..');
   })
   .action((options) => {
-    doInit(options.root);
+    doInit(options);
   });
 
 program
   .command('install')
-  .option('-b, --branch <branchname>', 'branch to checkout for free dependent repos')
+  .option('-m, --manifest <name>', 'custom manifest file')
   .description('clone missing (new) dependent repositories')
   .on('--help', () => {
     console.log('  Run Install from the main repo.');
   })
   .action((options) => {
-    doInstall(options.branch, true);
+    doInstall(options);
   });
 
 program
@@ -891,7 +934,7 @@ program
 
 program
   .command('for-each')
-  .description('run specified command on each repo in the forest, e.g. "arm for-each ls -- -al"')
+  .description('run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
     doForEach({}, command, args);
@@ -946,10 +989,7 @@ program
   .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
-    const tmpDir1 = tmp.dirSync();
-    console.log(tmpDir1);
-    const tmpDir2 = tmp.dirSync({ dir: '.' });
-    console.log(tmpDir2);
+    readRootFile();
   });
 
 // Catch-all, unrecognised command.
