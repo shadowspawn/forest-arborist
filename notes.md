@@ -1,10 +1,11 @@
 # Forest Arborist
 
 ## Backlog
-* manifest
- * .fab
- * default.json
- * mac_manifest.json, win.json
+* Record manifest file in root, not just main
+* Add support for manifest ([user supplied]\_manifest.json) to
+ * init
+ * clone
+ * install
 
 ## jasmine Issues
 (clean)
@@ -43,6 +44,7 @@
 * install could do fetch for pinned revisions (in case has changed)
 * install could do pull for existing repos
 * install should switch branch on main before reading manifest when changing branch
+* Add tip to ignore when add root file to repo if not root file not ignored (git check-ignore)
 
 ## Patterns
 
