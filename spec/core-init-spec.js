@@ -44,8 +44,21 @@ describe('core init:', () => {
     pending('check manifest');
   });
 
-  // nested
-  // sibling
+  it('manifest', () => {
+    childProcess.execFileSync('git', ['init']);
+    expect(fsX.dirExistsSync('.git')).toBe(true);
+
+    const manifest = 'custom';
+    quietDoInit({ manifest });
+    expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
+    expect(fsX.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
+
+    // Can use readRootObject and readManifest?
+    pending('check root contents');
+    pending('check manifest');
+  });
+
+  // root (sibling)
   // pinned
   // locked
 });
