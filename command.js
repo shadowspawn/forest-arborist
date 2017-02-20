@@ -713,7 +713,7 @@ program
     console.log('         fab init');
     console.log('');
     console.log('    For a forest layout with sibling repositories:');
-    console.log('         rab init --root ..');
+    console.log('         fab init --root ..');
   })
   .action((options) => {
     core.doInit(options);
@@ -832,7 +832,7 @@ program
     console.log('');
     console.log(`  error: unknown command \`${command}'`);
     console.log('');
-    process.exit(1);
+    process.exitCode = 1;
   });
 
 try {
@@ -842,9 +842,11 @@ try {
     console.log(`${err.stack}`);
   }
   // util.terminate(`caught exception with message ${err.message}`);
-  if (err.message !== 'suppressMessageFromTerminate') {
+  if (err.message !== util.suppressTerminateExceptionMessage) {
     console.log(`caught exception with message ${err.message}`);
   }
+  // Recommended pactice for node is set exitcode not force exit
+  process.exitCode = 1;
 }
 
 // Show help if no command specified.

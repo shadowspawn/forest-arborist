@@ -8,6 +8,7 @@ const childProcess = require('child_process');
 // Mine
 const core = require('../lib/core');
 const fsX = require('../lib/fsExtra');
+const util = require('../lib/util');
 
 
 function quietDoInit(options) {
@@ -29,6 +30,12 @@ describe('core init:', () => {
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
+  });
+
+  it('no repo', () => {
+    expect(() => {
+      quietDoInit({});
+    }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
   it('empty git repo', () => {

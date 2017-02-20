@@ -1,15 +1,9 @@
 # Forest Arborist
 
 ## Backlog
-* Add support for manifest ([user supplied]\_manifest.json) to
- * root file
- * init
- * clone
- * install
+* Start writing nice help
 * "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
 * switch and make-branch need to do main before reading manifest, dependencies could change
-* take branch off install and always match main for free repos? (Or need to do main before read manifest)
-* Start writing nice help
 
 ## jasmine Issues
 (clean)

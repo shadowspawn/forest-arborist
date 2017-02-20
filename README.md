@@ -109,27 +109,30 @@ arm.json specifies working directory names and origin repositories for forest, r
       "rootDirectory": ".."
     }
 
-## Usage
+
+Usage
+-----
 
     Usage: fab [options] [command]
 
-
     Commands:
 
-      clone [options] <source> [destination]        clone source and install its dependencies
-      init [options]                                add manifest in current directory, and marker file at root of forest
-      install [options]                             clone missing (new) dependent repositories
-      status                                        show concise status for each repo in the forest
-      pull                                          git-style pull, which is fetch and merge
-      outgoing                                      show new changesets that have not been pushed
-      root                                          show the root directory of the forest
-      for-each [command...]                         run specified command on each repo in the forest, e.g. "fab foreach -- pwd"
-      for-free [command...]                         run specified command on repos which are not locked or pinned
-      switch <branch>                               switch branch of free repos
-      make-branch [options] <branch> [start_point]  create new branch in free repos
-      snapshot|ss                                   display state of forest
-      recreate <snapshot> [destination]             clone repos to recreate forest in past state
-      \_restore <snapshot>                            checkout repos to restore forest in past state
+     clone [-b, --branch <name>] [-m, --manifest <name>] <source> [destination]
+                                                   clone source and install its dependencies
+     init [--root <dir>] [-m, --manifest <name>]   add manifest in current directory, and marker file at root of forest
+     install [-m, --manifest <name>]               clone missing (new) dependent repositories
+     status                                        show concise status for each repo in the forest
+     pull                                          git-style pull, which is fetch and merge
+     outgoing                                      show new changesets that have not been pushed
+     root                                          show the root directory of the forest
+     for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"
+     for-free <command> [args...]                  run specified command on repos which are not locked or pinned
+     switch <branch>                               switch branch of free repos
+     make-branch [-p, --publish] <branch> [start_point]  
+                    `                              create new branch in free repos
+     snapshot                                      display state of forest
+     recreate <snapshot> [destination]             clone repos to recreate forest in past state
+     restore <snapshot>                            checkout repos to restore forest in past state
 
     Options:
 
@@ -145,15 +148,12 @@ arm.json specifies working directory names and origin repositories for forest, r
     Branch: make-branch, switch
     Reproducible state: snapshot, recreate, restore
 
-    Commands starting with an underscore are still in development.
     See https://github.com/JohnRGee/forest-arborist.git for usage overview.
     See also 'fab <command> --help' for command options and further help.
 
-## Example Usage
 
-(ToDo) Examples of forest management, utility, branch, and reproducible state.
-
-## Installing
+Installing
+----------
 
 Requires node and npm. Easy install:
 
@@ -166,7 +166,9 @@ For more flexibility during development:
     npm install
     npm link
 
-## Status
+
+Status
+------
 
 Pre-release. Still in flux, breaking changes coming:
 * changes to support multiple manifests and catch up with name change
