@@ -684,7 +684,6 @@ program.on('--help', () => {
   console.log('  Branch: make-branch, switch');
   console.log('  Reproducible state: snapshot, recreate, restore');
   console.log('');
-  console.log('  Commands starting with an underscore are still in development.');
   console.log('  See https://github.com/JohnRGee/forest-arborist.git for usage overview.');
   console.log("  See also 'fab <command> --help' for command options and further help.");
   console.log('');
@@ -829,6 +828,7 @@ program
     // Tempting to try passing through to for-each, but primary
     // focus is management. KISS.
     // Display error in same style commander uses for unrecognised options.
+    // Unfortunately * shows up in help!
     console.log('');
     console.log(`  error: unknown command \`${command}'`);
     console.log('');
