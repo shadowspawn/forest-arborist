@@ -1,11 +1,8 @@
 {
 "root": true,
-"extends": ["airbnb", "plugin:jasmine/recommended"],
+"extends": ["airbnb"],
 "installedESLint": true,
-"plugins":
-  [
-  "jasmine"
-  ],
+"plugins": [],
 "rules":
   {
   "no-console": "off",
@@ -18,5 +15,5 @@
     }],
   "strict": "off"
   },
-"env": {}
+"env": {"node": true}
 }

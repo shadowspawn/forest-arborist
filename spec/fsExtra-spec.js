@@ -1,5 +1,3 @@
-/* eslint-env jasmine */
-
 'use strict';
 
 const tmp = require('tmp');
