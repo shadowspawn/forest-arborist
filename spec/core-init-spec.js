@@ -102,7 +102,7 @@ describe('core init:', () => {
   });
 
   it('pinned', () => {
-    // Auto detect pinned revisio
+    // Auto detect pinned revision
     childProcess.execFileSync('git', ['init']);
     childProcess.execFileSync('git', ['init', 'boost']);
     process.chdir('boost');
@@ -123,8 +123,47 @@ describe('core init:', () => {
     const entry = dependencies.boost;
 
     // After all that...
+    expect(entry.lockBranch).toBeUndefined();
+    expect(entry.pinRevision).not.toBeUndefined();
     expect(entry.pinRevision).toEqual(revision);
   });
 
-  // locked
+  it('locked', () => {
+    // Auto detect locked, little bit fragile with empty repos but KISS.
+    childProcess.execFileSync('git', ['init']);
+    childProcess.execFileSync('git', ['init', 'boost']);
+
+    quietDoInit({});
+
+    const manifestObject = core.readManifest({ fromRoot: true });
+    const dependencies = manifestObject.dependencies;
+    const entry = dependencies.boost;
+    expect(entry.pinRevision).toBeUndefined();
+    expect(entry.lockBranch).not.toBeUndefined();
+    expect(entry.lockBranch).toEqual('master');
+  });
+
+  it('free', () => {
+    // Auto detect free
+    childProcess.execFileSync('git', ['init']);
+    childProcess.execFileSync('git', [
+      'remote', 'add', 'origin', 'git@example.com:path/to/main.git',
+    ]);
+    childProcess.execFileSync('git', ['init', 'boost']);
+    childProcess.execFileSync('git', [
+      'remote', 'add', 'origin', 'git@example.com:path/to/boost.git',
+    ], { cwd: 'boost' });
+
+    quietDoInit({});
+
+    // Want to check that raw manifest has free and relative dependency.
+    const fabManifest = core.manifestPath({ mainPath: '.' });
+    const manifestObject = util.readJson(fabManifest);
+    const dependencies = manifestObject.dependencies;
+    const entry = dependencies.boost;
+    expect(entry.pinRevision).toBeUndefined();
+    expect(entry.lockBranch).toBeUndefined();
+    expect(entry.origin).not.toBeUndefined();
+    expect(util.isRelativePath(entry.origin)).toBe(true);
+  });
 });
