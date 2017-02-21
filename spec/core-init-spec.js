@@ -1,7 +1,7 @@
 'use strict';
 
-const tmp = require('tmp');
 const childProcess = require('child_process');
+const tmp = require('tmp');
 // Mine
 const core = require('../lib/core');
 const fsX = require('../lib/fsExtra');
