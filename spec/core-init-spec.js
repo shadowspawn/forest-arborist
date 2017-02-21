@@ -1,6 +1,5 @@
 'use strict';
 
-const mute = require('mute');
 const tmp = require('tmp');
 const childProcess = require('child_process');
 // Mine
@@ -12,12 +11,12 @@ const util = require('../lib/util');
 
 function quietDoInit(options) {
   // Classic use of mute, suppress output from (our own) module that does not support it!
-  // const unmute = mute();
+  const unmute = util.recursiveMute();
   try {
     core.doInit(options);
-    // unmute();
+    unmute();
   } catch (err) {
-    // unmute();
+    unmute();
     throw err;
   }
 }
