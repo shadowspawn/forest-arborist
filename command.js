@@ -22,8 +22,6 @@ const fsX = require('./lib/fsExtra');
 const repo = require('./lib/repo');
 const util = require('./lib/util');
 
-const fabRootFilename = '.fab-root.json'; // stored in root directory
-
 
 function execCommandSync(commandParam) {
   const command = commandParam;
@@ -58,58 +56,12 @@ function execCommandSync(commandParam) {
 }
 
 
-function readJson(targetPath, requiredProperties) {
-  let data;
-  try {
-    data = fs.readFileSync(targetPath);
-  } catch (err) {
-    util.terminate(`problem opening ${targetPath}\n${err}`);
-  }
-
-  let rootObject;
-  try {
-    rootObject = JSON.parse(data);
-  } catch (err) {
-    util.terminate(`problem parsing ${targetPath}\n${err}`);
-  }
-
-  // Sanity check. Possible errors due to hand editing, but during development
-  // usually unsupported old file formats!
-  if (requiredProperties !== undefined) {
-    for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
-      const required = requiredProperties[index];
-      if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
-        util.terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
-      }
-      if (rootObject[required] === undefined) {
-        util.terminate(`problem parsing: ${targetPath}\nUndefined value for property '${required}'`);
-      }
-    }
-  }
-
-  return rootObject;
-}
-
-
-function readRootFile() {
-  // Use absolute path so appears in any errors
-  const fabRootPath = path.resolve(fabRootFilename);
-  const rootObject = readJson(fabRootPath, ['mainPath']);
-  // rootObject may alsp have manifest property.
-
-  // Santise inputs: normalise mainPath
-  rootObject.mainPath = util.normalizeToPosix(rootObject.mainPath);
-
-  return rootObject;
-}
-
-
 function cdRootDirectory() {
   const startedInMainDirectory = fsX.dirExistsSync('.fab');
 
   let tryParent = true;
   do {
-    if (fsX.fileExistsSync(fabRootFilename)) {
+    if (fsX.fileExistsSync(core.fabRootFilename)) {
       return;
     }
 
@@ -127,60 +79,11 @@ function cdRootDirectory() {
 }
 
 
-// function readManifestX(mainPath, addMainToDependencies) {
-function readManifest(options) {
-  // options properties: fromRoot or mainPath and manifest, addMainToDependencies
-  let mainPath;
-  let fabManifest;
-  if (options.fromRoot) {
-    const rootObject = readRootFile();
-    mainPath = rootObject.mainPath;
-    fabManifest = core.manifestPath({ mainPath, manifest: rootObject.manifest });
-  } else {
-    mainPath = options.mainPath;
-    fabManifest = core.manifestPath({ mainPath, manifest: options.manifest });
-  }
-  const manifestObject = readJson(
-    fabManifest,
-    ['dependencies', 'rootDirectory', 'mainPathFromRoot']
-  );
-  // Cleanup as may have been edited or old versions.
-  manifestObject.rootDirectory = util.normalizeToPosix(manifestObject.rootDirectory);
-  manifestObject.mainPathFromRoot = util.normalizeToPosix(manifestObject.mainPathFromRoot);
-
-  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
-  const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
-  const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
-  if (options.addMainToDependencies) {
-    manifestObject.dependencies[manifestObject.mainPathFromRoot] =
-      { origin: mainOrigin, repoType: mainRepoType };
-  }
-
-  Object.keys(manifestObject.dependencies).forEach((repoPath) => {
-    // Sanity check repoType so callers do not need to warn about unexpected type.
-    const entry = manifestObject.dependencies[repoPath];
-    const supportedTypes = ['git', 'hg'];
-    if (supportedTypes.indexOf(entry.repoType) === -1) {
-      console.log(util.errorColour(
-        `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
-      ));
-      delete manifestObject.dependencies[repoPath];
-      return; // continue forEach
-    }
-
-    // Turn relative repos into absolute repos.
-    if (util.isRelativePath(entry.origin)) {
-      entry.origin = dvcsUrl.resolve(parsedMainOrigin, entry.origin);
-    }
-  });
-
-  return manifestObject;
-}
-
-
 function doStatus() {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -239,7 +142,9 @@ function hgAutoMerge(repoPath) {
 
 function doPull() {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -266,7 +171,9 @@ function doPull() {
 
 function doOutgoing() {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
@@ -297,7 +204,9 @@ function doOutgoing() {
 
 function doSwitch(branch) {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -321,7 +230,9 @@ function doSwitch(branch) {
 
 function doMakeBranch(branch, startPoint, publish) {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
@@ -457,7 +368,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 
 function doInstall(options) {
   // Use same branch as main for free branches
-  const manifestObject = readManifest({
+  const manifestObject = core.readManifest({
     mainPath: '.',
     manifest: options.manifest,
   });
@@ -465,7 +376,7 @@ function doInstall(options) {
   const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
   const freeBranch = repo.getBranch('.');
   core.writeRootFile({
-    rootFilePath: path.join(rootAbsolutePath, fabRootFilename),
+    rootFilePath: path.join(rootAbsolutePath, core.fabRootFilename),
     mainPath: mainFromRoot,
     manifest: options.manifest,
   });
@@ -509,7 +420,7 @@ function doClone(source, destinationParam, options) {
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 
-  const manifest = readManifest({
+  const manifest = core.readManifest({
     mainPath: destination,
     manifest: options.manifest,
   });
@@ -537,7 +448,9 @@ function doClone(source, destinationParam, options) {
 
 function doForEach(internalOptions, cmd, args) {
   cdRootDirectory();
-  const dependencies = readManifest({ fromRoot: true, addMainToDependencies: true }).dependencies;
+  const dependencies = core.readManifest(
+    { fromRoot: true, addMainToDependencies: true }
+  ).dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
     if (internalOptions.freeOnly) {
@@ -562,8 +475,8 @@ function doForEach(internalOptions, cmd, args) {
 
 function doSnapshot() {
   cdRootDirectory();
-  const rootObject = readRootFile();
-  const manifest = readManifest({ fromRoot: true });
+  const rootObject = core.readRootFile();
+  const manifest = core.readManifest({ fromRoot: true });
 
   // Create dependencies with fixed revision and absolute repo.
   const dependencies = {};
@@ -596,7 +509,7 @@ function doSnapshot() {
 
 
 function doRecreate(snapshotPath, destinationParam) {
-  const snapshotObject = readJson(
+  const snapshotObject = util.readJson(
     snapshotPath,
     ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
   );
@@ -629,7 +542,7 @@ function doRecreate(snapshotPath, destinationParam) {
 
   // Install root file
   core.writeRootFile({
-    rootFilePath: path.resolve(fabRootFilename),
+    rootFilePath: path.resolve(core.fabRootFilename),
     mainPath: snapshotObject.mainPathFromRoot,
     manifest: snapshotObject.manifest,
   });
@@ -642,7 +555,7 @@ function doRecreate(snapshotPath, destinationParam) {
 function doRestore(snapshotPath) {
   if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
 
-  const snapshotObject = readJson(
+  const snapshotObject = util.readJson(
     snapshotPath,
     ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
   );
@@ -677,7 +590,7 @@ program.on('--help', () => {
   console.log('  Files:');
   console.log(
     `    ${core.manifestPath({})} default manifest for forest`);
-  console.log(`    ${fabRootFilename} marks root of forest (do not commit to VCS)`);
+  console.log(`    ${core.fabRootFilename} marks root of forest (do not commit to VCS)`);
   console.log('');
   console.log('  Forest management: clone, init, install');
   console.log('  Utility: status, pull, outgoing, for-each, for-free');
@@ -818,7 +731,7 @@ program
   .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
-    readRootFile();
+    core.readRootFile();
   });
 
 // Catch-all, unrecognised command.
