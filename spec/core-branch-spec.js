@@ -37,45 +37,6 @@ function quietDoSwitch(branch) {
 }
 
 
-function makeOneGitRepo(repoPath, origin) {
-  const startingDir = process.cwd();
-  childProcess.execFileSync('git', ['init', repoPath]);
-  process.chdir(repoPath);
-  childProcess.execFileSync('touch', ['a']);
-  childProcess.execFileSync('git', ['add', 'a']);
-  childProcess.execFileSync('git', ['commit', '-m', 'a']);
-  childProcess.execFileSync('git', ['remote', 'add', 'origin', origin]);
-
-  process.chdir(startingDir);
-}
-
-
-function makeOneOfEachGitRepo() {
-  const rootDir = process.cwd();
-
-  makeOneGitRepo('.', 'git@ex.com:path/to/main.git');
-  makeOneGitRepo('free', 'git@ex.com:path/to/free.git');
-
-  makeOneGitRepo('pinned', 'git@ex.com:path/to/pinned.git');
-  process.chdir('pinned');
-  const oldRevision = repo.getRevision('.');
-  childProcess.execFileSync('touch', ['b']);
-  childProcess.execFileSync('git', ['add', 'b']);
-  childProcess.execFileSync('git', ['commit', '-m', 'b']);
-  childProcess.execFileSync('git', ['checkout', '--quiet', oldRevision]);
-  process.chdir(rootDir);
-
-  // locked
-  makeOneGitRepo('locked', 'git@ex.com:a/b/c/locked.git');
-
-  // fab init
-  process.chdir(rootDir);
-  cc.quietDoInit({});
-
-  process.chdir(rootDir);
-}
-
-
 describe('core branch:', () => {
   let tempFolder;
 
@@ -85,7 +46,7 @@ describe('core branch:', () => {
   });
 
   it('make-branch', () => {
-    makeOneOfEachGitRepo();
+    cc.makeOneOfEachGitRepo();
 
     expect(repo.getBranch('.')).toEqual('master');
     expect(repo.getBranch('free')).toEqual('master');
@@ -114,7 +75,7 @@ describe('core branch:', () => {
 
 
   it('switch', () => {
-    makeOneOfEachGitRepo();
+    cc.makeOneOfEachGitRepo();
     quietDoMakeBranch('one');
     quietDoMakeBranch('two');
     expect(repo.getBranch('.')).toEqual('two');

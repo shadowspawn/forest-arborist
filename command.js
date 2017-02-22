@@ -322,33 +322,6 @@ function doClone(source, destinationParam, options) {
 }
 
 
-function doForEach(internalOptions, cmd, args) {
-  core.cdRootDirectory();
-  const dependencies = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
-  ).dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    if (internalOptions.freeOnly) {
-      const entry = dependencies[repoPath];
-      if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
-        return; // continue forEach
-      }
-    }
-
-    if (args.length > 0) {
-      util.execCommandSync(
-        { cmd, args, cwd: repoPath }
-      );
-    } else {
-      util.execCommandSync(
-        { cmd, cwd: repoPath }
-      );
-    }
-  });
-}
-
-
 function doSnapshot() {
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
@@ -555,7 +528,7 @@ program
   .description('run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    doForEach({}, command, args);
+    core.doForEach({}, command, args);
   });
 
 program
@@ -563,7 +536,7 @@ program
   .description('run specified command on repos which are not locked or pinned')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    doForEach({ freeOnly: true }, command, args);
+    core.doForEach({ freeOnly: true }, command, args);
   });
 
 program
