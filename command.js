@@ -8,11 +8,10 @@
 
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
-const program = require('commander');
-const fs = require('fs');
 const childProcess = require('child_process');
+const fs = require('fs');
 const path = require('path');
-const shellQuote = require('shell-quote');
+const program = require('commander');
 const tmp = require('tmp');
 // Mine
 const myPackage = require('./package.json');
@@ -23,64 +22,8 @@ const repo = require('./lib/repo');
 const util = require('./lib/util');
 
 
-function execCommandSync(commandParam) {
-  const command = commandParam;
-  if (command.args === undefined) command.args = [];
-  let cwdDisplay = `${command.cwd}: `;
-  if (command.cwd === undefined || command.cwd === '' || command.cwd === '.') {
-    cwdDisplay = '(root): ';
-    command.cwd = '.';
-  }
-  if (command.suppressContext) cwdDisplay = '';
-
-  // Trying hard to get a possibly copy-and-paste command.
-  // let quotedArgs = '';
-  // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
-  let quotedArgs = shellQuote.quote(command.args);
-  quotedArgs = quotedArgs.replace(/\n/g, '\\n');
-  console.log(util.commandColour(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
-
-  try {
-    // Note: the stdio option hooks up child stream to parent so we get live progress.
-    childProcess.execFileSync(
-        command.cmd, command.args,
-        { cwd: command.cwd, stdio: [0, 1, 2] }
-      );
-  } catch (err) {
-    // Some commands return non-zero for expected situations
-    if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {
-      throw err;
-    }
-  }
-  console.log(''); // blank line after command output
-}
-
-
-function cdRootDirectory() {
-  const startedInMainDirectory = fsX.dirExistsSync('.fab');
-
-  let tryParent = true;
-  do {
-    if (fsX.fileExistsSync(core.fabRootFilename)) {
-      return;
-    }
-
-    // NB: chdir('..') from '/' silently does nothing on Mac, so check we moved
-    const cwd = process.cwd();
-    process.chdir('..');
-    tryParent = (cwd !== process.cwd());
-  } while (tryParent);
-
-  if (startedInMainDirectory) {
-    util.terminate('root of forest not found. (Do you need to call "fab install"?)');
-  } else {
-    util.terminate('root of forest not found. ');
-  }
-}
-
-
 function doStatus() {
-  cdRootDirectory();
+  core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
@@ -88,11 +31,11 @@ function doStatus() {
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
     if (entry.repoType === 'git') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
       );
     } else if (entry.repoType === 'hg') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['status'], cwd: repoPath }
       );
     }
@@ -116,16 +59,16 @@ function hgAutoMerge(repoPath) {
       'hg', ['parents', '--repository', repoPath, '--template', '{node}']
     );
     if (tipNode !== parentNode) {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['update'], cwd: repoPath }
       );
     }
   } else {
     try {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['merge', '--tool', 'internal:merge'], cwd: repoPath }
       );
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['commit', '--message', 'Merge'], cwd: repoPath }
       );
     } catch (err) {
@@ -141,7 +84,7 @@ function hgAutoMerge(repoPath) {
 
 
 function doPull() {
-  cdRootDirectory();
+  core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
@@ -155,11 +98,11 @@ function doPull() {
     } else {
       const repoType = entry.repoType;
       if (repoType === 'git') {
-        execCommandSync(
+        util.execCommandSync(
           { cmd: 'git', args: ['pull'], cwd: repoPath }
         );
       } else if (repoType === 'hg') {
-        execCommandSync(
+        util.execCommandSync(
           { cmd: 'hg', args: ['pull'], cwd: repoPath }
         );
         hgAutoMerge(repoPath);
@@ -170,7 +113,7 @@ function doPull() {
 
 
 function doOutgoing() {
-  cdRootDirectory();
+  core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
@@ -178,7 +121,7 @@ function doOutgoing() {
   Object.keys(dependencies).forEach((repoPath) => {
     const repoType = dependencies[repoPath].repoType;
     if (repoType === 'git') {
-      execCommandSync(
+      util.execCommandSync(
         // http://stackoverflow.com/questions/2016901/viewing-unpushed-git-commits
         // Started with "git log @{u}.." but that fails for detached head."
         // The following does not list changes which have been pushed to some but not all branches,
@@ -190,80 +133,13 @@ function doOutgoing() {
       );
     } else if (repoType === 'hg') {
       // Outgoing returns 1 if there are no outgoing changes.
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg',
           args: ['outgoing', '--quiet', '--template', '{node|short} {desc|firstline}\n'],
           cwd: repoPath,
           allowedShellStatus: 1,
         }
       );
-    }
-  });
-}
-
-
-function doSwitch(branch) {
-  cdRootDirectory();
-  const dependencies = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
-  ).dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
-    if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
-      return; // continue forEach
-    }
-
-    const repoType = entry.repoType;
-    if (repoType === 'git') {
-      execCommandSync(
-        { cmd: 'git', args: ['checkout', branch], cwd: repoPath }
-      );
-    } else if (repoType === 'hg') {
-      execCommandSync(
-        { cmd: 'hg', args: ['update', branch], cwd: repoPath }
-      );
-    }
-  });
-}
-
-
-function doMakeBranch(branch, startPoint, publish) {
-  cdRootDirectory();
-  const dependencies = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
-  ).dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
-    if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
-      return; // continue forEach
-    }
-
-    const repoType = entry.repoType;
-    if (repoType === 'git') {
-      // Could check for remote branch using "git fetch origin ${branch}" ?
-      const args = ['checkout', '-b', branch];
-      if (startPoint !== undefined) args.push(startPoint);
-      execCommandSync({ cmd: 'git', args, cwd: repoPath });
-      if (publish) {
-        execCommandSync(
-          { cmd: 'git', args: ['push', '--set-upstream', 'origin', branch], cwd: repoPath }
-        );
-      }
-    } else if (repoType === 'hg') {
-      if (startPoint !== undefined) {
-        execCommandSync({ cmd: 'hg', args: ['update', startPoint], cwd: repoPath });
-      }
-      execCommandSync({ cmd: 'hg', args: ['branch', branch], cwd: repoPath });
-      if (publish) {
-        execCommandSync(
-          { cmd: 'hg', args: ['commit', '--message', 'Create branch'], cwd: repoPath }
-        );
-        execCommandSync(
-          { cmd: 'hg', args: ['push', '--branch', branch, '--new-branch'], cwd: repoPath }
-        );
-      }
     }
   });
 }
@@ -313,16 +189,16 @@ function cloneEntry(entry, repoPath, freeBranch) {
   }
   args.push(entry.origin, repoPath);
   // Clone command ready!
-  execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
+  util.execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
 
   // Second command to checkout pinned revision
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === 'git') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
       );
     } else if (entry.repoType === 'hg') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
       );
     }
@@ -352,11 +228,11 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 
   if (revision !== undefined) {
     if (entry.repoType === 'git') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'git', args: gitConfig.concat(['checkout', revision]), cwd: repoPath }
       );
     } else if (entry.repoType === 'hg') {
-      execCommandSync(
+      util.execCommandSync(
         { cmd: 'hg', args: ['update', '--rev', revision], cwd: repoPath }
       );
     }
@@ -382,7 +258,7 @@ function doInstall(options) {
   });
   console.log();
 
-  cdRootDirectory();
+  core.cdRootDirectory();
   const dependencies = manifestObject.dependencies;
 
   Object.keys(dependencies).forEach((repoPath) => {
@@ -447,7 +323,7 @@ function doClone(source, destinationParam, options) {
 
 
 function doForEach(internalOptions, cmd, args) {
-  cdRootDirectory();
+  core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
@@ -461,11 +337,11 @@ function doForEach(internalOptions, cmd, args) {
     }
 
     if (args.length > 0) {
-      execCommandSync(
+      util.execCommandSync(
         { cmd, args, cwd: repoPath }
       );
     } else {
-      execCommandSync(
+      util.execCommandSync(
         { cmd, cwd: repoPath }
       );
     }
@@ -474,7 +350,7 @@ function doForEach(internalOptions, cmd, args) {
 
 
 function doSnapshot() {
-  cdRootDirectory();
+  core.cdRootDirectory();
   const rootObject = core.readRootFile();
   const manifest = core.readManifest({ fromRoot: true });
 
@@ -559,7 +435,7 @@ function doRestore(snapshotPath) {
     snapshotPath,
     ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
   );
-  cdRootDirectory();
+  core.cdRootDirectory();
 
   checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
 
@@ -670,7 +546,7 @@ program
   .command('root')
   .description('show the root directory of the forest')
   .action(() => {
-    cdRootDirectory();
+    core.cdRootDirectory();
     console.log(process.cwd());
   });
 
@@ -694,7 +570,7 @@ program
   .command('switch <branch>')
   .description('switch branch of free repos')
   .action((branch) => {
-    doSwitch(branch);
+    util.doSwitch(branch);
   });
 
 program
@@ -702,7 +578,7 @@ program
   .option('-p, --publish', 'push newly created branch')
   .description('create new branch in free repos')
   .action((branch, startPoint, options) => {
-    doMakeBranch(branch, startPoint, options.publish);
+    core.doMakeBranch(branch, startPoint, options.publish);
   });
 
 program

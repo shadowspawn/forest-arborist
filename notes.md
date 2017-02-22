@@ -2,9 +2,8 @@
 
 ## Backlog
 * revisit init decisions! (pinned vs locked vs free)
-* nested mute does not work? Wrap and avoid nesting, or go noisy?
 *
-* Start writing nice help
+* Write details on second half of README.
 * "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
 * switch and make-branch need to do main before reading manifest, dependencies could change
 

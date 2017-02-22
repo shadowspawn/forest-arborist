@@ -7,19 +7,8 @@ const core = require('../lib/core');
 const fsX = require('../lib/fsExtra');
 const repo = require('../lib/repo');
 const util = require('../lib/util');
-
-
-function quietDoInit(options) {
-  // Classic use of mute, suppress output from (our own) module that does not support it!
-  const unmute = util.recursiveMute();
-  try {
-    core.doInit(options);
-    unmute();
-  } catch (err) {
-    unmute();
-    throw err;
-  }
-}
+//
+const cc = require('./core-common');
 
 
 describe('core init:', () => {
@@ -32,7 +21,7 @@ describe('core init:', () => {
 
   it('no repo', () => {
     expect(() => {
-      quietDoInit({});
+      cc.quietDoInit({});
     }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
@@ -41,7 +30,7 @@ describe('core init:', () => {
     childProcess.execFileSync('git', ['init']);
     expect(fsX.dirExistsSync('.git')).toBe(true);
 
-    quietDoInit({});
+    cc.quietDoInit({});
     expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
     expect(fsX.fileExistsSync(core.manifestPath({}))).toBe(true);
     // Not too worried about root and manifest contents!
@@ -53,7 +42,7 @@ describe('core init:', () => {
     expect(fsX.dirExistsSync('.git')).toBe(true);
 
     const manifest = 'custom';
-    quietDoInit({ manifest });
+    cc.quietDoInit({ manifest });
     expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
     expect(fsX.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
 
@@ -68,7 +57,7 @@ describe('core init:', () => {
     childProcess.execFileSync('git', ['init']);
     childProcess.execFileSync('git', ['init', sub]);
 
-    quietDoInit({});
+    cc.quietDoInit({});
 
     const rootObject = core.readRootFile();
     expect(rootObject.mainPath).toEqual('.');
@@ -81,14 +70,14 @@ describe('core init:', () => {
     expect(manifestObject.dependencies[sub]).not.toBeUndefined();
   });
 
-  it('sibling', () => {
+  it('sibling (--root)', () => {
     // Check cross referencing for sibling setup.
     const sibling = 'sibling';
     childProcess.execFileSync('git', ['init', 'main']);
     childProcess.execFileSync('git', ['init', sibling]);
     process.chdir('main');
 
-    quietDoInit({ root: '..' });
+    cc.quietDoInit({ root: '..' });
 
     const rootObject = core.readRootFile();
     expect(rootObject.mainPath).toEqual('main');
@@ -116,7 +105,7 @@ describe('core init:', () => {
     childProcess.execFileSync('git', ['checkout', '--quiet', revision]);
     process.chdir('..');
 
-    quietDoInit({});
+    cc.quietDoInit({});
 
     const manifestObject = core.readManifest({ fromRoot: true });
     const dependencies = manifestObject.dependencies;
@@ -133,7 +122,7 @@ describe('core init:', () => {
     childProcess.execFileSync('git', ['init']);
     childProcess.execFileSync('git', ['init', 'boost']);
 
-    quietDoInit({});
+    cc.quietDoInit({});
 
     const manifestObject = core.readManifest({ fromRoot: true });
     const dependencies = manifestObject.dependencies;
@@ -154,7 +143,7 @@ describe('core init:', () => {
       'remote', 'add', 'origin', 'git@example.com:path/to/boost.git',
     ], { cwd: 'boost' });
 
-    quietDoInit({});
+    cc.quietDoInit({});
 
     // Want to check that raw manifest has free and relative dependency.
     const fabManifest = core.manifestPath({ mainPath: '.' });
