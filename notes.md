@@ -5,7 +5,7 @@
 *
 * Write details on second half of README.
 * "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
-* switch and make-branch need to do main before reading manifest, dependencies could change
+* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
 
 ## jasmine Issues
 (clean)
@@ -22,31 +22,27 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
-* unit tests (nested operations, sibling operations, pin/lock/free)
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
-* multiple manifest files, e.g. HRVMasterStable ?
-  * move manifest to .arm folder?
-  * manifest list
-  * handle clone with no default manifest and no manifest specified, list manifests
+* handle clone with no default manifest and no manifest specified, list manifests
 * typescript
 * for-fun
  * --pinned --locked --free --all
  * --git --hg (default to all, but supports mixed repo types!). Nah.
- * git X == for-fun git
- * hg X == for-fun hg
+ * git X == for-each git X ?
+ * hg X == for-each hg X ?
 * for-foo --ignore or similar for ignoring result code of commands which fail when null, like hg push ?
 * help for modifying dependencies in manifest?
   * add/remove
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
-* restore could reset dangling repos to null revision
-* install could do fetch for pinned revisions (in case has changed)
-* install could do pull for existing repos
-* install should switch branch on main before reading manifest when changing branch
+* init --interactive, to prompt for free/locked/pinned and relative/absolute
+* install could do fetch for pinned revisions (in case has changed). Nah, KISS?
+* install could do pull for existing repos. Nah, KISS?
 * Add tip to ignore when add root file to repo if not root file not ignored (git check-ignore)
 * summary could show manifest, root, main, dependencies (abs/rel, pinned, locked, free)
+* delete the old version tags from github
 
 ## Patterns
 
