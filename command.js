@@ -503,7 +503,7 @@ program
   .command('switch <branch>')
   .description('switch branch of free repos')
   .action((branch) => {
-    util.doSwitch(branch);
+    core.doSwitch(branch);
   });
 
 program
