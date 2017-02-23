@@ -27,9 +27,7 @@ const cc = {
     const startingDir = process.cwd();
     childProcess.execFileSync('git', ['init', repoPath]);
     process.chdir(repoPath);
-    childProcess.execFileSync('touch', ['a']);
-    childProcess.execFileSync('git', ['add', 'a']);
-    childProcess.execFileSync('git', ['commit', '-m', 'a']);
+    childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Empty but real commit']);
     childProcess.execFileSync('git', ['remote', 'add', 'origin', origin]);
 
     process.chdir(startingDir);
@@ -45,9 +43,7 @@ const cc = {
     cc.makeOneGitRepo('pinned', 'git@ex.com:path/to/pinned.git');
     process.chdir('pinned');
     const oldRevision = repo.getRevision('.');
-    childProcess.execFileSync('touch', ['b']);
-    childProcess.execFileSync('git', ['add', 'b']);
-    childProcess.execFileSync('git', ['commit', '-m', 'b']);
+    childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Second empty but real commit']);
     childProcess.execFileSync('git', ['checkout', '--quiet', oldRevision]);
     process.chdir(rootDir);
 

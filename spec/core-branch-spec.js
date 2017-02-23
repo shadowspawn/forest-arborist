@@ -59,16 +59,14 @@ describe('core branch:', () => {
     expect(repo.getBranch('locked')).toEqual('master');
 
     // make-branch X, check from current branch
-    const onOne = 'onOne';
-    childProcess.execFileSync('touch', [onOne]);
-    childProcess.execFileSync('git', ['add', onOne]);
-    childProcess.execFileSync('git', ['commit', '-m', onOne]);
+    childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Empty but real commit']);
+    const oneRevision = repo.getRevision('.');
     quietDoMakeBranch('two');
-    expect(fsX.fileExistsSync(onOne)).toBe(true);
+    expect(repo.getRevision('.')).toEqual(oneRevision);
 
     // make-branch X Y, check from specified start
     quietDoMakeBranch('three', 'master');
-    expect(fsX.fileExistsSync(onOne)).toBe(false);
+    expect(repo.getRevision('.')).not.toEqual(oneRevision);
 
     // make-branch X --publish ????
   });

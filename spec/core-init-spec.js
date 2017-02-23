@@ -95,13 +95,9 @@ describe('core init:', () => {
     childProcess.execFileSync('git', ['init']);
     childProcess.execFileSync('git', ['init', 'boost']);
     process.chdir('boost');
-    childProcess.execFileSync('touch', ['a']);
-    childProcess.execFileSync('git', ['add', 'a']);
-    childProcess.execFileSync('git', ['commit', '-m', 'a']);
+    childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Empty but real commit']);
     const revision = repo.getRevision('.');
-    childProcess.execFileSync('touch', ['b']);
-    childProcess.execFileSync('git', ['add', 'b']);
-    childProcess.execFileSync('git', ['commit', '-m', 'b']);
+    childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Second empty but real commit']);
     childProcess.execFileSync('git', ['checkout', '--quiet', revision]);
     process.chdir('..');
 
