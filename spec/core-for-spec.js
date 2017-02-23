@@ -4,6 +4,7 @@ const tmp = require('tmp');
 // Mine
 const core = require('../lib/core');
 const fsX = require('../lib/fsExtra');
+const repo = require('../lib/repo');
 const util = require('../lib/util');
 //
 const cc = require('./core-common');
@@ -28,18 +29,20 @@ describe('core for:', () => {
   cc.makeOneOfEachGitRepo();
 
   it('for-free', () => {
-    quietDoFor({ freeOnly: true }, 'touch', ['freeFile']);
-    expect(fsX.fileExistsSync('freeFile')).toBe(true);
-    expect(fsX.fileExistsSync('free/freeFile')).toBe(true);
-    expect(fsX.fileExistsSync('pinned/freeFile')).toBe(false);
-    expect(fsX.fileExistsSync('locked/freeFile')).toBe(false);
+    const freeBranch = 'freeBranch';
+    quietDoFor({ freeOnly: true }, 'git', ['checkout', '--quiet', '-b', freeBranch]);
+    expect(repo.getBranch('.')).toEqual(freeBranch);
+    expect(repo.getBranch('free')).toBe(freeBranch);
+    expect(repo.getBranch('pinned')).toBeUndefined();
+    expect(repo.getBranch('locked')).toBe('master');
   });
 
   it('for-each', () => {
-    quietDoFor({}, 'touch', ['eachFile']);
-    expect(fsX.fileExistsSync('eachFile')).toBe(true);
-    expect(fsX.fileExistsSync('free/eachFile')).toBe(true);
-    expect(fsX.fileExistsSync('pinned/eachFile')).toBe(true);
-    expect(fsX.fileExistsSync('locked/eachFile')).toBe(true);
+    const eachBranch = 'eachBranch';
+    quietDoFor({}, 'git', ['checkout', '--quiet', '-b', eachBranch]);
+    expect(repo.getBranch('.')).toEqual(eachBranch);
+    expect(repo.getBranch('free')).toEqual(eachBranch);
+    expect(repo.getBranch('pinned')).toEqual(eachBranch);
+    expect(repo.getBranch('locked')).toEqual(eachBranch);
   });
 });
