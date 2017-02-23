@@ -5,6 +5,7 @@
 
 // Mine
 const core = require('../lib/core');
+const util = require('../lib/util');
 
 let JasmineConsoleReporter;
 try {
@@ -30,9 +31,9 @@ try {
 
 describe('core:', () => {
   it('manifestPath', () => {
-    expect(core.manifestPath({})).toEqual('.fab/manifest.json');
-    expect(core.manifestPath({ manifest: 'custom' })).toEqual('.fab/custom_manifest.json');
-    expect(core.manifestPath({ mainPath: 'main' })).toEqual('main/.fab/manifest.json');
-    expect(core.manifestPath({ mainPath: 'main', manifest: 'custom' })).toEqual('main/.fab/custom_manifest.json');
+    expect(util.normalizeToPosix(core.manifestPath({}))).toEqual('.fab/manifest.json');
+    expect(util.normalizeToPosix(core.manifestPath({ manifest: 'custom' }))).toEqual('.fab/custom_manifest.json');
+    expect(util.normalizeToPosix(core.manifestPath({ mainPath: 'main' }))).toEqual('main/.fab/manifest.json');
+    expect(util.normalizeToPosix(core.manifestPath({ mainPath: 'main', manifest: 'custom' }))).toEqual('main/.fab/custom_manifest.json');
   });
 });
