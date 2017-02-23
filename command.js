@@ -112,39 +112,6 @@ function doPull() {
 }
 
 
-function doOutgoing() {
-  core.cdRootDirectory();
-  const dependencies = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
-  ).dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    const repoType = dependencies[repoPath].repoType;
-    if (repoType === 'git') {
-      util.execCommandSync(
-        // http://stackoverflow.com/questions/2016901/viewing-unpushed-git-commits
-        // Started with "git log @{u}.." but that fails for detached head."
-        // The following does not list changes which have been pushed to some but not all branches,
-        // but otherwise pretty cool!
-        { cmd: 'git',
-          args: ['log', '--branches', '--not', '--remotes', '--decorate', '--oneline'],
-          cwd: repoPath,
-        }
-      );
-    } else if (repoType === 'hg') {
-      // Outgoing returns 1 if there are no outgoing changes.
-      util.execCommandSync(
-        { cmd: 'hg',
-          args: ['outgoing', '--quiet', '--template', '{node|short} {desc|firstline}\n'],
-          cwd: repoPath,
-          allowedShellStatus: 1,
-        }
-      );
-    }
-  });
-}
-
-
 function cloneEntry(entry, repoPath, freeBranch) {
   // Mercurial does not support making intermediate folders.
   // This just copes with one deep, but KISS and cover most use.
@@ -506,13 +473,6 @@ program
   })
   .action(() => {
     doPull();
-  });
-
-program
-  .command('outgoing')
-  .description('show new changesets that have not been pushed')
-  .action(() => {
-    doOutgoing();
   });
 
 program

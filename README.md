@@ -126,7 +126,6 @@ Commands Summary
      install [-m, --manifest <name>]               clone missing (new) dependent repositories
      status                                        show concise status for each repo in the forest
      pull                                          git-style pull, which is fetch and merge
-     outgoing                                      show new changesets that have not been pushed
      root                                          show the root directory of the forest
      for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"
      for-free <command> [args...]                  run specified command on repos which are not locked or pinned
@@ -148,7 +147,7 @@ Commands Summary
       .fab-root.json marks root of forest (do not commit to VCS)
 
     Forest management: clone, init, install
-    Utility: status, pull, outgoing, for-each, for-free
+    Utility: status, pull, for-each, for-free
     Branch: make-branch, switch
     Reproducible state: snapshot, recreate, restore
 
