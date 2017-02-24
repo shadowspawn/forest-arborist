@@ -6,7 +6,7 @@
 // const fsX = require('../lib/fsExtra');
 // const util = require('../lib/util');
 // //
-// const cc = require('./core-common');
+const cc = require('./core-common');
 
 
 // function quietDoFor(internalOptions, cmd, args) {
@@ -24,6 +24,7 @@
 
 describe('core clone:', () => {
   it('test goes here', () => {
+    cc.makeMasterGitRepos();
     pending('test goes here');
   });
 });
