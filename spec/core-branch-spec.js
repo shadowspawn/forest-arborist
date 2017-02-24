@@ -37,11 +37,16 @@ function quietDoSwitch(branch) {
 
 
 describe('core branch:', () => {
+  const startDir = process.cwd();
   let tempFolder;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
+  });
+
+  afterEach(() => {
+    process.chdir(startDir);
   });
 
   it('make-branch', () => {

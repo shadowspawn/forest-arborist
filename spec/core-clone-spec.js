@@ -1,7 +1,7 @@
 'use strict';
 
-// const tmp = require('tmp');
-// // Mine
+const tmp = require('tmp');
+// Mine
 // const core = require('../lib/core');
 // const fsX = require('../lib/fsExtra');
 // const util = require('../lib/util');
@@ -23,8 +23,21 @@ const cc = require('./core-common');
 
 
 describe('core clone:', () => {
-  it('test goes here', () => {
-    cc.makeMasterGitRepos();
-    pending('test goes here');
+  const startDir = process.cwd();
+  let tempFolder;
+
+  beforeEach(() => {
+    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    process.chdir(tempFolder.name);
+  });
+
+  afterEach(() => {
+    process.chdir(startDir);
+  });
+
+
+  it('nested', () => {
+    const locations = cc.makeGitRepoSuite();
+    console.log(locations);
   });
 });

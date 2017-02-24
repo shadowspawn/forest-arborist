@@ -42,11 +42,11 @@ There are three commands for reproducing forest state:
 * `restore` takes the current forest back to the snapshot state
 * `recreate` is like clone but takes a snapshot file
 
-      fab snapshot > ~/snapshot1
-      git pull
-      fab restore ~/snapshot1
-      cd ..
-      fab recreate ~/snapshot1 myTempRepo
+    fab snapshot > ~/snapshot1
+    git pull
+    fab restore ~/snapshot1
+    cd ..
+    fab recreate ~/snapshot1 myTempRepo
 
 
 Working With Branches

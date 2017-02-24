@@ -23,9 +23,19 @@ function quietDoFor(internalOptions, cmd, args) {
 
 
 describe('core for:', () => {
-  const tempFolder = tmp.dirSync({ unsafeCleanup: true });
-  process.chdir(tempFolder.name);
-  cc.makeOneOfEachGitRepo();
+  const startDir = process.cwd();
+  let tempFolder;
+
+  beforeEach(() => {
+    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    process.chdir(tempFolder.name);
+    cc.makeOneOfEachGitRepo();
+  });
+
+  afterEach(() => {
+    process.chdir(startDir);
+  });
+
 
   it('for-free', () => {
     const freeBranch = 'freeBranch';

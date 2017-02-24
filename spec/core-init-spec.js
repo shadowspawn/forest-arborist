@@ -12,11 +12,16 @@ const cc = require('./core-common');
 
 
 describe('core init:', () => {
+  const startDir = process.cwd();
   let tempFolder;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
+  });
+
+  afterEach(() => {
+    process.chdir(startDir);
   });
 
   it('no repo', () => {
@@ -52,7 +57,7 @@ describe('core init:', () => {
   });
 
   it('nested', () => {
-    // Check cross referencing for nexted setup.
+    // Check cross referencing for nested setup.
     const sub = 'child';
     childProcess.execFileSync('git', ['init']);
     childProcess.execFileSync('git', ['init', sub]);
@@ -79,7 +84,8 @@ describe('core init:', () => {
 
     cc.quietDoInit({ root: '..' });
 
-    const rootObject = core.readRootFile();
+    process.chdir('..');
+    const rootObject = core.readRootFile('..');
     expect(rootObject.mainPath).toEqual('main');
     expect(rootObject.manifest).toBeUndefined();
 
