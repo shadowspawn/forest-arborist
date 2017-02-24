@@ -61,6 +61,7 @@ const cc = {
   },
 
 
+  // returns {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
   makeGitRepoSuite() {
     const startDir = process.cwd();
 
@@ -71,13 +72,13 @@ const cc = {
       childProcess.execFileSync('git', ['push', '--quiet']);
     }
 
-    // Make master empty bare repos
-    fs.mkdirSync('master');
-    process.chdir('master');
-    const masterDir = process.cwd();
+    // Make remote empty bare repos
+    fs.mkdirSync('remotes');
+    process.chdir('remotes');
+    const remotesDir = process.cwd();
     const dependencies = ['free', path.join('Libs', 'pinned'), path.join('Libs', 'locked')];
-    const allMasterRepos = ['main-nested', 'main-sibling'].concat(dependencies);
-    allMasterRepos.forEach((repoPath) => {
+    const allRemoteRepos = ['main-nested', 'main-sibling'].concat(dependencies);
+    allRemoteRepos.forEach((repoPath) => {
       // Want a bare master, but not an empty one!
       const tempRepo = repoPath.concat('-tmp');
       childProcess.execFileSync('git', ['init', tempRepo]);
@@ -87,11 +88,11 @@ const cc = {
     process.chdir(startDir);
 
     // Set up main-nested
-    childProcess.execFileSync('git', ['clone', '--quiet', path.join(masterDir, 'main-nested')]);
+    childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'main-nested')]);
     process.chdir('main-nested');
     const nestedRootDir = process.cwd();
     dependencies.forEach((repoPath) => {
-      childProcess.execFileSync('git', ['clone', '--quiet', path.join(masterDir, repoPath), repoPath]);
+      childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, repoPath), repoPath]);
     });
 
     // Create the extra revision in pinned and rollback
@@ -109,9 +110,9 @@ const cc = {
     fs.mkdirSync('sibling');
     process.chdir('sibling');
     const siblingRootDir = process.cwd();
-    childProcess.execFileSync('git', ['clone', '--quiet', path.join(masterDir, 'main-sibling')]);
+    childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'main-sibling')]);
     dependencies.forEach((repoPath) => {
-      childProcess.execFileSync('git', ['clone', '--quiet', path.join(masterDir, repoPath), repoPath]);
+      childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, repoPath), repoPath]);
     });
     childProcess.execFileSync('git', ['checkout', '--quiet', pinnedRevision],
       { cwd: path.join('Libs', 'pinned') }
@@ -121,7 +122,7 @@ const cc = {
     initAndPushMain({ root: '..' });
     process.chdir(startDir);
 
-    return { masterDir, nestedRootDir, siblingRootDir, pinnedRevision };
+    return { remotesDir, nestedRootDir, siblingRootDir, pinnedRevision };
   },
 
 

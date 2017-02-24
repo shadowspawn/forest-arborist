@@ -25,9 +25,19 @@ const cc = require('./core-common');
 describe('core clone:', () => {
   const startDir = process.cwd();
   let tempFolder;
+  let suite;    // {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
+
+  beforeAll(() => {
+    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    process.chdir(tempFolder.name);
+    suite = cc.makeGitRepoSuite();
+  });
+
+  afterAll(() => {
+    process.chdir(startDir);
+  });
 
   beforeEach(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
   });
 
@@ -37,7 +47,10 @@ describe('core clone:', () => {
 
 
   it('nested', () => {
-    const locations = cc.makeGitRepoSuite();
-    console.log(locations);
+    console.log(`nested root is ${suite.nestedRootDir}`);
+  });
+
+  it('sibling', () => {
+    console.log(`sibling root is ${suite.siblingRootDir}`);
   });
 });

@@ -23,6 +23,7 @@ const util = require('./lib/util');
 
 
 function doStatus() {
+  const startDir = process.cwd();
   core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
@@ -40,6 +41,7 @@ function doStatus() {
       );
     }
   });
+  process.chdir(startDir);
 }
 
 
@@ -84,6 +86,7 @@ function hgAutoMerge(repoPath) {
 
 
 function doPull() {
+  const startDir = process.cwd();
   core.cdRootDirectory();
   const dependencies = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
@@ -109,6 +112,7 @@ function doPull() {
       }
     }
   });
+  process.chdir(startDir);
 }
 
 
@@ -210,6 +214,7 @@ function checkoutEntry(entry, repoPath, freeBranch) {
 
 
 function doInstall(options) {
+  const startDir = process.cwd();
   // Use same branch as main for free branches
   const manifestObject = core.readManifest({
     mainPath: '.',
@@ -236,10 +241,12 @@ function doInstall(options) {
       cloneEntry(entry, repoPath, freeBranch);
     }
   });
+  process.chdir(startDir);
 }
 
 
 function doClone(source, destinationParam, options) {
+  const startDir = process.cwd();
   // We need to know the main directory to find the manifest file after the clone.
   let destination = destinationParam;
   if (destination === undefined) {
@@ -286,10 +293,12 @@ function doClone(source, destinationParam, options) {
   doInstall({ manifest: options.manifest });
 
   console.log(`Created repo forest in ${destination}`);
+  process.chdir(startDir);
 }
 
 
 function doSnapshot() {
+  const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
   const manifest = core.readManifest({ fromRoot: true });
@@ -321,10 +330,12 @@ function doSnapshot() {
 
   const prettySnapshot = JSON.stringify(snapshot, null, '  ');
   console.log(prettySnapshot);
+  process.chdir(startDir);
 }
 
 
 function doRecreate(snapshotPath, destinationParam) {
+  const startDir = process.cwd();
   const snapshotObject = util.readJson(
     snapshotPath,
     ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
@@ -365,12 +376,14 @@ function doRecreate(snapshotPath, destinationParam) {
 
   console.log(`Recreated repo forest from snapshot to ${destination}`);
   // console.log('(use restore -" to get a current checkout again');
+  process.chdir(startDir);
 }
 
 
 function doRestore(snapshotPath) {
   if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
 
+  const startDir = process.cwd();
   const snapshotObject = util.readJson(
     snapshotPath,
     ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
@@ -391,6 +404,7 @@ function doRestore(snapshotPath) {
 
   console.log('Restored repo forest from snapshot');
   // console.log('(use restore -" to get a current checkout again');
+  process.chdir(startDir);
 }
 
 
