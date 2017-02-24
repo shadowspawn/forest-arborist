@@ -10,6 +10,7 @@ const util = require('../lib/util');
 
 
 const cc = {
+  suiteDependencies: ['free', path.join('Libs', 'pinned'), path.join('Libs', 'locked')],
 
 
   quietDoInit(options) {
@@ -65,33 +66,52 @@ const cc = {
   makeGitRepoSuite() {
     const startDir = process.cwd();
 
-    function initAndPushMain(options) {
-      cc.quietDoInit(options);
-      childProcess.execFileSync('git', ['add', core.manifestPath({})]);
-      childProcess.execFileSync('git', ['commit', '-m', 'fab initialised']);
-      childProcess.execFileSync('git', ['push', '--quiet']);
-    }
-
     // Make remote empty bare repos
     fs.mkdirSync('remotes');
     process.chdir('remotes');
     const remotesDir = process.cwd();
-    const dependencies = ['free', path.join('Libs', 'pinned'), path.join('Libs', 'locked')];
-    const allRemoteRepos = ['main-nested', 'main-sibling'].concat(dependencies);
+    const allRemoteRepos = ['main-nested', 'main-sibling'].concat(cc.suiteDependencies);
     allRemoteRepos.forEach((repoPath) => {
       // Want a bare master, but not an empty one!
       const tempRepo = repoPath.concat('-tmp');
       childProcess.execFileSync('git', ['init', tempRepo]);
       childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Empty but real commit'], { cwd: tempRepo });
+      childProcess.execFileSync('git', ['branch', '--quiet', 'develop'], { cwd: tempRepo });
       childProcess.execFileSync('git', ['clone', '--bare', '--quiet', tempRepo, repoPath]);
     });
     process.chdir(startDir);
 
+    function initAndPushMain(options) {
+      // Setting up two branches and two manifests
+      // default manifest
+      cc.quietDoInit(options);
+      childProcess.execFileSync('git', ['add', core.manifestPath({})]);
+      childProcess.execFileSync('git', ['commit', '-m', 'fab initialised']);
+
+      // custom manifest
+      const manifest = 'sub';
+      const customOptions = { root: options.root, manifest };
+      childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'free'), 'sub']);
+      cc.quietDoInit(customOptions);
+      childProcess.execFileSync('git', ['add', core.manifestPath({ manifest })]);
+      childProcess.execFileSync('git', ['commit', '-m', 'fab initialised with custom manifest']);
+
+      // push!
+      childProcess.execFileSync('git', ['push', '--quiet']);
+
+      //  create matching develop branch
+      childProcess.execFileSync('git', ['checkout', '--quiet', 'develop']);
+      childProcess.execFileSync('git', ['merge', '--quiet', 'master']);
+      childProcess.execFileSync('git', ['push', '--quiet']);
+    }
+
     // Set up main-nested
+    fs.mkdirSync('sandpit');
+    process.chdir('sandpit');
     childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'main-nested')]);
     process.chdir('main-nested');
     const nestedRootDir = process.cwd();
-    dependencies.forEach((repoPath) => {
+    cc.suiteDependencies.forEach((repoPath) => {
       childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, repoPath), repoPath]);
     });
 
@@ -107,11 +127,12 @@ const cc = {
     process.chdir(startDir);
 
     // Set up main-sibling in client layout
+    process.chdir('sandpit');
     fs.mkdirSync('sibling');
     process.chdir('sibling');
     const siblingRootDir = process.cwd();
     childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'main-sibling')]);
-    dependencies.forEach((repoPath) => {
+    cc.suiteDependencies.forEach((repoPath) => {
       childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, repoPath), repoPath]);
     });
     childProcess.execFileSync('git', ['checkout', '--quiet', pinnedRevision],

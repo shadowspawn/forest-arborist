@@ -24,7 +24,7 @@ try {
     activity: true,
   });
 
-  jasmine.getEnv().addReporter(myReporter);
+  // jasmine.getEnv().addReporter(myReporter);
 } catch (e) {
   // empty
 }

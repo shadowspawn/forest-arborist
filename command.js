@@ -12,7 +12,6 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const program = require('commander');
-const tmp = require('tmp');
 // Mine
 const myPackage = require('./package.json');
 const core = require('./lib/core');
@@ -116,187 +115,6 @@ function doPull() {
 }
 
 
-function cloneEntry(entry, repoPath, freeBranch) {
-  // Mercurial does not support making intermediate folders.
-  // This just copes with one deep, but KISS and cover most use.
-  if (entry.repoType === 'hg') {
-    const parentDir = path.dirname(repoPath);
-    if (parentDir !== '.' && !fsX.dirExistsSync(parentDir)) {
-      fs.mkdirSync(parentDir);
-    }
-  }
-
-  // Determine target branch for clone
-  let branch;
-  if (entry.pinRevision !== undefined) {
-    console.log(`# ${repoPath}: cloning pinned revision`);
-    branch = undefined;
-  } else if (entry.lockBranch !== undefined) {
-    console.log(`# ${repoPath}: cloning locked branch`);
-    branch = entry.lockBranch;
-  } else if (freeBranch !== undefined) {
-    console.log(`# ${repoPath}: cloning free repo on requested branch`);
-    branch = freeBranch;
-  } else {
-    console.log(`# ${repoPath}: cloning free repo`);
-  }
-
-  const args = ['clone'];
-  if (branch !== undefined) {
-    if (entry.repoType === 'git') {
-      args.push('--branch', branch);
-    } if (entry.repoType === 'hg') {
-      args.push('--updaterev', branch);
-    }
-  }
-
-  // Suppress checkout for pinRevision
-  if (entry.pinRevision !== undefined) {
-    if (entry.repoType === 'git') {
-      args.push('--no-checkout');
-    } if (entry.repoType === 'hg') {
-      args.push('--noupdate');
-    }
-  }
-  args.push(entry.origin, repoPath);
-  // Clone command ready!
-  util.execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
-
-  // Second command to checkout pinned revision
-  if (entry.pinRevision !== undefined) {
-    if (entry.repoType === 'git') {
-      util.execCommandSync(
-        { cmd: 'git', args: ['checkout', '--quiet', entry.pinRevision], cwd: repoPath }
-      );
-    } else if (entry.repoType === 'hg') {
-      util.execCommandSync(
-        { cmd: 'hg', args: ['update', '--rev', entry.pinRevision], cwd: repoPath }
-      );
-    }
-  }
-}
-
-
-function checkoutEntry(entry, repoPath, freeBranch) {
-  // Determine target for checkout
-  let revision;
-  let gitConfig = [];
-  if (entry.pinRevision !== undefined) {
-    console.log(`# ${repoPath}: checkout pinned revision`);
-    revision = entry.pinRevision;
-    gitConfig = ['-c', 'advice.detachedHead=false'];
-  } else if (entry.lockBranch !== undefined) {
-    console.log(`# ${repoPath}: checkout locked branch`);
-    revision = entry.lockBranch;
-  } else if (freeBranch !== undefined) {
-    console.log(`# ${repoPath}: checkout free repo on requested branch`);
-    revision = freeBranch;
-  } else {
-    let displayName = repoPath;
-    if (displayName === '' || displayName === '.') displayName = '(root)';
-    console.log(`# ${displayName}: skipping free repo`);
-  }
-
-  if (revision !== undefined) {
-    if (entry.repoType === 'git') {
-      util.execCommandSync(
-        { cmd: 'git', args: gitConfig.concat(['checkout', revision]), cwd: repoPath }
-      );
-    } else if (entry.repoType === 'hg') {
-      util.execCommandSync(
-        { cmd: 'hg', args: ['update', '--rev', revision], cwd: repoPath }
-      );
-    }
-  } else {
-    console.log('');
-  }
-}
-
-
-function doInstall(options) {
-  const startDir = process.cwd();
-  // Use same branch as main for free branches
-  const manifestObject = core.readManifest({
-    mainPath: '.',
-    manifest: options.manifest,
-  });
-  const rootAbsolutePath = path.resolve(manifestObject.rootDirectory);
-  const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
-  const freeBranch = repo.getBranch('.');
-  core.writeRootFile({
-    rootFilePath: path.join(rootAbsolutePath, core.fabRootFilename),
-    mainPath: mainFromRoot,
-    manifest: options.manifest,
-  });
-  console.log();
-
-  core.cdRootDirectory();
-  const dependencies = manifestObject.dependencies;
-
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
-    if (fsX.dirExistsSync(repoPath)) {
-      checkoutEntry(entry, repoPath, freeBranch);
-    } else {
-      cloneEntry(entry, repoPath, freeBranch);
-    }
-  });
-  process.chdir(startDir);
-}
-
-
-function doClone(source, destinationParam, options) {
-  const startDir = process.cwd();
-  // We need to know the main directory to find the manifest file after the clone.
-  let destination = destinationParam;
-  if (destination === undefined) {
-    destination = path.posix.basename(dvcsUrl.parse(source).pathname, '.git');
-  }
-
-  // Clone source.
-  const mainEntry = { origin: source };
-  if (repo.isGitRepository(source)) {
-    mainEntry.repoType = 'git';
-  } else if (repo.isHgRepository(source)) {
-    mainEntry.repoType = 'hg';
-  } else {
-    console.log('(Does the source repo exist?)');
-    util.terminate(`failed to find repository type for ${source}`);
-  }
-  cloneEntry(mainEntry, destination, options.branch);
-
-  const fabManifest = core.manifestPath({ mainPath: destination });
-  if (!fsX.fileExistsSync(fabManifest)) {
-    util.terminate(`stopping as did not find manifest ${fabManifest}`);
-  }
-
-  const manifest = core.readManifest({
-    mainPath: destination,
-    manifest: options.manifest,
-  });
-  if (manifest.mainPathFromRoot !== undefined && manifest.mainPathFromRoot !== '') {
-    // Play shell game for sibling layout, using destination as a wrapper folder.
-    console.log('Using sibling repo layout');
-    const tmpObj = tmp.dirSync({ dir: '.' }); // local to folder
-    console.log();
-    fs.renameSync(destination, path.join(tmpObj.name, destination));
-    fs.mkdirSync(destination);
-    const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
-    fs.renameSync(path.join(tmpObj.name, destination), mainPathFromHere);
-    fs.rmdirSync(tmpObj.name); // Should be auto-deleted but something breaking that?
-
-    process.chdir(mainPathFromHere);
-  } else {
-    process.chdir(destination);
-  }
-
-  doInstall({ manifest: options.manifest });
-
-  console.log(`Created repo forest in ${destination}`);
-  process.chdir(startDir);
-}
-
-
 function doSnapshot() {
   const startDir = process.cwd();
   core.cdRootDirectory();
@@ -354,9 +172,9 @@ function doRecreate(snapshotPath, destinationParam) {
     fs.mkdirSync(destination);
     process.chdir(destination);
     destination = mainPathFromRoot;
-    cloneEntry(mainRepoEntry, destination);
+    core.cloneEntry(mainRepoEntry, destination);
   } else {
-    cloneEntry(mainRepoEntry, destination);
+    core.cloneEntry(mainRepoEntry, destination);
     process.chdir(destination);
   }
 
@@ -364,7 +182,7 @@ function doRecreate(snapshotPath, destinationParam) {
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    cloneEntry(entry, repoPath);
+    core.cloneEntry(entry, repoPath);
   });
 
   // Install root file
@@ -390,15 +208,15 @@ function doRestore(snapshotPath) {
   );
   core.cdRootDirectory();
 
-  checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
+  core.checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
 
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
     if (fsX.dirExistsSync(repoPath)) {
-      checkoutEntry(entry, repoPath);
+      core.checkoutEntry(entry, repoPath);
     } else {
-      cloneEntry(entry, repoPath);
+      core.cloneEntry(entry, repoPath);
     }
   });
 
@@ -438,7 +256,7 @@ program
   .option('-m, --manifest <name>', 'custom manifest file')
   .description('clone source and install its dependencies')
   .action((source, destination, options) => {
-    doClone(source, destination, options);
+    core.doClone(source, destination, options);
   });
 
 program
@@ -469,7 +287,7 @@ program
     console.log('  Run Install from the main repo.');
   })
   .action((options) => {
-    doInstall(options);
+    core.doInstall(options);
   });
 
 program
@@ -499,6 +317,7 @@ program
 
 program
   .command('for-each')
+  .command('forEach')
   .description('run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
