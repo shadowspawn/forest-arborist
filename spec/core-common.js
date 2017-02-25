@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 // Mine
 const core = require('../lib/core');
+const fsX = require('../lib/fsExtra');
 const repo = require('../lib/repo');
 const util = require('../lib/util');
 
@@ -144,6 +145,34 @@ const cc = {
     process.chdir(startDir);
 
     return { remotesDir, nestedRootDir, siblingRootDir, pinnedRevision };
+  },
+
+
+  expectSuiteRepoLayout(options) {
+    // options: rootDir, mainDir, freeBranch
+    const startDir2 = process.cwd();
+
+    // Check root
+    expect(fsX.dirExistsSync(options.rootDir)).toBe(true);
+    process.chdir(options.rootDir);
+    expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
+
+    // Check main
+    expect(fsX.dirExistsSync(options.mainDir)).toBe(true);
+    expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
+    expect(fsX.fileExistsSync(
+      core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);
+
+    // check dependencies
+    cc.suiteDependencies.forEach((repoPath) => {
+      expect(fsX.dirExistsSync(repoPath)).toBe(true);
+    });
+    expect(repo.getBranch('free')).toEqual(options.freeBranch);
+    expect(repo.getBranch(path.join('Libs', 'locked'))).toEqual('master');
+    expect(repo.getBranch(path.join('Libs', 'pinned'))).toBeUndefined();
+    expect(repo.getRevision(path.join('Libs', 'pinned'))).toEqual(options.pinnedRevision);
+
+    process.chdir(startDir2);
   },
 
 

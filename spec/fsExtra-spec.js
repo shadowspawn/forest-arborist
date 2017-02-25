@@ -5,7 +5,7 @@ const tmp = require('tmp');
 const fsX = require('../lib/fsExtra');
 
 
-describe('fsh (fs extras):', () => {
+describe('fsX (fsExtra):', () => {
   it('dirExistsSync', () => {
     // Do this one by hand rather than create and delete and worry about timing.
     expect(fsX.dirExistsSync('dir-which-do-not-expect-to-exist')).toBe(false);
