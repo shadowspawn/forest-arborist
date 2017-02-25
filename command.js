@@ -9,8 +9,6 @@
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
 const childProcess = require('child_process');
-const fs = require('fs');
-const path = require('path');
 const program = require('commander');
 // Mine
 const myPackage = require('./package.json');
@@ -19,8 +17,7 @@ const coreBranch = require('./lib/core-branch');
 const coreClone = require('./lib/core-clone');
 const coreFor = require('./lib/core-for');
 const coreInit = require('./lib/core-init');
-const dvcsUrl = require('./lib/dvcs-url');
-const fsX = require('./lib/fsExtra');
+const coreSnapshot = require('./lib/core-snapshot');
 const repo = require('./lib/repo');
 const util = require('./lib/util');
 
@@ -115,121 +112,6 @@ function doPull() {
       }
     }
   });
-  process.chdir(startDir);
-}
-
-
-function doSnapshot(options) {
-  const startDir = process.cwd();
-  core.cdRootDirectory();
-  const rootObject = core.readRootFile();
-  const manifest = core.readManifest({ fromRoot: true });
-
-  // Create dependencies with fixed revision and absolute repo.
-  const dependencies = {};
-  Object.keys(manifest.dependencies).forEach((repoPath) => {
-    const entry = manifest.dependencies[repoPath];
-    dependencies[repoPath] = {
-      origin: repo.getOrigin(repoPath, entry.repoType), // KISS, want absolute
-      repoType: entry.repoType,
-      pinRevision: repo.getRevision(repoPath, entry.repoType),
-    };
-  });
-  const snapshot = {
-    dependencies,
-    rootDirectory: manifest.rootDirectory,
-    mainPathFromRoot: manifest.mainPathFromRoot,
-    manifest: rootObject.manifest,
-  };
-
-  const mainPath = rootObject.mainPath;
-  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
-  snapshot.mainRepo = {
-    origin: repo.getOrigin(mainPath, mainRepoType),
-    repoType: mainRepoType,
-    pinRevision: repo.getRevision(mainPath, mainRepoType),
-  };
-
-  const prettySnapshot = JSON.stringify(snapshot, null, '  ');
-  if (options.output === undefined) {
-    console.log(prettySnapshot);
-  } else {
-    fs.writeFileSync(options.output, prettySnapshot);
-  }
-  process.chdir(startDir);
-}
-
-
-function doRecreate(snapshotPath, destinationParam) {
-  const startDir = process.cwd();
-  const snapshotObject = util.readJson(
-    snapshotPath,
-    ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
-  );
-  const mainRepoEntry = snapshotObject.mainRepo;
-
-  let destination = destinationParam;
-  if (destination === undefined || destination === '') {
-    destination = path.posix.basename(dvcsUrl.parse(mainRepoEntry.origin).pathname, '.git');
-  }
-
-  // Clone main repo first and cd to root
-  const mainPathFromRoot = util.normalizeToPosix(snapshotObject.mainPathFromRoot);
-  if (mainPathFromRoot !== '.') {
-    // Sibling layout. Make wrapper root directory.
-    fs.mkdirSync(destination);
-    process.chdir(destination);
-    destination = mainPathFromRoot;
-    coreClone.cloneEntry(mainRepoEntry, destination);
-  } else {
-    coreClone.cloneEntry(mainRepoEntry, destination);
-    process.chdir(destination);
-  }
-
-  // Clone dependent repos.
-  const dependencies = snapshotObject.dependencies;
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
-    coreClone.cloneEntry(entry, repoPath);
-  });
-
-  // Install root file
-  core.writeRootFile({
-    rootFilePath: path.resolve(core.fabRootFilename),
-    mainPath: snapshotObject.mainPathFromRoot,
-    manifest: snapshotObject.manifest,
-  });
-
-  console.log(`Recreated repo forest from snapshot to ${destination}`);
-  // console.log('(use restore -" to get a current checkout again');
-  process.chdir(startDir);
-}
-
-
-function doRestore(snapshotPath) {
-  if (!fsX.fileExistsSync(snapshotPath)) util.terminate(`snapshot file not found "${snapshotPath}"`);
-
-  const startDir = process.cwd();
-  const snapshotObject = util.readJson(
-    snapshotPath,
-    ['mainRepo', 'dependencies', 'rootDirectory', 'mainPathFromRoot']
-  );
-  core.cdRootDirectory();
-
-  coreClone.checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
-
-  const dependencies = snapshotObject.dependencies;
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
-    if (fsX.dirExistsSync(repoPath)) {
-      coreClone.checkoutEntry(entry, repoPath);
-    } else {
-      coreClone.cloneEntry(entry, repoPath);
-    }
-  });
-
-  console.log('Restored repo forest from snapshot');
-  // console.log('(use restore -" to get a current checkout again');
   process.chdir(startDir);
 }
 
@@ -360,21 +242,21 @@ program
   .option('-o, --output <file>', 'write snapshot to file rather then stdout')
   .description('display state of forest')
   .action((options) => {
-    doSnapshot(options);
+    coreSnapshot.doSnapshot(options);
   });
 
 program
   .command('recreate <snapshot> [destination]')
   .description('clone repos to recreate forest in past state')
   .action((snapshot, destination) => {
-    doRecreate(snapshot, destination);
+    coreSnapshot.doRecreate(snapshot, destination);
   });
 
 program
-  .command('restore <snapshot>')
+  .command('restore [snapshot]')
   .description('checkout repos to restore forest in past state')
   .action((snapshot) => {
-    doRestore(snapshot);
+    coreSnapshot.doRestore(snapshot);
   });
 
 // Hidden command for trying things out
