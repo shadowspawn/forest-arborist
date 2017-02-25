@@ -325,7 +325,7 @@ program
 
 program
   .command('for-each')
-  .command('forEach')
+  .alias('forEach')
   .description('run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
