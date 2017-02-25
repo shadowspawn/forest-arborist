@@ -337,7 +337,7 @@ program
   .description('run specified command on repos which are not locked or pinned')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    core.doForEach({ freeOnly: true }, command, args);
+    coreFor.doForEach({ freeOnly: true }, command, args);
   });
 
 program

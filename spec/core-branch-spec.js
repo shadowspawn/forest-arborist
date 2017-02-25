@@ -11,15 +11,9 @@ const cc = require('./core-common');
 
 
 function quietDoMakeBranch(branch, startPoint, publish) {
-  // Classic use of mute, suppress output from (our own) module that does not support it!
-  const unmute = util.recursiveMute();
-  try {
+  cc.quietDoCall(() => {
     coreBranch.doMakeBranch(branch, startPoint, publish);
-    unmute();
-  } catch (err) {
-    unmute();
-    throw err;
-  }
+  });
 }
 
 

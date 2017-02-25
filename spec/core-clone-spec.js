@@ -14,15 +14,9 @@ const cc = require('./core-common');
 
 
 function quietDoClone(source, destination, options) {
-  // Classic use of mute, suppress output from (our own) module that does not support it!
-  const unmute = util.recursiveMute();
-  try {
+  cc.quietDoCall(() => {
     coreClone.doClone(source, destination, options);
-    unmute();
-  } catch (err) {
-    unmute();
-    throw err;
-  }
+  });
 }
 
 
