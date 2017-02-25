@@ -18,6 +18,7 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
+* Add unit test which calls external command interface?
 * Write details on second half of README.
 * "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
 * switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned

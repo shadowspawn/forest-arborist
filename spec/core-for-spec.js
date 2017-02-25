@@ -2,7 +2,7 @@
 
 const tmp = require('tmp');
 // Mine
-const core = require('../lib/core');
+const coreFor = require('../lib/core-for');
 const repo = require('../lib/repo');
 const util = require('../lib/util');
 //
@@ -13,7 +13,7 @@ function quietDoFor(internalOptions, cmd, args) {
   // Classic use of mute, suppress output from (our own) module that does not support it!
   const unmute = util.recursiveMute();
   try {
-    core.doForEach(internalOptions, cmd, args);
+    coreFor.doForEach(internalOptions, cmd, args);
     unmute();
   } catch (err) {
     unmute();

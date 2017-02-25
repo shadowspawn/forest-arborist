@@ -16,6 +16,8 @@ const program = require('commander');
 const myPackage = require('./package.json');
 const core = require('./lib/core');
 const coreBranch = require('./lib/core-branch');
+const coreClone = require('./lib/core-clone');
+const coreFor = require('./lib/core-for');
 const coreInit = require('./lib/core-init');
 const dvcsUrl = require('./lib/dvcs-url');
 const fsX = require('./lib/fsExtra');
@@ -178,9 +180,9 @@ function doRecreate(snapshotPath, destinationParam) {
     fs.mkdirSync(destination);
     process.chdir(destination);
     destination = mainPathFromRoot;
-    core.cloneEntry(mainRepoEntry, destination);
+    coreClone.cloneEntry(mainRepoEntry, destination);
   } else {
-    core.cloneEntry(mainRepoEntry, destination);
+    coreClone.cloneEntry(mainRepoEntry, destination);
     process.chdir(destination);
   }
 
@@ -188,7 +190,7 @@ function doRecreate(snapshotPath, destinationParam) {
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    core.cloneEntry(entry, repoPath);
+    coreClone.cloneEntry(entry, repoPath);
   });
 
   // Install root file
@@ -214,15 +216,15 @@ function doRestore(snapshotPath) {
   );
   core.cdRootDirectory();
 
-  core.checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
+  coreClone.checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
 
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
     if (fsX.dirExistsSync(repoPath)) {
-      core.checkoutEntry(entry, repoPath);
+      coreClone.checkoutEntry(entry, repoPath);
     } else {
-      core.cloneEntry(entry, repoPath);
+      coreClone.cloneEntry(entry, repoPath);
     }
   });
 
@@ -262,7 +264,7 @@ program
   .option('-m, --manifest <name>', 'custom manifest file')
   .description('clone source and install its dependencies')
   .action((source, destination, options) => {
-    core.doClone(source, destination, options);
+    coreClone.doClone(source, destination, options);
   });
 
 program
@@ -293,7 +295,7 @@ program
     console.log('  Run Install from the main repo.');
   })
   .action((options) => {
-    core.doInstall(options);
+    coreClone.doInstall(options);
   });
 
 program
@@ -327,7 +329,7 @@ program
   .description('run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"')
   .arguments('<command> [args...]')
   .action((command, args) => {
-    core.doForEach({}, command, args);
+    coreFor.doForEach({}, command, args);
   });
 
 program
