@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 // Mine
 const core = require('../lib/core');
+const coreInit = require('../lib/core-init');
 const fsX = require('../lib/fsExtra');
 const repo = require('../lib/repo');
 const util = require('../lib/util');
@@ -18,7 +19,7 @@ const cc = {
     // Classic use of mute, suppress output from (our own) module that does not support it!
     const unmute = util.recursiveMute();
     try {
-      core.doInit(options);
+      coreInit.doInit(options);
       unmute();
     } catch (err) {
       unmute();

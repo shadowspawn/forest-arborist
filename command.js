@@ -16,6 +16,7 @@ const program = require('commander');
 const myPackage = require('./package.json');
 const core = require('./lib/core');
 const coreBranch = require('./lib/core-branch');
+const coreInit = require('./lib/core-init');
 const dvcsUrl = require('./lib/dvcs-url');
 const fsX = require('./lib/fsExtra');
 const repo = require('./lib/repo');
@@ -281,7 +282,7 @@ program
     console.log('         fab init --root ..');
   })
   .action((options) => {
-    core.doInit(options);
+    coreInit.doInit(options);
   });
 
 program
