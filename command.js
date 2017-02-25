@@ -15,6 +15,7 @@ const program = require('commander');
 // Mine
 const myPackage = require('./package.json');
 const core = require('./lib/core');
+const coreBranch = require('./lib/core-branch');
 const dvcsUrl = require('./lib/dvcs-url');
 const fsX = require('./lib/fsExtra');
 const repo = require('./lib/repo');
@@ -115,7 +116,7 @@ function doPull() {
 }
 
 
-function doSnapshot() {
+function doSnapshot(options) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
@@ -147,7 +148,11 @@ function doSnapshot() {
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, '  ');
-  console.log(prettySnapshot);
+  if (options.output === undefined) {
+    console.log(prettySnapshot);
+  } else {
+    fs.writeFileSync(options.output, prettySnapshot);
+  }
   process.chdir(startDir);
 }
 
@@ -336,7 +341,7 @@ program
   .command('switch <branch>')
   .description('switch branch of free repos')
   .action((branch) => {
-    core.doSwitch(branch);
+    coreBranch.doSwitch(branch);
   });
 
 program
@@ -344,14 +349,15 @@ program
   .option('-p, --publish', 'push newly created branch')
   .description('create new branch in free repos')
   .action((branch, startPoint, options) => {
-    core.doMakeBranch(branch, startPoint, options.publish);
+    coreBranch.doMakeBranch(branch, startPoint, options.publish);
   });
 
 program
   .command('snapshot')
+  .option('-o, --output <file>', 'write snapshot to file rather then stdout')
   .description('display state of forest')
-  .action(() => {
-    doSnapshot();
+  .action((options) => {
+    doSnapshot(options);
   });
 
 program

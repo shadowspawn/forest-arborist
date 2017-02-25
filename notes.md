@@ -1,11 +1,7 @@
 # Forest Arborist
 
 ## Backlog
-* revisit init decisions! (pinned vs locked vs free)
-*
-* Write details on second half of README.
-* "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
-* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
+* unit test for snapshot/restore/recreate
 
 ## jasmine Issues
 (clean)
@@ -22,6 +18,10 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
+* Write details on second half of README.
+* "fab restore -" for getting out of snapshot? reminder, git has -b @{-1}
+* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
+* revisit init decisions! (pinned vs locked vs free)
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 * handle clone with no default manifest and no manifest specified, list manifests
@@ -40,8 +40,7 @@
 * init --interactive, to prompt for free/locked/pinned and relative/absolute
 * install could do fetch for pinned revisions (in case has changed). Nah, KISS?
 * install could do pull for existing repos. Nah, KISS?
-* Add tip to ignore when add root file to repo if not root file not ignored (git check-ignore)
-* summary could show manifest, root, main, dependencies (abs/rel, pinned, locked, free)
+* Add tip to ignore when add root file to repo if root file not ignored (git check-ignore)
 * delete the old version tags from github
 
 ## Patterns

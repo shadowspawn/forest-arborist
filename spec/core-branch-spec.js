@@ -3,7 +3,7 @@
 const childProcess = require('child_process');
 const tmp = require('tmp');
 // Mine
-const core = require('../lib/core');
+const coreBranch = require('../lib/core-branch');
 const repo = require('../lib/repo');
 const util = require('../lib/util');
 //
@@ -14,7 +14,7 @@ function quietDoMakeBranch(branch, startPoint, publish) {
   // Classic use of mute, suppress output from (our own) module that does not support it!
   const unmute = util.recursiveMute();
   try {
-    core.doMakeBranch(branch, startPoint, publish);
+    coreBranch.doMakeBranch(branch, startPoint, publish);
     unmute();
   } catch (err) {
     unmute();
@@ -27,7 +27,7 @@ function quietDoSwitch(branch) {
   // Classic use of mute, suppress output from (our own) module that does not support it!
   const unmute = util.recursiveMute();
   try {
-    core.doSwitch(branch);
+    coreBranch.doSwitch(branch);
     unmute();
   } catch (err) {
     unmute();
