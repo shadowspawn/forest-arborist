@@ -4,12 +4,13 @@ const tmp = require('tmp');
 // Mine
 const coreFor = require('../lib/core-for');
 const repo = require('../lib/repo');
+const util = require('../lib/util');
 //
 const cc = require('./core-common');
 
 
 function quietDoFor(internalOptions, cmd, args) {
-  cc.quietDoCall(() => {
+  util.muteCall(() => {
     coreFor.doForEach(internalOptions, cmd, args);
   });
 }

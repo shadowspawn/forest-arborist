@@ -15,21 +15,8 @@ const cc = {
   suiteDependencies: ['free', path.join('Libs', 'pinned'), path.join('Libs', 'locked')],
 
 
-  quietDoCall(doSomething) {
-    // Classic use of mute, suppress output from (our own) module that does not support it!
-    const unmute = util.recursiveMute();
-    try {
-      doSomething();
-      unmute();
-    } catch (err) {
-      unmute();
-      throw err;
-    }
-  },
-
-
   quietDoInit(options) {
-    cc.quietDoCall(() => {
+    util.muteCall(() => {
       coreInit.doInit(options);
     });
   },
