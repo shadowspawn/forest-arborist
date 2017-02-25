@@ -6,6 +6,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const tmp = require('tmp');
 // Mine
+const coreClone = require('../lib/core-clone');
 const util = require('../lib/util');
 //
 const cc = require('./core-common');
@@ -14,12 +15,20 @@ const cc = require('./core-common');
 describe('command-line sanity check:', () => {
   const startDir = process.cwd();
   let tempFolder;
-  let suite;    // {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
+  let suite;    // {remotesDir, pinnedRevision}
+  const preparedRepo = 'ref';
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
     suite = cc.makeGitRepoSuite();
+    // Get out a clean repo to work with
+    util.muteCall(() => {
+      coreClone.doClone(
+        path.join(suite.remotesDir, 'main-nested'),
+        preparedRepo, {}
+      );
+    });
   });
 
   afterAll(() => {
@@ -57,49 +66,49 @@ describe('command-line sanity check:', () => {
   });
 
   it('fab status', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['status']);
     });
   });
 
   it('fab pull', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['pull']);
     });
   });
 
   it('fab root', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['root']);
     });
   });
 
   it('fab for-each', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['for-each', 'pwd']);
     });
   });
 
   it('fab for-free', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['for-free', 'pwd']);
     });
   });
 
   it('fab switch', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['switch', 'develop']);
     });
   });
 
   it('fab make-branch', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['make-branch', 'feature/test']);
     });
@@ -107,7 +116,7 @@ describe('command-line sanity check:', () => {
 
   // saves snapshot to use in recreate and restore
   it('fab snapshot', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['snapshot', '--output', 'snapshot']);
     });
@@ -115,12 +124,12 @@ describe('command-line sanity check:', () => {
 
   it('fab recreate', () => {
     util.muteCall(() => {
-      childProcess.execFileSync('fab', ['recreate', path.join(suite.nestedRootDir, 'snapshot'), 'recreate-test']);
+      childProcess.execFileSync('fab', ['recreate', path.join(preparedRepo, 'snapshot'), 'recreate-test']);
     });
   });
 
   it('fab restore', () => {
-    process.chdir(suite.nestedRootDir);
+    process.chdir(preparedRepo);
     util.muteCall(() => {
       childProcess.execFileSync('fab', ['restore', 'snapshot']);
     });

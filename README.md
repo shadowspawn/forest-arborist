@@ -131,7 +131,7 @@ Commands Summary
      for-free <command> [args...]                  run specified command on repos which are not locked or pinned
      switch <branch>                               switch branch of free repos
      make-branch [-p, --publish] <branch> [start_point]  
-                    `                              create new branch in free repos
+                                                   create new branch in free repos
      snapshot                                      display state of forest
      recreate <snapshot> [destination]             clone repos to recreate forest in past state
      restore <snapshot>                            checkout repos to restore forest in past state
@@ -173,9 +173,6 @@ For more flexibility during development:
 Status
 ------
 
-Pre-release. Still in flux, breaking changes coming:
-* changes to support multiple manifests and catch up with name change
-
-"fab init" is great for trying out on an existing checkout.
-
-Main development on Mac OS X. Targeting also Microsoft Windows and Linux.
+* Pre-release. May still be breaking changes.
+* OS: main development on Mac OS X, less testing on Microsoft Windows and Linux.
+* DVCS: main development with git, less testing with hg.

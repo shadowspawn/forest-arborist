@@ -25,12 +25,12 @@ const util = require('./lib/util');
 function doStatus() {
   const startDir = process.cwd();
   core.cdRootDirectory();
-  const dependencies = core.readManifest(
+  const forestRepos = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
 
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
+  Object.keys(forestRepos).forEach((repoPath) => {
+    const entry = forestRepos[repoPath];
     if (entry.repoType === 'git') {
       util.execCommandSync(
         { cmd: 'git', args: ['status', '--short'], cwd: repoPath }
@@ -88,12 +88,12 @@ function hgAutoMerge(repoPath) {
 function doPull() {
   const startDir = process.cwd();
   core.cdRootDirectory();
-  const dependencies = core.readManifest(
+  const forestRepos = core.readManifest(
     { fromRoot: true, addMainToDependencies: true }
   ).dependencies;
 
-  Object.keys(dependencies).forEach((repoPath) => {
-    const entry = dependencies[repoPath];
+  Object.keys(forestRepos).forEach((repoPath) => {
+    const entry = forestRepos[repoPath];
     if (entry.pinRevision !== undefined) {
       console.log(`Skipping pinned repo: ${repoPath}\n`);
     } else if (repo.getBranch(repoPath, entry.repoType) === undefined) {

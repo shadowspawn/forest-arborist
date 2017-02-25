@@ -30,7 +30,7 @@ function quietDoInstall(options) {
 describe('core clone:', () => {
   const startDir = process.cwd();
   let tempFolder;
-  let suite;    // {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
+  let suite;    // {remotesDir, pinnedRevision}
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
@@ -111,7 +111,7 @@ describe('core clone:', () => {
 describe('core install:', () => {
   const startDir = process.cwd();
   let tempFolder;
-  let suite;    // {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
+  let suite;    // {remotesDir, pinnedRevision}
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });

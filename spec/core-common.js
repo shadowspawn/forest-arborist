@@ -58,7 +58,7 @@ const cc = {
   },
 
 
-  // returns {remotesDir, nestedRootDir, siblingRootDir, pinnedRevision}
+  // returns {remotesDir, pinnedRevision}
   makeGitRepoSuite() {
     const startDir = process.cwd();
 
@@ -84,7 +84,7 @@ const cc = {
       childProcess.execFileSync('git', ['add', core.manifestPath({})]);
       childProcess.execFileSync('git', ['commit', '-m', 'fab initialised']);
 
-      // custom manifest
+      // custom manifest (and creating an extra repo)
       const manifest = 'sub';
       const customOptions = { root: options.root, manifest };
       childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'free'), 'sub']);
@@ -126,7 +126,6 @@ const cc = {
     process.chdir('sandpit');
     fs.mkdirSync('sibling');
     process.chdir('sibling');
-    const siblingRootDir = process.cwd();
     childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, 'main-sibling')]);
     cc.suiteDependencies.forEach((repoPath) => {
       childProcess.execFileSync('git', ['clone', '--quiet', path.join(remotesDir, repoPath), repoPath]);
@@ -139,7 +138,7 @@ const cc = {
     initAndPushMain({ root: '..' });
     process.chdir(startDir);
 
-    return { remotesDir, nestedRootDir, siblingRootDir, pinnedRevision };
+    return { remotesDir, pinnedRevision };
   },
 
 
