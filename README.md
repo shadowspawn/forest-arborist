@@ -54,7 +54,7 @@ Working With Branches
 
 You can specify the starting branch when you make the clone:
 
-    fab clone --branch ssh://user@host:/path
+    fab clone --branch develop ssh://user@host:/path
 
 There are commands to make a new branch and to switch to an existing branch:
 

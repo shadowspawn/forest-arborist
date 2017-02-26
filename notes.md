@@ -1,7 +1,6 @@
 # Forest Arborist
 
 ## Backlog
-* unit test for snapshot/restore/recreate
 
 ## Known Issues
 * local origin on Windows probably not working (need support for Windows path in multiple places)
@@ -33,11 +32,11 @@
   * pin/lock/free/auto
   * relative/absolute (rarer!)
   * see gitslave and gitsubmodule and npm for examples of command support
-* init --interactive, to prompt for free/locked/pinned and relative/absolute
+* init --interactive, to prompt for free/locked/pinned and relative/absolute ?
 * install could do fetch for pinned revisions (in case has changed). Nah, KISS?
 * install could do pull for existing repos. Nah, KISS?
 * Add tip to ignore when add root file to repo if root file not ignored (git check-ignore)
-* delete the old version tags from github
+* delete the old version tags from github ?
 
 ## Patterns
 
