@@ -1,7 +1,6 @@
 # Forest Arborist
 
 ## Backlog
-* Add tip to ignore when add root file to repo if root file not ignored (git check-ignore)
 * switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
 
 ## Known Issues
