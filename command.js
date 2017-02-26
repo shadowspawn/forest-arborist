@@ -9,6 +9,7 @@
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
 const childProcess = require('child_process');
+const fs = require('fs');
 const program = require('commander');
 // Mine
 const myPackage = require('./package.json');
@@ -264,8 +265,19 @@ program
   .command('_test', null, { noHelp: true })
   .description('test')
   .action(() => {
-    core.readRootFile();
+    const itemList = fs.readdirSync('.fab');
+    itemList.forEach((item) => {
+      if (item === 'manifest.json') {
+        console.log('  (default)');
+      } else {
+        const match = /(.*)_manifest.json$/.exec(item);
+        if (match !== null) {
+          console.log(`  ${match[1]}`);
+        }
+      }
+    });
   });
+
 
 // Catch-all, unrecognised command.
 program

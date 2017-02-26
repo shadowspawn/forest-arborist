@@ -1,6 +1,8 @@
 # Forest Arborist
 
 ## Backlog
+* Add tip to ignore when add root file to repo if root file not ignored (git check-ignore)
+* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
 
 ## Known Issues
 * local origin on Windows probably not working (need support for Windows path in multiple places)
@@ -14,29 +16,12 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
-* Write details on second half of README.
-* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
-* revisit init decisions! (pinned vs locked vs free)
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
-* handle clone with no default manifest and no manifest specified, list manifests
 * typescript
-* for-fun
- * --pinned --locked --free --all
- * --git --hg (default to all, but supports mixed repo types!). Nah.
- * git X == for-each git X ?
- * hg X == for-each hg X ?
-* for-foo --ignore or similar for ignoring result code of commands which fail when null, like hg push ?
-* help for modifying dependencies in manifest?
-  * add/remove
-  * pin/lock/free/auto
-  * relative/absolute (rarer!)
-  * see gitslave and gitsubmodule and npm for examples of command support
+* for-each --keep-going (like make) for ignoring result code of commands which might return non-zero, like hg push ?
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
-* install could do fetch for pinned revisions (in case has changed). Nah, KISS?
-* install could do pull for existing repos. Nah, KISS?
-* Add tip to ignore when add root file to repo if root file not ignored (git check-ignore)
-* delete the old version tags from github ?
+* delete the old version tags from github when go to version 1
 
 ## Patterns
 
