@@ -103,7 +103,7 @@ The manifest specifies the forest layout and the dependent repository details. T
 
 * `fab init` from master repository for a nested forest
 * `fab init --root ..` from main repo for a sibling forest
-* `fab --manifest name` to save a custom manifest
+* `fab init --manifest name` to save a custom manifest
 
 The _dependencies_ map is where you might do some hand editing. The map key
 is the working directory relative to the root of the forest. The properties are:
