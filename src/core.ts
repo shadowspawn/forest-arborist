@@ -10,6 +10,16 @@ import repo = require("./repo");
 import util = require("./util");
 
 
+// Used in Clone and Init
+export interface DependencyEntry {
+  repoType: string;
+  origin: string;
+  pinRevision?: string;
+  lockBranch?: string;
+};
+
+
+
 export const fabRootFilename: string = ".fab-root.json"; // stored in root directory
 
 
@@ -113,8 +123,6 @@ export interface WriteRootFileOptions {
 
 
 export function writeRootFile(options: WriteRootFileOptions) {
-  // options properties: rootFilePath, mainPath, manifest
-
   let initialisedWord = "Initialised";
   if (fsX.fileExistsSync(options.rootFilePath)) initialisedWord = "Reinitialised";
   const rootObject = {
@@ -148,8 +156,6 @@ export interface ReadManifestOptions {
 };
 
 export function readManifest(options: ReadManifestOptions) {
-  // options properties: fromRoot or mainPath and manifest, addMainToDependencies
-
   // Sort out manifest location
   let mainPath;
   let manifest;

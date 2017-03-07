@@ -13,14 +13,14 @@ const fs = require('fs');
 const program = require('commander');
 // Mine
 const myPackage = require.main.require('../package.json');
-const core = require('./lib/core');
-const coreBranch = require('./lib/core-branch');
-const coreClone = require('./lib/core-clone');
-const coreFor = require('./lib/core-for');
-const coreInit = require('./lib/core-init');
-const coreSnapshot = require('./lib/core-snapshot');
-const repo = require('./lib/repo');
-const util = require('./lib/util');
+const core = require('./src/core');
+const coreBranch = require('./src/core-branch');
+const coreClone = require('./src/core-clone');
+const coreFor = require('./src/core-for');
+const coreInit = require('./src/core-init');
+const coreSnapshot = require('./src/core-snapshot');
+const repo = require('./src/repo');
+const util = require('./src/util');
 
 
 function doStatus() {

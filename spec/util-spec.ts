@@ -11,6 +11,6 @@ describe("util:", () => {
 
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");
-    expect(util.normalizeToPosix()).toEqual(".");
+    expect(util.normalizeToPosix(undefined)).toEqual(".");
   });
 });

@@ -18,6 +18,9 @@
  * insight, commander-spec tests installed command, run alone somehow?
   * test publish, npm install . -g
  * atom-typescript autocompile is not working to actually save updated file?
+ * code declare full strongly typed interface for manifest (used in init and readmanifest)
+  * likewise for root file
+  * likewise for snapshot file
 
 ## Known Issues
 * hg specific issues (low priority at moment)

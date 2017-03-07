@@ -44,36 +44,44 @@ export interface DvcsUrl {
   authAndHost?: string;
 }
 
-export function  parse(urlString: string): DvcsUrl {
-  // if (urlString === undefined) return undefined;
+export function parse(urlString: string): DvcsUrl {
+  if (urlString === undefined) return undefined;
 
   // Parsing for git covers hg as well, sweet!
   let result: DvcsUrl;
   const parsed = url.parse(urlString);
   const recognisedProtocols = ["ssh:", "git:", "http:", "https:", "ftp:", "ftps:", "file:"];
   if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
-    result.protocol = parsed.protocol;
-    result.pathname = parsed.pathname;
-    result.href = parsed.href;
+    result = {
+      protocol: parsed.protocol,
+      pathname: parsed.pathname,
+      href: parsed.href
+    };
   } else {
     const backslashPos = urlString.indexOf("\\");
     const slashPos = urlString.indexOf("/");
     const colonPos = urlString.indexOf(":");
     if (backslashPos !== -1 && slashPos === -1) {
       // Crude test for Windows file path
-      result.protocol = "path-win32"; // leave off colon for fake protocol
-      result.pathname = urlString;
+      result = {
+        protocol: "path-win32", // leave off colon for fake protocol
+        pathname: urlString
+      };
     } else if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
       // git variation.
       //   An alternative scp-like syntax may also be used with the ssh protocol:
       //     [user@]host.xz:path/to/repo.git/
       //   This syntax is only recognized if there are no slashes before the first colon.
-      result.protocol = "scp"; // leave off colon for fake protocol
-      result.pathname = urlString.substring(colonPos + 1);
-      result.authAndHost = urlString.substring(0, colonPos);
+      result = {
+        protocol: "scp", // leave off colon for fake protocol
+        pathname: urlString.substring(colonPos + 1),
+        authAndHost: urlString.substring(0, colonPos)
+      };
     } else {
-      result.protocol = "path-posix"; // leave off colon for fake protocol
-      result.pathname = urlString;
+      result = {
+        protocol: "path-posix", // leave off colon for fake protocol
+        pathname: urlString
+      };
     }
   }
 

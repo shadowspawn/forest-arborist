@@ -9,15 +9,7 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-export interface DependencyEntry {
-  repoType: string;
-  origin: string;
-  pinRevision?: string;
-  lockBranch?: string;
-};
-
-
-export function cloneEntry(entry: CloneEntry, repoPath: string, freeBranch: string) {
+export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch: string) {
   // Mercurial does not support making intermediate folders.
   // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === "hg") {
@@ -78,7 +70,7 @@ export function cloneEntry(entry: CloneEntry, repoPath: string, freeBranch: stri
 };
 
 
-export function checkoutEntry(entry: DependencyEntry, repoPath: string, freeBranch: string) {
+export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch: string) {
   // Determine target for checkout
   let revision;
   let gitConfig: string[] = [];
@@ -166,15 +158,16 @@ export function doClone(source: string, destinationParam: string, options: Clone
   }
 
   // Clone source.
-  const mainEntry: DependencyEntry = { origin: source };
+  let repoType;
   if (repo.isGitRepository(source)) {
-    mainEntry.repoType = "git";
+    repoType = "git";
   } else if (repo.isHgRepository(source)) {
-    mainEntry.repoType = "hg";
+    repoType = "hg";
   } else {
     console.log("(Does the source repo exist?)");
     util.terminate(`failed to find repository type for ${source}`);
   }
+  const mainEntry: core.DependencyEntry = { origin: source, repoType };
   cloneEntry(mainEntry, destination, options.branch);
 
   const fabManifest = core.manifestPath({ mainPath: destination });

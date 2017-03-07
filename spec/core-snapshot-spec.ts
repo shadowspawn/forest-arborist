@@ -1,22 +1,25 @@
-'use strict';
-
-const childProcess = require('child_process');
-const path = require('path');
-const tmp = require('tmp');
+import childProcess = require("child_process");
+import path = require("path");
+import tmp = require("tmp");
 // Mine
-const core = require('../src/core');
-const coreClone = require('../src/core-clone');
-const coreSnapshot = require('../src/core-snapshot');
-const repo = require('../src/repo');
-const util = require('../src/util');
+import core = require("../src/core");
+import coreClone = require("../src/core-clone");
+import coreSnapshot = require("../src/core-snapshot");
+import repo = require("../src/repo");
+import util = require("../src/util");
 //
-const cc = require('./core-common');
+import cc = require("./core-common");
 
 
-describe('core snapshot:', () => {
+interface RevisionMap {
+    [index: string]: string;
+};
+
+
+describe("core snapshot:", () => {
   const startDir = process.cwd();
-  let tempFolder;
-  let suite;    // {remotesDir, nestedRootDir, pinnedRevision}
+  let tempFolder: tmp.SynchrounousResult;
+  let suite: cc.RepoSuiteResult;
 
   beforeAll(() => {
   });
@@ -34,31 +37,31 @@ describe('core snapshot:', () => {
     process.chdir(startDir);
   });
 
-  it('restore', () => {
+  it("restore", () => {
     // Get out a clean repo to work with
     util.muteCall(() => {
       coreClone.doClone(
-        path.join(suite.remotesDir, 'main-nested'),
-        'test-restore', {}
+        path.join(suite.remotesDir, "main-nested"),
+        "test-restore", {}
       );
     });
-    process.chdir('test-restore');
+    process.chdir("test-restore");
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
 
     // Make snapshot
-    coreSnapshot.doSnapshot({ output: 'ss' });
+    coreSnapshot.doSnapshot({ output: "ss" });
 
     // Note revisions and make sure now on a different revision.
-    const beforeRevisions = {};
+    const beforeRevisions: RevisionMap = {};
     Object.keys(forestRepos).forEach((repoPath) => {
       beforeRevisions[repoPath] = repo.getRevision(repoPath);
-      childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Change'], { cwd: repoPath });
+      childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
     });
 
     util.muteCall(() => {
-      coreSnapshot.doRestore('ss');
+      coreSnapshot.doRestore("ss");
     });
 
     // Check restored revisions.
@@ -70,7 +73,7 @@ describe('core snapshot:', () => {
     util.muteCall(() => {
       coreSnapshot.doRestore();
     });
-    cc.expectSuiteRepoLayout({ rootDir: '.', mainDir: '.', freeBranch: 'master', pinnedRevision: suite.pinnedRevision });
+    cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     Object.keys(forestRepos).forEach((repoPath) => {
       if (forestRepos[repoPath].pinRevision === undefined) {
         expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
@@ -78,40 +81,40 @@ describe('core snapshot:', () => {
     });
   });
 
-  it('recreate', () => {
+  it("recreate", () => {
     // Get out a clean repo to work with
     util.muteCall(() => {
       coreClone.doClone(
-        path.join(suite.remotesDir, 'main-nested'),
-        'test-recreate-source', {}
+        path.join(suite.remotesDir, "main-nested"),
+        "test-recreate-source", {}
       );
     });
-    process.chdir('test-recreate-source');
+    process.chdir("test-recreate-source");
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
 
     // Make snapshot
-    coreSnapshot.doSnapshot({ output: 'ss' });
-    const ss = path.resolve('ss');
+    coreSnapshot.doSnapshot({ output: "ss" });
+    const ss = path.resolve("ss");
 
     // Note revisions and make sure now on a different revision.
-    const beforeRevisions = {};
+    const beforeRevisions: RevisionMap = {};
     Object.keys(forestRepos).forEach((repoPath) => {
       beforeRevisions[repoPath] = repo.getRevision(repoPath);
       // Get unpinned
-      childProcess.execFileSync('git', ['checkout', '--quiet', 'master'], { cwd: repoPath });
+      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
       // Add revision
-      childProcess.execFileSync('git', ['commit', '--allow-empty', '-m', 'Change'], { cwd: repoPath });
+      childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
       // Push to remote so so we can see if recreate is bring back old forest state.
-      childProcess.execFileSync('git', ['push', '--quiet'], { cwd: repoPath });
+      childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
     });
 
     process.chdir(tempFolder.name);
     util.muteCall(() => {
-      coreSnapshot.doRecreate(ss, 'test-recreate-dest');
+      coreSnapshot.doRecreate(ss, "test-recreate-dest");
     });
-    process.chdir('test-recreate-dest');
+    process.chdir("test-recreate-dest");
 
     // Check restored revisions.
     Object.keys(forestRepos).forEach((repoPath) => {
@@ -122,9 +125,9 @@ describe('core snapshot:', () => {
     util.muteCall(() => {
       coreSnapshot.doRestore();
     });
-    cc.expectSuiteRepoLayout({ rootDir: '.', mainDir: '.', freeBranch: 'master', pinnedRevision: suite.pinnedRevision });
+    cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     Object.keys(forestRepos).forEach((repoPath) => {
-      childProcess.execFileSync('git', ['pull']);
+      childProcess.execFileSync("git", ["pull"]);
       if (forestRepos[repoPath].pinRevision === undefined) {
         expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
       }

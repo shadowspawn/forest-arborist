@@ -1,14 +1,12 @@
-'use strict';
-
-const tmp = require('tmp');
+import tmp = require("tmp");
 // Mine
-const fsX = require('../src/fsExtra');
+import fsX = require("../src/fsExtra");
 
 
-describe('fsX (fsExtra):', () => {
-  it('dirExistsSync', () => {
+describe("fsX (fsExtra):", () => {
+  it("dirExistsSync", () => {
     // Do this one by hand rather than create and delete and worry about timing.
-    expect(fsX.dirExistsSync('dir-which-do-not-expect-to-exist')).toBe(false);
+    expect(fsX.dirExistsSync("dir-which-do-not-expect-to-exist")).toBe(false);
 
     const tempFolder = tmp.dirSync();
     expect(fsX.dirExistsSync(tempFolder.name)).toBe(true);
@@ -17,9 +15,9 @@ describe('fsX (fsExtra):', () => {
     expect(fsX.dirExistsSync(tempFile.name)).toBe(false);
   });
 
-  it('fileExistsSync', () => {
+  it("fileExistsSync", () => {
     // Do this one by hand rather than create and delete and worry about timing.
-    expect(fsX.fileExistsSync('file-which-do-not-expect-to-exist')).toBe(false);
+    expect(fsX.fileExistsSync("file-which-do-not-expect-to-exist")).toBe(false);
 
     const tempFolder = tmp.dirSync();
     expect(fsX.fileExistsSync(tempFolder.name)).toBe(false);
