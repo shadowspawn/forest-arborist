@@ -3,7 +3,7 @@ import core = require("./core");
 import util = require("./util");
 
 
-export function doMakeBranch(branch: string, startPoint: undefined | string, publish: undefined | boolean) {
+export function doMakeBranch(branch: string, startPoint?: string, publish?: boolean) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(

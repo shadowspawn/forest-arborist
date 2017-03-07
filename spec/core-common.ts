@@ -19,7 +19,7 @@ export function quietDoInit(options: coreInit.InitOptions) {
 };
 
 
-export function makeOneGitRepo(repoPath: string, origin: string) {
+export function makeOneGitRepo(repoPath: string, origin?: string) {
   const startingDir = process.cwd();
   childProcess.execFileSync("git", ["init", repoPath]);
   process.chdir(repoPath);
