@@ -1,6 +1,6 @@
 'use strict';
 
-const dvcsUrl = require('../lib/dvcs-url');
+const dvcsUrl = require('../src/dvcs-url');
 
 
 describe('dvcs-url recognise git URL protocols', () => {

@@ -4,8 +4,8 @@
 // (The 000 in the name is to run the utility functions before the commands.)
 
 // Mine
-const core = require('../lib/core');
-const util = require('../lib/util');
+const core = require('../src/core');
+const util = require('../src/util');
 
 let JasmineConsoleReporter;
 try {

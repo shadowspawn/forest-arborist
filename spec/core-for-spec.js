@@ -2,9 +2,9 @@
 
 const tmp = require('tmp');
 // Mine
-const coreFor = require('../lib/core-for');
-const repo = require('../lib/repo');
-const util = require('../lib/util');
+const coreFor = require('../src/core-for');
+const repo = require('../src/repo');
+const util = require('../src/util');
 //
 const cc = require('./core-common');
 

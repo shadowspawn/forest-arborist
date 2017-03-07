@@ -3,9 +3,9 @@
 const childProcess = require('child_process');
 const tmp = require('tmp');
 // Mine
-const coreBranch = require('../lib/core-branch');
-const repo = require('../lib/repo');
-const util = require('../lib/util');
+const coreBranch = require('../src/core-branch');
+const repo = require('../src/repo');
+const util = require('../src/util');
 //
 const cc = require('./core-common');
 

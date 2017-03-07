@@ -4,11 +4,11 @@ const childProcess = require('child_process');
 const path = require('path');
 const tmp = require('tmp');
 // Mine
-const core = require('../lib/core');
-const coreClone = require('../lib/core-clone');
-const coreSnapshot = require('../lib/core-snapshot');
-const repo = require('../lib/repo');
-const util = require('../lib/util');
+const core = require('../src/core');
+const coreClone = require('../src/core-clone');
+const coreSnapshot = require('../src/core-snapshot');
+const repo = require('../src/repo');
+const util = require('../src/util');
 //
 const cc = require('./core-common');
 

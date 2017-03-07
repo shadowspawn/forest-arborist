@@ -12,7 +12,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const program = require('commander');
 // Mine
-const myPackage = require('./package.json');
+const myPackage = require.main.require('../package.json');
 const core = require('./lib/core');
 const coreBranch = require('./lib/core-branch');
 const coreClone = require('./lib/core-clone');

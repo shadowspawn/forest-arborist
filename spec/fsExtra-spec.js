@@ -2,7 +2,7 @@
 
 const tmp = require('tmp');
 // Mine
-const fsX = require('../lib/fsExtra');
+const fsX = require('../src/fsExtra');
 
 
 describe('fsX (fsExtra):', () => {

@@ -1,10 +1,25 @@
 # Forest Arborist
 
 ## Backlog
-* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
+* typescript
+ * convert lib files from js to ts, use import/export (hurrah!)
+ * convert command from hs to ts
+ * prepublish script, tsc! test?
+ * turn on strictNullChecks
+ * does prepublish get run by install? i.e. developer instructions.
+ * gitignore dist
+ * move lib to src
+ * move command to src, or leave at root? Root so entry point obvious and is different?
+ * rename command back to fab?
+ * drop eslint?!
+ * pre-git check that no focused tests? Or just wing it...
+ * use jsonfile for writing too
+ * move jasmine.json into spec folder
+ * insight, commander-spec tests installed command, run alone somehow?
+  * test publish, npm install . -g
+ * atom-typescript autocompile is not working to actually save updated file?
 
 ## Known Issues
-* local origin on Windows probably not working (need support for Windows path in multiple places)
 * hg specific issues (low priority at moment)
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
@@ -15,6 +30,7 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
+* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 * typescript

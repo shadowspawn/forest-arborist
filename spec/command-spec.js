@@ -6,8 +6,8 @@ const childProcess = require('child_process');
 const path = require('path');
 const tmp = require('tmp');
 // Mine
-const coreClone = require('../lib/core-clone');
-const util = require('../lib/util');
+const coreClone = require('../src/core-clone');
+const util = require('../src/util');
 //
 const cc = require('./core-common');
 

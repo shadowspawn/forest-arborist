@@ -3,10 +3,10 @@
 const childProcess = require('child_process');
 const tmp = require('tmp');
 // Mine
-const core = require('../lib/core');
-const fsX = require('../lib/fsExtra');
-const repo = require('../lib/repo');
-const util = require('../lib/util');
+const core = require('../src/core');
+const fsX = require('../src/fsExtra');
+const repo = require('../src/repo');
+const util = require('../src/util');
 //
 const cc = require('./core-common');
 

@@ -5,10 +5,10 @@ const fs = require('fs');
 const path = require('path');
 const tmp = require('tmp');
 // Mine
-const core = require('../lib/core');
-const coreClone = require('../lib/core-clone');
-const fsX = require('../lib/fsExtra');
-const util = require('../lib/util');
+const core = require('../src/core');
+const coreClone = require('../src/core-clone');
+const fsX = require('../src/fsExtra');
+const util = require('../src/util');
 // //
 const cc = require('./core-common');
 

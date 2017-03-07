@@ -1,34 +1,27 @@
-'use strict';
-
-const fs = require('fs');
-
 // fs helper routines
 
-module.exports = {
+import fs = require("fs");
 
 
-  fileExistsSync(filePath) {
+export function fileExistsSync(filePath: string) {
     try {
       return fs.statSync(filePath).isFile();
     } catch (err) {
-      if (err.code === 'ENOENT') {
+      if (err.code === "ENOENT") {
         return false;
       }
       throw err;
     }
-  },
+  };
 
 
-  dirExistsSync(filePath) {
+export function dirExistsSync(filePath: string) {
     try {
       return fs.statSync(filePath).isDirectory();
     } catch (err) {
-      if (err.code === 'ENOENT') {
+      if (err.code === "ENOENT") {
         return false;
       }
       throw err;
     }
-  },
-
-
-};
+  };
