@@ -17,6 +17,8 @@
  * code declare full strongly typed interface for manifest (used in init and readmanifest)
   * likewise for root file
   * likewise for snapshot file
+ * customer jasmine runner, e.g.
+  * jasmine --specs dist/spec/commander-spec
 
 ## Known Issues
 * hg specific issues (low priority at moment)

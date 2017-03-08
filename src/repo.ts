@@ -5,7 +5,7 @@ import fsX = require("./fsExtra");
 import util = require("./util");
 
 
-function getRepoTypeForParams(repoPath: string, repoType: string) {
+function getRepoTypeForParams(repoPath: string, repoType?: string) {
   if (repoType === undefined) {
     return module.exports.getRepoTypeForLocalPath(repoPath);
   }
