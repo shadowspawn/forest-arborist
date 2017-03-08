@@ -2,13 +2,10 @@
 
 ## Backlog
 * typescript
- * convert lib files from js to ts, use import/export (hurrah!)
- * convert command from hs to ts
+ * convert command from js to ts
  * prepublish script, tsc! test?
- * turn on strictNullChecks
- * does prepublish get run by install? i.e. developer instructions.
- * gitignore dist
- * move lib to src
+ * does prepublish get run by install or link, so do developers need to explicitly tsc if do above?
+ * turn on strictNullChecks ?
  * move command to src, or leave at root? Root so entry point obvious and is different?
  * rename command back to fab?
  * drop eslint?!
@@ -17,7 +14,6 @@
  * move jasmine.json into spec folder
  * insight, commander-spec tests installed command, run alone somehow?
   * test publish, npm install . -g
- * atom-typescript autocompile is not working to actually save updated file?
  * code declare full strongly typed interface for manifest (used in init and readmanifest)
   * likewise for root file
   * likewise for snapshot file
