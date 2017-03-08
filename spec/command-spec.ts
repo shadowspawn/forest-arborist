@@ -10,7 +10,7 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-describe("command-line sanity check:", () => {
+describe("command-line sanity check (EXTERNAL COMMAND):", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
   let suite: cc.RepoSuiteResult;

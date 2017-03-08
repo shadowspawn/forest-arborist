@@ -2,22 +2,13 @@
 
 ## Backlog
 * typescript
- * convert command from js to ts
- * prepublish script, tsc! test?
- * does prepublish get run by install or link, so do developers need to explicitly tsc if do above?
  * turn on strictNullChecks ?
- * move command to src, or leave at root? Root so entry point obvious and is different?
- * rename command back to fab?
- * drop eslint?!
- * pre-git check that no focused tests? Or just wing it...
- * use jsonfile for writing too
- * move jasmine.json into spec folder
  * insight, commander-spec tests installed command, run alone somehow?
   * test publish, npm install . -g
  * code declare full strongly typed interface for manifest (used in init and readmanifest)
   * likewise for root file
   * likewise for snapshot file
- * customer jasmine runner, e.g.
+ * custom jasmine runner, e.g.
   * jasmine --specs dist/spec/commander-spec
 
 ## Known Issues

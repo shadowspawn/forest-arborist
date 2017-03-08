@@ -1,4 +1,5 @@
 import fs = require("fs");
+const jsonfile = require("jsonfile");
 import path = require("path");
 // Mine
 import core = require("./core");
@@ -139,11 +140,11 @@ export function doInit(options: InitOptions) {
       "  3) otherwise, repo is free and included in branch affecting commands",
     ],
   };
-  const prettyManifest = JSON.stringify(manifest, null, "  ");
 
   const manifestDir = path.dirname(absManifestPath);
   if (!fsX.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
-  fs.writeFileSync(absManifestPath, prettyManifest);
+  jsonfile.writeFileSync(absManifestPath, manifest, {spaces: 2});
+
   console.log(`Initialised dependencies in ${relManifestPath}`);
 
   // Root placeholder file. Safe to overwrite as low content.
