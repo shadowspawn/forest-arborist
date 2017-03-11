@@ -125,6 +125,7 @@ export function makeGitRepoSuite() {
   // Create the extra revision in pinned and rollback
   process.chdir("Libs/pinned");
   const pinnedRevision = repo.getRevision(".");
+  configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);

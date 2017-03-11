@@ -56,6 +56,7 @@ describe("core snapshot:", () => {
     const beforeRevisions: RevisionMap = {};
     Object.keys(forestRepos).forEach((repoPath) => {
       beforeRevisions[repoPath] = repo.getRevision(repoPath);
+      cc.configureTestRepo(repoPath);
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
     });
@@ -104,6 +105,7 @@ describe("core snapshot:", () => {
       // Get unpinned
       childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
       // Add revision
+      cc.configureTestRepo(repoPath);
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
       // Push to remote so so we can see if recreate is bring back old forest state.

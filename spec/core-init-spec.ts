@@ -97,7 +97,9 @@ describe("core init:", () => {
   it("pinned", () => {
     // Auto detect pinned revision
     childProcess.execFileSync("git", ["init"]);
+    cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["init", "boost"]);
+    cc.configureTestRepo("boost");
     process.chdir("boost");
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
     const revision = repo.getRevision(".");

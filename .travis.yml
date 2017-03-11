@@ -6,7 +6,6 @@ before_script:
   - npm link
 os:
   - linux
-  - osx
 notifications:
   email:
     on_success: always # default: change
