@@ -1,33 +1,21 @@
 # Forest Arborist
 
 ## Backlog
-* typescript
- * turn on strictNullChecks ?
- * code declare full strongly typed interface for manifest (used in init and readmanifest)
-  * likewise for root file
-  * likewise for snapshot file
-* travis?
- * showing status http://stackoverflow.com/questions/19810386/showing-travis-build-status-in-github-repo
 
 ## Known Issues
 * hg specific issues (low priority at moment)
  * "hg push" returns status 1 so breaks for-each
  * if "hg pull" gets nothing then no need to call "hg update"
  * not auto-detecting pinned revision (could do it by detecting not on tip)
-* Say goodbye to simple bisect, not storing state. Sadly this is By Design!
 * using colours for logging errors and commands, but clashes with some terminal colours!
 * flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
-* switch and make-branch need to do main before reading manifest, dependencies could change free/locked/pinned
+* switch and make-branch should do main before reading manifest, dependencies could change free/locked/pinned
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
-* typescript
-* for-each --keep-going (like make) for ignoring result code of commands which might return non-zero, like hg push ?
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
-* delete the old version tags from github when go to version 1
-* scripts.ms to "comment" developer scripts?
 * (not getting travis emails unless make address explicit, something not quite right)
 
 ## Patterns
