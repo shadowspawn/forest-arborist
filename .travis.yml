@@ -5,3 +5,5 @@ before_script:
   - "npm install --global jasmine"
   - git config --global user.email "travis@noreply.com"
   - git config --global user.name "Travis CI"
+  - git config --global push.default simple
+  - npm link
