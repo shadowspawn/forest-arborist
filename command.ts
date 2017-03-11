@@ -12,7 +12,7 @@ import childProcess = require("child_process");
 import fs = require("fs");
 import program = require("commander");
 // Mine
-const myPackage = require.main.require("../package.json");
+const myPackage = (require.main !== undefined ? require.main.require("../package.json") : undefined);
 import core = require("./src/core");
 import coreBranch = require("./src/core-branch");
 import coreClone = require("./src/core-clone");
@@ -262,7 +262,7 @@ program
 
 // Hidden command for trying things out
 program
-  .command("_test", null, { noHelp: true })
+  .command("_test", undefined, { noHelp: true })
   .description("test")
   .action(() => {
     const itemList = fs.readdirSync(".fab");

@@ -7,7 +7,7 @@
         "declaration": false,
         "allowJs": true,
         "outDir": "./dist",
-        "strictNullChecks": false
+        "strictNullChecks": true
     },
     "include": [
         "*",

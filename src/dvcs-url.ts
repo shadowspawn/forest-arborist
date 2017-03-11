@@ -38,23 +38,25 @@ import util = require("./util");
 
 
 export interface DvcsUrl {
-  protocol?: string;
+  protocol: string;
   pathname: string;
   href?: string;
   authAndHost?: string;
 }
 
-export function parse(urlString: string): DvcsUrl {
-  if (urlString === undefined) return undefined;
+export function parse(urlString?: string): DvcsUrl {
+  if (urlString === undefined) {
+    return { protocol: "", pathname: "" };
+  };
 
   // Parsing for git covers hg as well, sweet!
   let result: DvcsUrl;
   const parsed = url.parse(urlString);
   const recognisedProtocols = ["ssh:", "git:", "http:", "https:", "ftp:", "ftps:", "file:"];
-  if (recognisedProtocols.indexOf(parsed.protocol) > -1) {
+  if (parsed.protocol !== undefined && recognisedProtocols.indexOf(parsed.protocol) > -1) {
     result = {
       protocol: parsed.protocol,
-      pathname: parsed.pathname,
+      pathname: (parsed.pathname !== undefined ? parsed.pathname : ""),
       href: parsed.href
     };
   } else {
@@ -106,10 +108,12 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
   }
 
   // Proper protocol! Tweak path and reconstruct full URL for dir.
+  if (object1.href === undefined) return false;
   const dir1 = url.parse(object1.href);
-  dir1.pathname = path.posix.dirname(dir1.pathname);
+  if (dir1.pathname !== undefined) dir1.pathname = path.posix.dirname(dir1.pathname);
+  if (object2.href === undefined) return false;
   const dir2 = url.parse(object2.href);
-  dir2.pathname = path.posix.dirname(dir2.pathname);
+  if (dir2.pathname !== undefined) dir2.pathname = path.posix.dirname(dir2.pathname);
   return url.format(dir1) === url.format(dir2);
 };
 
@@ -151,6 +155,7 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   }
 
   // Proper protocol! Tweak path and reconstruct full URL.
+  if (urlObject.href === undefined) return relativePath;
   const parsedTemp = url.parse(urlObject.href);
   const temp2 = path.posix.join(urlObject.pathname, relativePath);
   parsedTemp.pathname = path.posix.normalize(temp2);

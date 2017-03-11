@@ -103,20 +103,20 @@ export function doInit(options: InitOptions) {
     } else {
       // This made sense for our original hg repo layout, peer repos have same parent.
       // May need to refine with wider use.
-      let sameParent = false;
-      let parsedOrigin;
+      let locked = true;
       if (origin !== undefined) {
-        parsedOrigin = dvcsUrl.parse(origin);
-        sameParent = dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin);
-      }
-      if (sameParent) {
-        console.log("    (free)");
-        const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
-        // Should always be true?
-        if (util.isRelativePath(relativePath)) {
-          entry.origin = relativePath;
+        const parsedOrigin = dvcsUrl.parse(origin);
+        if (dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin)) {
+          locked = false;
+          console.log("    (free)");
+          const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
+          // Should always be true?
+          if (util.isRelativePath(relativePath)) {
+            entry.origin = relativePath;
+          }
         }
-      } else {
+      }
+      if (locked) {
         console.log(`    (locked branch to ${lockBranch})`);
         entry.lockBranch = lockBranch;
       }

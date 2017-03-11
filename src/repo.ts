@@ -106,7 +106,7 @@ export function getBranch(repoPath: string, repoTypeParam?: string) {
 
 
 export function getRevision(repoPath: string, repoTypeParam?: string) {
-  let revision;
+  let revision = "";
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
   if (repoType === "git") {

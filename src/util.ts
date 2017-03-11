@@ -20,7 +20,7 @@ let muteDepth = 0;
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 
-export function terminate(message: string) {
+export function terminate(message: string): never {
   console.log(module.exports.errorColour(`Error: ${message}`));
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
@@ -39,7 +39,7 @@ export function errorColour(text: string) {
   };
 
 
-  export function normalizeToPosix(relPathParam: string) {
+  export function normalizeToPosix(relPathParam?: string) {
     let relPath = relPathParam;
     if (relPath === undefined) {
       relPath = ".";

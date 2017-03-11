@@ -9,7 +9,7 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch: string) {
+export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
   // Mercurial does not support making intermediate folders.
   // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === "hg") {
@@ -51,7 +51,8 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
       args.push("--noupdate");
     }
   }
-  args.push(entry.origin, repoPath);
+  if (entry.origin === undefined) util.terminate("origin undefined");
+  args.push(entry.origin!, repoPath);
   // Clone command ready!
   util.execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
 
@@ -70,7 +71,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
 };
 
 
-export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch: string) {
+export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
   // Determine target for checkout
   let revision;
   let gitConfig: string[] = [];
@@ -149,7 +150,11 @@ export interface CloneOptions {
 }
 
 
-export function doClone(source: string, destinationParam: string, options: CloneOptions) {
+export function doClone(source: string, destinationParam?: string, optionsParam?: CloneOptions) {
+  let options: CloneOptions = {};
+  if (optionsParam !== undefined) {
+    options = optionsParam;
+  }
   const startDir = process.cwd();
   // We need to know the main directory to find the manifest file after the clone.
   let destination = destinationParam;
@@ -158,12 +163,13 @@ export function doClone(source: string, destinationParam: string, options: Clone
   }
 
   // Clone source.
-  let repoType;
+  let repoType: string;
   if (repo.isGitRepository(source)) {
     repoType = "git";
   } else if (repo.isHgRepository(source)) {
     repoType = "hg";
   } else {
+    repoType = ""; // lint
     console.log("(Does the source repo exist?)");
     util.terminate(`failed to find repository type for ${source}`);
   }

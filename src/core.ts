@@ -14,7 +14,7 @@ import util = require("./util");
 // Used in Clone and Init
 export interface DependencyEntry {
   repoType: string;
-  origin: string;
+  origin?: string;
   pinRevision?: string;
   lockBranch?: string;
 };
