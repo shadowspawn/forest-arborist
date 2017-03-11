@@ -195,6 +195,8 @@ For more flexibility during development:
 Status
 ------
 
+[![Build Status](https://travis-ci.org/JohnRGee/forest-arborist.svg?branch=master)](https://travis-ci.org/JohnRGee/forest-arborist)
+
 * Pre-release. May still be breaking changes.
 * OS: main development on Mac OS X, less testing on Microsoft Windows and Linux.
 * DVCS: main development with git, less testing with hg.

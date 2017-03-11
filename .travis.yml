@@ -3,16 +3,11 @@ node_js:
   - "node"
 before_script:
   - "npm install --global jasmine"
-  - git config --global user.email "travis-ci@ruru.gen.nz"
-  - git config --global user.name "Travis CI"
-  - git config --global push.default simple
   - npm link
 os:
   - linux
   - osx
 notifications:
   email:
-    recipients:
-      - travis-ci@ruru.gen.nz
     on_success: always # default: change
     on_failure: always # default: always

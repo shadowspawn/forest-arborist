@@ -107,7 +107,7 @@ describe("core snapshot:", () => {
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
       // Push to remote so so we can see if recreate is bring back old forest state.
-      childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
+      cc.pushTestRepo(repoPath);
     });
 
     process.chdir(tempFolder.name);

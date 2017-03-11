@@ -6,6 +6,8 @@
  * code declare full strongly typed interface for manifest (used in init and readmanifest)
   * likewise for root file
   * likewise for snapshot file
+* travis?
+ * showing status http://stackoverflow.com/questions/19810386/showing-travis-build-status-in-github-repo
 
 ## Known Issues
 * hg specific issues (low priority at moment)
@@ -25,6 +27,7 @@
 * for-each --keep-going (like make) for ignoring result code of commands which might return non-zero, like hg push ?
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
 * delete the old version tags from github when go to version 1
+* scripts.ms to "comment" developer scripts?
 
 ## Patterns
 
