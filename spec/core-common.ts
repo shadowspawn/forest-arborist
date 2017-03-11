@@ -19,13 +19,10 @@ export function quietDoInit(options: coreInit.InitOptions) {
 };
 
 
-export function pushTestRepo(repoPathParam?: string) {
-  const repoPath = util.normalizeToPosix(repoPathParam);
-  // Do enough configuration so push works even if client has no settings (like travis test)
+export function configureTestRepo(repoPath: string) {
   childProcess.execFileSync("git", ["config", "user.email", "noreply@no.reply"], { cwd: repoPath });
   childProcess.execFileSync("git", ["config", "user.name", "Unit Test"], { cwd: repoPath });
   childProcess.execFileSync("git", ["config", "push.default", "simple"], { cwd: repoPath });
-  childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
 }
 
 
@@ -33,6 +30,7 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
   const startingDir = process.cwd();
   childProcess.execFileSync("git", ["init", repoPath]);
   process.chdir(repoPath);
+  configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
   childProcess.execFileSync("git", ["remote", "add", "origin", origin]);
 
@@ -83,6 +81,7 @@ export function makeGitRepoSuite() {
     // Want a bare master, but not an empty one!
     const tempRepo = repoPath.concat("-tmp");
     childProcess.execFileSync("git", ["init", tempRepo]);
+    configureTestRepo(tempRepo);
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: tempRepo });
     childProcess.execFileSync("git", ["branch", "--quiet", "develop"], { cwd: tempRepo });
     childProcess.execFileSync("git", ["clone", "--bare", "--quiet", tempRepo, repoPath]);
@@ -105,12 +104,12 @@ export function makeGitRepoSuite() {
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised with custom manifest"]);
 
     // push!
-    pushTestRepo();
+    childProcess.execFileSync("git", ["push", "--quiet"]);
 
     //  create matching develop branch
     childProcess.execFileSync("git", ["checkout", "--quiet", "develop"]);
     childProcess.execFileSync("git", ["merge", "--quiet", "master"]);
-    pushTestRepo();
+    childProcess.execFileSync("git", ["push", "--quiet"]);
   }
 
   // Set up main-nested
@@ -127,7 +126,7 @@ export function makeGitRepoSuite() {
   process.chdir("Libs/pinned");
   const pinnedRevision = repo.getRevision(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
-  pushTestRepo();
+  childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
 
   process.chdir(nestedRootDir);
