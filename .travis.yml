@@ -6,3 +6,4 @@ before_script:
   - npm link
 os:
   - linux
+  - osx

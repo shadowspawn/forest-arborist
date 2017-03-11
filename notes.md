@@ -28,6 +28,7 @@
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
 * delete the old version tags from github when go to version 1
 * scripts.ms to "comment" developer scripts?
+* (not getting travis emails unless make address explicit, something not quite right)
 
 ## Patterns
 
