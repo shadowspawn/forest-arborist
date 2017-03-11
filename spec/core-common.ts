@@ -92,6 +92,7 @@ export function makeGitRepoSuite() {
     // Setting up two branches and two manifests
     // default manifest
     quietDoInit(options);
+    configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({})]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
 
@@ -100,6 +101,7 @@ export function makeGitRepoSuite() {
     const customOptions = { root: options.root, manifest };
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(remotesDir, "free"), "sub"]);
     quietDoInit(customOptions);
+    configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({ manifest })]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised with custom manifest"]);
 
