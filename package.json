@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/forest-arborist",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
   "private": false,
   "preferGlobal": true,
@@ -39,6 +39,7 @@
     "@types/jasmine": "^2.5.43",
     "@types/node": "^7.0.5",
     "@types/tmp": "0.0.32",
+    "jasmine": "^2.5.3",
     "jasmine-console-reporter": "^1.2.7",
     "typescript": "^2.2.1"
   }
