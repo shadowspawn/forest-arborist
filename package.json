@@ -16,7 +16,7 @@
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version patch",
     "test": "jasmine",
     "test:fabonly": "jasmine --spec dist/spec/command-spec.js",
-    "test:install": "npm install -g . && npm run test:fabonly",
+    "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
     "prepare": "tsc"
   },
   "author": "John Gee",
