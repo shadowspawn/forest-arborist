@@ -131,7 +131,7 @@ export function doRecreate(snapshotPath: string, destinationParam: string) {
   });
 
   console.log(`Recreated repo forest from snapshot to ${destination}`);
-  console.log("(use \"fab restore\" without snapshot file to get a current checkout again");
+  console.log("(use \"fab restore\" without snapshot file to get a current checkout again)");
   process.chdir(startDir);
 };
 
@@ -166,6 +166,6 @@ export function doRestore(snapshotPath?: string) {
   });
 
   console.log("Restored repo forest from snapshot");
-  console.log("(use \"fab restore\" without snapshot file to get a current checkout again");
+  console.log("(use \"fab restore\" without snapshot file to get a current checkout again)");
   process.chdir(startDir);
 };
