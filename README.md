@@ -189,6 +189,7 @@ For more flexibility during development:
     git clone https://github.com/JohnRGee/forest-arborist.git
     cd forest-arborist
     npm install
+    npm run prepare  # only needed for node 3, run automatically from node 4
     npm link
 
 

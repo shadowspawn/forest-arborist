@@ -18,6 +18,14 @@
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
 * (not getting travis emails unless make address explicit, something not quite right)
 
+## Scripts
+
+* copy-up, copy-down: streamline develop <--> master
+* test:fabonly: test the installed command (rather than the code)
+* test:install: check local (global) install as a proxy for publish+install
+* prepare: use the new npm 4 onwards hook! (Called before publish and after install.)
+* tsc: just a convenience for people without typescript globally installed
+
 ## Patterns
 
 Version Plan

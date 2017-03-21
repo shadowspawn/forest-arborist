@@ -17,7 +17,8 @@
     "test": "jasmine",
     "test:fabonly": "jasmine --spec dist/spec/command-spec.js",
     "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
-    "prepare": "tsc"
+    "prepare": "tsc",
+    "tsc": "tsc"
   },
   "author": "John Gee",
   "license": "ISC",
