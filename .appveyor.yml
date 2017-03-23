@@ -6,6 +6,7 @@ branches:
 install:
   - npm install
   - npm run prepare
+  - npm link
 
 test_script:
   # Output useful info for debugging.
