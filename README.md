@@ -196,7 +196,15 @@ For more flexibility during development:
 Status
 ------
 
-[![Build Status](https://travis-ci.org/JohnRGee/forest-arborist.svg?branch=master)](https://travis-ci.org/JohnRGee/forest-arborist)
+![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)
+
+builds on master branch:
+[![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/master.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
+[![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/master.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
+
+builds on develop branch :
+[![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
+[![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
 
 * Pre-release. May still be breaking changes.
 * OS: main development on Mac OS X, less testing on Microsoft Windows and Linux.

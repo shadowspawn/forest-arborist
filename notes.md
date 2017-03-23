@@ -17,6 +17,11 @@
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
 * init --interactive, to prompt for free/locked/pinned and relative/absolute ?
 * (not getting travis emails unless make address explicit, something not quite right)
+ * work-around could be to use secure email in travis.tml: https://github.com/travis-ci/travis-ci/issues/3853
+* cover
+ * istanbul
+  * istanbul cover node_modules/jasmine/bin/jasmine.js
+ * https://github.com/nickmerwin/node-coveralls
 
 ## Scripts
 
