@@ -196,7 +196,7 @@ For more flexibility during development:
 Status
 ------
 
-![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)
+[![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
 
 builds on master branch:
 [![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/master.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
