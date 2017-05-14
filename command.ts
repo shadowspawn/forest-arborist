@@ -211,16 +211,19 @@ program
   .alias("forEach")
   .description("run specified command on each repo in the forest, e.g. \"fab for-each ls -- -al\"")
   .arguments("<command> [args...]")
-  .action((command, args) => {
-    coreFor.doForEach({}, command, args);
+  .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+  .action((command, args, options) => {
+    coreFor.doForEach(command, args, options);
   });
 
 program
   .command("for-free")
   .description("run specified command on repos which are not locked or pinned")
   .arguments("<command> [args...]")
-  .action((command, args) => {
-    coreFor.doForEach({ freeOnly: true }, command, args);
+  .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+  .action((command, args, options) => {
+    options.freeOnly = true; // Sticking in our own option!
+    coreFor.doForEach(command, args, options);
   });
 
 program

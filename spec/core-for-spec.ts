@@ -7,9 +7,9 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-function quietDoFor(internalOptions: coreFor.ForOptions, cmd: string, args: string[]) {
+function quietDoFor(cmd: string, args: string[], options: coreFor.ForOptions) {
   util.muteCall(() => {
-    coreFor.doForEach(internalOptions, cmd, args);
+    coreFor.doForEach(cmd, args, options);
   });
 }
 
@@ -31,7 +31,7 @@ describe("core for:", () => {
 
   it("for-free", () => {
     const freeBranch = "freeBranch";
-    quietDoFor({ freeOnly: true }, "git", ["checkout", "--quiet", "-b", freeBranch]);
+    quietDoFor("git", ["checkout", "--quiet", "-b", freeBranch], { freeOnly: true });
     expect(repo.getBranch(".")).toEqual(freeBranch);
     expect(repo.getBranch("free")).toBe(freeBranch);
     expect(repo.getBranch("pinned")).toBeUndefined();
@@ -40,10 +40,22 @@ describe("core for:", () => {
 
   it("for-each", () => {
     const eachBranch = "eachBranch";
-    quietDoFor({}, "git", ["checkout", "--quiet", "-b", eachBranch]);
+    quietDoFor("git", ["checkout", "--quiet", "-b", eachBranch], {});
     expect(repo.getBranch(".")).toEqual(eachBranch);
     expect(repo.getBranch("free")).toEqual(eachBranch);
     expect(repo.getBranch("pinned")).toEqual(eachBranch);
     expect(repo.getBranch("locked")).toEqual(eachBranch);
+  });
+
+  it("for-free --keepgoing", () => {
+    // throw on errors
+    expect(() => {
+      quietDoFor("fab", ["bogusCommand"], { });
+    }).toThrow();
+
+    // keepgoing
+    expect(() => {
+      quietDoFor("fab", ["bogusCommand"], { keepgoing: true });
+    }).not.toThrow();
   });
 });

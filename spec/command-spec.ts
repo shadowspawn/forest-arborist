@@ -10,9 +10,20 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-describe("command-line sanity check (EXTERNAL COMMAND):", () => {
+function quietCallFab(args: string[]) {
+  if (process.platform === "win32") {
+    pending("Need to work out call syntax for external fab on Windows");
+  } else {
+    util.muteCall(() => {
+      childProcess.execFileSync("fab", args);
+    });
+  }
+}
+
+
+describe("command-line sanity check (of EXTERNAL COMMAND):", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  let tempFolder: tmp.SynchrounousResult; // [sic]
   let suite: cc.RepoSuiteResult;
   const preparedRepo = "ref";
 
@@ -41,97 +52,86 @@ describe("command-line sanity check (EXTERNAL COMMAND):", () => {
     process.chdir(startDir);
   });
 
-  // NB: execFileSync does not work for fab on Windows, so using execSync which does work ok.
-
   it("fab clone", () => {
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["clone", path.join(suite.remotesDir, "main-nested"), "clone-test"]);
-    });
+    quietCallFab(["clone", path.join(suite.remotesDir, "main-nested"), "clone-test"]);
   });
 
   it("fab init", () => {
     cc.makeOneGitRepo("init-test");
     process.chdir("init-test");
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["init"]);
-    });
+    quietCallFab(["init"]);
   });
 
   it("fab install", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "install-test"]);
     process.chdir("install-test");
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["install"]);
-    });
+    quietCallFab(["install"]);
   });
 
   it("fab status", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["status"]);
-    });
+    quietCallFab(["status"]);
   });
 
   it("fab pull", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["pull"]);
-    });
+    quietCallFab(["pull"]);
   });
 
   it("fab root", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["root"]);
-    });
+    quietCallFab(["root"]);
   });
 
   it("fab for-each", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["for-each", "pwd"]);
-    });
+    quietCallFab(["for-each", "pwd"]);
   });
 
   it("fab for-free", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["for-free", "pwd"]);
-    });
+    quietCallFab(["for-free", "pwd"]);
+  });
+
+  it("for-free --keepgoing", () => {
+    // pending does not stop errors from not.toThrow, so do by hand.
+    if (process.platform === "win32") {
+      pending("Need to work out call syntax for external fab on Windows");
+      return;
+    }
+
+    process.chdir(preparedRepo);
+    expect(()=> {
+      quietCallFab(["for-each", "fab", "bogusCommand"]); // (Can use "false" on Mac/Lin, but use ourselves to cover Win!)
+    }).toThrow();
+    // This is weak but simple, as we are suppressing errors for keepgoing.
+    expect(()=> {
+      quietCallFab(["for-each", "--keepgoing", "bogusCommand"]);
+    }).not.toThrow();
   });
 
   it("fab switch", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["switch", "develop"]);
-    });
+    quietCallFab(["switch", "develop"]);
   });
 
   it("fab make-branch", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["make-branch", "feature/test"]);
-    });
+    quietCallFab(["make-branch", "feature/test"]);
   });
 
   // saves snapshot to use in recreate and restore
   it("fab snapshot", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["snapshot", "--output", "snapshot"]);
-    });
+    quietCallFab(["snapshot", "--output", "snapshot"]);
   });
 
   it("fab recreate", () => {
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["recreate", path.join(preparedRepo, "snapshot"), "recreate-test"]);
-    });
+    quietCallFab(["recreate", path.join(preparedRepo, "snapshot"), "recreate-test"]);
   });
 
   it("fab restore", () => {
     process.chdir(preparedRepo);
-    util.muteCall(() => {
-      childProcess.execSync("fab", ["restore", "snapshot"]);
-    });
+    quietCallFab(["restore", "snapshot"]);
   });
 });
