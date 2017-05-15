@@ -12,7 +12,7 @@ import cc = require("./core-common");
 
 function quietCallFab(args: string[]) {
   util.muteCall(() => {
-    const result = childProcess.spawnSync("fab", args);
+    const result = childProcess.spawnSync("fab", args, { shell: true });
     expect(result.status).toEqual(0);
   });
 }
@@ -20,7 +20,7 @@ function quietCallFab(args: string[]) {
 
 function quietCallFabExpectFail(args: string[]) {
   util.muteCall(() => {
-    const result = childProcess.spawnSync("fab", args);
+    const result = childProcess.spawnSync("fab", args, { shell: true });
     expect(result.status).not.toEqual(0);
   });
 }
