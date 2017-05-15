@@ -11,13 +11,18 @@ import cc = require("./core-common");
 
 
 function quietCallFab(args: string[]) {
-  if (process.platform === "win32") {
-    pending("Need to work out call syntax for external fab on Windows");
-  } else {
-    util.muteCall(() => {
-      childProcess.execFileSync("fab", args);
-    });
-  }
+  util.muteCall(() => {
+    const result = childProcess.spawnSync("fab", args);
+    expect(result.status).toEqual(0);
+  });
+}
+
+
+function quietCallFabExpectFail(args: string[]) {
+  util.muteCall(() => {
+    const result = childProcess.spawnSync("fab", args);
+    expect(result.status).not.toEqual(0);
+  });
 }
 
 
@@ -94,20 +99,9 @@ describe("command-line sanity check (of EXTERNAL COMMAND):", () => {
   });
 
   it("for-free --keepgoing", () => {
-    // pending does not stop errors from not.toThrow, so do by hand.
-    if (process.platform === "win32") {
-      pending("Need to work out call syntax for external fab on Windows");
-      return;
-    }
-
     process.chdir(preparedRepo);
-    expect(()=> {
-      quietCallFab(["for-each", "fab", "bogusCommand"]); // (Can use "false" on Mac/Lin, but use ourselves to cover Win!)
-    }).toThrow();
-    // This is weak but simple, as we are suppressing errors for keepgoing.
-    expect(()=> {
-      quietCallFab(["for-each", "--keepgoing", "bogusCommand"]);
-    }).not.toThrow();
+    quietCallFabExpectFail(["for-each", "fab", "bogusCommand"]);
+    quietCallFab(["for-each", "--keepgoing", "bogusCommand"]);
   });
 
   it("fab switch", () => {
