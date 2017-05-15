@@ -11,6 +11,9 @@ import cc = require("./core-common");
 
 
 function quietCallFab(args: string[]) {
+  // Bit tricky calling fab externally on Windows. The execFileSync
+  // we use for git and hg does not work for fab. This invocation of
+  // spawnSync with shell does the trick.
   util.muteCall(() => {
     const result = childProcess.spawnSync("fab", args, { shell: true });
     expect(result.status).toEqual(0);
