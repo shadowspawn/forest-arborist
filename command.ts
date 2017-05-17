@@ -209,8 +209,8 @@ program
 program
   .command("for-each")
   .alias("forEach")
-  .description("run specified command on each repo in the forest, e.g. \"fab for-each ls -- -al\"")
-  .arguments("<command> [args...]")
+  .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
+  .arguments("-- <command> [args...]")
   .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
   .action((command, args, options) => {
     coreFor.doForEach(command, args, options);
@@ -219,7 +219,7 @@ program
 program
   .command("for-free")
   .description("run specified command on repos which are not locked or pinned")
-  .arguments("<command> [args...]")
+  .arguments("-- <command> [args...]")
   .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
   .action((command, args, options) => {
     options.freeOnly = true; // Sticking in our own option!
