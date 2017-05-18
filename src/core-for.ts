@@ -34,7 +34,9 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
         );
       }
     } catch (err) {
-      if (!options.keepgoing) {
+      if (options.keepgoing) {
+        console.log(`Keeping going after caught exception with message ${err.message}`);
+      } else {
         // Check whether the command was a typo before suggesting the --keepgoing option
         // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
         if (err.code !== "ENOENT") {
