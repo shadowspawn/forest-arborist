@@ -21,7 +21,7 @@
     "tsc": "tsc"
   },
   "author": "John Gee",
-  "license": "ISC",
+  "license": "MIT",
   "files": [
     "dist/command.js",
     "dist/src/*"
