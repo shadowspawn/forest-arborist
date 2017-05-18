@@ -35,7 +35,11 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
       }
     } catch (err) {
       if (!options.keepgoing) {
-        console.log("(to keep going despite errors use \"fab for-each --keepgoing\")");
+        // Check whether the command was a typo before suggesting the --keepgoing option
+        // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
+        if (err.code !== "ENOENT") {
+          console.log("(to keep going despite errors use \"fab for-each --keepgoing\")");
+        }
         throw err;
       }
       console.log(""); // blank line after command output
