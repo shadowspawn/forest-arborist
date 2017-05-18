@@ -1,9 +1,5 @@
-# How to contribute
+# How To Contribute
 
-## Issues
+## Pull Requests (GitHub)
 
-- After an issue has been fixed, it may be assigned back to you to test
-
-## Pull Requests
-
-- Create pull requests against the `develop` branch
+- Please create pull requests against the `develop` branch (to allow convenient testing and tweaks before release to `master`).
