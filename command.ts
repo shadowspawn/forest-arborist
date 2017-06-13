@@ -176,6 +176,9 @@ program
   .description("clone missing (new) dependent repositories")
   .on("--help", () => {
     console.log("  Run Install from the main repo.");
+    console.log("");
+    console.log("  Target repos: all missing and pinned repos. Pinned repos will be updated");
+    console.log("                to match the `pinRevision` from the manifest if necessary.");
   })
   .action((options) => {
     coreClone.doInstall(options);
