@@ -186,16 +186,24 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     manifest: options.manifest,
   });
   if (manifest.mainPathFromRoot !== ".") {
-    // Play shell game for sibling layout, using destination as a wrapper folder.
-    console.log("Using sibling repo layout");
-    const tmpObj = tmp.dirSync({ dir: "." }); // local to folder
-    console.log();
-    fs.renameSync(destination, path.join(tmpObj.name, destination));
-    fs.mkdirSync(destination);
-    const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
-    fs.renameSync(path.join(tmpObj.name, destination), mainPathFromHere);
-    fs.rmdirSync(tmpObj.name); // Should be auto-deleted but something breaking that?
 
+    // Play shell game for sibling layout, using destination as a wrapper folder.
+    // Support destination including some path.
+    // Easy to get confused!
+    console.log("Using sibling repo layout");
+    const destinationName = path.basename(destination);
+    const destinationParentDir = path.dirname(destination);
+    // Make a temporary directory
+    const tmpObj = tmp.dirSync({ dir: destinationParentDir });
+    // Move the repo into the temporary directory
+    const shelfRepoPath = path.join(tmpObj.name, destinationName);
+    fs.renameSync(destination, shelfRepoPath);
+    // Make the wrapper folder
+    fs.mkdirSync(destination);
+    // Move the repo into wrapper with manifest supplied name
+    const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
+    fs.renameSync(shelfRepoPath, mainPathFromHere);
+    fs.rmdirSync(tmpObj.name); // Should be auto-deleted but something breaking that?
     process.chdir(mainPathFromHere);
   } else {
     process.chdir(destination);
