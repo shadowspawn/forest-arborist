@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/forest-arborist",
-  "version": "0.3.14",
+  "version": "0.3.15",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
   "private": false,
   "preferGlobal": true,
