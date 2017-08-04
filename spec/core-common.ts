@@ -32,7 +32,8 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
   process.chdir(repoPath);
   configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-  childProcess.execFileSync("git", ["remote", "add", "origin", origin]);
+  if (origin)
+    childProcess.execFileSync("git", ["remote", "add", "origin", origin]);
 
   process.chdir(startingDir);
 };
