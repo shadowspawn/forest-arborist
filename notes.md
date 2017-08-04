@@ -26,6 +26,9 @@
   * istanbul cover node_modules/jasmine/bin/jasmine.js
  * https://github.com/nickmerwin/node-coveralls
 
+## Library updates
+* Chalk v2 has more colours (and loads a bit slower, might be addressed). No compelling reason to update yet.
+
 ## Scripts
 
 * copy-up, copy-down: streamline develop <--> master
