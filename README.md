@@ -87,7 +87,7 @@ free and locked, and the status command runs on all the repos.
 There are two general purpose convenience routines to run commands across the forest.
 e.g.
 
-    fab for-each git -- remote -v
+    fab for-each -- git remote -v
     fab for-free git branch
 
 ---------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ Commands Summary
      status                                        show concise status for each repo in the forest
      pull                                          git-style pull, which is fetch and merge
      root                                          show the root directory of the forest
-     for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each ls -- -al"
+     for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each -- ls -al"
      for-free <command> [args...]                  run specified command on repos which are not locked or pinned
      switch <branch>                               switch branch of free repos
      make-branch [-p, --publish] <branch> [start_point]  
@@ -184,7 +184,7 @@ Requires node and npm. Easy install:
 
     npm install --global @shadowspawn/forest-arborist
 
-For more flexibility during development:
+For more flexibility including development:
 
     git clone https://github.com/JohnRGee/forest-arborist.git
     cd forest-arborist
@@ -206,6 +206,5 @@ builds on develop branch :
 [![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
 [![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
 
-* Pre-release. May still be breaking changes.
-* OS: main development on Mac OS X, less testing on Microsoft Windows and Linux.
+* OS: used on OS X, Windows, and Linux
 * DVCS: main development with git, less testing with hg.

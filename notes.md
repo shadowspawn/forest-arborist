@@ -12,6 +12,9 @@
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
+* script additions and improvements
+ * git pull && tsc
+ * more commands or more care around copy-up, copy-down
 * switch and make-branch should do main before reading manifest, dependencies could change free/locked/pinned
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
@@ -29,7 +32,7 @@
 * test:fabonly: test the installed command (rather than the code)
 * test:install: check local (global) install as a proxy for publish+install
 * prepare: use the new npm 4 onwards hook! (Called before publish and after install.)
-* tsc: just a convenience for people without typescript globally installed
+* tsc: convenience for people without typescript globally installed (see also npx now)
 
 ## Patterns
 
