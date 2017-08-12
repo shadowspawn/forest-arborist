@@ -1,7 +1,6 @@
 # Forest Arborist
 
 ## Backlog
-* use shrinkwrap?
 
 ## Known Issues
 * hg specific issues (low priority at moment)
@@ -29,6 +28,7 @@
  * https://github.com/nickmerwin/node-coveralls
 * locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
  * previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
+* run automated tests including node 4 (i.e. N-1)
 
 
 ## Library updates
