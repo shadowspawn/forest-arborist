@@ -1,6 +1,7 @@
 # Forest Arborist
 
 ## Backlog
+* use shrinkwrap?
 
 ## Known Issues
 * hg specific issues (low priority at moment)
@@ -14,7 +15,8 @@
 ## Backlog Musing
 * script additions and improvements
  * git pull && tsc
- * more commands or more care around copy-up, copy-down
+ * more commands or more care around copy-up, copy-down, ideas:
+ * https://github.com/trevordmiller/npm-script-naming-ideas
 * switch and make-branch should do main before reading manifest, dependencies could change free/locked/pinned
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
@@ -25,6 +27,9 @@
  * istanbul
   * istanbul cover node_modules/jasmine/bin/jasmine.js
  * https://github.com/nickmerwin/node-coveralls
+* locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
+ * previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
+
 
 ## Library updates
 * Chalk v2 has more colours (and loads a bit slower, might be addressed). No compelling reason to update yet.
