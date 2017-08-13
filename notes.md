@@ -8,14 +8,9 @@
  * if "hg pull" gets nothing then no need to call "hg update"
  * not auto-detecting pinned revision (could do it by detecting not on tip)
 * using colours for logging errors and commands, but clashes with some terminal colours!
-* flat gitlab layout means might default to a lot of relative repos, review init behaviour if necessary.
 * no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing
-* script additions and improvements
- * git pull && tsc
- * more commands or more care around copy-up, copy-down, ideas:
- * https://github.com/trevordmiller/npm-script-naming-ideas
 * switch and make-branch should do main before reading manifest, dependencies could change free/locked/pinned
 * Test before operations on forest which break if changes in repo do not get half way?
  * http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script
@@ -28,19 +23,14 @@
  * https://github.com/nickmerwin/node-coveralls
 * locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
  * previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
-* run automated tests including node 4 (i.e. N-1)
-
-
-## Library updates
-* Chalk v2 has more colours (and loads a bit slower, might be addressed). No compelling reason to update yet.
 
 ## Scripts
 
 * copy-up, copy-down: streamline develop <--> master
-* test:fabonly: test the installed command (rather than the code)
-* test:install: check local (global) install as a proxy for publish+install
+* test:cli-only: test just the installed command (rather than the code)
 * prepare: use the new npm 4 onwards hook! (Called before publish and after install.)
-* tsc: convenience for people without typescript globally installed (see also npx now)
+* tsc: convenience for people without typescript globally installed (c.f. npx tsc)
+* update: convenience so don't miss shrinkwrap changes or forget to compile latest ts
 
 ## Patterns
 
