@@ -3,7 +3,6 @@
   "version": "1.0.3",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
   "private": false,
-  "preferGlobal": true,
   "bin": {
     "fab": "./dist/command.js"
   },
