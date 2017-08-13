@@ -15,7 +15,7 @@
     "copy-up": "git checkout master && git merge develop && echo \"tip: run npm version patch, then npm publish\"",
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version patch",
     "test": "jasmine",
-    "test:fabonly": "jasmine --spec dist/spec/command-spec.js",
+    "test:cli-only": "jasmine --filter=command-line",
     "prepare": "tsc",
     "tsc": "tsc"
   },
