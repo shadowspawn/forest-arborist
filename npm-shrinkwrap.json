@@ -15,7 +15,7 @@
       "integrity": "sha512-P4s1aEJYjHB1pmS5th4WXQ/NEYykK1FmCFJL+NIrDCptWs2DIS/SsVjmaubvcWZ17VzlG+CwiAv52ghkfkepWA==",
       "dev": true,
       "requires": {
-        "@types/node": "8.0.22"
+        "@types/node": "8.0.23"
       }
     },
     "@types/jasmine": {
@@ -25,9 +25,9 @@
       "dev": true
     },
     "@types/node": {
-      "version": "8.0.22",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.22.tgz",
-      "integrity": "sha512-+YQ5JLlvLP24teVUdUDep83mAWIFoAnOMosrH/2+xDeU9YMUpmMJtYOqVtbivs37h2PL9svz0R3r/MfVuEvEIA==",
+      "version": "8.0.23",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.23.tgz",
+      "integrity": "sha512-EqXusvGddhpejDoov+4jV0D94yhdM6fn2hfX6w7OWA09BknPSYVUpfTuZKWutRXs4Dl9SOTT8ok/uD763J9mCQ==",
       "dev": true
     },
     "@types/tmp": {
