@@ -35,12 +35,12 @@
   },
   "devDependencies": {
     "@types/chalk": "^0.4.31",
-    "@types/commander": "^2.9.1",
-    "@types/jasmine": "^2.5.53",
-    "@types/node": "^8.0.23",
+    "@types/commander": "^2.9.2",
+    "@types/jasmine": "^2.5.54",
+    "@types/node": "^8.0.24",
     "@types/tmp": "0.0.33",
     "jasmine": "^2.7.0",
-    "jasmine-console-reporter": "^1.2.7",
-    "typescript": "^2.4.2"
+    "jasmine-console-reporter": "^2.0.1",
+    "typescript": "^2.5.1"
   }
 }
