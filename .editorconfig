@@ -13,3 +13,9 @@ tab_width = 2
 # Tab indentation (no size specified)
 [{Makefile,makefile}]
 indent_style = tab
+
+[*.md]
+# indent 4 for code blocks
+indent_size = 4
+# preserve trailing space for line breaks
+trim_trailing_whitespace = false
