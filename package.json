@@ -41,6 +41,6 @@
     "@types/tmp": "0.0.33",
     "jasmine": "^2.8.0",
     "jasmine-console-reporter": "^2.0.1",
-    "typescript": "^2.5.1"
+    "typescript": "^2.4.2"
   }
 }
