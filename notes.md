@@ -37,7 +37,7 @@
 Version Plan
 * Use different versions on master (published) and develop (linked work in progress).
 * Tag version on master to match the published version.
-* Do not tag version on develop since changes.
+* Do not tag version on develop since changes. Use prerelease on develop.
 * See copy-up and copy-down run commands.
 
 Terminology Inspirations
