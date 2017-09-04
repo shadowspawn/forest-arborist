@@ -15,6 +15,7 @@
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version prepatch",
     "test": "jasmine",
     "test:cli-only": "jasmine --filter=command-line",
+    "test:linux": "docker build -t fabtest . && docker run fabtest",
     "prepare": "tsc",
     "tsc": "tsc",
     "update": "git pull && npm install"
@@ -37,10 +38,10 @@
     "@types/chalk": "^0.4.31",
     "@types/commander": "^2.9.2",
     "@types/jasmine": "^2.5.54",
-    "@types/node": "^8.0.25",
+    "@types/node": "^8.0.26",
     "@types/tmp": "0.0.33",
     "jasmine": "^2.8.0",
     "jasmine-console-reporter": "^2.0.1",
-    "typescript": "^2.4.2"
+    "typescript": "^2.5.2"
   }
 }
