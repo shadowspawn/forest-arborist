@@ -2,7 +2,6 @@
   "name": "@shadowspawn/forest-arborist",
   "version": "1.0.4-0",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
-  "private": false,
   "bin": {
     "fab": "./dist/command.js"
   },
@@ -43,5 +42,8 @@
     "jasmine": "^2.8.0",
     "jasmine-console-reporter": "^2.0.1",
     "typescript": "^2.5.2"
+  },
+  "bugs": {
+    "url" : "https://github.com/JohnRGee/forest-arborist/issues"
   }
 }
