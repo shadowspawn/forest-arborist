@@ -14,7 +14,6 @@
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version prepatch",
     "test": "jasmine",
     "test:cli-only": "jasmine --filter=command-line",
-    "test:linux": "docker build -t fabtest . && docker run fabtest",
     "prepare": "tsc",
     "tsc": "tsc",
     "update": "git pull && npm install"
