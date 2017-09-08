@@ -15,8 +15,7 @@
     "test": "jasmine",
     "test:cli-only": "jasmine --filter=command-line",
     "prepare": "tsc",
-    "tsc": "tsc",
-    "update": "git pull && npm install"
+    "pull": "git pull && npm prune && npm install && npx tsc"
   },
   "author": "John Gee",
   "license": "MIT",
@@ -43,6 +42,6 @@
     "typescript": "^2.5.2"
   },
   "bugs": {
-    "url" : "https://github.com/JohnRGee/forest-arborist/issues"
+    "url": "https://github.com/JohnRGee/forest-arborist/issues"
   }
 }
