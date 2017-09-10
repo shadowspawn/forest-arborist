@@ -24,14 +24,6 @@
 * locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
  * previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
 
-## Scripts
-
-* copy-up, copy-down: streamline develop <--> master
-* test:cli-only: test just the installed command (rather than the code)
-* prepare: use the new npm 4 onwards hook! (Called before publish and after install.)
-* tsc: convenience for people without typescript globally installed (c.f. npx tsc)
-* update: convenience so don't miss shrinkwrap changes or forget to compile latest ts
-
 ## Patterns
 
 Version Plan

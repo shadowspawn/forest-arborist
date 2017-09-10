@@ -10,12 +10,12 @@
     "url": "https://github.com/JohnRGee/forest-arborist.git"
   },
   "scripts": {
-    "copy-up": "git checkout master && git merge develop && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version prepatch",
-    "test": "jasmine",
-    "test:cli-only": "jasmine --filter=command-line",
+    "copy-up": "git checkout master && git merge develop && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "prepare": "tsc",
-    "pull": "git pull && npm prune && npm install && npx tsc"
+    "pull": "git pull && npm prune && npm install",
+    "test": "jasmine",
+    "test:cli-only": "jasmine --filter=command-line"
   },
   "author": "John Gee",
   "license": "MIT",
