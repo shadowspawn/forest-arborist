@@ -26,7 +26,7 @@
   "dependencies": {
     "chalk": "^2.1.0",
     "commander": "^2.11.0",
-    "jsonfile": "^3.0.1",
+    "jsonfile": "^4.0.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
     "tmp": "0.0.33"
@@ -34,8 +34,8 @@
   "devDependencies": {
     "@types/chalk": "^0.4.31",
     "@types/commander": "^2.9.2",
-    "@types/jasmine": "^2.5.54",
-    "@types/node": "^8.0.27",
+    "@types/jasmine": "^2.6.0",
+    "@types/node": "^8.0.28",
     "@types/tmp": "0.0.33",
     "jasmine": "^2.8.0",
     "jasmine-console-reporter": "^2.0.1",

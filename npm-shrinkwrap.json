@@ -15,19 +15,19 @@
       "integrity": "sha1-Qh8Mr9lKWAmRZicR6mH8N6X8/t4=",
       "dev": true,
       "requires": {
-        "@types/node": "8.0.27"
+        "@types/node": "8.0.28"
       }
     },
     "@types/jasmine": {
-      "version": "2.5.54",
-      "resolved": "https://registry.npmjs.org/@types/jasmine/-/jasmine-2.5.54.tgz",
-      "integrity": "sha1-prXyrir7bgMHd06MfGCOA31JHGM=",
+      "version": "2.6.0",
+      "resolved": "https://registry.npmjs.org/@types/jasmine/-/jasmine-2.6.0.tgz",
+      "integrity": "sha512-1ZZdFvYA5zARDXPj5+VF0bwDZWH/o0QQWJVDc5srdC/DngcCZXskR33eR/4PielGvBjLQpQOd6KiQbmtqVkeZA==",
       "dev": true
     },
     "@types/node": {
-      "version": "8.0.27",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.27.tgz",
-      "integrity": "sha512-MiOd5TB6ftlOw6gLY3XdF0s/9YoTo172A6qGzi5I1SJy2dRZqg/LAHGTJMm1XFWx7kuYkbVW0sp/z3OP7VnkjQ==",
+      "version": "8.0.28",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.0.28.tgz",
+      "integrity": "sha512-HupkFXEv3O3KSzcr3Ylfajg0kaerBg1DyaZzRBBQfrU3NN1mTBRE7sCveqHwXLS5Yrjvww8qFzkzYQQakG9FuQ==",
       "dev": true
     },
     "@types/tmp": {
@@ -203,9 +203,9 @@
       "dev": true
     },
     "jsonfile": {
-      "version": "3.0.1",
-      "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-3.0.1.tgz",
-      "integrity": "sha1-pezG9l9T9mLEQVx2daAzHQmS7GY=",
+      "version": "4.0.0",
+      "resolved": "https://registry.npmjs.org/jsonfile/-/jsonfile-4.0.0.tgz",
+      "integrity": "sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=",
       "requires": {
         "graceful-fs": "4.1.11"
       }
