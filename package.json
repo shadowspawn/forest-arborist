@@ -15,7 +15,7 @@
     "prepare": "tsc",
     "pull": "git pull && npm prune && npm install",
     "test": "jest --silent",
-    "test:cli-only": "jasmine --filter=command-line"
+    "test:cli-only": "jest tests/command.test.ts"
   },
   "author": "John Gee",
   "license": "MIT",
