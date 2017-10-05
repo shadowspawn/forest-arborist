@@ -14,7 +14,7 @@
     "copy-up": "git checkout master && git merge develop && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "prepare": "tsc",
     "pull": "git pull && npm prune && npm install",
-    "test": "jasmine",
+    "test": "jest --silent",
     "test:cli-only": "jasmine --filter=command-line"
   },
   "author": "John Gee",
@@ -23,6 +23,23 @@
     "dist/command.js",
     "dist/src/*"
   ],
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
+    "testPathIgnorePatterns": [
+      "/dist/",
+      "/node_modules/"
+    ],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ]
+  },
   "dependencies": {
     "chalk": "^2.1.0",
     "commander": "^2.11.0",
@@ -34,11 +51,11 @@
   "devDependencies": {
     "@types/chalk": "^0.4.31",
     "@types/commander": "^2.9.2",
-    "@types/jasmine": "^2.6.0",
+    "@types/jest": "^21.1.2",
     "@types/node": "^8.0.31",
     "@types/tmp": "0.0.33",
-    "jasmine": "^2.8.0",
-    "jasmine-console-reporter": "^2.0.1",
+    "jest": "^21.2.1",
+    "ts-jest": "^21.0.1",
     "typescript": "^2.5.3"
   },
   "bugs": {
