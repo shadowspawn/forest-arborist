@@ -9,13 +9,18 @@ import util = require("../src/util");
 //
 import cc = require("./core-common");
 
+function fabEntry() {
+  return path.join(path.dirname(__dirname), 'dist', 'command.js')
+}
 
 function quietCallFab(args: string[]) {
   // Bit tricky calling fab externally on Windows. The execFileSync
   // we use for git and hg does not work for fab. This invocation of
   // spawnSync with shell does the trick.
   util.muteCall(() => {
-    const result = childProcess.spawnSync("fab", args, { shell: true });
+    let nodeArgs = [fabEntry()];
+    nodeArgs.concat(args);
+    const result = childProcess.spawnSync("node", nodeArgs, { shell: true });
     expect(result.status).toEqual(0);
   });
 }
@@ -23,13 +28,15 @@ function quietCallFab(args: string[]) {
 
 function quietCallFabExpectFail(args: string[]) {
   util.muteCall(() => {
-    const result = childProcess.spawnSync("fab", args, { shell: true });
+    let nodeArgs = [fabEntry()];
+    nodeArgs.concat(args);
+    const result = childProcess.spawnSync("node", args, { shell: true });
     expect(result.status).not.toEqual(0);
   });
 }
 
 
-describe("command-line sanity check (of EXTERNAL COMMAND):", () => {
+describe("command-line sanity check:", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult; // [sic]
   let suite: cc.RepoSuiteResult;
