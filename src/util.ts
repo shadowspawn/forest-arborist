@@ -4,7 +4,7 @@
 // with terminal colouring. May give up as more trouble than worth, or make
 // an option.
 
-import chalk = require("chalk");
+const chalk = require("chalk");
 import childProcess = require("child_process");
 import fs = require("fs");
 const jsonfile = require("jsonfile");
