@@ -132,7 +132,7 @@ program.on("--help", () => {
   console.log(`    ${core.fabRootFilename} marks root of forest (do not commit to VCS)`);
   console.log("");
   console.log("  Forest management: clone, init, install");
-  console.log("  Utility: status, pull, outgoing, for-each, for-free");
+  console.log("  Utility: status, pull, for-each, for-free");
   console.log("  Branch: make-branch, switch");
   console.log("  Reproducible state: snapshot, recreate, restore");
   console.log("");
