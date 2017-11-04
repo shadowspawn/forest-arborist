@@ -10,7 +10,9 @@
 
 import childProcess = require("child_process");
 import fs = require("fs");
+import path = require("path");
 import program = require("commander");
+const tab = require('tabtab')({ name: "fab", cache: false }); // cache turned off while developing
 // Mine
 const myPackage = (require.main !== undefined ? require.main.require("../package.json") : undefined);
 import core = require("./src/core");
@@ -120,6 +122,23 @@ function doPull() {
 // ------------------------------------------------------------------------------
 // Command line processing
 
+tab.on('fab', function(data, done) {
+  if (data.words == 1) {
+    done(null, program.commands.map((currentValue, index, array) => {
+      if (currentValue._noHelp || currentValue._name == '*')
+        return "init"; // dummy value to avoid breaking completion
+      else
+        return currentValue._name;
+    }));
+  }
+});
+
+// Specific handler. Gets called on `program list <tab>`
+tab.on('list', function(data, done) {
+  done(null, ['file1', 'file2']);
+});
+// console.log(tab.parseEnv());
+
 program
   .version(myPackage.version)
   .option("--debug", "include debugging information, such as stack dump");
@@ -148,6 +167,21 @@ program
   .description("clone source and install its dependencies")
   .action((source, destination, options) => {
     coreClone.doClone(source, destination, options);
+  });
+
+program
+  .command("completion [args]")
+  .description("internal")
+  .action((args) => {
+    if(args === undefined) {
+      childProcess. execFileSync(
+        "npx",
+        ["tabtab", "install", "fab", "--stdout", "--name=fab"],
+        { cwd: path.join(__dirname, '..'), stdio: "inherit" }
+      );
+    } else {
+      tab.start();
+    }
   });
 
 program
@@ -271,23 +305,12 @@ program
   .command("_test", undefined, { noHelp: true })
   .description("test")
   .action(() => {
-    const itemList = fs.readdirSync(".fab");
-    itemList.forEach((item) => {
-      if (item === "manifest.json") {
-        console.log("  (default)");
-      } else {
-        const match = /(.*)_manifest.json$/.exec(item);
-        if (match !== null) {
-          console.log(`  ${match[1]}`);
-        }
-      }
-    });
+    console.log(__dirname);
   });
-
 
 // Catch-all, unrecognised command.
 program
-  .command("*")
+  .command("*", undefined, { noHelp: true })
   .action((command) => {
     // Tempting to try passing through to for-each, but primary
     // focus is management. KISS.

@@ -46,6 +46,7 @@
     "jsonfile": "^4.0.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
+    "tabtab": "^2.2.2",
     "tmp": "0.0.33"
   },
   "devDependencies": {
