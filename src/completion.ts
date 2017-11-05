@@ -4,7 +4,7 @@
 import childProcess = require("child_process");
 import path = require("path");
 import program = require("commander");
-const tab = require('tabtab')({ name: "fab", cache: false });
+const tabtab:TabTab = require('tabtab')({ name: "fab", cache: false });
 
 
 interface TabData {
@@ -16,8 +16,12 @@ interface TabData {
   lastPartial: string;
   prev: string;
 };
-
 interface TabDone { (error: Error | null, completions?: string[]): void; };
+interface TabCallback { (data: TabData, done:TabDone): void; };
+interface TabTab {
+  start():void;
+  on(name: string, callback:TabCallback):void;
+};
 
 
 function wantOptions(lastPartial: string): boolean {
@@ -49,7 +53,7 @@ function completeOptions(lastPartial: string, options: any): string[] {
 
 
 // First level hander
-tab.on('fab', function(data: TabData, done: TabDone) {
+tabtab.on('fab', function(data, done) {
   // Only offer to complete first word in this callback
   // strip global options to avoid breaking count?
   if (data.words > 1)
@@ -68,9 +72,12 @@ tab.on('fab', function(data: TabData, done: TabDone) {
 });
 
 
-// tab.on('switch', function(data: TabData, done: TabDone) {
-//   done(null, ["develop", "master"]);
-// });
+tabtab.on('switch', function(data, done) {
+  const branches = childProcess.execFileSync(
+    "git", ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"]
+  ).toString().trim();
+  done(null, branches.split("\n"));
+});
 
 
 export function addCommandOptions() {
@@ -79,7 +86,7 @@ export function addCommandOptions() {
       return !cmd._noHelp && cmd.options.length;
     })
     .map((cmd: any) => {
-      tab.on(cmd._name, function(data: TabData, done: TabDone) {
+      tabtab.on(cmd._name, function(data, done) {
         if (wantOptions(data.lastPartial))
           return done(null, completeOptions(data.lastPartial, cmd.options));
       });
@@ -97,8 +104,9 @@ export function complete() {
   //    install --manifest <tab>
   //    switch <tab>
   //    make-branch foo <tab>
+  // Consider turning on caching if add expensive completions.
 
-  tab.start();
+  tabtab.start();
 };
 
 
