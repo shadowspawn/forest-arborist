@@ -21,7 +21,7 @@ export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 
 export function terminate(message: string): never {
-  console.log(module.exports.errorColour(`Error: ${message}`));
+  console.error(module.exports.errorColour(`Error: ${message}`));
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
   // process.exit(1);
