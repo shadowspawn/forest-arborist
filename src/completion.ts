@@ -20,45 +20,84 @@ interface TabData {
 interface TabDone { (error: Error | null, completions?: string[]): void; };
 
 
-// First level hander
-tab.on('fab', function(data: TabData, done: TabDone) {
-  // strip --debug to avoid breaking count?
-  // console.log(data);
-  // return;
+function wantOptions(lastPartial: string): boolean {
+  if (/^--\w?/.test(lastPartial)) {
+    return true;
+  } else if (/^-\w?/.test(lastPartial)) {
+    return true;
+  }
+  return false;
+}
 
-  // Only offer to complete first word in this callback
-  if (data.words > 1)
-    return(done(null, []));
 
-  // Overkill for the options since we only have a few
+function completeOptions(lastPartial: string, options: any): string[] {
   let completions: string[] = [];
-  if (/^--\w?/.test(data.lastPartial)) {
-    completions.push("--help");
-    program.options.map((option: any) => {
-      completions.push(option.long);
+  if (/^--\w?/.test(lastPartial)) {
+    completions = options.map((option: any) => {
+      return option.long;
     });
-  } else if (/^-\w?/.test(data.lastPartial)) {
-    program.options.map((option: any) => {
-      completions.push(option.short);
-    })
-  } else {
-    program.commands
-      .filter((cmd: any) => {
-        return !cmd._noHelp;
-      })
-      .map((cmd: any) => {
-        completions.push(cmd._name);
-      });
-    }
-  // In particular, some options may have undefined short|long forms
+  } else if (/^-\w?/.test(lastPartial)) {
+    completions = options.map((option: any) => {
+      return option.short;
+    });
+  }
   completions = completions.filter((e) => {
     return (e !== undefined);
   });
-  done(null, completions);
+  return completions;
+};
+
+
+// First level hander
+tab.on('fab', function(data: TabData, done: TabDone) {
+  // Only offer to complete first word in this callback
+  // strip global options to avoid breaking count?
+  if (data.words > 1)
+    return(done(null, []));
+
+  if (wantOptions(data.lastPartial))
+    return done(null, completeOptions(data.lastPartial, program.options));
+
+  done(null, program.commands
+    .filter((cmd: any) => {
+      return !cmd._noHelp;
+    })
+    .map((cmd: any) => {
+      return cmd._name;
+    }));
 });
 
 
+// tab.on('switch', function(data: TabData, done: TabDone) {
+//   done(null, ["develop", "master"]);
+// });
+
+
+export function addCommandOptions() {
+  program.commands
+    .filter((cmd: any) => {
+      return !cmd._noHelp && cmd.options.length;
+    })
+    .map((cmd: any) => {
+      tab.on(cmd._name, function(data: TabData, done: TabDone) {
+        if (wantOptions(data.lastPartial))
+          return done(null, completeOptions(data.lastPartial, cmd.options));
+      });
+    });
+}
+
+
 export function complete() {
+  addCommandOptions();
+
+  // Wish list for smart command help:
+  //    clone --branch <tab>
+  //    clone --manifest <tab>
+  //    init --manifest <tab>
+  //    install --manifest <tab>
+  //    switch <tab>
+  //    make-branch foo <tab>
+
   tab.start();
 };
 

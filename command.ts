@@ -152,10 +152,10 @@ program
   });
 
 program
-  .command("completion [args]")
-  .description("internal")
-  .action((args) => {
-    if(args === undefined) {
+  .command("completion")
+  .description("generate shell completion script")
+  .action(() => {
+    if(process.argv.length === 3) {
       completion.shellCompletion();
     } else {
       completion.complete();
@@ -280,10 +280,10 @@ program
 
 // Hidden command for trying things out
 program
-  .command("_test", undefined, { noHelp: true })
+  .command("", undefined, { noHelp: true })
   .description("test")
   .action(() => {
-    console.log("This command is used for development, and could do ANYTHING");
+    console.log("Placeholder for internal development code");
   });
 
 // Catch-all, unrecognised command.
