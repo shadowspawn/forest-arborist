@@ -158,10 +158,11 @@ program
     console.log(`
   Description:
     Generates shell completion script.
-    For trying it out without writing files:
-         source < fab completion
-    or perhaps
-         eval \`fab completion\`
+    
+    For trying out shell completion without writing files on Lin:
+         source < (fab completion)
+    on Mac:
+         eval \`$(fab completion)\`
 
     To install permanently, write to a startup file in
     same way as "npm completion". For interactive assistance:
