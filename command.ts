@@ -10,11 +10,10 @@
 
 import childProcess = require("child_process");
 import fs = require("fs");
-import path = require("path");
 import program = require("commander");
-const tab = require('tabtab')({ name: "fab", cache: false }); // cache turned off while developing
 // Mine
 const myPackage = (require.main !== undefined ? require.main.require("../package.json") : undefined);
+import completion = require("./src/completion");
 import core = require("./src/core");
 import coreBranch = require("./src/core-branch");
 import coreClone = require("./src/core-clone");
@@ -122,23 +121,6 @@ function doPull() {
 // ------------------------------------------------------------------------------
 // Command line processing
 
-tab.on('fab', function(data, done) {
-  if (data.words == 1) {
-    done(null, program.commands.map((currentValue, index, array) => {
-      if (currentValue._noHelp || currentValue._name == '*')
-        return "init"; // dummy value to avoid breaking completion
-      else
-        return currentValue._name;
-    }));
-  }
-});
-
-// Specific handler. Gets called on `program list <tab>`
-tab.on('list', function(data, done) {
-  done(null, ['file1', 'file2']);
-});
-// console.log(tab.parseEnv());
-
 program
   .version(myPackage.version)
   .option("--debug", "include debugging information, such as stack dump");
@@ -174,13 +156,9 @@ program
   .description("internal")
   .action((args) => {
     if(args === undefined) {
-      childProcess. execFileSync(
-        "npx",
-        ["tabtab", "install", "fab", "--stdout", "--name=fab"],
-        { cwd: path.join(__dirname, '..'), stdio: "inherit" }
-      );
+      completion.shellCompletion();
     } else {
-      tab.start();
+      completion.complete();
     }
   });
 
@@ -305,7 +283,7 @@ program
   .command("_test", undefined, { noHelp: true })
   .description("test")
   .action(() => {
-    console.log(__dirname);
+    console.log("This command is used for development, and could do ANYTHING");
   });
 
 // Catch-all, unrecognised command.
@@ -321,6 +299,7 @@ program
     console.log("");
     process.exitCode = 1;
   });
+
 
 try {
   program.parse(process.argv);
