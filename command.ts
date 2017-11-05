@@ -127,19 +127,19 @@ program
 
 // Extra help
 program.on("--help", () => {
-  console.log("  Files:");
-  console.log(
-    `    ${core.manifestPath({})} default manifest for forest`);
-  console.log(`    ${core.fabRootFilename} marks root of forest (do not commit to VCS)`);
-  console.log("");
-  console.log("  Forest management: clone, init, install");
-  console.log("  Utility: status, pull, for-each, for-free");
-  console.log("  Branch: make-branch, switch");
-  console.log("  Reproducible state: snapshot, recreate, restore");
-  console.log("");
-  console.log("  See https://github.com/JohnRGee/forest-arborist.git for usage overview.");
-  console.log("  See also \"fab <command> --help\" for command options and further help.");
-  console.log("");
+  console.log(`
+  Files:
+     ${core.manifestPath({})} default manifest for forest
+     ${core.fabRootFilename} marks root of forest (do not commit to VCS)
+
+  Forest management: clone, init, install
+  Utility: status, pull, for-each, for-free
+  Branch: make-branch, switch
+  Reproducible state: snapshot, recreate, restore
+
+  See https://github.com/JohnRGee/forest-arborist.git for usage overview.
+  See also "fab <command> --help" for command options and further help.
+  `);
 });
 
 program
@@ -154,6 +154,20 @@ program
 program
   .command("completion")
   .description("generate shell completion script")
+  .on("--help", () => {
+    console.log(`
+  Description:
+    Generates shell completion script.
+    For trying it out without writing files:
+         source < fab completion
+    or perhaps
+         eval \`fab completion\`
+
+    To install permanently, write to a startup file in
+    same way as "npm completion". For interactive assistance:
+         npx tabtab install fab --name=fab
+    `);
+  })
   .action(() => {
     if(process.argv.length === 3) {
       completion.shellCompletion();
@@ -168,15 +182,18 @@ program
   .option("-m, --manifest <name>", "custom manifest file")
   .description("add manifest in current directory, and marker file at root of forest")
   .on("--help", () => {
-    console.log("  Use init to create the manifest based on your current sandpit. ");
-    console.log("  Run from your main repo and it finds the dependent repos.");
-    console.log("");
-    console.log("  Examples:");
-    console.log("    For a forest layout with dependent repos nested in the main repo:");
-    console.log("         fab init");
-    console.log("");
-    console.log("    For a forest layout with sibling repositories:");
-    console.log("         fab init --root ..");
+    console.log(`
+  Description:
+    Use init to create the manifest based on your current sandpit.
+    Run from your main repo and it finds the dependent repos.
+
+  Examples:
+    For a forest layout with dependent repos nested in the main repo:
+         fab init
+
+    For a forest layout with sibling repositories:
+         fab init --root ..
+    `);
   })
   .action((options) => {
     coreInit.doInit(options);
@@ -187,10 +204,13 @@ program
   .option("-m, --manifest <name>", "custom manifest file")
   .description("clone missing (new) dependent repositories")
   .on("--help", () => {
-    console.log("  Run Install from the main repo.");
-    console.log("");
-    console.log("  Target repos: all missing and pinned repos. Pinned repos will be updated");
-    console.log("                to match the `pinRevision` from the manifest if necessary.");
+    console.log(`
+  Description:
+    Run Install from the main repo.
+
+    Target repos: all missing and pinned repos. Pinned repos will be updated
+                  to match the <pinRevision> from the manifest if necessary.
+    `);
   })
   .action((options) => {
     coreClone.doInstall(options);
@@ -207,7 +227,9 @@ program
   .command("pull")
   .description("git-style pull, which is fetch and merge")
   .on("--help", () => {
-    console.log("  Target repos: free and branch-locked, excludes repos pinned to a revision");
+    console.log(`
+  Target repos: free and branch-locked, excludes repos pinned to a revision.
+    `);
   })
   .action(() => {
     doPull();
@@ -280,10 +302,9 @@ program
 
 // Hidden command for trying things out
 program
-  .command("", undefined, { noHelp: true })
-  .description("test")
+  .command("_test", undefined, { noHelp: true })
+  .description("Placeholder for internal development code")
   .action(() => {
-    console.log("Placeholder for internal development code");
   });
 
 // Catch-all, unrecognised command.
