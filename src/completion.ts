@@ -5,6 +5,9 @@ import childProcess = require("child_process");
 import path = require("path");
 import program = require("commander");
 const tabtab:TabTab = require('tabtab')({ name: "fab", cache: false });
+// Mine
+const core = require("./core");
+import repo = require("./repo");
 
 
 interface TabData {
@@ -73,10 +76,20 @@ tabtab.on('fab', function(data, done) {
 
 
 tabtab.on('switch', function(data, done) {
-  const branches = childProcess.execFileSync(
-    "git", ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"]
-  ).toString().trim();
-  done(null, branches.split("\n"));
+  const startDir = process.cwd();
+  core.cdRootDirectory();
+  const rootObject = core.readRootFile();
+
+  if (repo.isGitRepository(rootObject.mainPath)) {
+    const branches = childProcess.execFileSync(
+      "git",
+      ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
+      { cwd: rootObject.mainPath }
+    ).toString().trim();
+    done(null, branches.split("\n"));
+  }
+
+  process.chdir(startDir);
 });
 
 
