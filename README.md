@@ -177,6 +177,23 @@ Commands Summary
     Reproducible state: snapshot, recreate, restore
 
 
+Command line completion
+-----------------------
+
+For trying out shell completion without writing files on Lin:
+
+    source < (fab completion)
+
+on Mac:
+
+    eval `$(fab completion)`
+
+To install permanently, write to a startup file in
+same way as "npm completion". For interactive assistance:
+
+     npx tabtab install fab --name=fab
+
+
 Installing
 ----------
 
@@ -208,19 +225,3 @@ builds on develop branch :
 
 * OS: used on macOS, Windows, and Linux
 * DVCS: main development with git, less testing with hg.
-
-Command line completion
------------------------
-
-For trying out shell completion without writing files on Lin:
-
-    source < (fab completion)
-
-on Mac:
-
-    eval `$(fab completion)`
-
-To install permanently, write to a startup file in
-same way as "npm completion". For interactive assistance:
-
-     npx tabtab install fab --name=fab
