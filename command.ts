@@ -158,7 +158,7 @@ program
     console.log(`
   Description:
     Generates shell completion script.
-    
+
     For trying out shell completion without writing files on Lin:
          source < (fab completion)
     on Mac:
@@ -250,6 +250,7 @@ program
   .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
   .arguments("-- <command> [args...]")
   .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+  // .allowUnknownOption() disabled as not convenient way to get unknown options yet
   .action((command, args, options) => {
     coreFor.doForEach(command, args, options);
   });
@@ -259,6 +260,7 @@ program
   .description("run specified command on repos which are not locked or pinned")
   .arguments("-- <command> [args...]")
   .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+  // .allowUnknownOption() disabled as not convenient way to get unknown options yet
   .action((command, args, options) => {
     options.freeOnly = true; // Sticking in our own option!
     coreFor.doForEach(command, args, options);
@@ -303,9 +305,14 @@ program
 
 // Hidden command for trying things out
 program
-  .command("_test", undefined, { noHelp: true })
+  .command("_test <command> [args...]", undefined, { noHelp: true })
   .description("Placeholder for internal development code")
-  .action(() => {
+  .option("--expected")
+  .action((command, args, options) => {
+    console.log(`expected is ${options.expected}`);
+    console.log(`command is ${command}`);
+    console.log(`args is ${args}`);
+     // console.log(options);
   });
 
 // Catch-all, unrecognised command.
@@ -333,7 +340,7 @@ try {
   if (err.message !== util.suppressTerminateExceptionMessage) {
     console.log(`caught exception with message ${err.message}`);
   }
-  // Recommended pactice for node is set exitcode not force exit
+  // Recommended practice for node is set exitcode not force exit
   process.exitCode = 1;
 }
 
