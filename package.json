@@ -42,7 +42,7 @@
   },
   "dependencies": {
     "chalk": "^2.3.0",
-    "commander": "^2.12.1",
+    "commander": "^2.12.2",
     "jsonfile": "^4.0.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
@@ -50,13 +50,12 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "@types/commander": "^2.11.0",
     "@types/jest": "^21.1.8",
-    "@types/node": "^8.0.53",
+    "@types/node": "^8.0.54",
     "@types/tmp": "0.0.33",
     "jest": "^21.2.1",
-    "ts-jest": "^21.2.3",
-    "typescript": "^2.6.1"
+    "ts-jest": "^21.2.4",
+    "typescript": "^2.6.2"
   },
   "bugs": {
     "url": "https://github.com/JohnRGee/forest-arborist/issues"
