@@ -7,13 +7,6 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-function quietDoFor(cmd: string, args: string[], options: coreFor.ForOptions) {
-  util.muteCall(() => {
-    coreFor.doForEach(cmd, args, options);
-  });
-}
-
-
 describe("core for:", () => {
   const startDir = process.cwd();
   let tempFolder;
@@ -31,7 +24,7 @@ describe("core for:", () => {
 
   it("for-free", () => {
     const freeBranch = "freeBranch";
-    quietDoFor("git", ["checkout", "--quiet", "-b", freeBranch], { freeOnly: true });
+    coreFor.doForEach("git", ["checkout", "--quiet", "-b", freeBranch], { freeOnly: true });
     expect(repo.getBranch(".")).toEqual(freeBranch);
     expect(repo.getBranch("free")).toBe(freeBranch);
     expect(repo.getBranch("pinned")).toBeUndefined();
@@ -40,7 +33,7 @@ describe("core for:", () => {
 
   it("for-each", () => {
     const eachBranch = "eachBranch";
-    quietDoFor("git", ["checkout", "--quiet", "-b", eachBranch], {});
+    coreFor.doForEach("git", ["checkout", "--quiet", "-b", eachBranch], {});
     expect(repo.getBranch(".")).toEqual(eachBranch);
     expect(repo.getBranch("free")).toEqual(eachBranch);
     expect(repo.getBranch("pinned")).toEqual(eachBranch);
@@ -50,12 +43,12 @@ describe("core for:", () => {
   it("for-free --keepgoing", () => {
     // throw on errors
     expect(() => {
-      quietDoFor("fab", ["bogusCommand"], { });
+      coreFor.doForEach("fab", ["bogusCommand"], { });
     }).toThrow();
 
     // keepgoing
     expect(() => {
-      quietDoFor("fab", ["bogusCommand"], { keepgoing: true });
+      coreFor.doForEach("fab", ["bogusCommand"], { keepgoing: true });
     }).not.toThrow();
   });
 });

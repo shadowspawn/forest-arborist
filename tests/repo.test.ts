@@ -47,9 +47,7 @@ describe("repo:", () => {
 
   it("getRepoTypeForLocalPath", () => {
     expect(() => {
-      util.muteCall(() => {
-        repo.getRepoTypeForLocalPath("notRepo");
-      });
+      repo.getRepoTypeForLocalPath("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
     expect(repo.getRepoTypeForLocalPath("gitRepo")).toEqual("git");
     expect(repo.getRepoTypeForLocalPath("hgRepo")).toEqual("hg");

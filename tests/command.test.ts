@@ -13,26 +13,22 @@ function fabEntry() {
   return path.join(path.dirname(__dirname), 'dist', 'command.js')
 }
 
-function quietCallFab(args: string[]) {
+function callFab(args: string[]) {
   // Bit tricky calling fab externally on Windows. The execFileSync
   // we use for git and hg does not work for fab. This invocation of
   // spawnSync with shell does the trick.
-  util.muteCall(() => {
-    let nodeArgs = [fabEntry()];
-    nodeArgs.concat(args);
-    const result = childProcess.spawnSync("node", nodeArgs, { shell: true });
-    expect(result.status).toEqual(0);
-  });
+  let nodeArgs = [fabEntry()];
+  nodeArgs.concat(args);
+  const result = childProcess.spawnSync("node", nodeArgs, { shell: true });
+  expect(result.status).toEqual(0);
 }
 
 
-function quietCallFabExpectFail(args: string[]) {
-  util.muteCall(() => {
-    let nodeArgs = [fabEntry()];
-    nodeArgs.concat(args);
-    const result = childProcess.spawnSync("node", args, { shell: true });
-    expect(result.status).not.toEqual(0);
-  });
+function callFabExpectFail(args: string[]) {
+  let nodeArgs = [fabEntry()];
+  nodeArgs.concat(args);
+  const result = childProcess.spawnSync("node", args, { shell: true });
+  expect(result.status).not.toEqual(0);
 }
 
 
@@ -47,12 +43,10 @@ describe("command-line sanity check:", () => {
     process.chdir(tempFolder.name);
     suite = cc.makeGitRepoSuite();
     // Get out a clean repo to work with
-    util.muteCall(() => {
-      coreClone.doClone(
-        path.join(suite.remotesDir, "main-nested"),
-        preparedRepo, {}
-      );
-    });
+    coreClone.doClone(
+      path.join(suite.remotesDir, "main-nested"),
+      preparedRepo, {}
+    );
   });
 
   afterAll(() => {
@@ -68,74 +62,74 @@ describe("command-line sanity check:", () => {
   });
 
   it("fab clone", () => {
-    quietCallFab(["clone", path.join(suite.remotesDir, "main-nested"), "clone-test"]);
+    callFab(["clone", path.join(suite.remotesDir, "main-nested"), "clone-test"]);
   });
 
   it("fab init", () => {
     cc.makeOneGitRepo("init-test");
     process.chdir("init-test");
-    quietCallFab(["init"]);
+    callFab(["init"]);
   });
 
   it("fab install", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "install-test"]);
     process.chdir("install-test");
-    quietCallFab(["install"]);
+    callFab(["install"]);
   });
 
   it("fab status", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["status"]);
+    callFab(["status"]);
   });
 
   it("fab pull", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["pull"]);
+    callFab(["pull"]);
   });
 
   it("fab root", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["root"]);
+    callFab(["root"]);
   });
 
   it("fab for-each", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["for-each", "pwd"]);
+    callFab(["for-each", "pwd"]);
   });
 
   it("fab for-free", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["for-free", "pwd"]);
+    callFab(["for-free", "pwd"]);
   });
 
   it("for-free --keepgoing", () => {
     process.chdir(preparedRepo);
-    quietCallFabExpectFail(["for-each", "fab", "bogusCommand"]);
-    quietCallFab(["for-each", "--keepgoing", "bogusCommand"]);
+    callFabExpectFail(["for-each", "fab", "bogusCommand"]);
+    callFab(["for-each", "--keepgoing", "bogusCommand"]);
   });
 
   it("fab switch", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["switch", "develop"]);
+    callFab(["switch", "develop"]);
   });
 
   it("fab make-branch", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["make-branch", "feature/test"]);
+    callFab(["make-branch", "feature/test"]);
   });
 
   // saves snapshot to use in recreate and restore
   it("fab snapshot", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["snapshot", "--output", "snapshot"]);
+    callFab(["snapshot", "--output", "snapshot"]);
   });
 
   it("fab recreate", () => {
-    quietCallFab(["recreate", path.join(preparedRepo, "snapshot"), "recreate-test"]);
+    callFab(["recreate", path.join(preparedRepo, "snapshot"), "recreate-test"]);
   });
 
   it("fab restore", () => {
     process.chdir(preparedRepo);
-    quietCallFab(["restore", "snapshot"]);
+    callFab(["restore", "snapshot"]);
   });
 });

@@ -13,13 +13,6 @@ import util = require("../src/util");
 export const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
 
 
-export function quietDoInit(options: coreInit.InitOptions) {
-  util.muteCall(() => {
-    coreInit.doInit(options);
-  });
-};
-
-
 export function configureTestRepo(repoPath: string) {
   childProcess.execFileSync("git", ["config", "user.email", "noreply@no.reply"], { cwd: repoPath });
   childProcess.execFileSync("git", ["config", "user.name", "Unit Test"], { cwd: repoPath });
@@ -59,7 +52,7 @@ export function makeOneOfEachGitRepo() {
 
   // fab init
   process.chdir(rootDir);
-  quietDoInit({});
+  coreInit.doInit({});
 
   process.chdir(rootDir);
 };
@@ -93,7 +86,7 @@ export function makeGitRepoSuite() {
   function initAndPushMain(options: coreInit.InitOptions) {
     // Setting up two branches and two manifests
     // default manifest
-    quietDoInit(options);
+    coreInit.doInit(options);
     configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({})]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
@@ -102,7 +95,7 @@ export function makeGitRepoSuite() {
     const manifest = "sub";
     const customOptions = { root: options.root, manifest };
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(remotesDir, "free"), "sub"]);
-    quietDoInit(customOptions);
+    coreInit.doInit(customOptions);
     configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({ manifest })]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised with custom manifest"]);

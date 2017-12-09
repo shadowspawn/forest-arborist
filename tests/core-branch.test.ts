@@ -8,20 +8,6 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-function quietDoMakeBranch(branch: string, startPoint?: string, publish?: boolean) {
-  util.muteCall(() => {
-    coreBranch.doMakeBranch(branch, startPoint, publish);
-  });
-}
-
-
-function quietDoSwitch(branch: string) {
-  util.muteCall(() => {
-    coreBranch.doSwitch(branch);
-  });
-}
-
-
 describe("core branch:", () => {
   const startDir = process.cwd();
   let tempFolder;
@@ -42,7 +28,7 @@ describe("core branch:", () => {
     expect(repo.getBranch("free")).toEqual("master");
 
     // make-branch X, check just affects free
-    quietDoMakeBranch("one");
+    coreBranch.doMakeBranch("one");
     expect(repo.getBranch(".")).toEqual("one");
     expect(repo.getBranch("free")).toEqual("one");
     expect(repo.getBranch("pinned")).toBeUndefined();
@@ -52,11 +38,11 @@ describe("core branch:", () => {
     cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
     const oneRevision = repo.getRevision(".");
-    quietDoMakeBranch("two");
+    coreBranch.doMakeBranch("two");
     expect(repo.getRevision(".")).toEqual(oneRevision);
 
     // make-branch X Y, check from specified start
-    quietDoMakeBranch("three", "master");
+    coreBranch.doMakeBranch("three", "master");
     expect(repo.getRevision(".")).not.toEqual(oneRevision);
 
     // make-branch X --publish ????
@@ -65,12 +51,12 @@ describe("core branch:", () => {
 
   it("switch", () => {
     cc.makeOneOfEachGitRepo();
-    quietDoMakeBranch("one");
-    quietDoMakeBranch("two");
+    coreBranch.doMakeBranch("one");
+    coreBranch.doMakeBranch("two");
     expect(repo.getBranch(".")).toEqual("two");
     expect(repo.getBranch("free")).toEqual("two");
 
-    quietDoSwitch("one");
+    coreBranch.doSwitch("one");
     expect(repo.getBranch(".")).toEqual("one");
     expect(repo.getBranch("free")).toEqual("one");
     expect(repo.getBranch("pinned")).toBeUndefined();

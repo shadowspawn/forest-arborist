@@ -39,12 +39,10 @@ describe("core snapshot:", () => {
 
   it("restore", () => {
     // Get out a clean repo to work with
-    util.muteCall(() => {
-      coreClone.doClone(
-        path.join(suite.remotesDir, "main-nested"),
-        "test-restore", {}
-      );
-    });
+    coreClone.doClone(
+      path.join(suite.remotesDir, "main-nested"),
+      "test-restore", {}
+    );
     process.chdir("test-restore");
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
@@ -61,9 +59,7 @@ describe("core snapshot:", () => {
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
     });
 
-    util.muteCall(() => {
-      coreSnapshot.doRestore("ss");
-    });
+    coreSnapshot.doRestore("ss");
 
     // Check restored revisions.
     Object.keys(forestRepos).forEach((repoPath) => {
@@ -71,9 +67,7 @@ describe("core snapshot:", () => {
     });
 
     // Get out of snapshot. Pinned revision stays same, others should move forward.
-    util.muteCall(() => {
-      coreSnapshot.doRestore();
-    });
+    coreSnapshot.doRestore();
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     Object.keys(forestRepos).forEach((repoPath) => {
       if (forestRepos[repoPath].pinRevision === undefined) {
@@ -84,12 +78,10 @@ describe("core snapshot:", () => {
 
   it("recreate", () => {
     // Get out a clean repo to work with
-    util.muteCall(() => {
-      coreClone.doClone(
-        path.join(suite.remotesDir, "main-nested"),
-        "test-recreate-source", {}
-      );
-    });
+    coreClone.doClone(
+      path.join(suite.remotesDir, "main-nested"),
+      "test-recreate-source", {}
+    );
     process.chdir("test-recreate-source");
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
@@ -113,9 +105,7 @@ describe("core snapshot:", () => {
     });
 
     process.chdir(tempFolder.name);
-    util.muteCall(() => {
-      coreSnapshot.doRecreate(ss, "test-recreate-dest");
-    });
+    coreSnapshot.doRecreate(ss, "test-recreate-dest");
     process.chdir("test-recreate-dest");
 
     // Check restored revisions.
@@ -124,9 +114,7 @@ describe("core snapshot:", () => {
     });
 
     // Get out of snapshot. Pinned revision stays same, others should move forward.
-    util.muteCall(() => {
-      coreSnapshot.doRestore();
-    });
+    coreSnapshot.doRestore();
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     Object.keys(forestRepos).forEach((repoPath) => {
       childProcess.execFileSync("git", ["pull"]);

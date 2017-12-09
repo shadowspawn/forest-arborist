@@ -11,20 +11,6 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 
-function quietDoClone(source: string, destination?: string, options?: coreClone.CloneOptions) {
-  util.muteCall(() => {
-    coreClone.doClone(source, destination, options);
-  });
-}
-
-
-function quietDoInstall(options: coreClone.InstallOptions) {
-  util.muteCall(() => {
-    coreClone.doInstall(options);
-  });
-}
-
-
 describe("core clone:", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
@@ -49,7 +35,7 @@ describe("core clone:", () => {
   });
 
   it("nested source", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       undefined, {}
     );
@@ -57,7 +43,7 @@ describe("core clone:", () => {
   });
 
   it("nested source destination", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "dest-nested", {}
     );
@@ -65,7 +51,7 @@ describe("core clone:", () => {
   });
 
   it("nested source destination --branch", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "branch-nested", { branch: "develop" }
     );
@@ -73,7 +59,7 @@ describe("core clone:", () => {
   });
 
   it("nested source destination --manifest", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "sub-nested", { manifest: "sub" }
     );
@@ -89,7 +75,7 @@ describe("core clone:", () => {
   });
 
   it("sibling source", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       undefined, {}
     );
@@ -97,7 +83,7 @@ describe("core clone:", () => {
   });
 
   it("sibling source destination", () => {
-    quietDoClone(
+    coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       "dest-sibling", {}
     );
@@ -132,7 +118,7 @@ describe("core install:", () => {
   it("nested", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested")]);
     process.chdir("main-nested");
-    quietDoInstall({});
+    coreClone.doInstall({});
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
@@ -140,14 +126,14 @@ describe("core install:", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "branch-nested"]);
     process.chdir("branch-nested");
     childProcess.execFileSync("git", ["checkout", "--quiet", "develop"]);
-    quietDoInstall({});
+    coreClone.doInstall({});
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "develop", pinnedRevision: suite.pinnedRevision });
   });
 
   it("nested --manifest", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "sub-nested"]);
     process.chdir("sub-nested");
-    quietDoInstall({ manifest: "sub" });
+    coreClone.doInstall({ manifest: "sub" });
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     // Look for the extra repo in the sub manifest
     expect(fsX.dirExistsSync("sub")).toBe(true);
@@ -163,7 +149,7 @@ describe("core install:", () => {
     process.chdir("sibling");
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-sibling")]);
     process.chdir("main-sibling");
-    quietDoInstall({});
+    coreClone.doInstall({});
     cc.expectSuiteRepoLayout({ rootDir: "..", mainDir: "main-sibling", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 });

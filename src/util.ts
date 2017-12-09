@@ -12,6 +12,7 @@ const mute = require("mute");
 import path = require("path");
 const shellQuote = require("shell-quote");
 
+declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 
 let muteDepth = 0;
 
@@ -137,6 +138,8 @@ export function errorColour(text: string) {
     try {
       // Note: this stdio option hooks up child stream to parent so we get live progress.
       let stdio = "inherit"; // [0, 1, 2]
+      // Using inherit mucks up jest --silent, so use default pipe
+      if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING) stdio = "pipe";
       if (isMuteNow()) stdio = "ignore";
       childProcess.execFileSync(
           command.cmd, command.args,
