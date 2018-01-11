@@ -9,7 +9,7 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-interface FindRepositoriesCallback { (repoPath:  string, repoType: string): void; };
+interface FindRepositoriesCallback { (repoPath:  string, repoType: string): void; }
 
 
 function findRepositories(startingDirectory: string, callback: FindRepositoriesCallback) {
@@ -160,4 +160,4 @@ export function doInit(options: InitOptions) {
     console.log("(No dependencies found. For a sibling repo layout use \"fab init --root ..\")");
   }
   process.chdir(startDir); // Simplify unit tests and reuse
-};
+}

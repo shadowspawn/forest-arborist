@@ -10,7 +10,7 @@ import util = require("../src/util");
 import cc = require("./core-common");
 
 function fabEntry() {
-  return path.join(path.dirname(__dirname), 'dist', 'command.js')
+  return path.join(path.dirname(__dirname), 'dist', 'command.js');
 }
 
 function callFab(args: string[]) {

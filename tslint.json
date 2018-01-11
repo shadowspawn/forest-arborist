@@ -1,0 +1,20 @@
+{
+   "defaultSeverity": "warning",
+   "rules": {
+      "prefer-for-of": true,
+      "unified-signatures": true,
+      "await-promise": true,
+      "forin": true,
+      "no-duplicate-variable": true,
+      "no-duplicate-super": true,
+      "no-eval": true,
+      "no-floating-promises": true,
+      "radix": true,
+      "use-isnan": true,
+      "class-name": true,
+      "indent": [true, "spaces"],
+      "semicolon": [true, "always"],
+      "array-type": [true, "array"],
+      "linebreak-style": [true, "LF"]
+   }
+}

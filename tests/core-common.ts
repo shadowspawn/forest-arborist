@@ -30,7 +30,7 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
     childProcess.execFileSync("git", ["remote", "add", "origin", origin]);
 
   process.chdir(startingDir);
-};
+}
 
 
 // Nested, direct construction of a sandpit.
@@ -55,13 +55,13 @@ export function makeOneOfEachGitRepo() {
   coreInit.doInit({});
 
   process.chdir(rootDir);
-};
+}
 
 
 export interface RepoSuiteResult {
   remotesDir: string;
   pinnedRevision: string;
-};
+}
 
 
 export function makeGitRepoSuite() {
@@ -148,7 +148,7 @@ export function makeGitRepoSuite() {
   process.chdir(startDir);
 
   return { remotesDir, pinnedRevision };
-};
+}
 
 
 export interface ExpectSuiteRepoLayoutOptions {
@@ -157,7 +157,7 @@ export interface ExpectSuiteRepoLayoutOptions {
   freeBranch: string;
   pinnedRevision: string;
   manifest?: string;
-};
+}
 
 
 export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
@@ -184,4 +184,4 @@ export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
   expect(repo.getRevision(path.join("Libs", "pinned"))).toEqual(options.pinnedRevision);
 
   process.chdir(startDir2);
-};
+}

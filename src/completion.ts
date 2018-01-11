@@ -18,13 +18,13 @@ interface TabData {
   last: string;
   lastPartial: string;
   prev: string;
-};
-interface TabDone { (error: Error | null, completions?: string[]): void; };
-interface TabCallback { (data: TabData, done:TabDone): void; };
+}
+interface TabDone { (error: Error | null, completions?: string[]): void; }
+interface TabCallback { (data: TabData, done:TabDone): void; }
 interface TabTab {
   start():void;
   on(name: string, callback:TabCallback):void;
-};
+}
 
 
 function wantOptions(lastPartial: string): boolean {
@@ -52,7 +52,7 @@ function completeOptions(lastPartial: string, options: any): string[] {
     return (e !== undefined);
   });
   return completions;
-};
+}
 
 
 // First level hander
@@ -120,7 +120,7 @@ export function complete() {
   // Consider turning on caching if add expensive completions.
 
   tabtab.start();
-};
+}
 
 
 export function shellCompletion() {
@@ -129,4 +129,4 @@ export function shellCompletion() {
     ["tabtab", "install", "fab", "--stdout", "--name=fab"],
     { cwd: path.join(__dirname, '..'), stdio: "inherit" }
   );
-};
+}

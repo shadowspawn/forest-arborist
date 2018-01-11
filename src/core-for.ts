@@ -48,4 +48,4 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
     }
   });
   process.chdir(startDir); // Simplify unit tests and reuse
-};
+}

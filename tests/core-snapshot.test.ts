@@ -13,7 +13,7 @@ import cc = require("./core-common");
 
 interface RevisionMap {
     [index: string]: string;
-};
+}
 
 
 describe("core snapshot:", () => {

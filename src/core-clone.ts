@@ -68,7 +68,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
       );
     }
   }
-};
+}
 
 
 export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
@@ -104,12 +104,12 @@ export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, fre
   } else {
     console.log("");
   }
-};
+}
 
 
 export interface InstallOptions {
   manifest?: string;
-};
+}
 
 
 export function doInstall(options: InstallOptions) {
@@ -141,7 +141,7 @@ export function doInstall(options: InstallOptions) {
     }
   });
   process.chdir(startDir);
-};
+}
 
 
 export interface CloneOptions {
@@ -213,4 +213,4 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
 
   console.log(`Created repo forest in ${destination}`);
   process.chdir(startDir);
-};
+}

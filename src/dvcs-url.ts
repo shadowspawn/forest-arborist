@@ -47,7 +47,7 @@ export interface DvcsUrl {
 export function parse(urlString?: string): DvcsUrl {
   if (urlString === undefined) {
     return { protocol: "", pathname: "" };
-  };
+  }
 
   // Parsing for git covers hg as well, sweet!
   let result: DvcsUrl;
@@ -88,7 +88,7 @@ export function parse(urlString?: string): DvcsUrl {
   }
 
   return result;
-};
+}
 
 
 export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
@@ -115,7 +115,7 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
   const dir2 = url.parse(object2.href);
   if (dir2.pathname !== undefined) dir2.pathname = path.posix.dirname(dir2.pathname);
   return url.format(dir1) === url.format(dir2);
-};
+}
 
 
 // like basename
@@ -125,7 +125,7 @@ export function repoName(urlObject: DvcsUrl): string {
   }
 
   return path.posix.basename(urlObject.pathname, ".git");
-};
+}
 
 
 // like basename
@@ -137,7 +137,7 @@ export function relative(object1: DvcsUrl, object2: DvcsUrl): string {
   }
 
   return path.posix.relative(object1.pathname, object2.pathname);
-};
+}
 
 
 export function resolve(urlObject: DvcsUrl, relativePath: string): string {
@@ -160,4 +160,4 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   const temp2 = path.posix.join(urlObject.pathname, relativePath);
   parsedTemp.pathname = path.posix.normalize(temp2);
   return url.format(parsedTemp);
-};
+}

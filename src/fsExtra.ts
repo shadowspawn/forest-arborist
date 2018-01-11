@@ -12,7 +12,7 @@ export function fileExistsSync(filePath: string) {
       }
       throw err;
     }
-  };
+  }
 
 
 export function dirExistsSync(filePath: string) {
@@ -24,4 +24,4 @@ export function dirExistsSync(filePath: string) {
       }
       throw err;
     }
-  };
+  }

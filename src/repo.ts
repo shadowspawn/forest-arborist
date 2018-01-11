@@ -26,7 +26,7 @@ export function isGitRepository(repository: string) {
     unmute();
     return false;
   }
-};
+}
 
 
 export function isHgRepository(repository: string) {
@@ -42,7 +42,7 @@ export function isHgRepository(repository: string) {
     unmute();
     return false;
   }
-};
+}
 
 
 export function getRepoTypeForLocalPath(repoPath: string) {
@@ -56,7 +56,7 @@ export function getRepoTypeForLocalPath(repoPath: string) {
   // and only calling when expecting an answer.
   util.terminate(`failed to find repository type for ${repoPath}`);
   return undefined;
-};
+}
 
 
 export function getOrigin(repoPath: string, repoTypeParam?: string) {
@@ -78,7 +78,7 @@ export function getOrigin(repoPath: string, repoTypeParam?: string) {
   }
 
   return origin;
-};
+}
 
 
 export function getBranch(repoPath: string, repoTypeParam?: string) {
@@ -102,7 +102,7 @@ export function getBranch(repoPath: string, repoTypeParam?: string) {
     ).toString().trim();
   }
   return branch;
-};
+}
 
 
 export function getRevision(repoPath: string, repoTypeParam?: string) {
@@ -119,4 +119,4 @@ export function getRevision(repoPath: string, repoTypeParam?: string) {
     ).toString().trim();
   }
   return revision;
-};
+}

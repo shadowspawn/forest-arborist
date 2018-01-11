@@ -15,7 +15,8 @@
     "prepare": "tsc",
     "pull": "git pull && npm prune && npm install",
     "test": "jest --silent",
-    "test:cli-only": "jest tests/command.test.ts"
+    "test:cli-only": "jest tests/command.test.ts",
+    "lint": "tslint --project tsconfig.json src/**/*.ts{,x}"
   },
   "author": "John Gee",
   "license": "MIT",
@@ -58,7 +59,8 @@
     "@types/tmp": "0.0.33",
     "jest": "^22.0.5",
     "ts-jest": "^22.0.1",
-    "typescript": "^2.6.2"
+    "typescript": "^2.6.2",
+    "tslint": "^5.9.1"
   },
   "bugs": {
     "url": "https://github.com/JohnRGee/forest-arborist/issues"

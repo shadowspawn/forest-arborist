@@ -26,18 +26,18 @@ export function terminate(message: string): never {
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
   // process.exit(1);
-};
+}
 
 
 export function errorColour(text: string) {
   return chalk.red(text);
-};
+}
 
 
   export function commandColour(text: string) {
     // Started with blue but works poorly in Windows PowerShell with white text on blue background.
     return chalk.magenta(text);
-  };
+  }
 
 
   export function normalizeToPosix(relPathParam?: string) {
@@ -53,7 +53,7 @@ export function errorColour(text: string) {
 
     // Clean up, including turn '' into '.'
     return path.posix.normalize(relPath);
-  };
+  }
 
 
   export function isRelativePath(pathname: string) {
@@ -61,10 +61,10 @@ export function errorColour(text: string) {
 
     // (string.startsWith only available from ES6)
     return pathname.indexOf("./") === 0 || pathname.indexOf("../") === 0;
-  };
+  }
 
 
-  export function readJson(targetPath: string, requiredProperties: Array<string>) {
+  export function readJson(targetPath: string, requiredProperties: string[]) {
     let rootObject = jsonfile.readFileSync(targetPath);
 
     // Sanity check. Possible errors due to hand editing, but during development
@@ -82,7 +82,7 @@ export function errorColour(text: string) {
     }
 
     return rootObject;
-  };
+  }
 
 
   // Add recursion to support using mute in unit tests to call code which also uses mute.
@@ -99,12 +99,12 @@ export function errorColour(text: string) {
       muteDepth -= 1;
       unmute();
     });
-  };
+  }
 
 
   export function isMuteNow() {
     return (muteDepth > 0);
-  };
+  }
 
   export function muteCall(doSomething: Function) {
     const unmute = recursiveMute();
@@ -115,7 +115,7 @@ export function errorColour(text: string) {
       unmute();
       throw err;
     }
-  };
+  }
 
 
   export function execCommandSync(commandParam: any) {
@@ -152,7 +152,7 @@ export function errorColour(text: string) {
       }
     }
     console.log(""); // blank line after command output
-  };
+  }
 
 
 // };

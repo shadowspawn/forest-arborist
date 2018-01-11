@@ -17,7 +17,7 @@ export interface DependencyEntry {
   origin?: string;
   pinRevision?: string;
   lockBranch?: string;
-};
+}
 
 
 
@@ -47,13 +47,13 @@ export function cdRootDirectory(): void {
   } else {
     util.terminate("root of forest not found. ");
   }
-};
+}
 
 
 export interface ManifestOptions {
   manifest?: string;
   mainPath?: string;
-};
+}
 
 
 // Perhaps make internal when finished refactor?
@@ -73,7 +73,7 @@ export function manifestPath(options: ManifestOptions): string {
   }
 
   return manifest;
-};
+}
 
 
 export function manifestList(mainPath: string): void {
@@ -99,7 +99,7 @@ export function manifestList(mainPath: string): void {
     }
   });
   if (count === 0) console.log("  (none found)");
-};
+}
 
 
 export function readRootFile() {
@@ -112,7 +112,7 @@ export function readRootFile() {
   rootObject.mainPath = util.normalizeToPosix(rootObject.mainPath);
 
   return rootObject;
-};
+}
 
 
 export interface WriteRootFileOptions {
@@ -146,7 +146,7 @@ export function writeRootFile(options: WriteRootFileOptions) {
       }
     }
   }
-};
+}
 
 
 export interface ReadManifestOptions {
@@ -154,7 +154,7 @@ export interface ReadManifestOptions {
   addMainToDependencies?: boolean;
   mainPath?: string;
   manifest?: string;
-};
+}
 
 export function readManifest(options: ReadManifestOptions) {
   // Sort out manifest location
@@ -216,4 +216,4 @@ export function readManifest(options: ReadManifestOptions) {
   });
 
   return manifestObject;
-};
+}

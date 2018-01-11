@@ -43,7 +43,7 @@ export function doMakeBranch(branch: string, startPoint?: string, publish?: bool
     }
   });
   process.chdir(startDir); // Simplify unit tests and reuse
-};
+}
 
 
 export function doSwitch(branch: string) {
@@ -71,4 +71,4 @@ export function doSwitch(branch: string) {
     }
   });
   process.chdir(startDir); // Simplify unit tests and reuse
-};
+}
