@@ -13,7 +13,7 @@
     "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version prepatch",
     "copy-up": "git checkout master && git merge develop && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "prepare": "tsc",
-    "pull": "git pull && npm prune && npm install",
+    "pull": "git pull && npm prune && npm install && npm test",
     "test": "jest --silent",
     "test:cli-only": "jest tests/command.test.ts",
     "lint": "tslint --project tsconfig.json src/**/*.ts{,x}"
