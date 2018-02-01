@@ -59,7 +59,7 @@
     "@types/tmp": "0.0.33",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.2",
-    "typescript": "^2.6.2"
+    "typescript": "^2.7.1"
   },
   "bugs": {
     "url": "https://github.com/JohnRGee/forest-arborist/issues"
