@@ -58,7 +58,7 @@
     "@types/node": "^9.4.0",
     "@types/tmp": "0.0.33",
     "jest": "^22.1.4",
-    "ts-jest": "^22.0.2",
+    "ts-jest": "^22.0.3",
     "typescript": "^2.7.1"
   },
   "bugs": {
