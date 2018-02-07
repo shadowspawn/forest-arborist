@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "chalk": "^2.3.0",
-    "commander": "^2.13.0",
+    "commander": "^2.14.1",
     "jsonfile": "^4.0.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
@@ -55,7 +55,7 @@
   },
   "devDependencies": {
     "@types/jest": "^22.1.1",
-    "@types/node": "^9.4.0",
+    "@types/node": "^9.4.1",
     "@types/tmp": "0.0.33",
     "jest": "^22.1.4",
     "ts-jest": "^22.0.3",
