@@ -30,13 +30,22 @@ export function terminate(message: string): never {
 
 
 export function errorColour(text: string) {
-  return chalk.red(text);
+  // PowerShell has such awful colours, KISS and disable custom colours on Windows.
+  if (process.platform === "win32") {
+    return text;
+  } else {
+    return chalk.red(text);
+  }
 }
 
 
   export function commandColour(text: string) {
-    // Started with blue but works poorly in Windows PowerShell with white text on blue background.
-    return chalk.magenta(text);
+    // PowerShell has such awful colours, KISS and disable custom colours on Windows.
+    if (process.platform === "win32") {
+      return text;
+    } else {
+      return chalk.magenta(text);
+    }
   }
 
 
