@@ -37,7 +37,7 @@ describe("core snapshot:", () => {
     process.chdir(startDir);
   });
 
-  it("restore", () => {
+  test("restore", () => {
     // Get out a clean repo to work with
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
@@ -76,7 +76,7 @@ describe("core snapshot:", () => {
     });
   });
 
-  it("recreate", () => {
+  test("recreate", () => {
     // Get out a clean repo to work with
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
@@ -88,7 +88,7 @@ describe("core snapshot:", () => {
 
     // Make snapshot
     coreSnapshot.doSnapshot({ output: "ss" });
-    const ss = path.resolve("ss");
+    const ss = path.resolve(process.cwd(), "ss");
 
     // Note revisions and make sure now on a different revision.
     const beforeRevisions: RevisionMap = {};

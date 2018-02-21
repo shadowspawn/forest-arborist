@@ -104,7 +104,7 @@ export function manifestList(mainPath: string): void {
 
 export function readRootFile() {
   // Use absolute path so appears in any errors
-  const fabRootPath = path.resolve(fabRootFilename);
+  const fabRootPath = path.resolve(process.cwd(), fabRootFilename);
   const rootObject = util.readJson(fabRootPath, ["mainPath"]);
   // rootObject may alsp have manifest property.
 

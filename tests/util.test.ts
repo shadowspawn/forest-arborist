@@ -4,7 +4,7 @@ import util = require("../src/util");
 
 
 describe("util:", () => {
-  it("normalizeToPosix", () => {
+  test("normalizeToPosix", () => {
     // On win32 turn a\\b into a/b
     const nativePath = path.join("a", "b", "c");
     expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");

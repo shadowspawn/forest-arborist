@@ -23,13 +23,13 @@ describe("core init:", () => {
     process.chdir(startDir);
   });
 
-  it("no repo", () => {
+  test("no repo", () => {
     expect(() => {
       coreInit.doInit({});
     }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
-  it("empty git repo", () => {
+  test("empty git repo", () => {
     // Check we don"t fall over in empty repo
     childProcess.execFileSync("git", ["init"]);
     expect(fsX.dirExistsSync(".git")).toBe(true);
@@ -40,7 +40,7 @@ describe("core init:", () => {
     // Not too worried about root and manifest contents!
   });
 
-  it("--manifest", () => {
+  test("--manifest", () => {
     // Check manigest self consistent
     childProcess.execFileSync("git", ["init"]);
     expect(fsX.dirExistsSync(".git")).toBe(true);
@@ -55,7 +55,7 @@ describe("core init:", () => {
     expect(rootObject.manifest).toEqual(manifest);
   });
 
-  it("nested", () => {
+  test("nested", () => {
     // Check cross referencing for nested setup.
     const sub = "child";
     childProcess.execFileSync("git", ["init"]);
@@ -74,7 +74,7 @@ describe("core init:", () => {
     expect(manifestObject.dependencies[sub]).not.toBeUndefined();
   });
 
-  it("sibling (--root)", () => {
+  test("sibling (--root)", () => {
     // Check cross referencing for sibling setup.
     const sibling = "sibling";
     childProcess.execFileSync("git", ["init", "main"]);
@@ -95,7 +95,7 @@ describe("core init:", () => {
     expect(manifestObject.dependencies[sibling]).not.toBeUndefined();
   });
 
-  it("pinned", () => {
+  test("pinned", () => {
     // Auto detect pinned revision
     childProcess.execFileSync("git", ["init"]);
     cc.configureTestRepo(".");
@@ -120,7 +120,7 @@ describe("core init:", () => {
     expect(entry.pinRevision).toEqual(revision);
   });
 
-  it("locked", () => {
+  test("locked", () => {
     // Auto detect locked, little bit fragile with empty repos but KISS.
     childProcess.execFileSync("git", ["init"]);
     childProcess.execFileSync("git", ["init", "boost"]);
@@ -135,7 +135,7 @@ describe("core init:", () => {
     expect(entry.lockBranch).toEqual("master");
   });
 
-  it("free", () => {
+  test("free", () => {
     // Auto detect free
     childProcess.execFileSync("git", ["init"]);
     childProcess.execFileSync("git", [

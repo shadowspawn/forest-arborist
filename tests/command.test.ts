@@ -58,77 +58,77 @@ describe("command-line sanity check:", () => {
   });
 
   afterEach(() => {
-    process.chdir(startDir);
+    // process.chdir(startDir);
   });
 
-  it("fab clone", () => {
+  test("fab clone", () => {
     callFab(["clone", path.join(suite.remotesDir, "main-nested"), "clone-test"]);
   });
 
-  it("fab init", () => {
+  test("fab init", () => {
     cc.makeOneGitRepo("init-test");
     process.chdir("init-test");
     callFab(["init"]);
   });
 
-  it("fab install", () => {
+  test("fab install", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "install-test"]);
     process.chdir("install-test");
     callFab(["install"]);
   });
 
-  it("fab status", () => {
+  test("fab status", () => {
     process.chdir(preparedRepo);
     callFab(["status"]);
   });
 
-  it("fab pull", () => {
+  test("fab pull", () => {
     process.chdir(preparedRepo);
     callFab(["pull"]);
   });
 
-  it("fab root", () => {
+  test("fab root", () => {
     process.chdir(preparedRepo);
     callFab(["root"]);
   });
 
-  it("fab for-each", () => {
+  test("fab for-each", () => {
     process.chdir(preparedRepo);
     callFab(["for-each", "pwd"]);
   });
 
-  it("fab for-free", () => {
+  test("fab for-free", () => {
     process.chdir(preparedRepo);
     callFab(["for-free", "pwd"]);
   });
 
-  it("for-free --keepgoing", () => {
+  test("for-free --keepgoing", () => {
     process.chdir(preparedRepo);
     callFabExpectFail(["for-each", "fab", "bogusCommand"]);
     callFab(["for-each", "--keepgoing", "bogusCommand"]);
   });
 
-  it("fab switch", () => {
+  test("fab switch", () => {
     process.chdir(preparedRepo);
     callFab(["switch", "develop"]);
   });
 
-  it("fab make-branch", () => {
+  test("fab make-branch", () => {
     process.chdir(preparedRepo);
     callFab(["make-branch", "feature/test"]);
   });
 
   // saves snapshot to use in recreate and restore
-  it("fab snapshot", () => {
+  test("fab snapshot", () => {
     process.chdir(preparedRepo);
     callFab(["snapshot", "--output", "snapshot"]);
   });
 
-  it("fab recreate", () => {
+  test("fab recreate", () => {
     callFab(["recreate", path.join(preparedRepo, "snapshot"), "recreate-test"]);
   });
 
-  it("fab restore", () => {
+  test("fab restore", () => {
     process.chdir(preparedRepo);
     callFab(["restore", "snapshot"]);
   });

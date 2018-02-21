@@ -30,22 +30,22 @@ describe("repo:", () => {
   });
 
   afterEach(() => {
-    process.chdir(startDir);
+    // process.chdir(startDir);
   });
 
-  it("isGitRepository", () => {
+  test("isGitRepository", () => {
     expect(repo.isGitRepository("notRepo")).toBe(false);
     expect(repo.isGitRepository("gitRepo")).toBe(true);
     expect(repo.isGitRepository("hgRepo")).toBe(false);
   });
 
-  it("isHgRepository", () => {
+  test("isHgRepository", () => {
     expect(repo.isHgRepository("notRepo")).toBe(false);
     expect(repo.isHgRepository("gitRepo")).toBe(false);
     expect(repo.isHgRepository("hgRepo")).toBe(true);
   });
 
-  it("getRepoTypeForLocalPath", () => {
+  test("getRepoTypeForLocalPath", () => {
     expect(() => {
       repo.getRepoTypeForLocalPath("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);

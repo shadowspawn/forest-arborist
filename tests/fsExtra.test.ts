@@ -4,7 +4,7 @@ import fsX = require("../src/fsExtra");
 
 
 describe("fsX (fsExtra):", () => {
-  it("dirExistsSync", () => {
+  test("dirExistsSync", () => {
     // Do this one by hand rather than create and delete and worry about timing.
     expect(fsX.dirExistsSync("dir-which-do-not-expect-to-exist")).toBe(false);
 
@@ -15,7 +15,7 @@ describe("fsX (fsExtra):", () => {
     expect(fsX.dirExistsSync(tempFile.name)).toBe(false);
   });
 
-  it("fileExistsSync", () => {
+  test("fileExistsSync", () => {
     // Do this one by hand rather than create and delete and worry about timing.
     expect(fsX.fileExistsSync("file-which-do-not-expect-to-exist")).toBe(false);
 

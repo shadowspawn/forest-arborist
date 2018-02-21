@@ -119,7 +119,7 @@ export function doInstall(options: InstallOptions) {
     mainPath: ".",
     manifest: options.manifest,
   });
-  const rootAbsolutePath = path.resolve(manifestObject.rootDirectory);
+  const rootAbsolutePath = path.resolve(startDir, manifestObject.rootDirectory);
   const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
   const freeBranch = repo.getBranch(".");
   core.writeRootFile({

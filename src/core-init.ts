@@ -49,7 +49,7 @@ export function doInit(options: InitOptions) {
     console.log("(Delete it to start over, or did you want \"fab install\"?)");
     return;
   }
-  const absManifestPath = path.resolve(".", relManifestPath);
+  const absManifestPath = path.resolve(startDir, relManifestPath);
 
   // Find main origin, if we can.
   const mainRepoType = repo.getRepoTypeForLocalPath(".");
@@ -72,7 +72,7 @@ export function doInit(options: InitOptions) {
     rootAbsolutePath = process.cwd();
     console.log("Scanning for nested dependencies…");
   } else {
-    rootAbsolutePath = path.resolve(options.root);
+    rootAbsolutePath = path.resolve(mainAbsolutePath, options.root);
     console.log("Scanning for dependencies from root…");
   }
   const mainFromRoot = path.relative(rootAbsolutePath, mainAbsolutePath);

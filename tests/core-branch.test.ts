@@ -21,7 +21,7 @@ describe("core branch:", () => {
     process.chdir(startDir);
   });
 
-  it("make-branch", () => {
+  test("make-branch", () => {
     cc.makeOneOfEachGitRepo();
 
     expect(repo.getBranch(".")).toEqual("master");
@@ -49,7 +49,7 @@ describe("core branch:", () => {
   });
 
 
-  it("switch", () => {
+  test("switch", () => {
     cc.makeOneOfEachGitRepo();
     coreBranch.doMakeBranch("one");
     coreBranch.doMakeBranch("two");

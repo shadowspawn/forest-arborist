@@ -22,7 +22,7 @@ describe("core for:", () => {
   });
 
 
-  it("for-free", () => {
+  test("for-free", () => {
     const freeBranch = "freeBranch";
     coreFor.doForEach("git", ["checkout", "--quiet", "-b", freeBranch], { freeOnly: true });
     expect(repo.getBranch(".")).toEqual(freeBranch);
@@ -31,7 +31,7 @@ describe("core for:", () => {
     expect(repo.getBranch("locked")).toBe("master");
   });
 
-  it("for-each", () => {
+  test("for-each", () => {
     const eachBranch = "eachBranch";
     coreFor.doForEach("git", ["checkout", "--quiet", "-b", eachBranch], {});
     expect(repo.getBranch(".")).toEqual(eachBranch);
@@ -40,7 +40,7 @@ describe("core for:", () => {
     expect(repo.getBranch("locked")).toEqual(eachBranch);
   });
 
-  it("for-free --keepgoing", () => {
+  test("for-free --keepgoing", () => {
     // throw on errors
     expect(() => {
       coreFor.doForEach("fab", ["bogusCommand"], { });

@@ -4,7 +4,7 @@ import dvcsUrl = require("../src/dvcs-url");
 describe("dvcs-url recognise git URL protocols", () => {
   const pathname = "/path/to/repo.git/";
 
-  it("git ssh", () => {
+  test("git ssh", () => {
     // ssh://[user@]host.xz[:port]/path/to/repo.git/
     const variations = [
       "ssh://user@host.xz:123/path/to/repo.git/",
@@ -19,7 +19,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git", () => {
+  test("git", () => {
     // git://host.xz[:port]/path/to/repo.git/
     const variations = [
       "git://host.xz:123/path/to/repo.git/",
@@ -32,7 +32,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git http", () => {
+  test("git http", () => {
     // http[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       "http://host.xz:123/path/to/repo.git/",
@@ -45,7 +45,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git https", () => {
+  test("git https", () => {
     // http[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       "https://host.xz:123/path/to/repo.git/",
@@ -58,7 +58,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git ftp", () => {
+  test("git ftp", () => {
     // ftp[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       "ftp://host.xz:123/path/to/repo.git/",
@@ -71,7 +71,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git ftps", () => {
+  test("git ftps", () => {
     // ftp[s]://host.xz[:port]/path/to/repo.git/
     const variations = [
       "ftps://host.xz:123/path/to/repo.git/",
@@ -84,7 +84,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git file", () => {
+  test("git file", () => {
     // file:///path/to/repo.git/
     const variations = [
       "file:///path/to/repo.git/",
@@ -96,7 +96,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git scp", () => {
+  test("git scp", () => {
     // [user@]host.xz:path/to/repo.git/
     const variations = [
       "user@host.xz:path/to/repo.git/",
@@ -109,7 +109,7 @@ describe("dvcs-url recognise git URL protocols", () => {
     });
   });
 
-  it("git path-posix", () => {
+  test("git path-posix", () => {
     // /path/to/repo.git/
     const variations = [
       "/path/to/repo.git/",
@@ -129,7 +129,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
   // These are a subset of the git URLs apart from the #revision,
   // and optional [path], and we are ignoring both until needed.
 
-  it("hg ssh", () => {
+  test("hg ssh", () => {
     // ssh://[user@]host[:port]/[path][#revision]
     const variations = [
       "ssh://user@host:123/path/to/repo",
@@ -144,7 +144,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
     });
   });
 
-  it("hg http", () => {
+  test("hg http", () => {
     // http://[user[:pass]@]host[:port]/[path][#revision]
     // Add test for
     const variations = [
@@ -160,7 +160,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
     });
   });
 
-  it("hg https", () => {
+  test("hg https", () => {
     // http://[user[:pass]@]host[:port]/[path][#revision]
     // (Is path really optional?))
     const variations = [
@@ -176,7 +176,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
     });
   });
 
-  it("hg path-posix", () => {
+  test("hg path-posix", () => {
     // local/filesystem/path[#revision]
     const variations = [
       "local/filesystem/path",
@@ -188,7 +188,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
     });
   });
 
-  it("hg file", () => {
+  test("hg file", () => {
     // file://local/filesystem/path[#revision]
     // Urk, strips the local unless we have three slashes!
     // Perhaps partial not supported by url?
@@ -205,7 +205,7 @@ describe("dvcs-url recognise hg URL protocols", () => {
 
 
 describe("dvcs-url resolve", () => {
-  it("ssh-like protocols", () => {
+  test("ssh-like protocols", () => {
     // Most of the protocols look like ssh
     const base = "ssh://user@host:123/path/to/repo";
     const parsedBase = dvcsUrl.parse(base);
@@ -213,21 +213,21 @@ describe("dvcs-url resolve", () => {
     expect(result).toEqual("ssh://user@host:123/path/to/other");
   });
 
-  it("file protocol", () => {
+  test("file protocol", () => {
     const base = "file:///path/to/repo.git/";
     const parsedBase = dvcsUrl.parse(base);
     const result = dvcsUrl.resolve(parsedBase, "../other.git");
     expect(result).toEqual("file:///path/to/other.git");
   });
 
-  it("custom scp protocol", () => {
+  test("custom scp protocol", () => {
     const base = "user@host.xz:path/to/repo.git/";
     const parsedBase = dvcsUrl.parse(base);
     const result = dvcsUrl.resolve(parsedBase, "../other.git");
     expect(result).toEqual("user@host.xz:path/to/other.git");
   });
 
-  it("custom path-posix protocol", () => {
+  test("custom path-posix protocol", () => {
     const base = "/path/to/repo.git/";
     const parsedBase = dvcsUrl.parse(base);
     const result = dvcsUrl.resolve(parsedBase, "../other.git");
@@ -237,14 +237,14 @@ describe("dvcs-url resolve", () => {
 
 
 describe("dvcs-url windows", () => {
-  it("parse", () => {
+  test("parse", () => {
     const windowsPath = "C:\\Users\\me";
     const parsed = dvcsUrl.parse(windowsPath);
     expect(parsed.protocol).toEqual("path-win32");
     expect(parsed.pathname).toEqual(windowsPath);
   });
 
-  it("repoName", () => {
+  test("repoName", () => {
     const windowsPath = "C:\\Users\\repo.git";
     const parsed = dvcsUrl.parse(windowsPath);
     expect(dvcsUrl.repoName(parsed)).toEqual("repo");

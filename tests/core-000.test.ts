@@ -7,7 +7,7 @@ import util = require("../src/util");
 
 
 describe("core:", () => {
-  it("manifestPath", () => {
+  test("manifestPath", () => {
     expect(util.normalizeToPosix(core.manifestPath({}))).toEqual(".fab/manifest.json");
     expect(util.normalizeToPosix(core.manifestPath({ manifest: "custom" }))).toEqual(".fab/custom_manifest.json");
     expect(util.normalizeToPosix(core.manifestPath({ mainPath: "main" }))).toEqual("main/.fab/manifest.json");

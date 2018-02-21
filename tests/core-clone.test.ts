@@ -31,10 +31,10 @@ describe("core clone:", () => {
   });
 
   afterEach(() => {
-    process.chdir(startDir);
+    // process.chdir(startDir);
   });
 
-  it("nested source", () => {
+  test("nested source", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       undefined, {}
@@ -42,7 +42,7 @@ describe("core clone:", () => {
     cc.expectSuiteRepoLayout({ rootDir: "main-nested", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("nested source destination", () => {
+  test("nested source destination", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "dest-nested", {}
@@ -50,7 +50,7 @@ describe("core clone:", () => {
     cc.expectSuiteRepoLayout({ rootDir: "dest-nested", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("nested source destination --branch", () => {
+  test("nested source destination --branch", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "branch-nested", { branch: "develop" }
@@ -58,7 +58,7 @@ describe("core clone:", () => {
     cc.expectSuiteRepoLayout({ rootDir: "branch-nested", mainDir: ".", freeBranch: "develop", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("nested source destination --manifest", () => {
+  test("nested source destination --manifest", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-nested"),
       "sub-nested", { manifest: "sub" }
@@ -74,7 +74,7 @@ describe("core clone:", () => {
     expect(rootObject.manifest).toEqual("sub");
   });
 
-  it("sibling source", () => {
+  test("sibling source", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       undefined, {}
@@ -82,7 +82,7 @@ describe("core clone:", () => {
     cc.expectSuiteRepoLayout({ rootDir: "main-sibling", mainDir: "main-sibling", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("sibling source destination", () => {
+  test("sibling source destination", () => {
     coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       "dest-sibling", {}
@@ -112,17 +112,17 @@ describe("core install:", () => {
   });
 
   afterEach(() => {
-    process.chdir(startDir);
+    // process.chdir(startDir);
   });
 
-  it("nested", () => {
+  test("nested", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested")]);
     process.chdir("main-nested");
     coreClone.doInstall({});
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("nested on branch", () => {
+  test("nested on branch", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "branch-nested"]);
     process.chdir("branch-nested");
     childProcess.execFileSync("git", ["checkout", "--quiet", "develop"]);
@@ -130,7 +130,7 @@ describe("core install:", () => {
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "develop", pinnedRevision: suite.pinnedRevision });
   });
 
-  it("nested --manifest", () => {
+  test("nested --manifest", () => {
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-nested"), "sub-nested"]);
     process.chdir("sub-nested");
     coreClone.doInstall({ manifest: "sub" });
@@ -144,7 +144,7 @@ describe("core install:", () => {
     expect(rootObject.manifest).toEqual("sub");
   });
 
-  it("sibling", () => {
+  test("sibling", () => {
     fs.mkdirSync("sibling");
     process.chdir("sibling");
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(suite.remotesDir, "main-sibling")]);
