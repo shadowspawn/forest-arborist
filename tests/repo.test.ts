@@ -37,12 +37,14 @@ describe("repo:", () => {
     expect(repo.isGitRepository("notRepo")).toBe(false);
     expect(repo.isGitRepository("gitRepo")).toBe(true);
     expect(repo.isGitRepository("hgRepo")).toBe(false);
+    expect(repo.isGitRepository("doesNotExist")).toBe(false);
   });
 
   test("isHgRepository", () => {
     expect(repo.isHgRepository("notRepo")).toBe(false);
     expect(repo.isHgRepository("gitRepo")).toBe(false);
     expect(repo.isHgRepository("hgRepo")).toBe(true);
+    expect(repo.isGitRepository("doesNotExist")).toBe(false);
   });
 
   test("getRepoTypeForLocalPath", () => {
@@ -51,11 +53,45 @@ describe("repo:", () => {
     }).toThrowError(util.suppressTerminateExceptionMessage);
     expect(repo.getRepoTypeForLocalPath("gitRepo")).toEqual("git");
     expect(repo.getRepoTypeForLocalPath("hgRepo")).toEqual("hg");
+    expect(() => {
+      repo.getRepoTypeForLocalPath("doesNotExist");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
-  // getOrigin
+  test("getOrigin", () => {
+    expect(() => {
+      repo.getOrigin("notRepo");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    // We have local only repos, so no origin.
+    expect(repo.getOrigin("gitRepo")).toBeUndefined();
+    expect(repo.getOrigin("hgRepo")).toBeUndefined();
+    expect(() => {
+      repo.getOrigin("doesNotExist");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    // Add some real origins?
+  });
 
-  // getBranch
+  test("getBranch", () => {
+    expect(() => {
+      repo.getBranch("notRepo");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    // We have local only repos, so no origin.
+    expect(repo.getBranch("gitRepo")).toBe("master");
+    expect(repo.getBranch("hgRepo")).toBe("default");
+    expect(() => {
+      repo.getBranch("doesNotExist");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    // Add some real origins?
+  });
 
-  // getRevision
+  test("getRevision", () => {
+    // Test the failure modes
+    expect(() => {
+      repo.getRevision("notRepo");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    expect(() => {
+      repo.getRevision("doesNotExist");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+    // Add some real revisions?
+  });
 });
