@@ -12,5 +12,42 @@ describe("util:", () => {
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");
     expect(util.normalizeToPosix(undefined)).toEqual(".");
+
+    // Terminate should throw
+    expect(() => {
+      util.terminate("Goodbye");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+
+    // // Simple check that message gets preserved in styled text
+    const sampleString = "Aa+Bb (Yy-Zz)";
+    expect(util.errorColour(sampleString)).toContain(sampleString);
+    expect(util.commandColour(sampleString)).toContain(sampleString);
+
+    // isRelativePath
+    expect(util.isRelativePath("")).toBe(false);
+    expect(util.isRelativePath("a")).toBe(false);
+    expect(util.isRelativePath("a/b")).toBe(false);
+    expect(util.isRelativePath("a/../b")).toBe(false);
+    expect(util.isRelativePath("/")).toBe(false);
+    expect(util.isRelativePath("/absolute")).toBe(false);
+    expect(util.isRelativePath("./relative")).toBe(true);
+    expect(util.isRelativePath("../relative")).toBe(true);
+
+    // mute
+    expect(util.isMuteNow()).toBe(false);
+    const unmute1 = util.recursiveMute();
+    expect(util.isMuteNow()).toBe(true);
+    const unmute2 = util.recursiveMute();
+    expect(util.isMuteNow()).toBe(true);
+    unmute2();
+    expect(util.isMuteNow()).toBe(true);
+    unmute1();
+    expect(util.isMuteNow()).toBe(false);
+    util.muteCall(() => { return 1; });
+    expect(util.isMuteNow()).toBe(false);
+    expect(() => {
+      util.muteCall(() => { throw new Error("x"); });
+    }).toThrow();
+    expect(util.isMuteNow()).toBe(false);
   });
 });
