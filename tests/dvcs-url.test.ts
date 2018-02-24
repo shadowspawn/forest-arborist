@@ -1,7 +1,8 @@
 import dvcsUrl = require("../src/dvcs-url");
+import util = require("../src/util");
 
 
-describe("dvcs-url recognise git URL protocols", () => {
+describe("dvcs-url parse recognises git URL protocols", () => {
   const pathname = "/path/to/repo.git/";
 
   test("git ssh", () => {
@@ -123,7 +124,7 @@ describe("dvcs-url recognise git URL protocols", () => {
 });
 
 
-describe("dvcs-url recognise hg URL protocols", () => {
+describe("dvcs-url parse recognises hg URL protocols", () => {
   const pathname = "/path/to/repo";
 
   // These are a subset of the git URLs apart from the #revision,
@@ -233,6 +234,13 @@ describe("dvcs-url resolve", () => {
     const result = dvcsUrl.resolve(parsedBase, "../other.git");
     expect(result).toEqual("/path/to/other.git");
   });
+
+  test("win32 protocol", () => {
+    const base = "C:\\Users\\repo.git";
+    const parsedBase = dvcsUrl.parse(base);
+    const result = dvcsUrl.resolve(parsedBase, "../other.git");
+    expect(result).toEqual(util.normalizeToPosix("C:\\Users\\other.git"));
+  });
 });
 
 
@@ -248,5 +256,102 @@ describe("dvcs-url windows", () => {
     const windowsPath = "C:\\Users\\repo.git";
     const parsed = dvcsUrl.parse(windowsPath);
     expect(dvcsUrl.repoName(parsed)).toEqual("repo");
+  });
+});
+
+
+describe("dvcs-url:", () => {
+  test("parse undefined", () => {
+    expect(dvcsUrl.parse()).toEqual({ protocol: "", pathname: "" });
+  });
+
+  test("sameDir", () => {
+    // Not exhaustive!
+    // Different protocol
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/path1"),
+      dvcsUrl.parse("user@host.xz:path1")
+    )).toBe(false);
+    // Different host
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz1/path1"),
+      dvcsUrl.parse("ssh://host.xz2/path2")
+    )).toBe(false);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz1:path1"),
+      dvcsUrl.parse("user@host.xz2:path1")
+    )).toBe(false);
+    // Different dir
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz1/a/path1"),
+      dvcsUrl.parse("ssh://host.xz2/b/path1")
+    )).toBe(false);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz1:a/path1"),
+      dvcsUrl.parse("user@host.xz2:b/path1")
+    )).toBe(false);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("a/path1"),
+      dvcsUrl.parse("b/path1")
+    )).toBe(false);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("a\\path1"),
+      dvcsUrl.parse("b\\path1")
+    )).toBe(false);
+    // same protocol and (parent) dir
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/path1"),
+      dvcsUrl.parse("ssh://host.xz/path2")
+    )).toBe(true);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/a/path1"),
+      dvcsUrl.parse("ssh://host.xz/a/path2")
+    )).toBe(true);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("git://host.xz/path1"),
+      dvcsUrl.parse("git://host.xz/path2")
+    )).toBe(true);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz2:a/path1"),
+      dvcsUrl.parse("user@host.xz2:a/path2")
+    )).toBe(true);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("a/path1"),
+      dvcsUrl.parse("a/path2")
+    )).toBe(true);
+    expect(dvcsUrl.sameDir(
+      dvcsUrl.parse("a\\path1"),
+      dvcsUrl.parse("a\\path2")
+    )).toBe(true);
+  });
+
+
+  test("repoName", () => {
+    expect(dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo"))).toBe("repo");
+    expect(dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo.git"))).toBe("repo");
+    expect(dvcsUrl.repoName(dvcsUrl.parse("user@host.xz2:a/repo"))).toBe("repo");
+    expect(dvcsUrl.repoName(dvcsUrl.parse("user@host.xz2:a/repo.git"))).toBe("repo");
+    expect(dvcsUrl.repoName(dvcsUrl.parse("a/b/c/repo"))).toBe("repo");
+    expect(dvcsUrl.repoName(dvcsUrl.parse("a\\b\\c\\repo"))).toBe("repo");
+  });
+
+
+  test("relative", () => {
+    expect(dvcsUrl.relative(
+      dvcsUrl.parse("ssh://user@host.xz:123/path/a"),
+      dvcsUrl.parse("ssh://user@host.xz:123/path/b")
+    )).toBe("../b");
+    expect(dvcsUrl.relative(
+      dvcsUrl.parse("user@host.xz2:path/a"),
+      dvcsUrl.parse("user@host.xz2:path/b")
+    )).toBe("../b");
+    expect(dvcsUrl.relative(
+      dvcsUrl.parse("/path/a"),
+      dvcsUrl.parse("/path/b")
+    )).toBe("../b");
+    expect(dvcsUrl.relative(
+      dvcsUrl.parse("C:\\Users\\a"),
+      dvcsUrl.parse("C:\\Users\\b")
+    )).toBe(util.normalizeToPosix("..\\b"));
   });
 });
