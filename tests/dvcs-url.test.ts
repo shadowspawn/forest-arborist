@@ -121,6 +121,13 @@ describe("dvcs-url parse recognises git URL protocols", () => {
       expect(parsed.pathname).toEqual(pathname);
     });
   });
+
+  test("git path-win32", () => {
+    const windowsPath = "C:\\Users\\repo";
+    const parsed = dvcsUrl.parse(windowsPath);
+    expect(parsed.protocol).toEqual("path-win32");
+    expect(parsed.pathname).toEqual(windowsPath);
+  });
 });
 
 
@@ -235,28 +242,14 @@ describe("dvcs-url resolve", () => {
     expect(result).toEqual("/path/to/other.git");
   });
 
-  test("win32 protocol", () => {
-    const base = "C:\\Users\\repo.git";
-    const parsedBase = dvcsUrl.parse(base);
-    const result = dvcsUrl.resolve(parsedBase, "../other.git");
-    expect(result).toEqual(util.normalizeToPosix("C:\\Users\\other.git"));
-  });
-});
-
-
-describe("dvcs-url windows", () => {
-  test("parse", () => {
-    const windowsPath = "C:\\Users\\me";
-    const parsed = dvcsUrl.parse(windowsPath);
-    expect(parsed.protocol).toEqual("path-win32");
-    expect(parsed.pathname).toEqual(windowsPath);
-  });
-
-  test("repoName", () => {
-    const windowsPath = "C:\\Users\\repo.git";
-    const parsed = dvcsUrl.parse(windowsPath);
-    expect(dvcsUrl.repoName(parsed)).toEqual("repo");
-  });
+  if (process.platform === "win32") {
+    test("win32 protocol", () => {
+      const base = "C:\\Users\\repo.git";
+      const parsedBase = dvcsUrl.parse(base);
+      const result = dvcsUrl.resolve(parsedBase, "../other.git");
+      expect(result).toEqual("C:\\Users\\other.git");
+    });
+  }
 });
 
 
@@ -349,9 +342,11 @@ describe("dvcs-url:", () => {
       dvcsUrl.parse("/path/a"),
       dvcsUrl.parse("/path/b")
     )).toBe("../b");
-    expect(dvcsUrl.relative(
-      dvcsUrl.parse("C:\\Users\\a"),
-      dvcsUrl.parse("C:\\Users\\b")
-    )).toBe(util.normalizeToPosix("..\\b"));
+    if (process.platform === "win32") {
+      expect(dvcsUrl.relative(
+        dvcsUrl.parse("C:\\Users\\a"),
+        dvcsUrl.parse("C:\\Users\\b")
+      )).toBe("../b");
+    }
   });
 });
