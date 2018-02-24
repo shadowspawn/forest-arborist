@@ -17,7 +17,7 @@ describe("core branch:", () => {
     process.chdir(tempFolder.name);
   });
 
-  afterEach(() => {
+  afterAll(() => {
     process.chdir(startDir);
   });
 

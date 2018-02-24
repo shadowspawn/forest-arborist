@@ -2,6 +2,7 @@ import childProcess = require("child_process");
 import fs = require("fs");
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import repo = require("../src/repo");
 import util = require("../src/util");
 //
@@ -11,6 +12,7 @@ import util = require("../src/util");
 describe("repo:", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
+  const testOrigin= "git@ex.com:path/to/main.git";
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
@@ -19,6 +21,8 @@ describe("repo:", () => {
     fs.mkdirSync("notRepo");
     childProcess.execFileSync("git", ["init", "gitRepo"]);
     childProcess.execFileSync("hg", ["init", "hgRepo"]);
+    cc.makeOneGitRepo("hasOrigin", testOrigin);
+
   });
 
   afterAll(() => {
@@ -65,6 +69,7 @@ describe("repo:", () => {
     // We have local only repos, so no origin.
     expect(repo.getOrigin("gitRepo")).toBeUndefined();
     expect(repo.getOrigin("hgRepo")).toBeUndefined();
+    expect(repo.getOrigin("hasOrigin")).toBe(testOrigin);
     expect(() => {
       repo.getOrigin("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
@@ -85,13 +90,18 @@ describe("repo:", () => {
   });
 
   test("getRevision", () => {
-    // Test the failure modes
+    // Basic checks, thow on no repo
     expect(() => {
       repo.getRevision("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
     expect(() => {
       repo.getRevision("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    // Add some real revisions?
+
+    // Empty repo is messy for git
+    expect(() => {
+      repo.getRevision("gitRepo");
+    }).toThrowError();
+    expect(repo.getRevision("hgRepo")).toBe("0000000000000000000000000000000000000000");
   });
 });
