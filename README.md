@@ -12,11 +12,11 @@ Allows some commands to be run from anywhere in the forest, by searching up for
 the root marker file.
 
 Terminology:
+
 * forest: a collection of repositories and their working trees
 * root: directory at the root of the forest
 * manifest: lists dependent repositories and forest configuration
 * main repository: where the manifest is stored
-
 
 Getting Started
 ---------------
@@ -35,11 +35,11 @@ platform libraries or production vs development, you can specify a manifest name
     fab init --manifest mac
     fab clone --manifest mac ssh://user@host:/path
 
-
 Reproducing Forest State
 ------------------------
 
 There are three commands for reproducing forest state:
+
 * `snapshot` produces a listing of the current forest and changesets
 * `restore` takes the current forest back to the snapshot state
 * `recreate` is like clone but takes a snapshot file
@@ -51,7 +51,6 @@ Example commands:
     fab restore ~/snapshot1
     cd ~/sandpit
     fab recreate ~/snapshot1 myTempRepo
-
 
 Working With Branches
 ---------------------
@@ -67,7 +66,6 @@ There are commands to make a new branch and to switch to an existing branch:
 
 The branch commands operate on the _free_ repositories, and not the pinned or locked repositories. (See next section.)
 
-
 Dependent Repository Types
 --------------------------
 
@@ -76,6 +74,7 @@ while some might actively track the release branch of a library, and some should
 at a specific version.
 
 The dependent repos can be configured in three ways:
+
 * pinned to a specified changeset or tag
 * locked to a specified branch
 * free to follow the main repo
@@ -92,9 +91,8 @@ e.g.
 
 ---------------------------------------------------------------------------------
 
-
 In Depth
-========
+--------
 
 Manifest Files
 --------------
@@ -107,6 +105,7 @@ The manifest specifies the forest layout and the dependent repository details. T
 
 The _dependencies_ map is where you might do some hand editing. The map key
 is the working directory relative to the root of the forest. The properties are:
+
 * origin: remote repo. Either absolute or relative to the main origin.
 * repoType: "git" or "hg"
 * pinRevision: if pinned, changeset or tag
@@ -134,9 +133,8 @@ Example:
     "mainPathFromRoot": "."
     }
 
-The manifests are stored in the `.fab ` folder of the main repo.
+The manifests are stored in the `.fab` folder of the main repo.
 Custom manifests follow the template &lt;custom&gt;\_manifest.json.
-
 
 Commands Summary
 ----------------
@@ -155,7 +153,7 @@ Commands Summary
      for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each -- ls -al"
      for-free <command> [args...]                  run specified command on repos which are not locked or pinned
      switch <branch>                               switch branch of free repos
-     make-branch [-p, --publish] <branch> [start_point]  
+     make-branch [-p, --publish] <branch> [start_point]
                                                    create new branch in free repos
      snapshot                                      display state of forest
      recreate <snapshot> [destination]             clone repos to recreate forest in past state
@@ -176,7 +174,6 @@ Commands Summary
     Branch: make-branch, switch
     Reproducible state: snapshot, recreate, restore
 
-
 Command line completion
 -----------------------
 
@@ -193,7 +190,6 @@ same way as "npm completion". For interactive assistance:
 
      npx tabtab install fab --name=fab
 
-
 Installing
 ----------
 
@@ -208,7 +204,6 @@ For more flexibility including development:
     npm install
     npm run prepare  # only needed for node 3, run automatically from node 4
     npm link
-
 
 Status
 ------
