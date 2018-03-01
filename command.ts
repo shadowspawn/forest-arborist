@@ -10,6 +10,7 @@
 
 import childProcess = require("child_process");
 import fs = require("fs");
+import path = require("path");
 import program = require("commander");
 // Mine
 const myPackage = (require.main !== undefined ? require.main.require("../package.json") : undefined);
@@ -245,6 +246,16 @@ program
   });
 
 program
+  .command("main")
+  .description("show the main directory of the forest")
+  .action(() => {
+    core.cdRootDirectory();
+    const rootObject = core.readRootFile();
+    const mainPath = path.resolve(process.cwd(), rootObject.mainPath);
+    console.log(mainPath);
+  });
+
+  program
   .command("for-each")
   .alias("forEach")
   .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")

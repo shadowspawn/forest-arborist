@@ -141,6 +141,7 @@ Custom manifests follow the template &lt;custom&gt;\_manifest.json.
      install [-m, --manifest <name>]               clone missing (new) dependent repositories
      status                                        show concise status for each repo in the forest
      pull                                          git-style pull, which is fetch and merge
+     main                                          show the main directory of the forest
      root                                          show the root directory of the forest
      for-each <command> [args...]                  run specified command on each repo in the forest, e.g. "fab for-each -- ls -al"
      for-free <command> [args...]                  run specified command on repos which are not locked or pinned
