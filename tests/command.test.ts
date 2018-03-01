@@ -87,6 +87,11 @@ describe("command-line sanity check:", () => {
     callFab(["pull"]);
   });
 
+  test("fab main", () => {
+    process.chdir(preparedRepo);
+    callFab(["main"]);
+  });
+
   test("fab root", () => {
     process.chdir(preparedRepo);
     callFab(["root"]);
