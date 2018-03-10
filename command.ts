@@ -171,7 +171,7 @@ program
     `);
   })
   .action(() => {
-    if(process.argv.length === 3) {
+    if (process.argv.length === 3) {
       completion.shellCompletion();
     } else {
       completion.complete();
@@ -255,7 +255,7 @@ program
     console.log(mainPath);
   });
 
-  program
+program
   .command("for-each")
   .alias("forEach")
   .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
@@ -323,7 +323,7 @@ program
     console.log(`expected is ${options.expected}`);
     console.log(`command is ${command}`);
     console.log(`args is ${args}`);
-     // console.log(options);
+    // console.log(options);
   });
 
 // Catch-all, unrecognised command.

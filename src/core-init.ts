@@ -9,7 +9,7 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-interface FindRepositoriesCallback { (repoPath:  string, repoType: string): void; }
+interface FindRepositoriesCallback { (repoPath: string, repoType: string): void; }
 
 
 function findRepositories(startingDirectory: string, callback: FindRepositoriesCallback) {
@@ -143,7 +143,7 @@ export function doInit(options: InitOptions) {
 
   const manifestDir = path.dirname(absManifestPath);
   if (!fsX.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
-  jsonfile.writeFileSync(absManifestPath, manifest, {spaces: 2});
+  jsonfile.writeFileSync(absManifestPath, manifest, { spaces: 2 });
 
   console.log(`Initialised dependencies in ${relManifestPath}`);
 

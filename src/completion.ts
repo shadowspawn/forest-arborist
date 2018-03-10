@@ -4,7 +4,7 @@
 import childProcess = require("child_process");
 import path = require("path");
 import program = require("commander");
-const tabtab:TabTab = require('tabtab')({ name: "fab", cache: false });
+const tabtab: TabTab = require('tabtab')({ name: "fab", cache: false });
 // Mine
 const core = require("./core");
 import repo = require("./repo");
@@ -20,10 +20,10 @@ interface TabData {
   prev: string;
 }
 interface TabDone { (error: Error | null, completions?: string[]): void; }
-interface TabCallback { (data: TabData, done:TabDone): void; }
+interface TabCallback { (data: TabData, done: TabDone): void; }
 interface TabTab {
-  start():void;
-  on(name: string, callback:TabCallback):void;
+  start(): void;
+  on(name: string, callback: TabCallback): void;
 }
 
 
@@ -56,11 +56,11 @@ function completeOptions(lastPartial: string, options: any): string[] {
 
 
 // First level hander
-tabtab.on('fab', function(data, done) {
+tabtab.on('fab', function (data, done) {
   // Only offer to complete first word in this callback
   // strip global options to avoid breaking count?
   if (data.words > 1)
-    return(done(null, []));
+    return (done(null, []));
 
   if (wantOptions(data.lastPartial))
     return done(null, completeOptions(data.lastPartial, program.options));
@@ -75,7 +75,7 @@ tabtab.on('fab', function(data, done) {
 });
 
 
-tabtab.on('switch', function(data, done) {
+tabtab.on('switch', function (data, done) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
@@ -99,7 +99,7 @@ export function addCommandOptions() {
       return !cmd._noHelp && cmd.options.length;
     })
     .map((cmd: any) => {
-      tabtab.on(cmd._name, function(data, done) {
+      tabtab.on(cmd._name, function (data, done) {
         if (wantOptions(data.lastPartial))
           return done(null, completeOptions(data.lastPartial, cmd.options));
       });
@@ -124,7 +124,7 @@ export function complete() {
 
 
 export function shellCompletion() {
-  childProcess. execFileSync(
+  childProcess.execFileSync(
     "npx",
     ["tabtab", "install", "fab", "--stdout", "--name=fab"],
     { cwd: path.join(__dirname, '..'), stdio: "inherit" }

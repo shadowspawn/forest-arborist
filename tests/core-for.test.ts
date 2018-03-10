@@ -43,7 +43,7 @@ describe("core for:", () => {
   test("for-free --keepgoing", () => {
     // throw on errors
     expect(() => {
-      coreFor.doForEach("fab", ["bogusCommand"], { });
+      coreFor.doForEach("fab", ["bogusCommand"], {});
     }).toThrow();
 
     // keepgoing

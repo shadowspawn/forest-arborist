@@ -12,7 +12,7 @@ import util = require("../src/util");
 describe("repo:", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
-  const testOrigin= "git@ex.com:path/to/main.git";
+  const testOrigin = "git@ex.com:path/to/main.git";
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });

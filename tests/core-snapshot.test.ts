@@ -12,7 +12,7 @@ import cc = require("./core-common");
 
 
 interface RevisionMap {
-    [index: string]: string;
+  [index: string]: string;
 }
 
 

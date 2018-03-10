@@ -160,9 +160,9 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
     if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING) stdio = "pipe";
     if (isMuteNow()) stdio = "ignore";
     childProcess.execFileSync(
-        command.cmd, command.args,
-        { cwd: command.cwd, stdio }
-      );
+      command.cmd, command.args,
+      { cwd: command.cwd, stdio }
+    );
   } catch (err) {
     // Some commands return non-zero for expected situations
     if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {

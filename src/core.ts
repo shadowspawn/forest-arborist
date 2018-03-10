@@ -130,7 +130,7 @@ export function writeRootFile(options: WriteRootFileOptions) {
     mainPath: util.normalizeToPosix(options.mainPath),
     manifest: options.manifest,
   };
-  jsonfile.writeFileSync(options.rootFilePath, rootObject, {spaces: 2});
+  jsonfile.writeFileSync(options.rootFilePath, rootObject, { spaces: 2 });
 
   console.log(`${initialisedWord} marker file at root of forest: ${fabRootFilename}`);
 
