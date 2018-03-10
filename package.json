@@ -15,7 +15,7 @@
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent",
-    "test:cli-only": "jest tests/command.test.ts",
+    "test:cli-only": "jest --silent tests/command.test.ts",
     "lint": "tslint --project tsconfig.json src/**/*.ts{,x}"
   },
   "author": "John Gee",
