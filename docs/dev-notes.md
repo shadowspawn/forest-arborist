@@ -8,7 +8,6 @@
     - "hg push" returns status 1 so breaks for-each
     - if "hg pull" gets nothing then no need to call "hg update"
     - not auto-detecting pinned revision (could do it by detecting not on tip)
-- using colours for logging errors and commands, but clashes with some terminal colours!
 - no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 
 ## Backlog Musing

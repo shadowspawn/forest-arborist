@@ -7,18 +7,38 @@
 const chalk = require("chalk");
 import childProcess = require("child_process");
 import fs = require("fs");
-const jsonfile = require("jsonfile");
+import jsonfile = require("jsonfile");
 const mute = require("mute");
 import path = require("path");
-const shellQuote = require("shell-quote");
+import shellQuote = require("shell-quote");
 
 declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 
 let muteDepth = 0;
 
-
-// const util = {
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
+
+
+function checkColourOverrides() {
+  // Windows shell colours especially PowerShell are pretty awful, so on Windows turn
+  // colour off unless forced on in the Chalk way.
+  // - i.e. <https://github.com/chalk/supports-color>
+  // - c.f. <http://bixense.com/clicolors>
+  // - c.f. <http://no-color.org>
+  // (Not currently mentioning colours in README, add if anyone asks.)
+  if (process.platform === "win32") {
+    let forceColour = false;
+    const env = process.env;
+    if (env.FORCE_COLOR !== undefined) {
+      forceColour = (env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0);
+    }
+    if (!forceColour) {
+      chalk.level = 0; // Disable chalk colours
+    }
+  // Otherwise leave it up to Chalk!
+  }
+}
+checkColourOverrides();
 
 
 export function terminate(message: string): never {
@@ -30,22 +50,12 @@ export function terminate(message: string): never {
 
 
 export function errorColour(text: string) {
-  // PowerShell has such awful colours, KISS and disable custom colours on Windows.
-  if (process.platform === "win32") {
-    return text;
-  } else {
-    return chalk.red(text);
-  }
+  return chalk.red(text);
 }
 
 
 export function commandColour(text: string) {
-  // PowerShell has such awful colours, KISS and disable custom colours on Windows.
-  if (process.platform === "win32") {
-    return text;
-  } else {
-    return chalk.magenta(text);
-  }
+  return chalk.magenta(text);
 }
 
 

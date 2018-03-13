@@ -2,7 +2,7 @@
 
 import childProcess = require("child_process");
 import fs = require("fs");
-const jsonfile = require("jsonfile");
+import jsonfile = require("jsonfile");
 import path = require("path");
 // Mine
 import dvcsUrl = require("./dvcs-url");

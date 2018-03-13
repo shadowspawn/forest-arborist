@@ -1,5 +1,5 @@
 import fs = require("fs");
-const jsonfile = require("jsonfile");
+import jsonfile = require("jsonfile");
 import path = require("path");
 // Mine
 import core = require("./core");
