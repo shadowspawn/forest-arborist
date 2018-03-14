@@ -34,6 +34,7 @@
       "version": "4.0.1",
       "resolved": "https://registry.npmjs.org/@types/jsonfile/-/jsonfile-4.0.1.tgz",
       "integrity": "sha512-XlVk21nYr7/EnG3q3RUo8OTsSTBGcGo0Ts6//pJzGORwv2SxP2CLsvPdIXBYwF9ajFnW/gIGA2nhAJgGHh3vNQ==",
+      "dev": true,
       "requires": {
         "@types/node": "9.4.7"
       }
@@ -41,12 +42,14 @@
     "@types/node": {
       "version": "9.4.7",
       "resolved": "https://registry.npmjs.org/@types/node/-/node-9.4.7.tgz",
-      "integrity": "sha512-4Ba90mWNx8ddbafuyGGwjkZMigi+AWfYLSDCpovwsE63ia8w93r3oJ8PIAQc3y8U+XHcnMOHPIzNe3o438Ywcw=="
+      "integrity": "sha512-4Ba90mWNx8ddbafuyGGwjkZMigi+AWfYLSDCpovwsE63ia8w93r3oJ8PIAQc3y8U+XHcnMOHPIzNe3o438Ywcw==",
+      "dev": true
     },
     "@types/shell-quote": {
       "version": "1.6.0",
       "resolved": "https://registry.npmjs.org/@types/shell-quote/-/shell-quote-1.6.0.tgz",
-      "integrity": "sha512-BFonQx849sYB2YOJZBUEfbWdaJcqRb6+ASvgUBtcmg2JRTjBaV2Wgn0SD0gWNIZ+rd7KPysPCjLUOUXnBDUlBg=="
+      "integrity": "sha512-BFonQx849sYB2YOJZBUEfbWdaJcqRb6+ASvgUBtcmg2JRTjBaV2Wgn0SD0gWNIZ+rd7KPysPCjLUOUXnBDUlBg==",
+      "dev": true
     },
     "@types/tmp": {
       "version": "0.0.33",
