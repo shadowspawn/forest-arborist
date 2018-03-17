@@ -5,7 +5,6 @@ import tmp = require("tmp");
 // Mine
 import core = require("../src/core");
 import coreClone = require("../src/core-clone");
-import fsX = require("../src/fsExtra");
 import util = require("../src/util");
 // //
 import cc = require("./core-common");
@@ -65,7 +64,7 @@ describe("core clone:", () => {
     );
     cc.expectSuiteRepoLayout({ rootDir: "branch-nested", mainDir: ".", freeBranch: "develop", manifest: "sub", pinnedRevision: suite.pinnedRevision });
     // Look for the extra repo in the sub manifest
-    expect(fsX.dirExistsSync(path.join("sub-nested", "sub"))).toBe(true);
+    expect(util.dirExistsSync(path.join("sub-nested", "sub"))).toBe(true);
 
     // Check root has manifest
     process.chdir("sub-nested");
@@ -136,7 +135,7 @@ describe("core install:", () => {
     coreClone.doInstall({ manifest: "sub" });
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     // Look for the extra repo in the sub manifest
-    expect(fsX.dirExistsSync("sub")).toBe(true);
+    expect(util.dirExistsSync("sub")).toBe(true);
 
     // Check root has manifest
     const rootObject = core.readRootFile();

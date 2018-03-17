@@ -1,7 +1,6 @@
 import childProcess = require("child_process");
 import path = require("path");
 // Mine
-import fsX = require("./fsExtra");
 import util = require("./util");
 
 
@@ -46,9 +45,9 @@ export function isHgRepository(repository: string) {
 
 
 export function getRepoTypeForLocalPath(repoPath: string) {
-  if (fsX.dirExistsSync(path.join(repoPath, ".git"))) {
+  if (util.dirExistsSync(path.join(repoPath, ".git"))) {
     return "git";
-  } else if (fsX.dirExistsSync(path.join(repoPath, ".hg"))) {
+  } else if (util.dirExistsSync(path.join(repoPath, ".hg"))) {
     return "hg";
   }
 

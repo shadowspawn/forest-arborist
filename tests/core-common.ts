@@ -5,7 +5,6 @@ import path = require("path");
 // Mine
 import core = require("../src/core");
 import coreInit = require("../src/core-init");
-import fsX = require("../src/fsExtra");
 import repo = require("../src/repo");
 import util = require("../src/util");
 
@@ -164,19 +163,19 @@ export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
   const startDir2 = process.cwd();
 
   // Check root
-  expect(fsX.dirExistsSync(options.rootDir)).toBe(true);
+  expect(util.dirExistsSync(options.rootDir)).toBe(true);
   process.chdir(options.rootDir);
-  expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
+  expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
 
   // Check main
-  expect(fsX.dirExistsSync(options.mainDir)).toBe(true);
+  expect(util.dirExistsSync(options.mainDir)).toBe(true);
   expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
-  expect(fsX.fileExistsSync(
+  expect(util.fileExistsSync(
     core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);
 
   // check dependencies
   suiteDependencies.forEach((repoPath) => {
-    expect(fsX.dirExistsSync(repoPath)).toBe(true);
+    expect(util.dirExistsSync(repoPath)).toBe(true);
   });
   expect(repo.getBranch("free")).toEqual(options.freeBranch);
   expect(repo.getBranch(path.join("Libs", "locked"))).toEqual("master");

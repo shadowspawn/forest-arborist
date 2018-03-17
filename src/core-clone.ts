@@ -4,7 +4,6 @@ import tmp = require("tmp");
 // Mine
 import core = require("./core");
 import dvcsUrl = require("./dvcs-url");
-import fsX = require("./fsExtra");
 import repo = require("./repo");
 import util = require("./util");
 
@@ -14,7 +13,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === "hg") {
     const parentDir = path.dirname(repoPath);
-    if (parentDir !== "." && !fsX.dirExistsSync(parentDir)) {
+    if (parentDir !== "." && !util.dirExistsSync(parentDir)) {
       fs.mkdirSync(parentDir);
     }
   }
@@ -134,7 +133,7 @@ export function doInstall(options: InstallOptions) {
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (fsX.dirExistsSync(repoPath)) {
+    if (util.dirExistsSync(repoPath)) {
       checkoutEntry(entry, repoPath, freeBranch);
     } else {
       cloneEntry(entry, repoPath, freeBranch);
@@ -177,7 +176,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
   cloneEntry(mainEntry, destination, options.branch);
 
   const fabManifest = core.manifestPath({ mainPath: destination });
-  if (!fsX.fileExistsSync(fabManifest)) {
+  if (!util.fileExistsSync(fabManifest)) {
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 

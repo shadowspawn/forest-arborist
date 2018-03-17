@@ -4,7 +4,6 @@ import path = require("path");
 // Mine
 import core = require("./core");
 import dvcsUrl = require("./dvcs-url");
-import fsX = require("./fsExtra");
 import repo = require("./repo");
 import util = require("./util");
 
@@ -20,10 +19,10 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
     const itemPath = path.join(startingDirectory, item);
-    if (fsX.dirExistsSync(itemPath)) {
-      if (fsX.dirExistsSync(path.join(itemPath, ".git"))) {
+    if (util.dirExistsSync(itemPath)) {
+      if (util.dirExistsSync(path.join(itemPath, ".git"))) {
         callback(itemPath, "git");
-      } else if (fsX.dirExistsSync(path.join(itemPath, ".hg"))) {
+      } else if (util.dirExistsSync(path.join(itemPath, ".hg"))) {
         callback(itemPath, "hg");
       }
 
@@ -44,7 +43,7 @@ export function doInit(options: InitOptions) {
   const startDir = process.cwd();
 
   const relManifestPath = core.manifestPath({ manifest: options.manifest });
-  if (fsX.fileExistsSync(relManifestPath)) {
+  if (util.fileExistsSync(relManifestPath)) {
     console.log(`Skipping init, already have ${relManifestPath}`);
     console.log("(Delete it to start over, or did you want \"fab install\"?)");
     return;
@@ -142,7 +141,7 @@ export function doInit(options: InitOptions) {
   };
 
   const manifestDir = path.dirname(absManifestPath);
-  if (!fsX.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
+  if (!util.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
   jsonfile.writeFileSync(absManifestPath, manifest, { spaces: 2 });
 
   console.log(`Initialised dependencies in ${relManifestPath}`);

@@ -1,4 +1,5 @@
 import path = require("path");
+import tmp = require("tmp");
 // Mine
 import util = require("../src/util");
 
@@ -50,4 +51,27 @@ describe("util:", () => {
     }).toThrow();
     expect(util.isMuteNow()).toBe(false);
   });
+
+  test("dirExistsSync", () => {
+    // Do this one by hand rather than create and delete and worry about timing.
+    expect(util.dirExistsSync("dir-which-do-not-expect-to-exist")).toBe(false);
+
+    const tempFolder = tmp.dirSync();
+    expect(util.dirExistsSync(tempFolder.name)).toBe(true);
+
+    const tempFile = tmp.fileSync();
+    expect(util.dirExistsSync(tempFile.name)).toBe(false);
+  });
+
+  test("fileExistsSync", () => {
+    // Do this one by hand rather than create and delete and worry about timing.
+    expect(util.fileExistsSync("file-which-do-not-expect-to-exist")).toBe(false);
+
+    const tempFolder = tmp.dirSync();
+    expect(util.fileExistsSync(tempFolder.name)).toBe(false);
+
+    const tempFile = tmp.fileSync();
+    expect(util.fileExistsSync(tempFile.name)).toBe(true);
+  });
+  
 });

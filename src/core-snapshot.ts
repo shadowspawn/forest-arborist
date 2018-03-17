@@ -4,7 +4,6 @@ const path = require("path");
 const core = require("./core");
 const coreClone = require("./core-clone");
 const dvcsUrl = require("./dvcs-url");
-const fsX = require("./fsExtra");
 const repo = require("./repo");
 const util = require("./util");
 
@@ -33,7 +32,7 @@ function doSemiInstall() {
   const dependencies = manifestObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (fsX.dirExistsSync(repoPath)) {
+    if (util.dirExistsSync(repoPath)) {
       coreClone.checkoutEntry(entry, repoPath, freeBranch);
     }
   });
@@ -137,7 +136,7 @@ export function doRecreate(snapshotPath: string, destinationParam: string) {
 
 
 export function doRestore(snapshotPath?: string) {
-  if (snapshotPath !== undefined && !fsX.fileExistsSync(snapshotPath)) {
+  if (snapshotPath !== undefined && !util.fileExistsSync(snapshotPath)) {
     util.terminate(`snapshot file not found "${snapshotPath}"`);
   }
 
@@ -158,7 +157,7 @@ export function doRestore(snapshotPath?: string) {
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (fsX.dirExistsSync(repoPath)) {
+    if (util.dirExistsSync(repoPath)) {
       coreClone.checkoutEntry(entry, repoPath);
     } else {
       coreClone.cloneEntry(entry, repoPath);

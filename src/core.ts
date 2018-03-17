@@ -6,7 +6,6 @@ import jsonfile = require("jsonfile");
 import path = require("path");
 // Mine
 import dvcsUrl = require("./dvcs-url");
-import fsX = require("./fsExtra");
 import repo = require("./repo");
 import util = require("./util");
 
@@ -26,11 +25,11 @@ export const fabRootFilename: string = ".fab-root.json"; // stored in root direc
 
 export function cdRootDirectory(): void {
   const startDir = process.cwd();
-  const startedInMainDirectory = fsX.dirExistsSync(".fab");
+  const startedInMainDirectory = util.dirExistsSync(".fab");
 
   let tryParent = true;
   do {
-    if (fsX.fileExistsSync(fabRootFilename)) {
+    if (util.fileExistsSync(fabRootFilename)) {
       return;
     }
 
@@ -78,7 +77,7 @@ export function manifestPath(options: ManifestOptions): string {
 
 export function manifestList(mainPath: string): void {
   const manifestDir = path.join(mainPath, ".fab");
-  if (!fsX.dirExistsSync(manifestDir)) {
+  if (!util.dirExistsSync(manifestDir)) {
     console.log("(No manifest folder found. Do you need to cd to main repo, or run \"fab init\"?)");
     return;
   }
@@ -125,7 +124,7 @@ export interface WriteRootFileOptions {
 
 export function writeRootFile(options: WriteRootFileOptions) {
   let initialisedWord = "Initialised";
-  if (fsX.fileExistsSync(options.rootFilePath)) initialisedWord = "Reinitialised";
+  if (util.fileExistsSync(options.rootFilePath)) initialisedWord = "Reinitialised";
   const rootObject = {
     mainPath: util.normalizeToPosix(options.mainPath),
     manifest: options.manifest,
@@ -171,7 +170,7 @@ export function readManifest(options: ReadManifestOptions) {
   const fabManifest = manifestPath({ mainPath, manifest });
 
   // Display some clues if file not foung
-  if (!fsX.fileExistsSync(fabManifest)) {
+  if (!util.fileExistsSync(fabManifest)) {
     manifestList(mainPath);
     if (manifest !== undefined) {
       util.terminate(`manifest not found: ${manifest}`);

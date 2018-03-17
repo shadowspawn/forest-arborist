@@ -2,7 +2,6 @@ import childProcess = require("child_process");
 import tmp = require("tmp");
 // Mine
 import core = require("../src/core");
-import fsX = require("../src/fsExtra");
 import repo = require("../src/repo");
 import util = require("../src/util");
 //
@@ -32,23 +31,23 @@ describe("core init:", () => {
   test("empty git repo", () => {
     // Check we don"t fall over in empty repo
     childProcess.execFileSync("git", ["init"]);
-    expect(fsX.dirExistsSync(".git")).toBe(true);
+    expect(util.dirExistsSync(".git")).toBe(true);
 
     coreInit.doInit({});
-    expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
-    expect(fsX.fileExistsSync(core.manifestPath({}))).toBe(true);
+    expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
+    expect(util.fileExistsSync(core.manifestPath({}))).toBe(true);
     // Not too worried about root and manifest contents!
   });
 
   test("--manifest", () => {
     // Check manigest self consistent
     childProcess.execFileSync("git", ["init"]);
-    expect(fsX.dirExistsSync(".git")).toBe(true);
+    expect(util.dirExistsSync(".git")).toBe(true);
 
     const manifest = "custom";
     coreInit.doInit({ manifest });
-    expect(fsX.fileExistsSync(core.fabRootFilename)).toBe(true);
-    expect(fsX.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
+    expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
+    expect(util.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
 
     const rootObject = core.readRootFile();
     expect(rootObject.mainPath).toEqual(".");
