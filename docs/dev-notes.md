@@ -20,7 +20,6 @@
     - work-around could be to use secure email in travis.tml: <https://github.com/travis-ci/travis-ci/issues/3853>
 - locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
     - previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
-- CHANGELOG? <https://keepachangelog.com/en/1.0.0/>
 
 ## Patterns
 
