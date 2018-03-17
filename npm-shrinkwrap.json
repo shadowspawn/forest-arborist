@@ -24,20 +24,20 @@
         "js-tokens": "3.0.2"
       }
     },
+    "@types/fs-extra": {
+      "version": "5.0.1",
+      "resolved": "https://registry.npmjs.org/@types/fs-extra/-/fs-extra-5.0.1.tgz",
+      "integrity": "sha512-h3wnflb+jMTipvbbZnClgA2BexrT4w0GcfoCz5qyxd0IRsbqhLSyesM6mqZTAnhbVmhyTm5tuxfRu9R+8l+lGw==",
+      "dev": true,
+      "requires": {
+        "@types/node": "9.4.7"
+      }
+    },
     "@types/jest": {
       "version": "22.2.0",
       "resolved": "https://registry.npmjs.org/@types/jest/-/jest-22.2.0.tgz",
       "integrity": "sha512-5DeGD46Goq6+GtEEB57hQzC/BbuEbEj0fUCDm7a5Fm9ZYLL3odPh1kYn9yMtQe1rKNg/BcVmadroBCyih6thtw==",
       "dev": true
-    },
-    "@types/jsonfile": {
-      "version": "4.0.1",
-      "resolved": "https://registry.npmjs.org/@types/jsonfile/-/jsonfile-4.0.1.tgz",
-      "integrity": "sha512-XlVk21nYr7/EnG3q3RUo8OTsSTBGcGo0Ts6//pJzGORwv2SxP2CLsvPdIXBYwF9ajFnW/gIGA2nhAJgGHh3vNQ==",
-      "dev": true,
-      "requires": {
-        "@types/node": "9.4.7"
-      }
     },
     "@types/node": {
       "version": "9.4.7",
@@ -1274,10 +1274,9 @@
       }
     },
     "fs-extra": {
-      "version": "4.0.3",
-      "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-4.0.3.tgz",
-      "integrity": "sha512-q6rbdDd1o2mAnQreO7YADIxf/Whx4AHBiRf6d+/cVT8h44ss+lHgxf1FemcqDnQt9X3ct4McHr+JMGlYSsK7Cg==",
-      "dev": true,
+      "version": "5.0.0",
+      "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-5.0.0.tgz",
+      "integrity": "sha512-66Pm4RYbjzdyeuqudYqhFiNBbCIuI9kgRqLPSHIlXHidW8NIQtVdkM1yeZ4lXwuhbTETv3EUGMNHAAw6hiundQ==",
       "requires": {
         "graceful-fs": "4.1.11",
         "jsonfile": "4.0.0",
@@ -5245,6 +5244,17 @@
             "wrap-ansi": "2.1.0"
           }
         },
+        "fs-extra": {
+          "version": "4.0.3",
+          "resolved": "https://registry.npmjs.org/fs-extra/-/fs-extra-4.0.3.tgz",
+          "integrity": "sha512-q6rbdDd1o2mAnQreO7YADIxf/Whx4AHBiRf6d+/cVT8h44ss+lHgxf1FemcqDnQt9X3ct4McHr+JMGlYSsK7Cg==",
+          "dev": true,
+          "requires": {
+            "graceful-fs": "4.1.11",
+            "jsonfile": "4.0.0",
+            "universalify": "0.1.1"
+          }
+        },
         "yargs": {
           "version": "11.0.0",
           "resolved": "https://registry.npmjs.org/yargs/-/yargs-11.0.0.tgz",
@@ -5401,8 +5411,7 @@
     "universalify": {
       "version": "0.1.1",
       "resolved": "https://registry.npmjs.org/universalify/-/universalify-0.1.1.tgz",
-      "integrity": "sha1-+nG63UQ3r0wUiEHjs7Fl+enlkLc=",
-      "dev": true
+      "integrity": "sha1-+nG63UQ3r0wUiEHjs7Fl+enlkLc="
     },
     "util-deprecate": {
       "version": "1.0.2",

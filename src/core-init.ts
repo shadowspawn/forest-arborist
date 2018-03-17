@@ -1,5 +1,5 @@
 import fs = require("fs");
-import jsonfile = require("jsonfile");
+import fsX = require("fs-extra");
 import path = require("path");
 // Mine
 import core = require("./core");
@@ -142,7 +142,7 @@ export function doInit(options: InitOptions) {
 
   const manifestDir = path.dirname(absManifestPath);
   if (!util.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
-  jsonfile.writeFileSync(absManifestPath, manifest, { spaces: 2 });
+  fsX.writeJsonSync(absManifestPath, manifest, { spaces: 2 });
 
   console.log(`Initialised dependencies in ${relManifestPath}`);
 

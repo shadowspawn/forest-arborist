@@ -1,4 +1,5 @@
 import fs = require("fs");
+import fsX = require("fs-extra");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
@@ -10,11 +11,10 @@ import util = require("./util");
 
 export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
   // Mercurial does not support making intermediate folders.
-  // This just copes with one deep, but KISS and cover most use.
   if (entry.repoType === "hg") {
     const parentDir = path.dirname(repoPath);
     if (parentDir !== "." && !util.dirExistsSync(parentDir)) {
-      fs.mkdirSync(parentDir);
+      fsX.mkdirsSync(parentDir);
     }
   }
 

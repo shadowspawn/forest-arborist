@@ -7,7 +7,7 @@
 const chalk = require("chalk");
 import childProcess = require("child_process");
 import fs = require("fs");
-import jsonfile = require("jsonfile");
+import fsX = require("fs-extra");
 const mute = require("mute");
 import path = require("path");
 import shellQuote = require("shell-quote");
@@ -84,7 +84,7 @@ export function isRelativePath(pathname: string) {
 
 
 export function readJson(targetPath: string, requiredProperties: string[]) {
-  let rootObject = jsonfile.readFileSync(targetPath);
+  let rootObject = fsX.readJsonSync(targetPath);
 
   // Sanity check. Possible errors due to hand editing, but during development
   // usually unsupported old file formats!

@@ -47,15 +47,15 @@
   "dependencies": {
     "chalk": "^2.3.2",
     "commander": "^2.15.0",
-    "jsonfile": "^4.0.0",
+    "fs-extra": "^5.0.0",
     "mute": "^2.0.6",
     "shell-quote": "^1.6.1",
     "tabtab": "^2.2.2",
     "tmp": "0.0.33"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.1",
     "@types/jest": "^22.2.0",
-    "@types/jsonfile": "^4.0.1",
     "@types/node": "^9.4.7",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
