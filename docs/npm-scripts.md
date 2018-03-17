@@ -30,7 +30,3 @@ Use: to pickup and apply upstream changes when working with fab as a linked comm
     npm test
 
 Run the full suite of tests: CLI and unit tests.
-
-    npm run test:cli-only
-
-Just run the CLI tests. Tests the current fab command.
