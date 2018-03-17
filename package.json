@@ -10,8 +10,8 @@
     "url": "https://github.com/JohnRGee/forest-arborist.git"
   },
   "scripts": {
-    "copy-down": "git checkout develop && git merge master && npm --no-git-tag-version version prepatch",
-    "copy-up": "git checkout master && git merge develop && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
+    "copy-down": "git checkout develop && git merge master && tsc && npm --no-git-tag-version version prepatch",
+    "copy-up": "git checkout master && git merge develop && tsc && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent",
