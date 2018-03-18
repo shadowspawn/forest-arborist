@@ -141,7 +141,7 @@ export function doInit(options: InitOptions) {
   };
 
   const manifestDir = path.dirname(absManifestPath);
-  if (!util.dirExistsSync(manifestDir)) fs.mkdirSync(manifestDir);
+  fsX.ensureDirSync(manifestDir);
   fsX.writeJsonSync(absManifestPath, manifest, { spaces: 2 });
 
   console.log(`Initialised dependencies in ${relManifestPath}`);

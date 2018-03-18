@@ -13,9 +13,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   // Mercurial does not support making intermediate folders.
   if (entry.repoType === "hg") {
     const parentDir = path.dirname(repoPath);
-    if (parentDir !== "." && !util.dirExistsSync(parentDir)) {
-      fsX.mkdirsSync(parentDir);
-    }
+    fsX.ensureDirSync(parentDir);
   }
 
   // Determine target branch for clone

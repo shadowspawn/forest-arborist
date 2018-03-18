@@ -184,6 +184,7 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
 
 
 export function fileExistsSync(filePath: string) {
+  // (Provided for symmetry with dirExistsSync, but could just use fs.existsSync.)
   try {
     return fs.statSync(filePath).isFile();
   } catch (err) {
