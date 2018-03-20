@@ -8,13 +8,10 @@ const chalk = require("chalk");
 import childProcess = require("child_process");
 import fs = require("fs");
 import fsX = require("fs-extra");
-const mute = require("mute");
 import path = require("path");
 import shellQuote = require("shell-quote");
 
 declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
-
-let muteDepth = 0;
 
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
@@ -104,39 +101,6 @@ export function readJson(targetPath: string, requiredProperties: string[]) {
 }
 
 
-// Add recursion to support using mute in unit tests to call code which also uses mute.
-export function recursiveMute() {
-  muteDepth += 1;
-  if (muteDepth > 1) {
-    return (() => {
-      muteDepth -= 1;
-    });
-  }
-
-  const unmute = mute();
-  return (() => {
-    muteDepth -= 1;
-    unmute();
-  });
-}
-
-
-export function isMuteNow() {
-  return (muteDepth > 0);
-}
-
-
-export function muteCall(doSomething: Function) {
-  const unmute = recursiveMute();
-  try {
-    doSomething();
-    unmute();
-  } catch (err) {
-    unmute();
-    throw err;
-  }
-}
-
 export interface ExecCommandSyncOptions {
   cmd: string;
   args?: string[];
@@ -165,10 +129,9 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
 
   try {
     // Note: this stdio option hooks up child stream to parent so we get live progress.
-    let stdio = "inherit"; // [0, 1, 2]
+    let stdio = "inherit";
     // Using inherit mucks up jest --silent, so use default pipe
     if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING) stdio = "pipe";
-    if (isMuteNow()) stdio = "ignore";
     childProcess.execFileSync(
       command.cmd, command.args,
       { cwd: command.cwd, stdio }

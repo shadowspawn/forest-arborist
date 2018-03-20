@@ -33,23 +33,6 @@ describe("util:", () => {
     expect(util.isRelativePath("/absolute")).toBe(false);
     expect(util.isRelativePath("./relative")).toBe(true);
     expect(util.isRelativePath("../relative")).toBe(true);
-
-    // mute
-    expect(util.isMuteNow()).toBe(false);
-    const unmute1 = util.recursiveMute();
-    expect(util.isMuteNow()).toBe(true);
-    const unmute2 = util.recursiveMute();
-    expect(util.isMuteNow()).toBe(true);
-    unmute2();
-    expect(util.isMuteNow()).toBe(true);
-    unmute1();
-    expect(util.isMuteNow()).toBe(false);
-    util.muteCall(() => { return 1; });
-    expect(util.isMuteNow()).toBe(false);
-    expect(() => {
-      util.muteCall(() => { throw new Error("x"); });
-    }).toThrow();
-    expect(util.isMuteNow()).toBe(false);
   });
 
   test("dirExistsSync", () => {

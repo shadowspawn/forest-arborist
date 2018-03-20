@@ -4115,11 +4115,6 @@
       "resolved": "https://registry.npmjs.org/ms/-/ms-2.0.0.tgz",
       "integrity": "sha1-VgiurfwAvmwpAd9fmGF4jeDVl8g="
     },
-    "mute": {
-      "version": "2.0.6",
-      "resolved": "https://registry.npmjs.org/mute/-/mute-2.0.6.tgz",
-      "integrity": "sha1-i/EPHyheo4ydsmML/2dcEUyXPtU="
-    },
     "mute-stream": {
       "version": "0.0.6",
       "resolved": "https://registry.npmjs.org/mute-stream/-/mute-stream-0.0.6.tgz",

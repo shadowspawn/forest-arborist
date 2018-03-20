@@ -13,32 +13,28 @@ function getRepoTypeForParams(repoPath: string, repoType?: string) {
 
 
 export function isGitRepository(repository: string) {
-  const unmute = util.recursiveMute();
   try {
     // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
-      "git", ["ls-remote", repository]
+      "git", ["ls-remote", repository],
+      { stdio: "ignore" }
     );
-    unmute();
     return true;
   } catch (err) {
-    unmute();
     return false;
   }
 }
 
 
 export function isHgRepository(repository: string) {
-  const unmute = util.recursiveMute();
   try {
     // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
-      "hg", ["id", repository]
+      "hg", ["id", repository],
+      { stdio: "ignore" }
     );
-    unmute();
     return true;
   } catch (err) {
-    unmute();
     return false;
   }
 }
@@ -85,16 +81,15 @@ export function getBranch(repoPath: string, repoTypeParam?: string) {
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
   if (repoType === "git") {
-    const unmute = util.recursiveMute();
     try {
       // This will fail if have detached head, but does work for an empty repo
       branch = childProcess.execFileSync(
-        "git", ["symbolic-ref", "--short", "HEAD"], { cwd: repoPath }
+        "git", ["symbolic-ref", "--short", "HEAD"], 
+        { cwd: repoPath, stdio: ["pipe", "pipe", "ignore"] }
       ).toString().trim();
     } catch (err) {
       branch = undefined;
     }
-    unmute();
   } else if (repoType === "hg") {
     branch = childProcess.execFileSync(
       "hg", ["branch"], { cwd: repoPath }
