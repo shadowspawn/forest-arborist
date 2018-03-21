@@ -24,15 +24,9 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
     }
 
     try {
-      if (args.length > 0) {
-        util.execCommandSync(
-          { cmd, args, cwd: repoPath }
-        );
-      } else {
-        util.execCommandSync(
-          { cmd, cwd: repoPath }
-        );
-      }
+      util.execCommandSync(
+        { cmd, args, cwd: repoPath }
+      );
     } catch (err) {
       if (options.keepgoing) {
         console.log(`Keeping going after caught exception with message ${err.message}`);
