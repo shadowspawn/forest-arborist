@@ -1,3 +1,4 @@
+import fs = require("fs");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
@@ -13,18 +14,23 @@ describe("util:", () => {
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");
     expect(util.normalizeToPosix(undefined)).toEqual(".");
+  });
 
+  test("terminate", () => {
     // Terminate should throw
     expect(() => {
       util.terminate("Goodbye");
     }).toThrowError(util.suppressTerminateExceptionMessage);
+  });
 
-    // // Simple check that message gets preserved in styled text
+  test("someColour", () => {
+   // // Simple check that message gets preserved in styled text
     const sampleString = "Aa+Bb (Yy-Zz)";
     expect(util.errorColour(sampleString)).toContain(sampleString);
     expect(util.commandColour(sampleString)).toContain(sampleString);
+  });
 
-    // isRelativePath
+  test("isRelativePath", () => {
     expect(util.isRelativePath("")).toBe(false);
     expect(util.isRelativePath("a")).toBe(false);
     expect(util.isRelativePath("a/b")).toBe(false);
@@ -56,5 +62,44 @@ describe("util:", () => {
     const tempFile = tmp.fileSync();
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
   });
-  
+
+  test("readJson", () => {
+    const tmpPath = tmp.tmpNameSync();
+
+    const notJson = "hello";
+    fs.writeFileSync(tmpPath, notJson);
+    expect(() => {
+      util.readJson(tmpPath, []);
+    }).toThrowError();
+
+    const writeObject = { undefinedField: undefined, key: "value" };
+    fs.writeFileSync(tmpPath, JSON.stringify(writeObject));
+    expect(() => {
+      util.readJson(tmpPath, ['required-field-missing']);
+    }).toThrowError();
+    expect(() => {
+      util.readJson(tmpPath, ['undefinedField']);
+    }).toThrowError();
+    const readObject =  util.readJson(tmpPath, ['key']);
+    console.log(readObject);
+    expect(readObject.key).toEqual("value");
+
+    fs.unlinkSync(tmpPath);
+  });
+
+  test("execCommandSync", () => {
+    // Most of execCommandSync is about nice output, do some simple checks.
+    // Bad command throws.
+    expect(() => {
+      util.execCommandSync({ cmd: "git" });
+    }).toThrowError();
+
+    // cwd changes working directory.
+    const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    util.execCommandSync(
+      { cmd: "git", args: ["init", "foo"], cwd: tempFolder.name }
+    );
+    expect(util.dirExistsSync(path.join(tempFolder.name, "foo"))).toBe(true);
+});
+
 });

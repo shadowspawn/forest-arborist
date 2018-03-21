@@ -91,6 +91,7 @@ export function readJson(targetPath: string, requiredProperties: string[]) {
       if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
         terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
       }
+      // Not sure if this can happen, but paranoia.
       if (rootObject[required] === undefined) {
         terminate(`problem parsing: ${targetPath}\nUndefined value for property '${required}'`);
       }
@@ -146,7 +147,7 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
 }
 
 
-export function fileExistsSync(filePath: string) {
+export function fileExistsSync(filePath: fs.PathLike) {
   // (Provided for symmetry with dirExistsSync, but could just use fs.existsSync.)
   try {
     return fs.statSync(filePath).isFile();
@@ -159,7 +160,7 @@ export function fileExistsSync(filePath: string) {
 }
 
 
-export function dirExistsSync(filePath: string) {
+export function dirExistsSync(filePath: fs.PathLike) {
   try {
     return fs.statSync(filePath).isDirectory();
   } catch (err) {
