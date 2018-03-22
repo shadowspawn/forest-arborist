@@ -22,7 +22,7 @@ describe("repo:", () => {
     childProcess.execFileSync("git", ["init", "gitRepo"]);
     childProcess.execFileSync("hg", ["init", "hgRepo"]);
     cc.makeOneGitRepo("hasOrigin", testOrigin);
-    childProcess.execFileSync("git", ["init", "detached"]);
+    cc.makeOneGitRepo("detached", testOrigin);
     cc.commitAndDetach("detached");
   });
 
@@ -72,10 +72,10 @@ describe("repo:", () => {
     // We have local only repos, so no origin.
     expect(repo.getOrigin("gitRepo")).toBeUndefined();
     expect(repo.getOrigin("gitRepo", "git")).toBeUndefined();
-    expect(repo.getOrigin("detached")).toBeUndefined();
     expect(repo.getOrigin("hgRepo")).toBeUndefined();
     expect(repo.getOrigin("hgRepo", "hg")).toBeUndefined();
     expect(repo.getOrigin("hasOrigin")).toBe(testOrigin);
+    expect(repo.getOrigin("detached")).toBe(testOrigin);
     expect(() => {
       repo.getOrigin("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
