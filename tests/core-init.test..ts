@@ -100,12 +100,7 @@ describe("core init:", () => {
     cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["init", "boost"]);
     cc.configureTestRepo("boost");
-    process.chdir("boost");
-    childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-    const revision = repo.getRevision(".");
-    childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
-    childProcess.execFileSync("git", ["checkout", "--quiet", revision]);
-    process.chdir("..");
+    const revision = cc.commitAndDetach("boost");
 
     coreInit.doInit({});
 

@@ -14,7 +14,7 @@ describe("core for:", () => {
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
-    cc.makeOneOfEachGitRepo();
+    cc.makeNestedGitForest();
   });
 
   afterEach(() => {

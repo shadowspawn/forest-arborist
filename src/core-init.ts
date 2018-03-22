@@ -80,7 +80,7 @@ export function doInit(options: InitOptions) {
   // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies: any = {};
-  findRepositories(".", (repoPathParam, repoType) => {
+  findRepositories(".", (repoPathParam, repoType: repo.RepoType) => {
     const repoPath = util.normalizeToPosix(repoPathParam);
     console.log(`  ${repoPath}`);
     const origin = repo.getOrigin(repoPath, repoType);

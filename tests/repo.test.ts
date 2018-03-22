@@ -22,7 +22,8 @@ describe("repo:", () => {
     childProcess.execFileSync("git", ["init", "gitRepo"]);
     childProcess.execFileSync("hg", ["init", "hgRepo"]);
     cc.makeOneGitRepo("hasOrigin", testOrigin);
-
+    childProcess.execFileSync("git", ["init", "detached"]);
+    cc.commitAndDetach("detached");
   });
 
   afterAll(() => {
@@ -40,6 +41,7 @@ describe("repo:", () => {
   test("isGitRepository", () => {
     expect(repo.isGitRepository("notRepo")).toBe(false);
     expect(repo.isGitRepository("gitRepo")).toBe(true);
+    expect(repo.isGitRepository("detached")).toBe(true);
     expect(repo.isGitRepository("hgRepo")).toBe(false);
     expect(repo.isGitRepository("doesNotExist")).toBe(false);
   });
@@ -56,6 +58,7 @@ describe("repo:", () => {
       repo.getRepoTypeForLocalPath("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
     expect(repo.getRepoTypeForLocalPath("gitRepo")).toEqual("git");
+    expect(repo.getRepoTypeForLocalPath("detached")).toEqual("git");
     expect(repo.getRepoTypeForLocalPath("hgRepo")).toEqual("hg");
     expect(() => {
       repo.getRepoTypeForLocalPath("doesNotExist");
@@ -68,7 +71,10 @@ describe("repo:", () => {
     }).toThrowError(util.suppressTerminateExceptionMessage);
     // We have local only repos, so no origin.
     expect(repo.getOrigin("gitRepo")).toBeUndefined();
+    expect(repo.getOrigin("gitRepo", "git")).toBeUndefined();
+    expect(repo.getOrigin("detached")).toBeUndefined();
     expect(repo.getOrigin("hgRepo")).toBeUndefined();
+    expect(repo.getOrigin("hgRepo", "hg")).toBeUndefined();
     expect(repo.getOrigin("hasOrigin")).toBe(testOrigin);
     expect(() => {
       repo.getOrigin("doesNotExist");
@@ -82,7 +88,10 @@ describe("repo:", () => {
     }).toThrowError(util.suppressTerminateExceptionMessage);
     // We have local only repos, so no origin.
     expect(repo.getBranch("gitRepo")).toBe("master");
+    expect(repo.getBranch("gitRepo", "git")).toBe("master");
+    expect(repo.getBranch("detached")).toBeUndefined();
     expect(repo.getBranch("hgRepo")).toBe("default");
+    expect(repo.getBranch("hgRepo", "hg")).toBe("default");
     expect(() => {
       repo.getBranch("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
@@ -103,5 +112,6 @@ describe("repo:", () => {
       repo.getRevision("gitRepo");
     }).toThrowError();
     expect(repo.getRevision("hgRepo")).toBe("0000000000000000000000000000000000000000");
+    expect(repo.getRevision("hgRepo", "hg")).toBe("0000000000000000000000000000000000000000");
   });
 });

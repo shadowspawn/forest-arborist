@@ -19,6 +19,18 @@ export function configureTestRepo(repoPath: string) {
 }
 
 
+export function commitAndDetach(repoPath: string) {
+  const startingDir = process.cwd();
+  process.chdir(repoPath);
+  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
+  const revision = repo.getRevision(".");
+  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
+  childProcess.execFileSync("git", ["checkout", "--quiet", revision]);
+  process.chdir(startingDir);
+  return revision;
+}
+
+
 export function makeOneGitRepo(repoPath: string, origin?: string) {
   const startingDir = process.cwd();
   childProcess.execFileSync("git", ["init", repoPath]);
@@ -33,27 +45,18 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
 
 
 // Nested, direct construction of a sandpit.
-export function makeOneOfEachGitRepo() {
-  const rootDir = process.cwd();
-
+export function makeNestedGitForest() {
   makeOneGitRepo(".", "git@ex.com:path/to/main.git");
   makeOneGitRepo("free", "git@ex.com:path/to/free.git");
 
   makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
-  process.chdir("pinned");
-  const oldRevision = repo.getRevision(".");
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
-  childProcess.execFileSync("git", ["checkout", "--quiet", oldRevision]);
-  process.chdir(rootDir);
+  commitAndDetach("pinned");
 
   // locked
   makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
 
   // fab init
-  process.chdir(rootDir);
   coreInit.doInit({});
-
-  process.chdir(rootDir);
 }
 
 

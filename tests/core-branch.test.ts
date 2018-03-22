@@ -22,7 +22,7 @@ describe("core branch:", () => {
   });
 
   test("make-branch", () => {
-    cc.makeOneOfEachGitRepo();
+    cc.makeNestedGitForest();
 
     expect(repo.getBranch(".")).toEqual("master");
     expect(repo.getBranch("free")).toEqual("master");
@@ -50,7 +50,7 @@ describe("core branch:", () => {
 
 
   test("switch", () => {
-    cc.makeOneOfEachGitRepo();
+    cc.makeNestedGitForest();
     coreBranch.doMakeBranch("one");
     coreBranch.doMakeBranch("two");
     expect(repo.getBranch(".")).toEqual("two");

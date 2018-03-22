@@ -3,8 +3,10 @@ import path = require("path");
 // Mine
 import util = require("./util");
 
+export type RepoType = "git" | "hg" | "undefined";
 
-function getRepoTypeForParams(repoPath: string, repoType?: string) {
+
+function getRepoTypeForParams(repoPath: string, repoType?: RepoType) {
   if (repoType === undefined) {
     return module.exports.getRepoTypeForLocalPath(repoPath);
   }
@@ -50,11 +52,10 @@ export function getRepoTypeForLocalPath(repoPath: string) {
   // Fairly hardcore to terminate, but saves handling everywhere
   // and only calling when expecting an answer.
   util.terminate(`failed to find repository type for ${repoPath}`);
-  return undefined;
 }
 
 
-export function getOrigin(repoPath: string, repoTypeParam?: string) {
+export function getOrigin(repoPath: string, repoTypeParam?: RepoType) {
   let origin;
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
@@ -76,7 +77,7 @@ export function getOrigin(repoPath: string, repoTypeParam?: string) {
 }
 
 
-export function getBranch(repoPath: string, repoTypeParam?: string) {
+export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
   let branch;
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
@@ -99,7 +100,7 @@ export function getBranch(repoPath: string, repoTypeParam?: string) {
 }
 
 
-export function getRevision(repoPath: string, repoTypeParam?: string) {
+export function getRevision(repoPath: string, repoTypeParam?: RepoType) {
   let revision = "";
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
