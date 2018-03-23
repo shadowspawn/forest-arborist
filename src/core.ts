@@ -75,11 +75,11 @@ export function manifestPath(options: ManifestOptions): string {
 }
 
 
-export function manifestList(mainPath: string): void {
+export function manifestList(mainPath: string): number | undefined  {
   const manifestDir = path.join(mainPath, ".fab");
   if (!util.dirExistsSync(manifestDir)) {
     console.log("(No manifest folder found. Do you need to cd to main repo, or run \"fab init\"?)");
-    return;
+    return undefined;
   }
 
   console.log("Available manifest:");
@@ -98,6 +98,7 @@ export function manifestList(mainPath: string): void {
     }
   });
   if (count === 0) console.log("  (none found)");
+  return count; // Used in tests, not in client code.
 }
 
 
