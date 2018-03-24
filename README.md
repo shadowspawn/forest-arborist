@@ -147,6 +147,10 @@ To install, write the output of `fab completion` to a shell startup file. (c.f. 
 
      npx tabtab install fab --name=fab
 
+## Colour
+
+Colour output is off by default on Windows and on by default for other platforms. You can explicitly enable or disable colour using [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), or disable colour using [NO_COLOR](http://no-color.org).
+
 ## Installing
 
 Requires node and npm. Easy install:

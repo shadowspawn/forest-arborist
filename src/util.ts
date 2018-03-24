@@ -17,22 +17,16 @@ export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 
 function checkColourOverrides() {
-  // Windows shell colours especially PowerShell are pretty awful, so on Windows turn
-  // colour off unless forced on in the Chalk way.
-  // - i.e. <https://github.com/chalk/supports-color>
-  // - c.f. <http://bixense.com/clicolors>
-  // - c.f. <http://no-color.org>
-  // (Not currently mentioning colours in README, add if anyone asks.)
-  if (process.platform === "win32") {
-    let forceColour = false;
-    const env = process.env;
-    if (env.FORCE_COLOR !== undefined) {
-      forceColour = (env.FORCE_COLOR.length === 0 || parseInt(env.FORCE_COLOR, 10) !== 0);
-    }
-    if (!forceColour) {
-      chalk.level = 0; // Disable chalk colours
-    }
-  // Otherwise leave it up to Chalk!
+  // Windows shell colours are so problematic that disable, unless user using Chalk override.
+  // https://www.npmjs.com/package/chalk#chalksupportscolor
+  if ((process.platform === "win32") && (process.env["FORCE_COLOR"] === undefined)) {
+    chalk.enabled = false;
+  }
+
+  // Support turning colours off using a suggested standard.
+  // http://http://no-color.org
+  if (process.env["NO_COLOR"] !== undefined) {
+    chalk.enabled = false;
   }
 }
 checkColourOverrides();

@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - added this changelog
 - removed command-line help from README
-- changed colour suppression on Windows to respect (Chalk) FORCE_COLOR
+- added support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
+- added support for [NO_COLOR](http://no-color.org) to disable colour
 - changed dependencies
 
 ## [1.1.2] / 2018-03-10
