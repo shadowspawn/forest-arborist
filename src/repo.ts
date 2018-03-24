@@ -8,7 +8,7 @@ export type RepoType = "git" | "hg" | "undefined";
 
 function getRepoTypeForParams(repoPath: string, repoType?: RepoType) {
   if (repoType === undefined) {
-    return module.exports.getRepoTypeForLocalPath(repoPath);
+    return exports.getRepoTypeForLocalPath(repoPath);
   }
   return repoType;
 }

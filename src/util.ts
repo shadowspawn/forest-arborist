@@ -12,14 +12,15 @@ import path = require("path");
 import shellQuote = require("shell-quote");
 
 declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
-
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
+export var platform: string = process.platform; // Mutable platform to allow cross-platform testing.
 
 
-function checkColourOverrides() {
+// Exported for tests, not expecting to be called otherwise.
+export function applyColourOverrides() {
   // Windows shell colours are so problematic that disable, unless user using Chalk override.
   // https://www.npmjs.com/package/chalk#chalksupportscolor
-  if ((process.platform === "win32") && (process.env["FORCE_COLOR"] === undefined)) {
+  if ((exports.platform === "win32") && (process.env["FORCE_COLOR"] === undefined)) {
     chalk.enabled = false;
   }
 
@@ -29,11 +30,11 @@ function checkColourOverrides() {
     chalk.enabled = false;
   }
 }
-checkColourOverrides();
+applyColourOverrides();
 
 
 export function terminate(message: string): never {
-  console.error(module.exports.errorColour(`Error: ${message}`));
+  console.error(exports.errorColour(`Error: ${message}`));
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
   // process.exit(1);
@@ -57,7 +58,7 @@ export function normalizeToPosix(relPathParam?: string) {
   }
 
   // On win32 turn a\\b into a/b
-  if (process.platform === "win32") {
+  if (exports.platform === "win32") {
     relPath = relPath.replace(/\\/g, "/");
   }
 

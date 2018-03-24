@@ -242,7 +242,7 @@ describe("dvcs-url resolve", () => {
     expect(result).toEqual("/path/to/other.git");
   });
 
-  if (process.platform === "win32") {
+  if (util.platform === "win32") {
     test("win32 protocol", () => {
       const base = "C:\\Users\\repo.git";
       const parsedBase = dvcsUrl.parse(base);
@@ -342,7 +342,7 @@ describe("dvcs-url:", () => {
       dvcsUrl.parse("/path/a"),
       dvcsUrl.parse("/path/b")
     )).toBe("../b");
-    if (process.platform === "win32") {
+    if (util.platform === "win32") {
       expect(dvcsUrl.relative(
         dvcsUrl.parse("C:\\Users\\a"),
         dvcsUrl.parse("C:\\Users\\b")
