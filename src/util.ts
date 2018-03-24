@@ -82,16 +82,10 @@ export function readJson(targetPath: string, requiredProperties: string[]) {
 
   // Sanity check. Possible errors due to hand editing, but during development
   // usually unsupported old file formats!
-  if (requiredProperties !== undefined) {
-    for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
-      const required = requiredProperties[index];
-      if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
-        terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
-      }
-      // Not sure if this can happen, but paranoia.
-      if (rootObject[required] === undefined) {
-        terminate(`problem parsing: ${targetPath}\nUndefined value for property '${required}'`);
-      }
+  for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
+    const required = requiredProperties[index];
+    if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
+      terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
     }
   }
 
@@ -171,6 +165,7 @@ export function dirExistsSync(filePath: fs.PathLike) {
 
 // Initialisation
 
+/* istanbul ignore next  */
 if (shouldDisableColour()) {
   chalk.enabled = false;
 }

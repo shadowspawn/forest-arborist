@@ -65,9 +65,14 @@ describe("shouldDisableColour:", () => {
 describe("util:", () => {
 
   test("normalizeToPosix", () => {
-    // On win32 turn a\\b into a/b
     const nativePath = path.join("a", "b", "c");
     expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");
+
+    const holdPlatform = util.platform;
+    util.platform = "win32";
+    const winPath = path.win32.join("a", "b", "c");
+    expect(util.normalizeToPosix(winPath)).toEqual("a/b/c");
+    util.platform = holdPlatform;
 
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");
@@ -89,6 +94,8 @@ describe("util:", () => {
   });
 
   test("isRelativePath", () => {
+    expect(util.isRelativePath(<any>null)).toBe(false);
+    expect(util.isRelativePath(<any>undefined)).toBe(false);
     expect(util.isRelativePath("")).toBe(false);
     expect(util.isRelativePath("a")).toBe(false);
     expect(util.isRelativePath("a/b")).toBe(false);
@@ -108,6 +115,10 @@ describe("util:", () => {
 
     const tempFile = tmp.fileSync();
     expect(util.dirExistsSync(tempFile.name)).toBe(false);
+
+    expect(() => {
+      util.dirExistsSync(path.join(tempFile.name, 'fileWhereFolderExpected'));
+    }).toThrowError();
   });
 
   test("fileExistsSync", () => {
@@ -119,6 +130,10 @@ describe("util:", () => {
 
     const tempFile = tmp.fileSync();
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
+
+    expect(() => {
+      util.fileExistsSync(path.join(tempFile.name, 'fileWhereFolderExpected'));
+    }).toThrowError();
   });
 
   test("readJson", () => {
@@ -147,10 +162,13 @@ describe("util:", () => {
 
   test("execCommandSync", () => {
     // Most of execCommandSync is about nice output, do some simple checks.
-    // Bad command throws.
+    // Bad command throws. Relying on behaviour of git here, cross-platform commands are limited!
     expect(() => {
       util.execCommandSync({ cmd: "git" });
     }).toThrowError();
+    expect(() => {
+      util.execCommandSync({ cmd: "git", allowedShellStatus: 1 });
+    }).not.toThrowError();
 
     // cwd changes working directory.
     const tempFolder = tmp.dirSync({ unsafeCleanup: true });
