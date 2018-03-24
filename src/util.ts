@@ -146,6 +146,8 @@ export function fileExistsSync(filePath: fs.PathLike) {
     if (err.code === "ENOENT") {
       return false;
     }
+    // Paranoia. No testing coverage.
+    /* istanbul ignore next  */
     throw err;
   }
 }
@@ -158,6 +160,8 @@ export function dirExistsSync(filePath: fs.PathLike) {
     if (err.code === "ENOENT") {
       return false;
     }
+    // Paranoia. No testing coverage.
+    /* istanbul ignore next  */
     throw err;
   }
 }

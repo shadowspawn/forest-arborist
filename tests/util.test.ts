@@ -115,10 +115,6 @@ describe("util:", () => {
 
     const tempFile = tmp.fileSync();
     expect(util.dirExistsSync(tempFile.name)).toBe(false);
-
-    expect(() => {
-      util.dirExistsSync(path.join(tempFile.name, 'fileWhereFolderExpected'));
-    }).toThrowError();
   });
 
   test("fileExistsSync", () => {
@@ -130,10 +126,6 @@ describe("util:", () => {
 
     const tempFile = tmp.fileSync();
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
-
-    expect(() => {
-      util.fileExistsSync(path.join(tempFile.name, 'fileWhereFolderExpected'));
-    }).toThrowError();
   });
 
   test("readJson", () => {
