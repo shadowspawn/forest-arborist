@@ -16,21 +16,23 @@ export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 export var platform: string = process.platform; // Mutable platform to allow cross-platform testing.
 
 
-// Exported for tests, not expecting to be called otherwise.
-export function applyColourOverrides() {
-  // Windows shell colours are so problematic that disable, unless user using Chalk override.
-  // https://www.npmjs.com/package/chalk#chalksupportscolor
-  if ((exports.platform === "win32") && (process.env["FORCE_COLOR"] === undefined)) {
-    chalk.enabled = false;
-  }
+// Exported for tests, no need to call otherwise.
+export function shouldDisableColour(): boolean {
+  let shouldDisableColour = false;
 
-  // Support turning colours off using a suggested standard.
-  // http://http://no-color.org
-  if (process.env["NO_COLOR"] !== undefined) {
-    chalk.enabled = false;
+  if ("NO_COLOR" in process.env) {
+    // http://http://no-color.org
+    shouldDisableColour = true;
+  } else if ("FORCE_COLOR" in process.env) {
+    // Leave it up to Chalk
+    // https://www.npmjs.com/package/chalk#chalksupportscolor
+    shouldDisableColour = false;
+  } else if (exports.platform === "win32") {
+    // Windows shell colours are so problematic that disable.
+    shouldDisableColour = true;
   }
+  return shouldDisableColour;
 }
-applyColourOverrides();
 
 
 export function terminate(message: string): never {
@@ -164,4 +166,11 @@ export function dirExistsSync(filePath: fs.PathLike) {
     }
     throw err;
   }
+}
+
+
+// Initialisation
+
+if (shouldDisableColour()) {
+  chalk.enabled = false;
 }

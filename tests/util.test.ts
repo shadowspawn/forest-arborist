@@ -1,3 +1,4 @@
+import chalk = require("chalk");
 import fs = require("fs");
 import path = require("path");
 import tmp = require("tmp");
@@ -5,7 +6,64 @@ import tmp = require("tmp");
 import util = require("../src/util");
 
 
+describe("shouldDisableColour:", () => {
+  const holdPlatform = util.platform;
+  const holdForceColor = process.env["FORCE_COLOR"];
+  const holdNoColor = process.env["NO_COLOR"];
+
+  beforeEach(() => {
+    util.platform = holdPlatform;
+    delete process.env["FORCE_COLOR"];
+    delete process.env["NO_COLOR"];
+  });
+
+  afterAll(() => {
+    util.platform = holdPlatform;
+    if (holdForceColor === undefined) {
+      delete process.env["FORCE_COLOR"];
+    } else {
+      process.env["FORCE_COLOR"] = holdForceColor;
+    }
+    if (holdNoColor === undefined) {
+      delete process.env["NO_COLOR"];
+    } else {
+      process.env["NO_COLOR"] = holdNoColor;
+    }
+  });
+
+  function testShouldDisable() {
+    // default
+    expect(util.shouldDisableColour()).toEqual(util.platform === "win32");
+
+    process.env["NO_COLOR"] = "1";
+    expect(util.shouldDisableColour()).toEqual(true);
+    delete process.env["NO_COLOR"];
+
+    // FORCE_COLOR means we leave it to Chalk, so always false.
+    process.env["FORCE_COLOR"] = "1";
+    expect(util.shouldDisableColour()).toEqual(false);
+    process.env["FORCE_COLOR"] = "0";
+    expect(util.shouldDisableColour()).toEqual(false);
+  }
+
+  test("native", () => {
+    testShouldDisable();
+  });
+
+  test("win32", () => {
+    util.platform = "win32";
+    testShouldDisable();
+  });
+
+  test("non-Windows", () => {
+    util.platform = "darwin";
+    testShouldDisable();
+  });
+});
+
+
 describe("util:", () => {
+
   test("normalizeToPosix", () => {
     // On win32 turn a\\b into a/b
     const nativePath = path.join("a", "b", "c");
