@@ -12,12 +12,6 @@
 
 ## Backlog Musing
 
-- switch and make-branch should do main before reading manifest, dependencies could change free/locked/pinned
-- Test before operations on forest which break if changes in repo do not get half way?
-    - <http://unix.stackexchange.com/questions/155046/determine-if-git-working-directory-is-clean-from-a-script>
-- init --interactive, to prompt for free/locked/pinned and relative/absolute ?
-- (not getting travis emails unless make address explicit, something not quite right)
-    - work-around could be to use secure email in travis.tml: <https://github.com/travis-ci/travis-ci/issues/3853>
 - locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
     - previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
 - move command.ts to src, but (on Mac) complicates updates as breaks fab link
