@@ -62,7 +62,7 @@ export function normalizeToPosix(relPathParam?: string) {
     relPath = relPath.replace(/\\/g, "/");
   }
 
-  // Clean up, including turn '' into '.'
+  // Clean up, including turn "" into "."
   return path.posix.normalize(relPath);
 }
 
@@ -117,7 +117,7 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
   if (command.suppressContext) cwdDisplay = "";
 
   // Trying hard to get a possibly copy-and-paste command.
-  // let quotedArgs = '';
+  // let quotedArgs = "";
   // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
   let quotedArgs = shellQuote.quote(command.args);
   quotedArgs = quotedArgs.replace(/\n/g, "\\n");

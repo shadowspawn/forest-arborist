@@ -75,12 +75,12 @@ describe("util:", () => {
     const writeObject = { undefinedField: undefined, key: "value" };
     fs.writeFileSync(tmpPath, JSON.stringify(writeObject));
     expect(() => {
-      util.readJson(tmpPath, ['required-field-missing']);
+      util.readJson(tmpPath, ["required-field-missing"]);
     }).toThrowError();
     expect(() => {
-      util.readJson(tmpPath, ['undefinedField']);
+      util.readJson(tmpPath, ["undefinedField"]);
     }).toThrowError();
-    const readObject =  util.readJson(tmpPath, ['key']);
+    const readObject =  util.readJson(tmpPath, ["key"]);
     console.log(readObject);
     expect(readObject.key).toEqual("value");
 

@@ -4,7 +4,7 @@
 import childProcess = require("child_process");
 import path = require("path");
 import program = require("commander");
-const tabtab: TabTab = require('tabtab')({ name: "fab", cache: false });
+const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
 // Mine
 const core = require("./core");
 import repo = require("./repo");
@@ -56,7 +56,7 @@ function completeOptions(lastPartial: string, options: any): string[] {
 
 
 // First level hander
-tabtab.on('fab', function (data, done) {
+tabtab.on("fab", function (data, done) {
   // Only offer to complete first word in this callback
   // strip global options to avoid breaking count?
   if (data.words > 1)
@@ -75,7 +75,7 @@ tabtab.on('fab', function (data, done) {
 });
 
 
-tabtab.on('switch', function (data, done) {
+tabtab.on("switch", function (data, done) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
@@ -127,6 +127,6 @@ export function shellCompletion() {
   childProcess.execFileSync(
     "npx",
     ["tabtab", "install", "fab", "--stdout", "--name=fab"],
-    { cwd: path.join(__dirname, '..'), stdio: "inherit" }
+    { cwd: path.join(__dirname, ".."), stdio: "inherit" }
   );
 }

@@ -1,7 +1,7 @@
 // Testing the internal routines which do not correspond to command-line fab commands.
 // (The 000 in the name is to run the utility functions before the commands.)
 
-import childProcess = require('child_process');
+import childProcess = require("child_process");
 import fs = require("fs");
 import path = require("path");
 import tmp = require("tmp");
@@ -41,13 +41,13 @@ describe("core:", () => {
     }).toThrow();
 
     // Main, but no root.
-    fs.mkdirSync('.fab');
+    fs.mkdirSync(".fab");
     expect(() => {
       core.cdRootDirectory();
     }).toThrow();
 
     // Make it a fake context
-    fs.closeSync(fs.openSync(core.fabRootFilename, 'w'));
+    fs.closeSync(fs.openSync(core.fabRootFilename, "w"));
     expect(() => {
       core.cdRootDirectory();
     }).not.toThrow();
@@ -68,19 +68,19 @@ describe("core:", () => {
     expect(core.manifestList(".")).toBeUndefined(); // List manifests when folder missing.
 
     // simple main repo
-    fs.mkdirSync('.fab');
+    fs.mkdirSync(".fab");
     expect(core.manifestList(".")).toEqual(0); // List manifests empty folder.
-    fs.closeSync(fs.openSync(path.join('.fab', 'notAManifest'), 'w'));
+    fs.closeSync(fs.openSync(path.join(".fab", "notAManifest"), "w"));
     expect(core.manifestList(".")).toEqual(0); // List manifests no matching manifests.
     cc.makeOneGitRepo(".", "git://host.xz/path1");
-    childProcess.execFileSync('git', ['init']);
+    childProcess.execFileSync("git", ["init"]);
 
     // missing manifest
     expect(() => {
       core.readManifest({ mainPath: "." });
     }).toThrow();
     expect(() => {
-      core.readManifest({ mainPath: ".", manifest: 'willNotFindThis' });
+      core.readManifest({ mainPath: ".", manifest: "willNotFindThis" });
     }).toThrow();
 
     // Nested forest
@@ -98,7 +98,7 @@ describe("core:", () => {
     expect(core.manifestList(".")).toEqual(1);  // First manifest
 
     // discard unrecognised repo tyeps
-    const manifestReadNested1 = core.readManifest({ mainPath: ".", manifest: 'nested1' });
+    const manifestReadNested1 = core.readManifest({ mainPath: ".", manifest: "nested1" });
     expect(manifestReadNested1.dependencies["git"]).not.toBeUndefined();
     expect(manifestReadNested1.dependencies["hg"]).not.toBeUndefined();
     // drop unrecognised repo types
@@ -109,7 +109,7 @@ describe("core:", () => {
     expect(manifestReadNested1.dependencies["relativeOrigin"].origin).toEqual("git://host.xz/path1/relativeOrigin");
 
     // add main repo on request
-    const manifestReadNested2 = core.readManifest({ mainPath: ".", manifest: 'nested1', addMainToDependencies: true });
+    const manifestReadNested2 = core.readManifest({ mainPath: ".", manifest: "nested1", addMainToDependencies: true });
     expect(manifestReadNested2.dependencies["."]).not.toBeUndefined();
 
     // fromRoot
