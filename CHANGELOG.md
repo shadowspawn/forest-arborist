@@ -7,31 +7,53 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-- added this changelog
-- removed command-line help from README
-- added support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
-- added support for [NO_COLOR](http://no-color.org) to disable colour
-- changed dependencies
+### Added
 
-## [1.1.2] / 2018-03-10
+- this changelog
+- support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
+- support for [NO_COLOR](http://no-color.org) to disable colour
 
-- added `fab main` (like `fab root`)
-- fixed threading bug running tests with new version of Jest
+### Changed
 
-## [1.1.1] / 2018-02-14
+- dependencies
 
-- fixed colour output on Windows by turning off by default (because: PowerShell colours!)
+### Removed
 
-## [1.1.0] / 2017-11-05
+- command-line help from README
 
-- added shell command line completion
-- changed from Jasmine to Jest for tests
+## [1.1.2] - 2018-03-10
 
-## [1.0.1] / 2017-08-13
+### Added
 
-- added shrinkwrap
+- `fab main` (like `fab root`)
 
-## 1.0.0 / 2017-08-05
+### Fixed
+
+- threading bug running tests with new version of Jest
+
+## [1.1.1] - 2018-02-14
+
+### Removed
+
+- colour output on Windows (because: PowerShell colours!)
+
+## [1.1.0] - 2017-11-05
+
+### Added
+
+- shell command line completion
+
+### Changed
+
+- switched from Jasmine to Jest for tests
+
+## [1.0.1] - 2017-08-13
+
+### Added
+
+- shrinkwrap
+
+## 1.0.0 - 2017-08-05
 
 - first stable release
 
