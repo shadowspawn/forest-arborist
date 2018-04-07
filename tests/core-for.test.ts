@@ -8,7 +8,7 @@ import util = require("../src/util");
 
 describe("core for:", () => {
   const startDir = process.cwd();
-  let tempFolder;
+  let tempFolder: tmp.SynchrounousResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
@@ -18,6 +18,7 @@ describe("core for:", () => {
 
   afterEach(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
 

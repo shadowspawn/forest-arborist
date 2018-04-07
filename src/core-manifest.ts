@@ -1,3 +1,5 @@
+// This file implements the "fab manifest" command options (not the base manifest operations).
+
 import childProcess = require("child_process");
 import path = require("path");
 import fsX = require("fs-extra");

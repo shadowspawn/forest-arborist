@@ -9,15 +9,16 @@ import util = require("../src/util");
 
 describe("core branch:", () => {
   const startDir = process.cwd();
-  let tempFolder;
+  let tempFolder: tmp.SynchrounousResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   test("make-branch", () => {

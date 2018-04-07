@@ -10,7 +10,7 @@ import util = require("../src/util");
 
 describe("core init:", () => {
   const startDir = process.cwd();
-  let tempFolder;
+  let tempFolder: tmp.SynchrounousResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
@@ -19,6 +19,7 @@ describe("core init:", () => {
 
   afterEach(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   test("no repo", () => {

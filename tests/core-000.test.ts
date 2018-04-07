@@ -14,17 +14,17 @@ import util = require("../src/util");
 
 describe("core:", () => {
   const startDir = process.cwd();
-  let tempFolder;
+  let tempFolder: tmp.SynchrounousResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
-
 
   test("manifestPath", () => {
     expect(util.normalizeToPosix(core.manifestPath({}))).toEqual(".fab/manifest.json");
@@ -32,7 +32,6 @@ describe("core:", () => {
     expect(util.normalizeToPosix(core.manifestPath({ mainPath: "main" }))).toEqual("main/.fab/manifest.json");
     expect(util.normalizeToPosix(core.manifestPath({ mainPath: "main", manifest: "custom" }))).toEqual("main/.fab/custom_manifest.json");
   });
-
 
   test("cdRootDirectoy", () => {
     // Not a fab context
@@ -54,7 +53,6 @@ describe("core:", () => {
     // expect(process.cwd()).toBe(tempFolder.name);
   });
 
-
   test("rootFile", () => {
     const testRootOptions: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, mainPath: ".", manifest: "foo" };
     core.writeRootFile(testRootOptions);
@@ -62,7 +60,6 @@ describe("core:", () => {
     expect(rootContents.mainPath).toEqual(testRootOptions.mainPath);
     expect(rootContents.manifest).toEqual(testRootOptions.manifest);
   });
-
 
   test("readManifest", () => {
     expect(core.manifestList(".")).toBeUndefined(); // List manifests when folder missing.
@@ -126,6 +123,5 @@ describe("core:", () => {
     fs.writeFileSync(core.manifestPath({ }), JSON.stringify(manifestWriteNested));
     expect(core.manifestList(".")).toEqual(2); // Added default manifest
   });
-
 
 });

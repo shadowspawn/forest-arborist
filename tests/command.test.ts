@@ -33,7 +33,7 @@ function callFabExpectFail(args: string[]) {
 
 describe("command-line sanity check:", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult; // [sic]
+  let tempFolder: tmp.SynchrounousResult;
   let suite: cc.RepoSuiteResult;
   const preparedRepo = "ref";
 

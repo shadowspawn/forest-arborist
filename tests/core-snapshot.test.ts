@@ -20,12 +20,6 @@ describe("core snapshot:", () => {
   let tempFolder: tmp.SynchrounousResult;
   let suite: cc.RepoSuiteResult;
 
-  beforeAll(() => {
-  });
-
-  afterAll(() => {
-  });
-
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true });
     process.chdir(tempFolder.name);
@@ -34,6 +28,7 @@ describe("core snapshot:", () => {
 
   afterEach(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   test("restore", () => {
