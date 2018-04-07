@@ -8,7 +8,7 @@
     "mercurial"
   ],
   "bin": {
-    "fab": "./dist/command.js"
+    "fab": "./dist/src/command.js"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,11 @@
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent",
-    "lint": "tslint --project tsconfig.json command.ts src/**/*.ts{,x}"
+    "lint": "tslint --project tsconfig.json src/**/*.ts{,x}"
   },
   "author": "John Gee",
   "license": "MIT",
   "files": [
-    "dist/command.js",
     "dist/src/*"
   ],
   "jest": {

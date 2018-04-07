@@ -13,17 +13,17 @@ import fs = require("fs");
 import path = require("path");
 import program = require("commander");
 // Mine
-const myPackage = (require.main !== undefined ? require.main.require("../package.json") : undefined);
-import completion = require("./src/completion");
-import core = require("./src/core");
-import coreBranch = require("./src/core-branch");
-import coreClone = require("./src/core-clone");
-import coreFor = require("./src/core-for");
-import coreInit = require("./src/core-init");
-import coreManifest = require("./src/core-manifest");
-import coreSnapshot = require("./src/core-snapshot");
-import repo = require("./src/repo");
-import util = require("./src/util");
+const myPackage = (require.main !== undefined ? require.main.require("../../package.json") : undefined);
+import completion = require("../src/completion");
+import core = require("../src/core");
+import coreBranch = require("../src/core-branch");
+import coreClone = require("../src/core-clone");
+import coreFor = require("../src/core-for");
+import coreInit = require("../src/core-init");
+import coreManifest = require("../src/core-manifest");
+import coreSnapshot = require("../src/core-snapshot");
+import repo = require("../src/repo");
+import util = require("../src/util");
 
 
 function doStatus() {
