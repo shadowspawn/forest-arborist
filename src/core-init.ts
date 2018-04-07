@@ -79,7 +79,7 @@ export function doInit(options: InitOptions) {
 
   // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
-  const dependencies: any = {};
+  const dependencies: core.Dependencies = {};
   findRepositories(".", (repoPathParam, repoType: repo.RepoType) => {
     const repoPath = util.normalizeToPosix(repoPathParam);
     console.log(`  ${repoPath}`);
@@ -124,7 +124,7 @@ export function doInit(options: InitOptions) {
   });
   delete dependencies[mainFromRoot];
 
-  const manifest = {
+  const manifest: core.Manifest = {
     dependencies,
     rootDirectory: util.normalizeToPosix(rootFromMain),
     mainPathFromRoot: util.normalizeToPosix(mainFromRoot),

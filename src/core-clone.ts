@@ -160,13 +160,12 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
   }
 
   // Clone source.
-  let repoType: string;
+  let repoType: repo.RepoType = "git";
   if (repo.isGitRepository(source)) {
     repoType = "git";
   } else if (repo.isHgRepository(source)) {
     repoType = "hg";
   } else {
-    repoType = ""; // lint
     console.log("(Does the source repo exist?)");
     util.terminate(`failed to find repository type for ${source}`);
   }

@@ -333,8 +333,9 @@ program
   program
   .command("manifest", undefined, { noHelp: true })
   .option("-e, --edit")
-  .option("-a, --add [repo-path]", undefined, ".")
-  .option("-d, --delete [repo-path]", undefined, ".")
+  .option("-l, --list")
+  .option("-a, --add [repo-path]")
+  .option("-d, --delete [repo-path]")
   .action((options) => {
       coreManifest.doManifest(options);
   });

@@ -10,12 +10,15 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-// Used in Clone and Init
 export interface DependencyEntry {
-  repoType: string;
+  repoType: repo.RepoType;
   origin?: string;
   pinRevision?: string;
   lockBranch?: string;
+}
+
+export interface Dependencies {
+  [repoPath: string]: DependencyEntry;
 }
 
 
@@ -156,7 +159,14 @@ export interface ReadManifestOptions {
   manifest?: string;
 }
 
-export function readManifest(options: ReadManifestOptions) {
+export interface Manifest {
+  dependencies: Dependencies;
+  rootDirectory: string;
+  mainPathFromRoot: string;
+  tipsForManualEditing?: string[];
+}
+
+export function readManifest(options: ReadManifestOptions): Manifest {
   // Sort out manifest location
   let mainPath;
   let manifest;
