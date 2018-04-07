@@ -33,11 +33,78 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
 }
 
 
+// Loose interface to support efficient use from `fab init`, but also simple use for `fab manifest --add`.
+export interface MakeDependencyEntryOptions {
+  repoPath: string;
+  repoType?: repo.RepoType;
+  mainRepoPath?: string; // Caller either supplies mainRepoPath, or the details below
+  mainBranch?: string;
+  parsedMainOrigin?: dvcsUrl.DvcsUrl;
+}
+
+export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.DependencyEntry {
+  const repoPath = options.repoPath;
+  console.log(`  ${repoPath}`);
+  let repoType = repo.getRepoTypeForParams(options.repoPath, options.repoType);
+  const origin = repo.getOrigin(repoPath, repoType);
+  const entry: core.DependencyEntry = { origin, repoType };
+  if (origin === undefined) {
+    console.log(util.errorColour("    (origin not specified)"));
+  }
+
+  let mainBranch: string | undefined;
+  if (options.mainRepoPath !== undefined) {
+    mainBranch = repo.getBranch(options.mainRepoPath);
+  } else {
+    mainBranch = options.mainBranch;
+  }
+
+  let parsedMainOrigin: dvcsUrl.DvcsUrl | undefined = undefined;
+  if (options.parsedMainOrigin !== undefined) {
+    parsedMainOrigin = options.parsedMainOrigin;
+  } else if (options.mainRepoPath !== undefined) {
+    parsedMainOrigin = dvcsUrl.parse(repo.getOrigin(options.mainRepoPath));
+  }
+
+  // Pinned, then free, and fallback to locked.
+  const lockBranch = repo.getBranch(repoPath, repoType);
+  if (lockBranch === undefined) {
+    // likely git detached head
+    const revision = repo.getRevision(repoPath, repoType);
+    console.log(`    (pinned revision to ${revision})`);
+    entry.pinRevision = revision;
+  } else if (lockBranch !== options.mainBranch) {
+    console.log(`    (locked branch to ${lockBranch})`);
+    entry.lockBranch = lockBranch;
+  } else {
+    // Fairly conservative about choosing free.
+    let locked = true;
+    if (origin !== undefined && parsedMainOrigin !== undefined) {
+      const parsedOrigin = dvcsUrl.parse(origin);
+      if (dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin)) {
+        locked = false;
+        console.log("    (free)");
+        const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
+        // Should always be true?
+        if (util.isRelativePath(relativePath)) {
+          entry.origin = relativePath;
+        }
+      }
+    }
+    if (locked) {
+      console.log(`    (locked branch to ${lockBranch})`);
+      entry.lockBranch = lockBranch;
+    }
+  }
+
+  return entry;
+}
+
+
 export interface InitOptions {
   manifest?: string;
   root?: string;
 }
-
 
 export function doInit(options: InitOptions) {
   const startDir = process.cwd();
@@ -80,47 +147,9 @@ export function doInit(options: InitOptions) {
   // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
-  findRepositories(".", (repoPathParam, repoType: repo.RepoType) => {
-    const repoPath = util.normalizeToPosix(repoPathParam);
-    console.log(`  ${repoPath}`);
-    const origin = repo.getOrigin(repoPath, repoType);
-    const entry: core.DependencyEntry = { origin, repoType };
-    if (origin === undefined) {
-      console.log(util.errorColour("    (origin not specified)"));
-    }
-
-    // Pinned, then free, and fallback to locked.
-    const lockBranch = repo.getBranch(repoPath, repoType);
-    if (lockBranch === undefined) {
-      // likely git detached head
-      const revision = repo.getRevision(repoPath, repoType);
-      console.log(`    (pinned revision to ${revision})`);
-      entry.pinRevision = revision;
-    } else if (lockBranch !== mainBranch) {
-      console.log(`    (locked branch to ${lockBranch})`);
-      entry.lockBranch = lockBranch;
-    } else {
-      // This made sense for our original hg repo layout, peer repos have same parent.
-      // May need to refine with wider use.
-      let locked = true;
-      if (origin !== undefined) {
-        const parsedOrigin = dvcsUrl.parse(origin);
-        if (dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin)) {
-          locked = false;
-          console.log("    (free)");
-          const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
-          // Should always be true?
-          if (util.isRelativePath(relativePath)) {
-            entry.origin = relativePath;
-          }
-        }
-      }
-      if (locked) {
-        console.log(`    (locked branch to ${lockBranch})`);
-        entry.lockBranch = lockBranch;
-      }
-    }
-    dependencies[repoPath] = entry;
+  findRepositories(".", (repoPath, repoType: repo.RepoType) => {
+    const entry = makeDependencyEntry({ repoPath, repoType, mainBranch, parsedMainOrigin });
+    dependencies[util.normalizeToPosix(repoPath)] = entry;
   });
   delete dependencies[mainFromRoot];
 

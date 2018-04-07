@@ -4,6 +4,7 @@ import fsX = require("fs-extra");
 import process = require("process");
 // Mine
 import core = require("./core");
+import coreInit = require("./core-init");
 import util = require("./util");
 
 
@@ -41,7 +42,12 @@ export function doManifest(options: ManifestOptions) {
   } else if (options.add) {
     const targetPath = rootRelative(startDir, options.add);
     const manifestObject = core.readManifest({ mainPath });
-    console.log("Add not imlemented yet");
+    console.log(`Added dependency for ${path.resolve(process.cwd(), targetPath)}`);
+    manifestObject.dependencies[util.normalizeToPosix(targetPath)] = coreInit.makeDependencyEntry({
+      repoPath: targetPath,
+      mainRepoPath: mainPath,
+    });
+    fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });
   } else if (options.delete) {
     const targetPath = rootRelative(startDir, options.delete);
     const manifestObject = core.readManifest({ mainPath });

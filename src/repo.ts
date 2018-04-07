@@ -3,12 +3,26 @@ import path = require("path");
 // Mine
 import util = require("./util");
 
-export type RepoType = "git" | "hg" | "undefined";
+export type RepoType = "git" | "hg";
 
 
-function getRepoTypeForParams(repoPath: string, repoType?: RepoType) {
+export function getRepoTypeForLocalPath(repoPath: string): RepoType {
+  if (util.dirExistsSync(path.join(repoPath, ".git"))) {
+    return "git";
+  } else if (util.dirExistsSync(path.join(repoPath, ".hg"))) {
+    return "hg";
+  }
+
+  // Fairly hardcore to terminate, but saves handling everywhere
+  // and only calling when expecting an answer.
+  util.terminate(`failed to find repository type for ${repoPath}`);
+  return "git"; // unreachable but lint for returning RepoType
+}
+
+
+export function getRepoTypeForParams(repoPath: string, repoType?: RepoType): RepoType {
   if (repoType === undefined) {
-    return exports.getRepoTypeForLocalPath(repoPath);
+    return getRepoTypeForLocalPath(repoPath);
   }
   return repoType;
 }
@@ -42,19 +56,6 @@ export function isHgRepository(repository: string) {
 }
 
 
-export function getRepoTypeForLocalPath(repoPath: string) {
-  if (util.dirExistsSync(path.join(repoPath, ".git"))) {
-    return "git";
-  } else if (util.dirExistsSync(path.join(repoPath, ".hg"))) {
-    return "hg";
-  }
-
-  // Fairly hardcore to terminate, but saves handling everywhere
-  // and only calling when expecting an answer.
-  util.terminate(`failed to find repository type for ${repoPath}`);
-}
-
-
 export function getOrigin(repoPath: string, repoTypeParam?: RepoType) {
   let origin;
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
@@ -85,7 +86,7 @@ export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
     try {
       // This will fail if have detached head, but does work for an empty repo
       branch = childProcess.execFileSync(
-        "git", ["symbolic-ref", "--short", "HEAD"], 
+        "git", ["symbolic-ref", "--short", "HEAD"],
         { cwd: repoPath, stdio: ["pipe", "pipe", "ignore"] }
       ).toString().trim();
     } catch (err) {
