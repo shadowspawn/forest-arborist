@@ -331,11 +331,27 @@ program
 
   // Hidden command in development for managing manifest
   program
-  .command("manifest", undefined, { noHelp: true })
-  .option("-e, --edit")
-  .option("-l, --list")
-  .option("-a, --add [repo-path]")
-  .option("-d, --delete [repo-path]")
+  .command("manifest")
+  .description("manage manifest dependencies")
+  .option("-e, --edit", "open manifest in editor")
+  .option("-l, --list", "list dependencies from manifest")
+  .option("-a, --add [repo-path]", "add entry to manifest dependencies")
+  .option("-d, --delete [repo-path]", "delete entry from manifest dependencies")
+  .on("--help", () => {
+    console.log(`
+  Description:
+    Specify an option to list or make changes to manifest. Can be used from
+    anywhere in forest.
+
+    You can optionally specify the repo-path for --add and --delete,
+    which otherwise default to the current working directory.
+
+    --edit uses the EDITOR or VISUAL environment variable if specified,
+    and falls back to Notepad on Windows and vi on other platforms.
+
+    With no options, show the manifest path.
+    `);
+  })
   .action((options) => {
       coreManifest.doManifest(options);
   });

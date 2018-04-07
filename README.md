@@ -99,6 +99,14 @@ The manifest specifies the forest layout and the dependent repository details. T
 - `fab init --root ..` from main repo for a sibling forest
 - `fab init --manifest name` to save a custom manifest
 
+You can manage the manifest contents with the `manifest` command:
+
+- `fab manifest` show path to manifest
+- `fab manifest --edit` open manifest in editor
+- `fab manifest --list` list dependencies from manifest
+- `fab manifest --add newRepo` add entry to manifest dependencies
+- `fab manifest --delete staleRepo` delete entry from manifest dependencies
+
 The _dependencies_ map is where you might do some hand editing. The map key
 is the working directory relative to the root of the forest. The properties are:
 

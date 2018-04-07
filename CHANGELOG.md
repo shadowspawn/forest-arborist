@@ -6,12 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+Next version [1.2]
 
 ### Added
 
 - this changelog
 - support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
 - support for [NO_COLOR](http://no-color.org) to disable colour
+- `fab manifest` show path to manifest
+- `fab manifest --edit` open manifest in editor
+- `fab manifest --list` list dependencies from manifest
+- `fab manifest --add [repo-path]` add entry to manifest dependencies
+- `fab manifest --delete [repo-path]` delete entry from manifest dependencies
 
 ### Changed
 
@@ -20,7 +26,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-- command-line help from README
+- raw command-line help from README
 
 ## [1.1.2] - 2018-03-10
 
@@ -59,6 +65,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - first stable release
 
 [Unreleased]: https://github.com/JohnRGee/forest-arborist/compare/master...develop
+[1.2]: https://github.com/JohnRGee/forest-arborist/compare/v1.1.2...v1.2
 [1.1.2]: https://github.com/JohnRGee/forest-arborist/compare/1.1.1...v1.1.2
 [1.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v1.1.0...1.1.1
 [1.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.0.1...v1.1.0
