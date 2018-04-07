@@ -13,7 +13,7 @@ import fs = require("fs");
 import path = require("path");
 import program = require("commander");
 // Mine
-const myPackage = (require.main !== undefined ? require.main.require("../../package.json") : undefined);
+const myPackage = require("../../package.json");
 import completion = require("../src/completion");
 import core = require("../src/core");
 import coreBranch = require("../src/core-branch");
