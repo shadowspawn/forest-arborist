@@ -21,7 +21,8 @@ Terminology:
 
 To create a manifest from an existing forest you run `init` from the main repo:
 
-    fab init
+- `fab init` from master repository for a nested forest
+- `fab init --root ..` from main repo for a sibling forest
 
 Commit the manifest file, and then you can `clone` the main repo to get the forest:
 
@@ -135,7 +136,7 @@ Custom manifests follow the template &lt;custom&gt;\_manifest.json.
 
 ## Command-line Completion
 
-For trying out shell completion on Lin:
+For trying out shell completion on Linux:
 
     source < (fab completion)
 
