@@ -5,8 +5,6 @@ import tmp = require("tmp");
 import cc = require("./core-common");
 import repo = require("../src/repo");
 import util = require("../src/util");
-//
-// const cc = require("./core-common");
 
 
 describe("repo:", () => {

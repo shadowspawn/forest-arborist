@@ -3,11 +3,10 @@ import fs = require("fs");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import core = require("../src/core");
 import coreClone = require("../src/core-clone");
 import util = require("../src/util");
-// //
-import cc = require("./core-common");
 
 
 describe("core clone:", () => {

@@ -2,13 +2,12 @@ import childProcess = require("child_process");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import core = require("../src/core");
 import coreClone = require("../src/core-clone");
 import coreSnapshot = require("../src/core-snapshot");
 import repo = require("../src/repo");
 import util = require("../src/util");
-//
-import cc = require("./core-common");
 
 
 interface RevisionMap {

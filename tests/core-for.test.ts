@@ -1,10 +1,9 @@
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import coreFor = require("../src/core-for");
 import repo = require("../src/repo");
 import util = require("../src/util");
-//
-import cc = require("./core-common");
 
 
 describe("core for:", () => {

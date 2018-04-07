@@ -4,10 +4,9 @@ import childProcess = require("child_process");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import coreClone = require("../src/core-clone");
 import util = require("../src/util");
-//
-import cc = require("./core-common");
 
 function fabEntry() {
   return path.join(path.dirname(__dirname), "dist", "src", "command.js");

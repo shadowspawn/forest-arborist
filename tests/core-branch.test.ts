@@ -1,11 +1,10 @@
 import childProcess = require("child_process");
 import tmp = require("tmp");
 // Mine
+import cc = require("./core-common");
 import coreBranch = require("../src/core-branch");
 import repo = require("../src/repo");
 import util = require("../src/util");
-//
-import cc = require("./core-common");
 
 
 describe("core branch:", () => {
