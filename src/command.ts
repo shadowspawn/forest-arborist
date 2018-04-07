@@ -14,16 +14,16 @@ import path = require("path");
 import program = require("commander");
 // Mine
 const myPackage = require("../../package.json");
-import completion = require("../src/completion");
-import core = require("../src/core");
-import coreBranch = require("../src/core-branch");
-import coreClone = require("../src/core-clone");
-import coreFor = require("../src/core-for");
-import coreInit = require("../src/core-init");
-import coreManifest = require("../src/core-manifest");
-import coreSnapshot = require("../src/core-snapshot");
-import repo = require("../src/repo");
-import util = require("../src/util");
+import completion = require("./completion");
+import core = require("./core");
+import coreBranch = require("./core-branch");
+import coreClone = require("./core-clone");
+import coreFor = require("./core-for");
+import coreInit = require("./core-init");
+import coreManifest = require("./core-manifest");
+import coreSnapshot = require("./core-snapshot");
+import repo = require("./repo");
+import util = require("./util");
 
 
 function doStatus() {
