@@ -16,6 +16,7 @@
     - previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
 - move command.ts to src, but (on Mac) complicates updates as breaks fab link
 - try np for tidy publish
+- suffix for peer checkout, so by default do not get foo/foo. (e.g. for-checkout, foo-forest)
 
 ## Patterns
 

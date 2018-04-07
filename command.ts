@@ -329,11 +329,14 @@ program
     // console.log(options);
   });
 
+  // Hidden command in development for managing manifest
   program
   .command("manifest", undefined, { noHelp: true })
-  .option("--edit")
+  .option("-e, --edit")
+  .option("-a, --add [repo-path]", undefined, ".")
+  .option("-d, --delete [repo-path]", undefined, ".")
   .action((options) => {
-    coreManifest.doManifest(options);
+      coreManifest.doManifest(options);
   });
 
 // Catch-all, unrecognised command.

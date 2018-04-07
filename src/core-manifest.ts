@@ -7,6 +7,8 @@ import core = require("./core");
 
 export interface ManifestOptions {
   edit?: boolean;
+  add?: boolean;
+  delete?: boolean;
 }
 
 
@@ -22,8 +24,14 @@ export function doManifest(options: ManifestOptions) {
       || process.env.VISUAL
       ||((process.platform === "win32") ? "notepad.exe" : "vi");
     childProcess.execFileSync(editor, [fabManifest], { stdio: "inherit" });
+  } else if (options.add) {
+    console.log(options.add);
+    console.log(typeof options.add);
+    console.log("Add not imlemented yet");
+  } else if (options.delete) {
+    console.log("Delete not imlemented yet");
   } else {
-    console.log("Only --edit in development so far");
+    console.log("Unexpected call to manifest command in development");
   }
 }
 
