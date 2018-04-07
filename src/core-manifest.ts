@@ -27,7 +27,7 @@ export function doManifest(options: ManifestOptions) {
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
   const mainPath = path.resolve(process.cwd(), rootObject.mainPath);
-  const manifestPath = core.manifestPath({ mainPath });
+  const manifestPath = core.manifestPath({ mainPath, manifest: rootObject.manifest });
 
   if (options.edit) {
     // Same checks as osenv.editor
@@ -36,13 +36,13 @@ export function doManifest(options: ManifestOptions) {
       ||((process.platform === "win32") ? "notepad.exe" : "vi");
       childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
   } else if (options.list) {
-    const manifestObject = core.readManifest({ mainPath });
+    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
     delete manifestObject.tipsForManualEditing;
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const targetPath = rootRelative(startDir, options.add);
-    const manifestObject = core.readManifest({ mainPath });
-    console.log(`Added dependency for ${path.resolve(process.cwd(), targetPath)}`);
+    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
+    console.log(`Adding dependency for ${path.resolve(process.cwd(), targetPath)}`);
     manifestObject.dependencies[util.normalizeToPosix(targetPath)] = coreInit.makeDependencyEntry({
       repoPath: targetPath,
       mainRepoPath: mainPath,
@@ -50,7 +50,7 @@ export function doManifest(options: ManifestOptions) {
     fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });
   } else if (options.delete) {
     const targetPath = rootRelative(startDir, options.delete);
-    const manifestObject = core.readManifest({ mainPath });
+    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
     if (manifestObject.dependencies[targetPath] === undefined) {
       util.terminate(`No manifest dependency for: ${targetPath}`);
     }
