@@ -140,6 +140,7 @@ program.on("--help", () => {
   Branch: make-branch, switch
   Reproducible state: snapshot, recreate, restore
   Display: root, main
+  Manifest management: manifest, --edit, --list, --add, --delete
 
   See https://github.com/JohnRGee/forest-arborist.git for usage overview.
   See also "fab <command> --help" for individual command options and further help.
