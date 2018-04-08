@@ -8,7 +8,8 @@ import fs = require("fs");
 import path = require("path");
 import commander = require("commander");
 // Mine
-const myPackage = require("../../package.json");
+// Trickery to cope with different relative paths for typescipt and javascript
+const myPackage = require("dummy_for_node_modules/../../package.json");
 import completion = require("./completion");
 import core = require("./core");
 import coreBranch = require("./core-branch");
@@ -118,7 +119,9 @@ function doPull() {
 // ------------------------------------------------------------------------------
 // Command line processing. Returning new object to allow multiple calls for testing.
 
-export function makeProgram() {
+export type Command = commander.Command;
+
+export function makeProgram(): Command {
   const program = new commander.Command();
 
   program
