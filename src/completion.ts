@@ -3,11 +3,13 @@
 
 import childProcess = require("child_process");
 import path = require("path");
-import program = require("commander");
+import commander = require("commander");
 const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
 // Mine
 const core = require("./core");
 import repo = require("./repo");
+
+let gProgram: commander.Command; // Clunky way of getting access to current command (was originally using module as global).
 
 
 interface TabData {
@@ -63,9 +65,9 @@ tabtab.on("fab", function (data, done) {
     return (done(null, []));
 
   if (wantOptions(data.lastPartial))
-    return done(null, completeOptions(data.lastPartial, program.options));
+    return done(null, completeOptions(data.lastPartial, gProgram.options));
 
-  done(null, program.commands
+  done(null, gProgram.commands
     .filter((cmd: any) => {
       return !cmd._noHelp;
     })
@@ -93,7 +95,7 @@ tabtab.on("switch", function (data, done) {
 });
 
 
-export function addCommandOptions() {
+export function addCommandOptions(program: commander.Command) {
   program.commands
     .filter((cmd: any) => {
       return !cmd._noHelp && cmd.options.length;
@@ -107,8 +109,9 @@ export function addCommandOptions() {
 }
 
 
-export function complete() {
-  addCommandOptions();
+export function complete(program: commander.Command) {
+  gProgram = program;
+  addCommandOptions(program);
 
   // Wish list for smart command help:
   //    clone --branch <tab>
@@ -123,7 +126,8 @@ export function complete() {
 }
 
 
-export function shellCompletion() {
+export function shellCompletion(program: commander.Command) {
+  gProgram = program;
   childProcess.execFileSync(
     "npx",
     ["tabtab", "install", "fab", "--stdout", "--name=fab"],

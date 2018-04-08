@@ -5,9 +5,8 @@
         "noImplicitAny": true,
         "sourceMap": false,
         "declaration": false,
-        "allowJs": true,
         "outDir": "./dist",
-        "strictNullChecks": true
+        "strict": true
     },
     "include": [
         "*",

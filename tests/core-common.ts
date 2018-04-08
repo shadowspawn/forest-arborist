@@ -95,9 +95,8 @@ export function makeGitRepoSuite() {
 
     // custom manifest (and creating an extra repo)
     const manifest = "sub";
-    const customOptions = { root: options.root, manifest };
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(remotesDir, "free"), "sub"]);
-    coreInit.doInit(customOptions);
+    coreInit.doInit({ root: options.root, manifest });
     configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({ manifest })]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised with custom manifest"]);

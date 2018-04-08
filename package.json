@@ -8,7 +8,7 @@
     "mercurial"
   ],
   "bin": {
-    "fab": "./dist/src/command.js"
+    "fab": "./dist/src/cli.js"
   },
   "repository": {
     "type": "git",
