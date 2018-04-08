@@ -8,7 +8,7 @@ import repo = require("./repo");
 import util = require("./util");
 
 
-interface FindRepositoriesCallback { (repoPath: string, repoType: string): void; }
+interface FindRepositoriesCallback { (repoPath: string, repoType: repo.RepoType): void; }
 
 
 function findRepositories(startingDirectory: string, callback: FindRepositoriesCallback) {
@@ -33,37 +33,23 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
 }
 
 
-// Loose interface to support efficient use from `fab init`, but also simple use for `fab manifest --add`.
-export interface MakeDependencyEntryOptions {
+interface MakeDependencyEntryWithDetailsOptions {
   repoPath: string;
-  repoType?: repo.RepoType;
-  mainRepoPath?: string; // Caller either supplies mainRepoPath, or the details below
-  mainBranch?: string;
-  parsedMainOrigin?: dvcsUrl.DvcsUrl;
+  repoType: repo.RepoType;
+  mainBranch: string | undefined;
+  parsedMainOrigin: dvcsUrl.DvcsUrl;
 }
 
-export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.DependencyEntry {
+function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsOptions): core.DependencyEntry {
   const repoPath = options.repoPath;
-  console.log(`  ${repoPath}`);
-  let repoType = repo.getRepoTypeForParams(options.repoPath, options.repoType);
+  const repoType = repo.getRepoTypeForParams(options.repoPath, options.repoType);
+  const parsedMainOrigin = options.parsedMainOrigin;
   const origin = repo.getOrigin(repoPath, repoType);
+
+  console.log(`  ${repoPath}`);
   const entry: core.DependencyEntry = { origin, repoType };
   if (origin === undefined) {
     console.log(util.errorColour("    (origin not specified)"));
-  }
-
-  let mainBranch: string | undefined;
-  if (options.mainRepoPath !== undefined) {
-    mainBranch = repo.getBranch(options.mainRepoPath);
-  } else {
-    mainBranch = options.mainBranch;
-  }
-
-  let parsedMainOrigin: dvcsUrl.DvcsUrl | undefined = undefined;
-  if (options.parsedMainOrigin !== undefined) {
-    parsedMainOrigin = options.parsedMainOrigin;
-  } else if (options.mainRepoPath !== undefined) {
-    parsedMainOrigin = dvcsUrl.parse(repo.getOrigin(options.mainRepoPath));
   }
 
   // Pinned, then free, and fallback to locked.
@@ -98,6 +84,20 @@ export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.D
   }
 
   return entry;
+}
+
+
+export interface MakeDependencyEntryOptions {
+  repoPath: string;
+  mainRepoPath: string;
+}
+
+export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.DependencyEntry {
+  const repoPath = options.repoPath;
+  const repoType = repo.getRepoTypeForLocalPath(repoPath);
+  const mainBranch = repo.getBranch(options.mainRepoPath);
+  const parsedMainOrigin = dvcsUrl.parse(repo.getOrigin(options.mainRepoPath));
+  return makeDependencyEntryWithDetails({ repoPath, repoType, mainBranch, parsedMainOrigin});
 }
 
 
@@ -147,8 +147,8 @@ export function doInit(options: InitOptions) {
   // Dependencies (implicitly finds main too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
-  findRepositories(".", (repoPath, repoType: repo.RepoType) => {
-    const entry = makeDependencyEntry({ repoPath, repoType, mainBranch, parsedMainOrigin });
+  findRepositories(".", (repoPath, repoType) => {
+    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, mainBranch, parsedMainOrigin });
     dependencies[util.normalizeToPosix(repoPath)] = entry;
   });
   delete dependencies[mainFromRoot];
