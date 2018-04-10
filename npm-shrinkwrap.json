@@ -30,7 +30,7 @@
       "integrity": "sha512-h3wnflb+jMTipvbbZnClgA2BexrT4w0GcfoCz5qyxd0IRsbqhLSyesM6mqZTAnhbVmhyTm5tuxfRu9R+8l+lGw==",
       "dev": true,
       "requires": {
-        "@types/node": "9.6.2"
+        "@types/node": "8.10.4"
       }
     },
     "@types/jest": {
@@ -40,9 +40,9 @@
       "dev": true
     },
     "@types/node": {
-      "version": "9.6.2",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-9.6.2.tgz",
-      "integrity": "sha512-UWkRY9X7RQHp5OhhRIIka58/gVVycL1zHZu0OTsT5LI86ABaMOSbUjAl+b0FeDhQcxclrkyft3kW5QWdMRs8wQ==",
+      "version": "8.10.4",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.10.4.tgz",
+      "integrity": "sha512-FqpMm0l/JUCXK6HziUoXaxtuiefsyoeQtNy8CSOq31F/m16UNKRG40PezM6hbsUONZohzKnAHa7lEkieyx1ayA==",
       "dev": true
     },
     "@types/shell-quote": {
