@@ -6,7 +6,7 @@ import path = require("path");
 import commander = require("commander");
 const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
 // Mine
-const core = require("./core");
+import core = require("./core");
 import repo = require("./repo");
 
 let gProgram: commander.Command; // Clunky way of getting access to current command (was originally using module as global).

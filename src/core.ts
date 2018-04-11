@@ -105,11 +105,17 @@ export function manifestList(mainPath: string): number | undefined  {
 }
 
 
-export function readRootFile() {
+export interface RootFile {
+  mainPath: string;
+  manifest?: string;
+}
+
+
+export function readRootFile(): RootFile {
   // Use absolute path so appears in any errors
   const fabRootPath = path.resolve(process.cwd(), fabRootFilename);
   const rootObject = util.readJson(fabRootPath, ["mainPath"]);
-  // rootObject may alsp have manifest property.
+  // rootObject may also have manifest property.
 
   // Santise inputs: normalise mainPath
   rootObject.mainPath = util.normalizeToPosix(rootObject.mainPath);
@@ -168,7 +174,7 @@ export interface Manifest {
 
 export function readManifest(options: ReadManifestOptions): Manifest {
   // Sort out manifest location
-  let mainPath;
+  let mainPath: string | undefined;
   let manifest;
   if (options.fromRoot) {
     const rootObject = readRootFile();
@@ -177,6 +183,9 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   } else {
     mainPath = options.mainPath;
     manifest = options.manifest;
+  }
+  if (mainPath === undefined) {
+    mainPath = ".";
   }
   const fabManifest = manifestPath({ mainPath, manifest });
 
