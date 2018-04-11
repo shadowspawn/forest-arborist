@@ -1,11 +1,11 @@
-const fs = require("fs");
-const path = require("path");
+import fs = require("fs");
+import path = require("path");
 // Mine
-const core = require("./core");
-const coreClone = require("./core-clone");
-const dvcsUrl = require("./dvcs-url");
-const repo = require("./repo");
-const util = require("./util");
+import core = require("./core");
+import coreClone = require("./core-clone");
+import dvcsUrl = require("./dvcs-url");
+import repo = require("./repo");
+import util = require("./util");
 
 
 function doSemiInstall() {

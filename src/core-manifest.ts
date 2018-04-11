@@ -60,7 +60,7 @@ export function doManifest(options: ManifestOptions) {
     fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });
     console.log(`Deleted manifest dependency for ${targetPath}`);
   } else {
-    // Do something vaguelu useful, like `fab root` and `fab main`
+    // Do something vaguely useful, like `fab root` and `fab main`
     console.log(manifestPath);
   }
   process.chdir(startDir);
