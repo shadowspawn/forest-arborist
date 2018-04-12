@@ -167,6 +167,16 @@ export function dirExistsSync(filePath: fs.PathLike) {
 }
 
 
+export function restoreEnvVar(key: string, restoreValue?: string) {
+  if (restoreValue === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = restoreValue;
+  }
+}
+
+
+
 // Initialisation
 
 /* istanbul ignore next  */

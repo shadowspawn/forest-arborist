@@ -19,16 +19,8 @@ describe("shouldDisableColour:", () => {
 
   afterAll(() => {
     util.platform = holdPlatform;
-    if (holdForceColor === undefined) {
-      delete process.env["FORCE_COLOR"];
-    } else {
-      process.env["FORCE_COLOR"] = holdForceColor;
-    }
-    if (holdNoColor === undefined) {
-      delete process.env["NO_COLOR"];
-    } else {
-      process.env["NO_COLOR"] = holdNoColor;
-    }
+    util.restoreEnvVar("FORCE_COLOR", holdForceColor);
+    util.restoreEnvVar("NO_COLOR", holdNoColor);
   });
 
   function testShouldDisable() {
