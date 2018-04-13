@@ -2,6 +2,7 @@ import childProcess = require("child_process");
 import tmp = require("tmp");
 // Mine
 import cc = require("./core-common");
+import command = require("../src/command");
 import coreBranch = require("../src/core-branch");
 import repo = require("../src/repo");
 import util = require("../src/util");
@@ -28,7 +29,7 @@ describe("core branch:", () => {
     expect(repo.getBranch("free")).toEqual("master");
 
     // make-branch X, check just affects free
-    coreBranch.doMakeBranch("one");
+    command.fab(["make-branch", "one"]);
     expect(repo.getBranch(".")).toEqual("one");
     expect(repo.getBranch("free")).toEqual("one");
     expect(repo.getBranch("pinned")).toBeUndefined();
@@ -38,11 +39,11 @@ describe("core branch:", () => {
     cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
     const oneRevision = repo.getRevision(".");
-    coreBranch.doMakeBranch("two");
+    command.fab(["make-branch", "two"]);
     expect(repo.getRevision(".")).toEqual(oneRevision);
 
     // make-branch X Y, check from specified start
-    coreBranch.doMakeBranch("three", "master");
+    command.fab(["make-branch", "three", "master"]);
     expect(repo.getRevision(".")).not.toEqual(oneRevision);
 
     // make-branch X --publish ????
@@ -56,7 +57,7 @@ describe("core branch:", () => {
     expect(repo.getBranch(".")).toEqual("two");
     expect(repo.getBranch("free")).toEqual("two");
 
-    coreBranch.doSwitch("one");
+    command.fab(["switch", "one"]);
     expect(repo.getBranch(".")).toEqual("one");
     expect(repo.getBranch("free")).toEqual("one");
     expect(repo.getBranch("pinned")).toBeUndefined();

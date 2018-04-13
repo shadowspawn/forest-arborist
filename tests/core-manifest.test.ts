@@ -9,7 +9,7 @@ import cc = require("./core-common");
 import command = require("../src/command");
 import core = require("../src/core");
 import coreInit = require("../src/core-init");
-import coreManifest = require("../src/core-manifest");
+// import coreManifest = require("../src/core-manifest");
 import util = require("../src/util");
 
 
@@ -39,8 +39,7 @@ describe("core manifest:", () => {
     process.chdir(notForest.name);
 
     expect(() => {
-      // quick check, use the internal routine.
-      coreManifest.doManifest({ });
+      command.fab(["manifest"]);
     }).toThrow();
   });
 
@@ -76,7 +75,7 @@ describe("core manifest:", () => {
     spy.mockImplementation(() => {
       // dummy out editor!
     });
-    coreManifest.doManifest({ edit: true });
+    command.fab(["manifest", "--edit"]);
     expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});
     spy.mockRestore();
     util.restoreEnvVar("EDITOR", holdEditorName);

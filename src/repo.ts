@@ -15,8 +15,7 @@ export function getRepoTypeForLocalPath(repoPath: string): RepoType {
 
   // Fairly hardcore to terminate, but saves handling everywhere
   // and only calling when expecting an answer.
-  util.terminate(`failed to find repository type for ${repoPath}`);
-  return "git"; // unreachable but lint for returning RepoType
+  return util.terminate(`failed to find repository type for ${repoPath}`);
 }
 
 

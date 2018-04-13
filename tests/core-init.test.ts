@@ -2,8 +2,9 @@ import childProcess = require("child_process");
 import tmp = require("tmp");
 // Mine
 import cc = require("./core-common");
+import command = require("../src/command");
 import core = require("../src/core");
-import coreInit = require("../src/core-init");
+// import coreInit = require("../src/core-init");
 import repo = require("../src/repo");
 import util = require("../src/util");
 
@@ -24,7 +25,7 @@ describe("core init:", () => {
 
   test("no repo", () => {
     expect(() => {
-      coreInit.doInit({});
+      command.fab(["init"]);
     }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
@@ -33,19 +34,19 @@ describe("core init:", () => {
     childProcess.execFileSync("git", ["init"]);
     expect(util.dirExistsSync(".git")).toBe(true);
 
-    coreInit.doInit({});
+    command.fab(["init"]);
     expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
     expect(util.fileExistsSync(core.manifestPath({}))).toBe(true);
     // Not too worried about root and manifest contents!
   });
 
   test("--manifest", () => {
-    // Check manigest self consistent
+    // Check manifest self consistent
     childProcess.execFileSync("git", ["init"]);
     expect(util.dirExistsSync(".git")).toBe(true);
 
     const manifest = "custom";
-    coreInit.doInit({ manifest });
+    command.fab(["init", "--manifest", manifest]);
     expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
     expect(util.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
 
@@ -60,7 +61,7 @@ describe("core init:", () => {
     childProcess.execFileSync("git", ["init"]);
     childProcess.execFileSync("git", ["init", sub]);
 
-    coreInit.doInit({});
+    command.fab(["init"]);
 
     const rootObject = core.readRootFile();
     expect(rootObject.mainPath).toEqual(".");
@@ -80,7 +81,7 @@ describe("core init:", () => {
     childProcess.execFileSync("git", ["init", sibling]);
     process.chdir("main");
 
-    coreInit.doInit({ root: ".." });
+    command.fab(["init", "--root", ".."]);
 
     process.chdir("..");
     const rootObject = core.readRootFile();
@@ -102,7 +103,7 @@ describe("core init:", () => {
     cc.configureTestRepo("boost");
     const revision = cc.commitAndDetach("boost");
 
-    coreInit.doInit({});
+    command.fab(["init"]);
 
     const manifestObject = core.readManifest({ fromRoot: true });
     const dependencies = manifestObject.dependencies;
@@ -119,7 +120,7 @@ describe("core init:", () => {
     childProcess.execFileSync("git", ["init"]);
     childProcess.execFileSync("git", ["init", "boost"]);
 
-    coreInit.doInit({});
+    command.fab(["init"]);
 
     const manifestObject = core.readManifest({ fromRoot: true });
     const dependencies = manifestObject.dependencies;
@@ -140,7 +141,7 @@ describe("core init:", () => {
       "remote", "add", "origin", "git@example.com:path/to/boost.git",
     ], { cwd: "boost" });
 
-    coreInit.doInit({});
+    command.fab(["init"]);
 
     // Want to check that raw manifest has free and relative dependency.
     const fabManifest = core.manifestPath({ mainPath: "." });

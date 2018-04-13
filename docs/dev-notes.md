@@ -16,8 +16,7 @@
     - previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
 - try np for tidy publish
 - use suffix for peer checkout, so by default do not get foo/foo. (e.g. for-checkout, foo-forest)
-- reject main for manifest --add (write test first!?) 
-- switch to new makeCommand for cli testing, woop
+- reject main for manifest --add (write test first!?)
 
 ## Patterns
 

@@ -267,7 +267,7 @@ export function makeProgram(): Command {
 
   program
     .command("for-each")
-    .alias("forEach")
+    .alias("forEach") // because javascript has forEach so very familiar
     .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
     .arguments("-- <command> [args...]")
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
@@ -337,7 +337,7 @@ export function makeProgram(): Command {
       // console.log(options);
     });
 
-    program
+  program
     .command("manifest")
     .description("manage manifest dependencies")
     .option("-e, --edit", "open manifest in editor")
