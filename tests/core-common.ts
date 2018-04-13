@@ -66,6 +66,8 @@ export interface RepoSuiteResult {
 }
 
 
+// Suite includes source repos, nested and sibling forests, multiple branches.
+
 export function makeGitRepoSuite() {
   const startDir = process.cwd();
 
