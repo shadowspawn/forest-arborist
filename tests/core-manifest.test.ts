@@ -82,9 +82,9 @@ describe("core manifest:", () => {
     process.env["EDITOR"] = editorName;
     const spy = jest.spyOn(childProcess, 'execFileSync');
     spy.mockImplementation(() => {
-      // do not call editor!
+      // dummy out editor!
     });
-    program.parse(["node", "fab", "manifest", "--edit"]);
+    coreManifest.doManifest({ edit: true });
     expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});
     spy.mockRestore();
     util.restoreEnvVar("EDITOR", holdEditorName);
