@@ -41,7 +41,7 @@ describe("core other:", () => {
   });
 
   test("root (nested)", () => {
-    process.chdir(path.join("nested", "free");
+    process.chdir(path.join("nested", "free"));
     // ToDo: test output
     program.parse(["node", "fab", "root"]);
   });
