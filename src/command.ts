@@ -129,6 +129,7 @@ export function makeProgram(): Command {
     .option("--debug", "include debugging information, such as stack dump");
 
   // Extra help
+  /* istanbul ignore next  */
   program.on("--help", () => {
     console.log(`
     Files:
@@ -161,6 +162,7 @@ export function makeProgram(): Command {
     .command("completion")
     .description("generate shell completion script")
     .on("--help", () => {
+      /* istanbul ignore next  */
       console.log(`
     Description:
       Generates shell completion script.
@@ -189,6 +191,7 @@ export function makeProgram(): Command {
     .option("-m, --manifest <name>", "custom manifest file")
     .description("add manifest in current directory, and marker file at root of forest")
     .on("--help", () => {
+      /* istanbul ignore next  */
       console.log(`
     Description:
       Use init to create the manifest based on your current sandpit.
@@ -211,6 +214,7 @@ export function makeProgram(): Command {
     .option("-m, --manifest <name>", "custom manifest file")
     .description("clone missing (new) dependent repositories")
     .on("--help", () => {
+      /* istanbul ignore next  */
       console.log(`
     Description:
       Run Install from the main repo.
@@ -234,6 +238,7 @@ export function makeProgram(): Command {
     .command("pull")
     .description("git-style pull, which is fetch and merge")
     .on("--help", () => {
+      /* istanbul ignore next  */
       console.log(`
     Target repos: free and branch-locked, excludes repos pinned to a revision.
       `);
@@ -320,6 +325,7 @@ export function makeProgram(): Command {
     });
 
   // Hidden command for trying things out
+  /* istanbul ignore next  */
   program
     .command("_test <command> [args...]", undefined, { noHelp: true })
     .description("Placeholder for internal development code")
@@ -331,7 +337,6 @@ export function makeProgram(): Command {
       // console.log(options);
     });
 
-    // Hidden command in development for managing manifest
     program
     .command("manifest")
     .description("manage manifest dependencies")
@@ -340,6 +345,7 @@ export function makeProgram(): Command {
     .option("-a, --add [repo-path]", "add entry to manifest dependencies")
     .option("-d, --delete [repo-path]", "delete entry from manifest dependencies")
     .on("--help", () => {
+      /* istanbul ignore next  */
       console.log(`
     Description:
       Specify an option to list or make changes to manifest. Can be used from

@@ -15,10 +15,7 @@ describe("core other:", () => {
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
-    // Move to xx and add sibling too for easy variation setup, ex branches and source. Lighter than suite.
-    fs.mkdirSync("nested");
-    process.chdir("nested");
-    cc.makeNestedGitForest();
+    cc.makeGitForestFlavours();
   });
 
   afterAll(() => {
@@ -41,12 +38,24 @@ describe("core other:", () => {
   });
 
   test("root (nested)", () => {
-    process.chdir(path.join("nested", "free"));
-    // ToDo: test output
+    process.chdir("nested");
+    const expectedRoot = process.cwd();
+    process.chdir("free"); // Make it more interesting
+    const spy = jest.spyOn(global.console, 'log');
     program.parse(["node", "fab", "root"]);
+    expect(spy).toHaveBeenCalledWith(expectedRoot);
+    spy.mockRestore();
   });
 
-  // ToDo: root sibling
+  test("root (sibling)", () => {
+    process.chdir("sibling");
+    const expectedRoot = process.cwd();
+    process.chdir("free"); // Make it more interesting
+    const spy = jest.spyOn(global.console, 'log');
+    program.parse(["node", "fab", "root"]);
+    expect(spy).toHaveBeenCalledWith(expectedRoot);
+    spy.mockRestore();
+  });
 
   test("main (no forest)", () => {
     expect(() => {
@@ -54,8 +63,36 @@ describe("core other:", () => {
     }).toThrow();
   });
 
-  // ToDo: main nested
+  test("main (nested)", () => {
+    const expectedMain = path.join(process.cwd(), "nested");
+    process.chdir(path.join("nested", "free")); // Make it more interesting
+    const spy = jest.spyOn(global.console, 'log');
+    program.parse(["node", "fab", "main"]);
+    expect(spy).toHaveBeenCalledWith(expectedMain);
+    spy.mockRestore();
+  });
 
-  // ToDo: main sibling
+  test("main (sibling)", () => {
+    process.chdir("sibling");
+    const expectedMain = path.join(process.cwd(), "main");
+    process.chdir("free"); // Make it more interesting
+    const spy = jest.spyOn(global.console, 'log');
+    program.parse(["node", "fab", "main"]);
+    expect(spy).toHaveBeenCalledWith(expectedMain);
+    spy.mockRestore();
+  });
+
+  test("unexpected-command", () => {
+    // Unexpected command fails, by setting return status rather than throwing.
+    program.parse(["node", "fab", "unexpected-command"]);
+    expect(process.exitCode).toBe(1);
+    process.exitCode = 0;
+  });
+
+  test("implicit help", () => {
+    // Does not fail as such.
+    program.parse(["node", "fab"]);
+    expect(process.exitCode).toBe(0);
+  });
 
 });

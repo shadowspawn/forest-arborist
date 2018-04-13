@@ -60,6 +60,37 @@ export function makeNestedGitForest() {
 }
 
 
+// Sibling, direct construction of a sandpit.
+export function makeSiblingGitForest() {
+  const startingDir = process.cwd();
+  fs.mkdirSync("sibling");
+  process.chdir("sibling");
+  makeOneGitRepo("main", "git@ex.com:path/to/main.git");
+  makeOneGitRepo("free", "git@ex.com:path/to/free.git");
+
+  makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
+  commitAndDetach("pinned");
+
+  // locked
+  makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
+
+  // fab init
+  process.chdir("main");
+  coreInit.doInit({ root: ".." });
+  process.chdir(startingDir);
+}
+
+
+export function makeGitForestFlavours() {
+  const startingDir = process.cwd();
+  fs.mkdirSync("nested");
+  process.chdir("nested");
+  makeNestedGitForest();
+  process.chdir(startingDir);
+  makeSiblingGitForest();
+}
+
+
 export interface RepoSuiteResult {
   remotesDir: string;
   pinnedRevision: string;
