@@ -13,26 +13,9 @@ import coreManifest = require("../src/core-manifest");
 import util = require("../src/util");
 
 
-describe("core manifest, no forest:", () => {
-  test("no forest", () => {
-    const startDir = process.cwd();
-    const tempFolder = tmp.dirSync({ unsafeCleanup: true });
-    process.chdir(tempFolder.name);
-
-    expect(() => {
-      // quick check, use the internal routine.
-      coreManifest.doManifest({ });
-    }).toThrow();
-
-    process.chdir(startDir);
-  });
-});
-
-
 describe("core manifest:", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true });
-  let program: command.Command;
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
@@ -44,7 +27,6 @@ describe("core manifest:", () => {
   });
 
   beforeEach(() => {
-    program = command.makeProgram(); // Reminder, one parse only as changes state!
     process.chdir(tempFolder.name);
   });
 
@@ -52,12 +34,22 @@ describe("core manifest:", () => {
     // process.chdir(startDir);
   });
 
+  test("no forest", () => {
+    const notForest = tmp.dirSync({ unsafeCleanup: true });
+    process.chdir(notForest.name);
+
+    expect(() => {
+      // quick check, use the internal routine.
+      coreManifest.doManifest({ });
+    }).toThrow();
+  });
+
   test("show", () => {
     const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
     process.chdir("free"); // test one option from somewhere in tree other than main
 
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "manifest"]);
+    command.fab(["manifest"]);
     expect(console.log).toHaveBeenCalledWith(manifestPath);
     spy.mockRestore();
   });
@@ -69,7 +61,7 @@ describe("core manifest:", () => {
     const listing = (JSON.stringify(manifestObject, undefined, "  "));
 
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "manifest", "--list"]);
+    command.fab(["manifest", "--list"]);
     expect(console.log).toHaveBeenCalledWith(listing);
     spy.mockRestore();
   });
@@ -92,7 +84,7 @@ describe("core manifest:", () => {
 
   test("delete folder-does-not-exist", () => {
     expect(() => {
-      program.parse(["node", "fab", "manifest", "--delete", "folder-does-not-exist"]);
+      command.fab(["manifest", "--delete", "folder-does-not-exist"]);
     }).toThrow();
   });
 
@@ -100,7 +92,7 @@ describe("core manifest:", () => {
     const manifestBefore = core.readManifest({ });
     delete(manifestBefore.dependencies["locked"]);
     process.chdir("locked");
-    program.parse(["node", "fab", "manifest", "--delete"]);
+    command.fab(["manifest", "--delete"]);
     process.chdir(tempFolder.name);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
@@ -109,7 +101,7 @@ describe("core manifest:", () => {
   test("delete named-depend", () => {
     const manifestBefore = core.readManifest({ });
     delete(manifestBefore.dependencies["pinned"]);
-    program.parse(["node", "fab", "manifest", "--delete", "pinned"]);
+    command.fab(["manifest", "--delete", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
   });
@@ -117,14 +109,14 @@ describe("core manifest:", () => {
   test("delete missing-depend", () => {
     // Already deleted above
     expect(() => {
-      program.parse(["node", "fab", "manifest", "--delete", "pinned"]);
+      command.fab(["manifest", "--delete", "pinned"]);
     }).toThrow();
   });
 
   test("add", () => {
     const manifestBefore = core.readManifest({ });
     manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({ mainRepoPath: ".", repoPath: "pinned" });
-    program.parse(["node", "fab", "manifest", "--add", "pinned"]);
+    command.fab(["manifest", "--add", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
   });
@@ -135,7 +127,7 @@ describe("core manifest:", () => {
     coreInit.doInit({ manifest: "custom" });
 
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "manifest"]);
+    command.fab(["manifest"]);
     expect(console.log).toHaveBeenCalledWith(customManifestPath);
     spy.mockRestore();
   });

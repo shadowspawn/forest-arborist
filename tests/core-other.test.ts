@@ -11,7 +11,6 @@ import command = require("../src/command");
 describe("core other:", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true });
-  let program: command.Command;
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
@@ -23,7 +22,6 @@ describe("core other:", () => {
   });
 
   beforeEach(() => {
-    program = command.makeProgram();
     process.chdir(tempFolder.name);
   });
 
@@ -33,7 +31,7 @@ describe("core other:", () => {
 
   test("root (no forest)", () => {
     expect(() => {
-      program.parse(["node", "fab", "root"]);
+      command.fab(["root"]);
     }).toThrow();
   });
 
@@ -42,7 +40,7 @@ describe("core other:", () => {
     const expectedRoot = process.cwd();
     process.chdir("free"); // Make it more interesting
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "root"]);
+    command.fab(["root"]);
     expect(spy).toHaveBeenCalledWith(expectedRoot);
     spy.mockRestore();
   });
@@ -52,14 +50,14 @@ describe("core other:", () => {
     const expectedRoot = process.cwd();
     process.chdir("free"); // Make it more interesting
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "root"]);
+    command.fab(["root"]);
     expect(spy).toHaveBeenCalledWith(expectedRoot);
     spy.mockRestore();
   });
 
   test("main (no forest)", () => {
     expect(() => {
-      program.parse(["node", "fab", "main"]);
+      command.fab(["main"]);
     }).toThrow();
   });
 
@@ -67,7 +65,7 @@ describe("core other:", () => {
     const expectedMain = path.join(process.cwd(), "nested");
     process.chdir(path.join("nested", "free")); // Make it more interesting
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "main"]);
+    command.fab(["main"]);
     expect(spy).toHaveBeenCalledWith(expectedMain);
     spy.mockRestore();
   });
@@ -77,21 +75,21 @@ describe("core other:", () => {
     const expectedMain = path.join(process.cwd(), "main");
     process.chdir("free"); // Make it more interesting
     const spy = jest.spyOn(global.console, 'log');
-    program.parse(["node", "fab", "main"]);
+    command.fab(["main"]);
     expect(spy).toHaveBeenCalledWith(expectedMain);
     spy.mockRestore();
   });
 
   test("unexpected-command", () => {
     // Unexpected command fails, by setting return status rather than throwing.
-    program.parse(["node", "fab", "unexpected-command"]);
+    command.fab(["unexpected-command"]);
     expect(process.exitCode).toBe(1);
     process.exitCode = 0;
   });
 
   test("implicit help", () => {
     // Does not fail as such.
-    program.parse(["node", "fab"]);
+    command.fab([]);
     expect(process.exitCode).toBe(0);
   });
 

@@ -379,3 +379,9 @@ export function makeProgram(): Command {
 
     return program;
 }
+
+
+export function fab(args: string[]): void {
+  const baseArgs = ["node", "fab"];
+  makeProgram().parse(baseArgs.concat(args));
+}
