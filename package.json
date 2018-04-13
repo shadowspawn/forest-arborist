@@ -56,8 +56,8 @@
     "tmp": "0.0.33"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.1",
-    "@types/jest": "^22.2.2",
+    "@types/fs-extra": "^5.0.2",
+    "@types/jest": "^22.2.3",
     "@types/node": "^8.10.7",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
