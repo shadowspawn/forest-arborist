@@ -84,13 +84,15 @@ describe("core other:", () => {
 
   test("unexpected-command", () => {
     // Unexpected command fails, by setting return status rather than throwing.
+    process.exitCode = 0;
     command.fab(["unexpected-command"]);
-    expect(process.exitCode).toBe(1);
+    expect(process.exitCode).not.toBe(0);
     process.exitCode = 0;
   });
 
   test("implicit help", () => {
     // Does not fail as such.
+    process.exitCode = 0;
     command.fab([]);
     expect(process.exitCode).toBe(0);
   });

@@ -111,17 +111,15 @@ export function doInit(options: InitOptions) {
 
   const relManifestPath = core.manifestPath({ manifest: options.manifest });
   if (util.fileExistsSync(relManifestPath)) {
-    console.log(`Skipping init, already have ${relManifestPath}`);
+    console.log(util.errorColour(`Skipping init, already have ${relManifestPath}`));
     console.log("(Delete it to start over, or did you want \"fab install\"?)");
+    process.exitCode = 1;
     return;
   }
   const absManifestPath = path.resolve(startDir, relManifestPath);
 
   // Find main origin, if we can.
   const mainRepoType = repo.getRepoTypeForLocalPath(".");
-  if (mainRepoType === undefined) {
-    util.terminate("expecting current directory to have a repository. (KISS)");
-  }
   const mainOrigin = repo.getOrigin(".", mainRepoType);
   const mainBranch = repo.getBranch(".", mainRepoType);
   let parsedMainOrigin: dvcsUrl.DvcsUrl;

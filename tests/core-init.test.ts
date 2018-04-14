@@ -72,6 +72,12 @@ describe("core init:", () => {
     expect(manifestObject.mainPathFromRoot).toEqual(".");
 
     expect(manifestObject.dependencies[sub]).not.toBeUndefined();
+
+    // Check repeat init fails
+    process.exitCode = 0;
+    command.fab(["init"]);
+    expect(process.exitCode).not.toBe(0);
+    process.exitCode = 0;
   });
 
   test("sibling (--root)", () => {
@@ -116,18 +122,21 @@ describe("core init:", () => {
   });
 
   test("locked", () => {
-    // Auto detect locked, little bit fragile with empty repos but KISS.
+    // Auto detect locked when branches differ
     childProcess.execFileSync("git", ["init"]);
-    childProcess.execFileSync("git", ["init", "boost"]);
+    childProcess.execFileSync("git", ["init", "locked"]);
+    cc.configureTestRepo("locked");
+    childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: "locked" });
+    childProcess.execFileSync("git", ["checkout", "-b", "locked"], { cwd: "locked" });
 
     command.fab(["init"]);
 
     const manifestObject = core.readManifest({ fromRoot: true });
     const dependencies = manifestObject.dependencies;
-    const entry = dependencies.boost;
+    const entry = dependencies["locked"];
     expect(entry.pinRevision).toBeUndefined();
     expect(entry.lockBranch).not.toBeUndefined();
-    expect(entry.lockBranch).toEqual("master");
+    expect(entry.lockBranch).toEqual("locked");
   });
 
   test("free", () => {
