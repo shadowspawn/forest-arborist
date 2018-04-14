@@ -14,7 +14,8 @@ describe("core other:", () => {
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
-    cc.makeGitForestFlavours();
+    cc.makeNestedGitForest();
+    cc.makeSiblingGitForest();
   });
 
   afterAll(() => {

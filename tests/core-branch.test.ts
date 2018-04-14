@@ -24,6 +24,7 @@ describe("core branch:", () => {
 
   test("make-branch", () => {
     cc.makeNestedGitForest();
+    process.chdir("nested");
 
     expect(repo.getBranch(".")).toEqual("master");
     expect(repo.getBranch("free")).toEqual("master");
@@ -52,6 +53,8 @@ describe("core branch:", () => {
 
   test("switch", () => {
     cc.makeNestedGitForest();
+    process.chdir("nested");
+
     coreBranch.doMakeBranch("one");
     coreBranch.doMakeBranch("two");
     expect(repo.getBranch(".")).toEqual("two");

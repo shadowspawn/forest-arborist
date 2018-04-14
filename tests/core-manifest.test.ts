@@ -16,6 +16,7 @@ import util = require("../src/util");
 describe("core manifest:", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  const nestedRoot = path.join(tempFolder.name, "nested");
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
@@ -27,7 +28,7 @@ describe("core manifest:", () => {
   });
 
   beforeEach(() => {
-    process.chdir(tempFolder.name);
+    process.chdir(nestedRoot);
   });
 
   afterEach(() => {
@@ -35,8 +36,7 @@ describe("core manifest:", () => {
   });
 
   test("no forest", () => {
-    const notForest = tmp.dirSync({ unsafeCleanup: true });
-    process.chdir(notForest.name);
+    process.chdir(tempFolder.name);
 
     expect(() => {
       command.fab(["manifest"]);
@@ -92,7 +92,7 @@ describe("core manifest:", () => {
     delete(manifestBefore.dependencies["locked"]);
     process.chdir("locked");
     command.fab(["manifest", "--delete"]);
-    process.chdir(tempFolder.name);
+    process.chdir(nestedRoot);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
   });

@@ -46,17 +46,20 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
 
 // Nested, direct construction of a sandpit.
 export function makeNestedGitForest() {
-  makeOneGitRepo(".", "git@ex.com:path/to/main.git");
+  const startingDir = process.cwd();
+  makeOneGitRepo("nested", "git@ex.com:path/to/main.git");
+  process.chdir("nested");
   makeOneGitRepo("free", "git@ex.com:path/to/free.git");
 
   makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
   commitAndDetach("pinned");
 
-  // locked
+  // locked (because origin path different)
   makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
 
   // fab init
   coreInit.doInit({});
+  process.chdir(startingDir);
 }
 
 
@@ -71,7 +74,7 @@ export function makeSiblingGitForest() {
   makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
   commitAndDetach("pinned");
 
-  // locked
+  // locked (because origin path different)
   makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
 
   // fab init
@@ -81,23 +84,13 @@ export function makeSiblingGitForest() {
 }
 
 
-export function makeGitForestFlavours() {
-  const startingDir = process.cwd();
-  fs.mkdirSync("nested");
-  process.chdir("nested");
-  makeNestedGitForest();
-  process.chdir(startingDir);
-  makeSiblingGitForest();
-}
-
-
 export interface RepoSuiteResult {
   remotesDir: string;
   pinnedRevision: string;
 }
 
 
-// Suite includes source repos, nested and sibling forests, multiple branches.
+// Main point of suite is the remotes which include fab control files so can be cloned.
 
 export function makeGitRepoSuite() {
   const startDir = process.cwd();
@@ -154,7 +147,7 @@ export function makeGitRepoSuite() {
   });
 
   // Create the extra revision in pinned and rollback
-  process.chdir("Libs/pinned");
+  process.chdir(path.join("Libs", "pinned"));
   const pinnedRevision = repo.getRevision(".");
   configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
@@ -196,14 +189,12 @@ export interface ExpectSuiteRepoLayoutOptions {
 
 export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
   const startDir2 = process.cwd();
+  process.chdir(options.rootDir);
 
   // Check root
-  expect(util.dirExistsSync(options.rootDir)).toBe(true);
-  process.chdir(options.rootDir);
   expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
 
   // Check main
-  expect(util.dirExistsSync(options.mainDir)).toBe(true);
   expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
   expect(util.fileExistsSync(
     core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);

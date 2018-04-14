@@ -1,3 +1,4 @@
+import path = require("path");
 import tmp = require("tmp");
 // Mine
 import cc = require("./core-common");
@@ -10,6 +11,7 @@ import util = require("../src/util");
 describe("core for:", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  const nestedRoot = path.join(tempFolder.name, "nested");
 
   beforeAll(() => {
     process.chdir(tempFolder.name);
@@ -21,7 +23,7 @@ describe("core for:", () => {
   });
 
   beforeEach(() => {
-    process.chdir(tempFolder.name);
+    process.chdir(nestedRoot);
   });
 
   afterEach(() => {
