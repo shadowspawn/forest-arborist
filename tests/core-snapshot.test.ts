@@ -1,4 +1,5 @@
 import childProcess = require("child_process");
+import fsX = require("fs-extra");
 import path = require("path");
 import tmp = require("tmp");
 // Mine
@@ -66,6 +67,9 @@ describe("core snapshot:", () => {
       childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
     });
 
+    // The repos might be different, so delete one.
+    fsX.removeSync("free");
+
     command.fab(["restore", "ss"]);
 
     // Check restored revisions.
@@ -118,6 +122,18 @@ describe("core snapshot:", () => {
       "sibling", {}
     );
     testLots("sibling");
+  });
+
+  test("restore missing-snapshot)", () => {
+    expect(() => {
+      command.fab(["restore", "missing-snapshot"]);
+    }).toThrow();
+  });
+
+  test("recreate missing-snapshot)", () => {
+    expect(() => {
+      command.fab(["recreate", "missing-snapshot"]);
+    }).toThrow();
   });
 
 });
