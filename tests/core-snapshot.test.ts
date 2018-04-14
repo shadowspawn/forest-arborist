@@ -61,6 +61,7 @@ describe("core snapshot:", () => {
       // New revision
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
+      cc.configureTestRepo(repoPath);
       childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
     });
 
