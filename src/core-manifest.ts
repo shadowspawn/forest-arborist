@@ -42,11 +42,15 @@ export function doManifest(options: ManifestOptions) {
     delete manifestObject.tipsForManualEditing;
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
-    const targetPath = rootRelative(startDir, options.add);
+    const relTargetPath = rootRelative(startDir, options.add);
+    const absTargetPath = path.resolve(process.cwd(), relTargetPath);
+    if (mainPath === absTargetPath) {
+      util.terminate("Main folder cannot be added as a dependency");
+    }
     const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
-    console.log(`Adding dependency for ${path.resolve(process.cwd(), targetPath)}`);
-    manifestObject.dependencies[util.normalizeToPosix(targetPath)] = coreInit.makeDependencyEntry({
-      repoPath: targetPath,
+    console.log(`Adding dependency for ${absTargetPath}`);
+    manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] = coreInit.makeDependencyEntry({
+      repoPath: relTargetPath,
       mainRepoPath: mainPath,
     });
     fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });

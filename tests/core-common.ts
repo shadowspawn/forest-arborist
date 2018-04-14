@@ -9,7 +9,7 @@ import repo = require("../src/repo");
 import util = require("../src/util");
 
 
-export const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
+const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
 
 
 export function configureTestRepo(repoPath: string) {

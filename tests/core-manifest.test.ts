@@ -121,9 +121,9 @@ describe("core manifest:", () => {
     expect(manifestBefore).toEqual(manifestAfter);
 
     // Block adding main
-    // expect(() => {
-    //   command.fab(["manifest", "--add", "."]);
-    // }).toThrow();
+    expect(() => {
+      command.fab(["manifest", "--add"]);
+    }).toThrow();
   });
 
   test("custom manifest name", () => {

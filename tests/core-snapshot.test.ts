@@ -44,6 +44,7 @@ describe("core snapshot:", () => {
 
     process.chdir(folderName);
     const pinnedRepo = path.join("Libs", "pinned");
+    const pinnedRepoPosix = util.normalizeToPosix(pinnedRepo);
 
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
@@ -76,7 +77,7 @@ describe("core snapshot:", () => {
     command.fab(["restore"]);
 
     // Check no longer on snapshot.
-    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepo].pinRevision);
+    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepoPosix].pinRevision);
     Object.keys(forestRepos).forEach((repoPath) => {
       // console.log(`${repoPath} ${repo.getRevision(repoPath)} ${beforeRevisions[repoPath]}`);
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
@@ -96,7 +97,7 @@ describe("core snapshot:", () => {
     command.fab(["restore"]);
 
     // Check no longer on snapshot.
-    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepo].pinRevision);
+    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepoPosix].pinRevision);
     Object.keys(forestRepos).forEach((repoPath) => {
       // console.log(`${repoPath} ${repo.getRevision(repoPath)} ${beforeRevisions[repoPath]}`);
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
