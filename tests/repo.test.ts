@@ -26,6 +26,7 @@ describe("repo:", () => {
 
   afterAll(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   beforeEach(() => {

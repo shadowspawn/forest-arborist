@@ -104,9 +104,11 @@ describe("util:", () => {
 
     const tempFolder = tmp.dirSync();
     expect(util.dirExistsSync(tempFolder.name)).toBe(true);
+    tempFolder.removeCallback();
 
     const tempFile = tmp.fileSync();
     expect(util.dirExistsSync(tempFile.name)).toBe(false);
+    tempFile.removeCallback();
   });
 
   test("fileExistsSync", () => {
@@ -115,9 +117,11 @@ describe("util:", () => {
 
     const tempFolder = tmp.dirSync();
     expect(util.fileExistsSync(tempFolder.name)).toBe(false);
+    tempFolder.removeCallback();
 
     const tempFile = tmp.fileSync();
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
+    tempFile.removeCallback();
   });
 
   test("readJson", () => {
@@ -160,6 +164,7 @@ describe("util:", () => {
       { cmd: "git", args: ["init", "foo"], cwd: tempFolder.name }
     );
     expect(util.dirExistsSync(path.join(tempFolder.name, "foo"))).toBe(true);
+    tempFolder.removeCallback();
 });
 
 });

@@ -199,7 +199,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     // Move the repo into wrapper with manifest supplied name
     const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
     fs.renameSync(shelfRepoPath, mainPathFromHere);
-    fs.rmdirSync(tmpObj.name); // Should be auto-deleted but something breaking that?
+    tmpObj.removeCallback();
     process.chdir(mainPathFromHere);
   } else {
     process.chdir(destination);

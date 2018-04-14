@@ -25,6 +25,7 @@ describe("core manifest:", () => {
 
   afterAll(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   beforeEach(() => {
@@ -118,6 +119,11 @@ describe("core manifest:", () => {
     command.fab(["manifest", "--add", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
+
+    // Block adding main
+    // expect(() => {
+    //   command.fab(["manifest", "--add", "."]);
+    // }).toThrow();
   });
 
   test("custom manifest name", () => {

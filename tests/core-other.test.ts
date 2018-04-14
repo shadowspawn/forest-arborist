@@ -20,6 +20,7 @@ describe("core other:", () => {
 
   afterAll(() => {
     process.chdir(startDir);
+    tempFolder.removeCallback();
   });
 
   beforeEach(() => {

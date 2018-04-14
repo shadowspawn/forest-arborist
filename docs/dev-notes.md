@@ -9,6 +9,8 @@
     - if "hg pull" gets nothing then no need to call "hg update"
     - not auto-detecting pinned revision (could do it by detecting not on tip)
 - no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
+- path.resolve does not reliably fallback to cwd when running jest. Work-around: path.resolve(cess.cwd(), ...)
+- tmp does not reliably cleanup when running jest. Workaround: call removeCallback explicitly
 
 ## Backlog Musing
 

@@ -4,9 +4,9 @@
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
 import childProcess = require("child_process");
+import commander = require("commander");
 import fs = require("fs");
 import path = require("path");
-import commander = require("commander");
 // Mine
 // Trickery to cope with different relative paths for typescipt and javascript
 const myPackage = require("dummy_for_node_modules/../../package.json");
@@ -335,7 +335,7 @@ export function makeProgram(): Command {
       console.log(`command is ${command}`);
       console.log(`args is ${args}`);
       // console.log(options);
-    });
+      });
 
   program
     .command("manifest")
