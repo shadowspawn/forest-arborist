@@ -135,4 +135,10 @@ describe("core install:", () => {
     command.fab(["install"]);
     cc.expectSuiteRepoLayout({ rootDir: "..", mainDir: "main-sibling", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
+
+  // Uncovered:
+  // - clone with no fab manifest
+  // - clone source not hg or git
+  // - hg
+
 });

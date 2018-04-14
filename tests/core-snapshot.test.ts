@@ -136,4 +136,9 @@ describe("core snapshot:", () => {
     }).toThrow();
   });
 
+  // Uncovered:
+  // - no specified destination
+  // - snapshot to console
+  // - restore needs to clone because depenencies changed
+
 });

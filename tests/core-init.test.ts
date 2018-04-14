@@ -162,4 +162,8 @@ describe("core init:", () => {
     expect(entry.origin).not.toBeUndefined();
     expect(util.isRelativePath(entry.origin)).toBe(true);
   });
+
+  // Uncovered:
+  // - hg
+
 });

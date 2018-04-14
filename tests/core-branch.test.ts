@@ -46,10 +46,7 @@ describe("core branch:", () => {
     // make-branch X Y, check from specified start
     command.fab(["make-branch", "three", "master"]);
     expect(repo.getRevision(".")).not.toEqual(oneRevision);
-
-    // make-branch X --publish ????
   });
-
 
   test("switch", () => {
     cc.makeNestedGitForest();
@@ -66,4 +63,9 @@ describe("core branch:", () => {
     expect(repo.getBranch("pinned")).toBeUndefined();
     expect(repo.getBranch("locked")).toEqual("master");
   });
+
+// Uncovered:
+// - hg
+// - --publish
+
 });

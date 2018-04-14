@@ -3,7 +3,6 @@
 
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
-import childProcess = require("child_process");
 import commander = require("commander");
 import fs = require("fs");
 import path = require("path");
@@ -17,6 +16,7 @@ import coreClone = require("./core-clone");
 import coreFor = require("./core-for");
 import coreInit = require("./core-init");
 import coreManifest = require("./core-manifest");
+import corePull = require("./core-pull");
 import coreSnapshot = require("./core-snapshot");
 import repo = require("./repo");
 import util = require("./util");
@@ -45,75 +45,7 @@ function doStatus() {
 }
 
 
-function hgAutoMerge(repoPath: string) {
-  // Battle tested code from hgh tool
-  const headCount = childProcess.execFileSync(
-    "hg", ["heads", ".", "--repository", repoPath, "--template", "x"]
-  ).length;
-  if (headCount === 0) {
-    // Brand new repo, nothing to do
-  } else if (headCount === 1) {
-    // We just did a pull, so looking for an update.
-    const tipNode = childProcess.execFileSync(
-      "hg", ["tip", "--repository", repoPath, "--template", "{node}"]
-    );
-    const parentNode = childProcess.execFileSync(
-      "hg", ["parents", "--repository", repoPath, "--template", "{node}"]
-    );
-    if (tipNode !== parentNode) {
-      util.execCommandSync(
-        { cmd: "hg", args: ["update"], cwd: repoPath }
-      );
-    }
-  } else {
-    try {
-      util.execCommandSync(
-        { cmd: "hg", args: ["merge", "--tool", "internal:merge"], cwd: repoPath }
-      );
-      util.execCommandSync(
-        { cmd: "hg", args: ["commit", "--message", "Merge"], cwd: repoPath }
-      );
-    } catch (err) {
-      if (err.status === 1) {
-        console.log(util.errorColour("NB: unresolved conflicts"));
-        console.log("");
-      } else {
-        throw err;
-      }
-    }
-  }
-}
 
-
-function doPull() {
-  const startDir = process.cwd();
-  core.cdRootDirectory();
-  const forestRepos = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
-  ).dependencies;
-
-  Object.keys(forestRepos).forEach((repoPath) => {
-    const entry = forestRepos[repoPath];
-    if (entry.pinRevision !== undefined) {
-      console.log(`Skipping pinned repo: ${repoPath}\n`);
-    } else if (repo.getBranch(repoPath, entry.repoType) === undefined) {
-      console.log(`Skipping repo with detached HEAD: ${repoPath}\n`);
-    } else {
-      const repoType = entry.repoType;
-      if (repoType === "git") {
-        util.execCommandSync(
-          { cmd: "git", args: ["pull"], cwd: repoPath }
-        );
-      } else if (repoType === "hg") {
-        util.execCommandSync(
-          { cmd: "hg", args: ["pull"], cwd: repoPath }
-        );
-        hgAutoMerge(repoPath);
-      }
-    }
-  });
-  process.chdir(startDir);
-}
 
 
 // Call with program.args which are the unconsumed arguments after parsing.
@@ -258,7 +190,7 @@ export function makeProgram(): Command {
     })
     .action(() => {
       assertNoExtraArgs(program.args);
-      doPull();
+      corePull.doPull();
     });
 
   program

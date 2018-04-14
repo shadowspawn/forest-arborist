@@ -97,4 +97,8 @@ describe("core other:", () => {
     expect(process.exitCode).toBe(0);
   });
 
+  // Uncovered:
+  // - completion
+  // - status
+
 });
