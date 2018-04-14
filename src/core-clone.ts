@@ -190,7 +190,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     const destinationName = path.basename(destination);
     const destinationParentDir = path.dirname(destination);
     // Make a temporary directory
-    const tmpObj = tmp.dirSync({ dir: destinationParentDir });
+    const tmpObj = tmp.dirSync({ dir: destinationParentDir, keep: true });
     // Move the repo into the temporary directory
     const shelfRepoPath = path.join(tmpObj.name, destinationName);
     fs.renameSync(destination, shelfRepoPath);

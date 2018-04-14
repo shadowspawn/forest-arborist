@@ -172,7 +172,6 @@ export function restoreEnvVar(key: string, restoreValue?: string) {
 }
 
 
-
 // Initialisation
 
 /* istanbul ignore next  */

@@ -13,7 +13,7 @@ describe("repo:", () => {
   const testOrigin = "git@ex.com:path/to/main.git";
 
   beforeAll(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     process.chdir(tempFolder.name);
 
     fs.mkdirSync("notRepo");

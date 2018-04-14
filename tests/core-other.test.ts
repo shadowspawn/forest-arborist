@@ -10,7 +10,7 @@ import command = require("../src/command");
 
 describe("core other:", () => {
   const startDir = process.cwd();
-  const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
 
   beforeAll(() => {
     process.chdir(tempFolder.name);

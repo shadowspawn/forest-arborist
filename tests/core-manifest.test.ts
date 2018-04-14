@@ -15,7 +15,7 @@ import util = require("../src/util");
 
 describe("core manifest:", () => {
   const startDir = process.cwd();
-  const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
   const nestedRoot = path.join(tempFolder.name, "nested");
 
   beforeAll(() => {

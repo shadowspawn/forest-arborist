@@ -14,7 +14,7 @@ describe("core init:", () => {
   let tempFolder: tmp.SynchrounousResult;
 
   beforeEach(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     process.chdir(tempFolder.name);
   });
 

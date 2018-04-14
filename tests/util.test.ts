@@ -102,11 +102,11 @@ describe("util:", () => {
     // Do this one by hand rather than create and delete and worry about timing.
     expect(util.dirExistsSync("dir-which-do-not-expect-to-exist")).toBe(false);
 
-    const tempFolder = tmp.dirSync();
+    const tempFolder = tmp.dirSync({ keep: true});
     expect(util.dirExistsSync(tempFolder.name)).toBe(true);
     tempFolder.removeCallback();
 
-    const tempFile = tmp.fileSync();
+    const tempFile = tmp.fileSync({ keep: true });
     expect(util.dirExistsSync(tempFile.name)).toBe(false);
     tempFile.removeCallback();
   });
@@ -115,11 +115,11 @@ describe("util:", () => {
     // Do this one by hand rather than create and delete and worry about timing.
     expect(util.fileExistsSync("file-which-do-not-expect-to-exist")).toBe(false);
 
-    const tempFolder = tmp.dirSync();
+    const tempFolder = tmp.dirSync({ keep: true });
     expect(util.fileExistsSync(tempFolder.name)).toBe(false);
     tempFolder.removeCallback();
 
-    const tempFile = tmp.fileSync();
+    const tempFile = tmp.fileSync({ keep: true });
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
     tempFile.removeCallback();
   });
@@ -159,7 +159,7 @@ describe("util:", () => {
     }).not.toThrowError();
 
     // cwd changes working directory.
-    const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     util.execCommandSync(
       { cmd: "git", args: ["init", "foo"], cwd: tempFolder.name }
     );

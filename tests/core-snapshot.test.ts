@@ -18,7 +18,7 @@ interface RevisionMap {
 
 describe("core snapshot:", () => {
   const startDir = process.cwd();
-  const tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
   let suite: cc.RepoSuiteResult;
 
   beforeAll(() => {

@@ -16,7 +16,7 @@ describe("core clone:", () => {
   let suite: cc.RepoSuiteResult;
 
   beforeAll(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     process.chdir(tempFolder.name);
     suite = cc.makeGitRepoSuite();
   });
@@ -80,7 +80,7 @@ describe("core install:", () => {
   let suite: cc.RepoSuiteResult;
 
   beforeAll(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+    tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     process.chdir(tempFolder.name);
     suite = cc.makeGitRepoSuite();
   });
