@@ -109,6 +109,15 @@ describe("util:", () => {
     const tempFile = tmp.fileSync({ keep: true });
     expect(util.dirExistsSync(tempFile.name)).toBe(false);
     tempFile.removeCallback();
+
+    const spy = jest.spyOn(fs, "statSync");
+    spy.mockImplementation(() => {
+      throw "unexpected error";
+    });
+    expect(() => {
+      util.dirExistsSync("abc");
+    }).toThrow();
+    spy.mockRestore();
   });
 
   test("fileExistsSync", () => {
@@ -122,6 +131,15 @@ describe("util:", () => {
     const tempFile = tmp.fileSync({ keep: true });
     expect(util.fileExistsSync(tempFile.name)).toBe(true);
     tempFile.removeCallback();
+
+    const spy = jest.spyOn(fs, "statSync");
+    spy.mockImplementation(() => {
+      throw "unexpected error";
+    });
+    expect(() => {
+      util.fileExistsSync("abc");
+    }).toThrow();
+    spy.mockRestore();
   });
 
   test("readJson", () => {
@@ -165,6 +183,19 @@ describe("util:", () => {
     );
     expect(util.dirExistsSync(path.join(tempFolder.name, "foo"))).toBe(true);
     tempFolder.removeCallback();
-});
+  });
+
+  test("restoreEnvVar", () => {
+    const newEnvVar = "FOREST_ARBORIST_NEW_KEY";
+    expect(process.env[newEnvVar]).toBeUndefined();
+    process.env[newEnvVar] = "xyz";
+    expect(process.env[newEnvVar]).toEqual("xyz");
+    process.env[newEnvVar] = "abc";
+    expect(process.env[newEnvVar]).toEqual("abc");
+    util.restoreEnvVar(newEnvVar, "xyz");
+    expect(process.env[newEnvVar]).toEqual("xyz");
+    util.restoreEnvVar(newEnvVar);
+    expect(process.env[newEnvVar]).toBeUndefined();
+  });
 
 });
