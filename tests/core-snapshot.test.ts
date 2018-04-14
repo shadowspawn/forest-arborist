@@ -18,40 +18,49 @@ interface RevisionMap {
 
 describe("core snapshot:", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  const tempFolder = tmp.dirSync({ unsafeCleanup: true });
   let suite: cc.RepoSuiteResult;
 
-  beforeEach(() => {
-    tempFolder = tmp.dirSync({ unsafeCleanup: true });
+  beforeAll(() => {
     process.chdir(tempFolder.name);
     suite = cc.makeGitRepoSuite();
   });
 
-  afterEach(() => {
+  afterAll(() => {
     process.chdir(startDir);
-    tempFolder.removeCallback();
   });
 
-  test("restore", () => {
-    // Get out a clean repo to work with
-    coreClone.doClone(
-      path.join(suite.remotesDir, "main-nested"),
-      "test-restore", {}
-    );
-    process.chdir("test-restore");
+  beforeEach(() => {
+    process.chdir(tempFolder.name);
+  });
+
+  afterEach(() => {
+    // process.chdir(startDir);
+  });
+
+  function testLots(folderName: string) {
+    // Separate tests would be nice for seeing test names but complicate state, KISS.
+
+    process.chdir(folderName);
+    const pinnedRepo = path.join("Libs", "pinned");
+
     const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
     const forestRepos = manifestObject.dependencies;
+    // Unpin so can tell difference between restore and pin.
+    childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: pinnedRepo });
 
-    // Make snapshot
     command.fab(["snapshot", "--output", "ss"]);
 
-    // Note revisions and make sure now on a different revision.
+    // Note before revisions, and commit and push new revision so different from before.
     const beforeRevisions: RevisionMap = {};
     Object.keys(forestRepos).forEach((repoPath) => {
       beforeRevisions[repoPath] = repo.getRevision(repoPath);
-      cc.configureTestRepo(repoPath);
+      // Unpin
+      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
+      // New revision
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
+      childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
     });
 
     command.fab(["restore", "ss"]);
@@ -61,61 +70,51 @@ describe("core snapshot:", () => {
       expect(repo.getRevision(repoPath)).toEqual(beforeRevisions[repoPath]);
     });
 
-    // Get out of snapshot. Pinned revision stays same, others should move forward.
+    // Exit snapshot state.
     command.fab(["restore"]);
-    cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
+
+    // Check no longer on snapshot.
+    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepo].pinRevision);
     Object.keys(forestRepos).forEach((repoPath) => {
-      if (forestRepos[repoPath].pinRevision === undefined) {
-        expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
-      }
-    });
-  });
-
-  test("recreate", () => {
-    // Get out a clean repo to work with
-    coreClone.doClone(
-      path.join(suite.remotesDir, "main-nested"),
-      "test-recreate-source", {}
-    );
-    process.chdir("test-recreate-source");
-    const manifestObject = core.readManifest({ fromRoot: true, addMainToDependencies: true });
-    const forestRepos = manifestObject.dependencies;
-
-    // Make snapshot
-    command.fab(["snapshot", "-o", "ss"]);
-    const ss = path.resolve(process.cwd(), "ss");
-
-    // Note revisions and make sure now on a different revision.
-    const beforeRevisions: RevisionMap = {};
-    Object.keys(forestRepos).forEach((repoPath) => {
-      beforeRevisions[repoPath] = repo.getRevision(repoPath);
-      // Get unpinned
-      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
-      // Add revision
-      cc.configureTestRepo(repoPath);
-      childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
+      // console.log(`${repoPath} ${repo.getRevision(repoPath)} ${beforeRevisions[repoPath]}`);
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
-      // Push to remote so so we can see if recreate is bring back old forest state.
-      childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });
     });
 
     process.chdir(tempFolder.name);
-    command.fab(["recreate", ss, "test-recreate-dest"]);
-    process.chdir("test-recreate-dest");
+    const recreated = folderName.concat("-recreated");
+    command.fab(["recreate", path.join(folderName, "ss"), recreated]);
+    process.chdir(recreated);
 
     // Check restored revisions.
     Object.keys(forestRepos).forEach((repoPath) => {
       expect(repo.getRevision(repoPath)).toEqual(beforeRevisions[repoPath]);
     });
 
-    // Get out of snapshot. Pinned revision stays same, others should move forward.
+    // Exit snapshot state.
     command.fab(["restore"]);
-    cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
+
+    // Check no longer on snapshot.
+    expect(repo.getRevision(pinnedRepo)).toEqual(forestRepos[pinnedRepo].pinRevision);
     Object.keys(forestRepos).forEach((repoPath) => {
-      childProcess.execFileSync("git", ["pull"]);
-      if (forestRepos[repoPath].pinRevision === undefined) {
-        expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
-      }
+      // console.log(`${repoPath} ${repo.getRevision(repoPath)} ${beforeRevisions[repoPath]}`);
+      expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
     });
+  }
+
+  test("snapshot + restore + recreate (nested)", () => {
+    coreClone.doClone(
+      path.join(suite.remotesDir, "main-nested"),
+      "nested", {}
+    );
+  testLots("nested");
   });
+
+  test("snapshot + restore + recreate (sibling)", () => {
+    coreClone.doClone(
+      path.join(suite.remotesDir, "main-sibling"),
+      "sibling", {}
+    );
+    testLots("sibling");
+  });
+
 });
