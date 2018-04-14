@@ -116,6 +116,16 @@ function doPull() {
 }
 
 
+// Call with program.args which are the unconsumed arguments after parsing.
+
+function assertNoExtraArgs(args: any[]) {
+  // commander adds program as last parameter
+  if (args.length > 1) {
+    util.terminate(`unexpected extra argument: ${args[0]}`);
+  }
+}
+
+
 // ------------------------------------------------------------------------------
 // Command line processing. Returning new object to allow multiple calls for testing.
 
@@ -206,6 +216,7 @@ export function makeProgram(): Command {
       `);
     })
     .action((options) => {
+      assertNoExtraArgs(program.args);
       coreInit.doInit(options);
     });
 
@@ -224,6 +235,7 @@ export function makeProgram(): Command {
       `);
     })
     .action((options) => {
+      assertNoExtraArgs(program.args);
       coreClone.doInstall(options);
     });
 
@@ -231,6 +243,7 @@ export function makeProgram(): Command {
     .command("status")
     .description("show concise status for each repo in the forest")
     .action(() => {
+      assertNoExtraArgs(program.args);
       doStatus();
     });
 
@@ -244,6 +257,7 @@ export function makeProgram(): Command {
       `);
     })
     .action(() => {
+      assertNoExtraArgs(program.args);
       doPull();
     });
 
@@ -251,6 +265,7 @@ export function makeProgram(): Command {
     .command("root")
     .description("show the root directory of the forest")
     .action(() => {
+      assertNoExtraArgs(program.args);
       core.cdRootDirectory();
       console.log(process.cwd());
     });
@@ -259,6 +274,7 @@ export function makeProgram(): Command {
     .command("main")
     .description("show the main directory of the forest")
     .action(() => {
+      assertNoExtraArgs(program.args);
       core.cdRootDirectory();
       const rootObject = core.readRootFile();
       const mainPath = path.resolve(process.cwd(), rootObject.mainPath);
@@ -307,6 +323,7 @@ export function makeProgram(): Command {
     .option("-o, --output <file>", "write snapshot to file rather then stdout")
     .description("display state of forest")
     .action((options) => {
+      assertNoExtraArgs(program.args);
       coreSnapshot.doSnapshot(options);
     });
 
@@ -327,14 +344,11 @@ export function makeProgram(): Command {
   // Hidden command for trying things out
   /* istanbul ignore next  */
   program
-    .command("_test <command> [args...]", undefined, { noHelp: true })
+    .command("_test", undefined, { noHelp: true })
     .description("Placeholder for internal development code")
     .option("--expected")
-    .action((command, args, options) => {
-      console.log(`expected is ${options.expected}`);
-      console.log(`command is ${command}`);
-      console.log(`args is ${args}`);
-      // console.log(options);
+    .action(() => {
+      console.log(program.args.length);
       });
 
   program
@@ -361,7 +375,8 @@ export function makeProgram(): Command {
       `);
     })
     .action((options) => {
-        coreManifest.doManifest(options);
+      assertNoExtraArgs(program.args);
+      coreManifest.doManifest(options);
     });
 
   // Catch-all, unrecognised command.

@@ -124,6 +124,11 @@ describe("core manifest:", () => {
     expect(() => {
       command.fab(["manifest", "--add"]);
     }).toThrow();
+
+    // Check we detect easy wrong syntax
+    expect(() => {
+      command.fab(["manifest", "add"]);
+    }).toThrow();
   });
 
   test("custom manifest name", () => {
