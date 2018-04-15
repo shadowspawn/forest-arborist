@@ -5,24 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-Next version [1.2]
+## [1.2]
 
 ### Added
 
-- this changelog
-- support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
-- support for [NO_COLOR](http://no-color.org) to disable colour
 - `fab manifest` show path to manifest
 - `fab manifest --edit` open manifest in editor
 - `fab manifest --list` list dependencies from manifest
 - `fab manifest --add [repo-path]` add entry to manifest dependencies
 - `fab manifest --delete [repo-path]` delete entry from manifest dependencies
+- this changelog
+- support for [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), in particular to enable colour on Windows
+- support for [NO_COLOR](http://no-color.org) to disable colour
 
 ### Changed
 
 - dependencies
 - moved command.ts into src folder
+- refactored tests to include command parsing
 
 ### Removed
 
