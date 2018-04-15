@@ -104,9 +104,7 @@ describe("core init:", () => {
   test("pinned", () => {
     // Auto detect pinned revision
     childProcess.execFileSync("git", ["init"]);
-    cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["init", "boost"]);
-    cc.configureTestRepo("boost");
     const revision = cc.commitAndDetach("boost");
 
     command.fab(["init"]);
@@ -125,7 +123,6 @@ describe("core init:", () => {
     // Auto detect locked when branches differ
     childProcess.execFileSync("git", ["init"]);
     childProcess.execFileSync("git", ["init", "locked"]);
-    cc.configureTestRepo("locked");
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: "locked" });
     childProcess.execFileSync("git", ["checkout", "-b", "locked"], { cwd: "locked" });
 

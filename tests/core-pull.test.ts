@@ -71,7 +71,6 @@ describe("core pull:", () => {
       // Unpin
       childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
       // New revision
-      cc.configureTestRepo(repoPath);
       childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
       expect(repo.getRevision(repoPath)).not.toEqual(beforeRevisions[repoPath]);
       childProcess.execFileSync("git", ["push", "--quiet"], { cwd: repoPath });

@@ -37,7 +37,6 @@ describe("core branch:", () => {
     expect(repo.getBranch("locked")).toEqual("master");
 
     // make-branch X, check from current branch
-    cc.configureTestRepo(".");
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
     const oneRevision = repo.getRevision(".");
     command.fab(["make-branch", "two"]);

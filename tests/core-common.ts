@@ -12,13 +12,6 @@ import util = require("../src/util");
 const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
 
 
-export function configureTestRepo(repoPath: string) {
-  // childProcess.execFileSync("git", ["config", "user.email", "noreply@no.reply"], { cwd: repoPath });
-  // childProcess.execFileSync("git", ["config", "user.name", "Unit Test"], { cwd: repoPath });
-  // childProcess.execFileSync("git", ["config", "push.default", "simple"], { cwd: repoPath });
-}
-
-
 export function commitAndDetach(repoPath: string) {
   const startingDir = process.cwd();
   process.chdir(repoPath);
@@ -35,7 +28,6 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
   const startingDir = process.cwd();
   childProcess.execFileSync("git", ["init", repoPath]);
   process.chdir(repoPath);
-  configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
   if (origin)
     childProcess.execFileSync("git", ["remote", "add", "origin", origin]);
@@ -104,7 +96,6 @@ export function makeGitRepoSuite() {
     // Want a bare master, but not an empty one!
     const tempRepo = repoPath.concat("-tmp");
     childProcess.execFileSync("git", ["init", tempRepo]);
-    configureTestRepo(tempRepo);
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: tempRepo });
     childProcess.execFileSync("git", ["branch", "--quiet", "develop"], { cwd: tempRepo });
     childProcess.execFileSync("git", ["clone", "--bare", "--quiet", tempRepo, repoPath]);
@@ -115,7 +106,6 @@ export function makeGitRepoSuite() {
     // Setting up two branches and two manifests
     // default manifest
     coreInit.doInit(options);
-    configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({})]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
 
@@ -123,7 +113,6 @@ export function makeGitRepoSuite() {
     const manifest = "sub";
     childProcess.execFileSync("git", ["clone", "--quiet", path.join(remotesDir, "free"), "sub"]);
     coreInit.doInit({ root: options.root, manifest });
-    configureTestRepo(".");
     childProcess.execFileSync("git", ["add", core.manifestPath({ manifest })]);
     childProcess.execFileSync("git", ["commit", "-m", "fab initialised with custom manifest"]);
 
@@ -149,7 +138,6 @@ export function makeGitRepoSuite() {
   // Create the extra revision in pinned and rollback
   process.chdir(path.join("Libs", "pinned"));
   const pinnedRevision = repo.getRevision(".");
-  configureTestRepo(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
