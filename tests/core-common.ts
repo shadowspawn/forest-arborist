@@ -13,9 +13,9 @@ const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.j
 
 
 export function configureTestRepo(repoPath: string) {
-  childProcess.execFileSync("git", ["config", "user.email", "noreply@no.reply"], { cwd: repoPath });
-  childProcess.execFileSync("git", ["config", "user.name", "Unit Test"], { cwd: repoPath });
-  childProcess.execFileSync("git", ["config", "push.default", "simple"], { cwd: repoPath });
+  // childProcess.execFileSync("git", ["config", "user.email", "noreply@no.reply"], { cwd: repoPath });
+  // childProcess.execFileSync("git", ["config", "user.name", "Unit Test"], { cwd: repoPath });
+  // childProcess.execFileSync("git", ["config", "push.default", "simple"], { cwd: repoPath });
 }
 
 

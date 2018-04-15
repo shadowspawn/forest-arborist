@@ -8,7 +8,6 @@
     - "hg push" returns status 1 so breaks for-each
     - if "hg pull" gets nothing then no need to call "hg update"
     - not auto-detecting pinned revision (could do it by detecting not on tip)
-- no warning about excess arguments passed to command (not supported by commander and work-arounds proved fragile)
 - path.resolve does not reliably fallback to cwd when running jest?
     - Work-around: path.resolve(process.cwd(), ...)
 - tmp does not reliably cleanup when running jest?
@@ -16,10 +15,7 @@
 
 ## Backlog Musing
 
-- locally testing publish+install, npm pack + install tarball (+ uninstall needs tarball)
-    - previous try was: "test:install": "npm unlink . && npm uninstall -g . && npm install -g . && npm run test:fabonly",
-- try np for tidy publish
-- use suffix for peer checkout, so by default do not get foo/foo. (e.g. for-checkout, foo-forest)
+- use suffix for peer checkout? So by default do not get foo/foo. (e.g. for-checkout, foo-forest)
 
 ## Patterns
 

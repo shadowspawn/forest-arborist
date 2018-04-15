@@ -16,6 +16,9 @@ test_script:
   # Output useful info for debugging.
   - node --version
   - npm --version
+  # Configure so can use  git push (locally) in tests
+  - git config —global "user.email" "noreply@no.reply"
+  - git config —global "user.name" "Unit Test"
   # run tests
   - npm test
 
