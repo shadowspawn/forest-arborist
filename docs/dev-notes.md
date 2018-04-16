@@ -15,7 +15,7 @@
 
 ## Backlog Musing
 
-- use suffix for peer checkout? So by default do not get foo/foo. (e.g. for-checkout, foo-forest)
+- checklist for release
 
 ## Patterns
 

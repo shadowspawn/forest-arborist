@@ -96,6 +96,19 @@ export function makeProgram(): Command {
     .option("-b, --branch <branchname>", "branch to checkout for free repos")
     .option("-m, --manifest <name>", "custom manifest file")
     .description("clone source and install its dependencies")
+    .on("--help", () => {
+      /* istanbul ignore next  */
+      console.log(`
+    Description:
+      Clones a forest by cloning the main repo into a newly created directory
+      and installing its dependencies.
+
+      The optional destination is the name for the newly created root directory.
+      For a nested forest the new directory is the main repo, like with
+      the git and hg clone commands. For a sibling forest the new directory
+      is the root directory for the forest and not a repository itself.
+     `);
+    })
     .action((source, destination, options) => {
       coreClone.doClone(source, destination, options);
     });

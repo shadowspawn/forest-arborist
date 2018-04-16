@@ -147,17 +147,20 @@ export interface CloneOptions {
 }
 
 
-export function doClone(source: string, destinationParam?: string, optionsParam?: CloneOptions) {
+// Returns path to new root, as it the destination is not specified it is affected by nested/sibling.
+
+export function doClone(source: string, destinationParam?: string, optionsParam?: CloneOptions): string {
   let options: CloneOptions = {};
   if (optionsParam !== undefined) {
     options = optionsParam;
   }
   const startDir = process.cwd();
-  // We need to know the main directory to find the manifest file after the clone.
+  // We need the name for the newly created directory to find the manifest file after the clone.
   let destination = destinationParam;
   if (destination === undefined) {
     destination = dvcsUrl.repoName(dvcsUrl.parse(source));
   }
+  let rootDestination = destination;
 
   // Clone source.
   let repoType: repo.RepoType = "git";
@@ -177,27 +180,30 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 
+  // Look in manifest and sort out nested vs sibling layout.
   const manifest = core.readManifest({
     mainPath: destination,
     manifest: options.manifest,
   });
   if (manifest.mainPathFromRoot !== ".") {
-
-    // Play shell game for sibling layout, using destination as a wrapper folder.
-    // Support destination including some path.
-    // Easy to get confused!
     console.log("Using sibling repo layout");
-    const destinationName = path.basename(destination);
+    // Play shell game for sibling layout to get main in to destination root folder.
+    // Easy to get confused!
+    // Support destination including some path, like path/to/new-root.
     const destinationParentDir = path.dirname(destination);
     // Make a temporary directory
     const tmpObj = tmp.dirSync({ dir: destinationParentDir, keep: true });
-    // Move the repo into the temporary directory
-    const shelfRepoPath = path.join(tmpObj.name, destinationName);
+    // Move the main repo into the temporary directory, getting it out of the way
+    // so we can make root with the destination name.
+    const shelfRepoPath = path.join(tmpObj.name, "main");
     fs.renameSync(destination, shelfRepoPath);
-    // Make the wrapper folder
-    fs.mkdirSync(destination);
-    // Move the repo into wrapper with manifest supplied name
-    const mainPathFromHere = path.join(destination, manifest.mainPathFromRoot);
+    // Make the wrapper root folder. Should we add name decoration if not specified, like foo-forest?
+    if (destinationParam === undefined) {
+      rootDestination = rootDestination.concat("-forest");
+    }
+    fs.mkdirSync(rootDestination);
+    // Move main into root with manifest supplied name
+    const mainPathFromHere = path.join(rootDestination, manifest.mainPathFromRoot);
     fs.renameSync(shelfRepoPath, mainPathFromHere);
     tmpObj.removeCallback();
     process.chdir(mainPathFromHere);
@@ -207,6 +213,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
 
   doInstall({ manifest: options.manifest });
 
-  console.log(`Created repo forest in ${destination}`);
+  console.log(`Created repo forest in root ${rootDestination}`);
   process.chdir(startDir);
+  return rootDestination;
 }

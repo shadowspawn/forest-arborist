@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+- BREAKING: cloning a sibling forest from repo `main` without specifying destination now creates a root directory called `main-forest` (previously created root `main` containing main `main`, see the problem?).
+
 ### Removed
 
 ## [1.2.0]

@@ -39,11 +39,11 @@ describe("core pull:", () => {
   });
 
   test("sibling", () => {
-    coreClone.doClone(
+    const root1 = coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       "sibling", {}
     );
-    process.chdir("sibling");
+    process.chdir(root1);
 
     const pinnedRepo = path.join("Libs", "pinned");
     const pinnedRepoPosix = util.normalizeToPosix(pinnedRepo);
@@ -59,11 +59,11 @@ describe("core pull:", () => {
     });
 
     process.chdir(tempFolder.name);
-    coreClone.doClone(
+    const root2 = coreClone.doClone(
       path.join(suite.remotesDir, "main-sibling"),
       "sibling2", {}
     );
-    process.chdir("sibling2");
+    process.chdir(root2);
 
     // Push new revisions
     const afterRevisions: RevisionMap = {};

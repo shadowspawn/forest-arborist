@@ -64,7 +64,7 @@ describe("core clone:", () => {
 
   test("sibling source", () => {
     command.fab(["clone", path.join(suite.remotesDir, "main-sibling")]);
-    cc.expectSuiteRepoLayout({ rootDir: "main-sibling", mainDir: "main-sibling", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
+    cc.expectSuiteRepoLayout({ rootDir: "main-sibling-forest", mainDir: "main-sibling", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
   });
 
   test("sibling source destination", () => {
