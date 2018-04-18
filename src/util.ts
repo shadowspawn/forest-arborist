@@ -4,13 +4,12 @@
 // with terminal colouring. May give up as more trouble than worth, or make
 // an option.
 
-const chalk = require("chalk");
+import chalk from "chalk";
 import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
-import { stringify } from "querystring";
 
 declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
