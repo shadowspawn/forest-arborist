@@ -1,13 +1,13 @@
 // This file implements the "fab manifest" command options (not the base manifest operations).
 
-import childProcess = require("child_process");
-import path = require("path");
-import fsX = require("fs-extra");
-import process = require("process");
+import * as childProcess from "child_process";
+import * as path from "path";
+import * as fsX from "fs-extra";
+import * as process from "process";
 // Mine
-import core = require("./core");
-import coreInit = require("./core-init");
-import util = require("./util");
+import * as core from "./core";
+import * as coreInit from "./core-init";
+import * as util from "./util";
 
 
 function rootRelative(startDir: string, optionalPath: boolean | string) {

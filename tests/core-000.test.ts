@@ -1,15 +1,15 @@
 // Testing the internal routines which do not correspond to command-line fab commands.
 // (The 000 in the name is to run the utility functions before the commands.)
 
-import childProcess = require("child_process");
-import fs = require("fs");
-import path = require("path");
-import tmp = require("tmp");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import core = require("../src/core");
-import dvcsUrl = require("../src//dvcs-url");
-import util = require("../src/util");
+import * as cc from "./core-common";
+import * as core from "../src/core";
+import * as dvcsUrl from "../src//dvcs-url";
+import * as util from "../src/util";
 
 
 describe("core:", () => {

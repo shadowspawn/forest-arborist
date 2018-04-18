@@ -1,15 +1,15 @@
-import childProcess = require("child_process");
-import fsX = require("fs-extra");
-import path = require("path");
-import tmp = require("tmp");
+import * as childProcess from "child_process";
+import * as fsX from "fs-extra";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import command = require("../src/command");
-import core = require("../src/core");
-import coreClone = require("../src/core-clone");
-// import coreSnapshot = require("../src/core-snapshot");
-import repo = require("../src/repo");
-import util = require("../src/util");
+import * as cc from "./core-common";
+import * as command from "../src/command";
+import * as core from "../src/core";
+import * as coreClone from "../src/core-clone";
+// import * as coreSnapshot from "../src/core-snapshot";
+import * as repo from "../src/repo";
+import * as util from "../src/util";
 
 
 interface RevisionMap {

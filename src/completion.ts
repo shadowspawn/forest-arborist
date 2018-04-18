@@ -1,13 +1,13 @@
 // Not doing much type checking here as we are using command internals and
 // tabtab does not have up to date typings.
 
-import childProcess = require("child_process");
-import path = require("path");
-import commander = require("commander");
+import * as childProcess from "child_process";
+import * as path from "path";
+import * as commander from "commander";
 const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
 // Mine
-import core = require("./core");
-import repo = require("./repo");
+import * as core from "./core";
+import * as repo from "./repo";
 
 let gProgram: commander.Command; // Clunky way of getting access to current command (was originally using module as global).
 

@@ -1,7 +1,7 @@
-import childProcess = require("child_process");
-import path = require("path");
+import * as childProcess from "child_process";
+import * as path from "path";
 // Mine
-import util = require("./util");
+import * as util from "./util";
 
 export type RepoType = "git" | "hg";
 

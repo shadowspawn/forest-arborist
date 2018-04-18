@@ -1,8 +1,8 @@
-import childProcess = require("child_process");
+import * as childProcess from "child_process";
 // Mine
-import core = require("./core");
-import repo = require("./repo");
-import util = require("./util");
+import * as core from "./core";
+import * as repo from "./repo";
+import * as util from "./util";
 
 
 function hgAutoMerge(repoPath: string) {

@@ -1,7 +1,7 @@
-import path = require("path");
-import url = require("url");
+import * as path from "path";
+import * as url from "url";
 // Mine
-import util = require("./util");
+import * as util from "./util";
 
 // Reasons for parsing URLs:
 //  - look for same parent folder during init to default to a relative origin

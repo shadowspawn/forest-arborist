@@ -1,6 +1,6 @@
 // Mine
-import core = require("./core");
-import util = require("./util");
+import * as core from "./core";
+import * as util from "./util";
 
 
 export function doMakeBranch(branch: string, startPoint?: string, publish?: boolean) {

@@ -1,16 +1,16 @@
 // This file tests the "fab manifest" command options (not the base manifest operations).
 
-import childProcess = require("child_process");
-import fs = require("fs");
-import path = require("path");
-import tmp = require("tmp");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import command = require("../src/command");
-import core = require("../src/core");
-import coreInit = require("../src/core-init");
-// import coreManifest = require("../src/core-manifest");
-import util = require("../src/util");
+import * as cc from "./core-common";
+import * as command from "../src/command";
+import * as core from "../src/core";
+import * as coreInit from "../src/core-init";
+// import * as coreManifest from "../src/core-manifest";
+import * as util from "../src/util";
 
 
 describe("core manifest:", () => {

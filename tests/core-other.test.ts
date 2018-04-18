@@ -1,11 +1,11 @@
 // Parts of the CLI that are not worth having own file
 
-import fs = require("fs");
-import path = require("path");
-import tmp = require("tmp");
+import * as fs from "fs";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import command = require("../src/command");
+import * as cc from "./core-common";
+import * as command from "../src/command";
 
 
 describe("core other:", () => {

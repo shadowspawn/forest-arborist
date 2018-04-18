@@ -1,12 +1,12 @@
 
-import childProcess = require("child_process");
-import fs = require("fs");
-import path = require("path");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 // Mine
-import core = require("../src/core");
-import coreInit = require("../src/core-init");
-import repo = require("../src/repo");
-import util = require("../src/util");
+import * as core from "../src/core";
+import * as coreInit from "../src/core-init";
+import * as repo from "../src/repo";
+import * as util from "../src/util";
 
 
 const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];

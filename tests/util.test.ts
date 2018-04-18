@@ -1,9 +1,9 @@
-import chalk = require("chalk");
-import fs = require("fs");
-import path = require("path");
-import tmp = require("tmp");
+import * as chalk from "chalk";
+import * as fs from "fs";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import util = require("../src/util");
+import * as util from "../src/util";
 
 
 describe("shouldDisableColour:", () => {
@@ -12,13 +12,13 @@ describe("shouldDisableColour:", () => {
   const holdNoColor = process.env["NO_COLOR"];
 
   beforeEach(() => {
-    util.platform = holdPlatform;
+    util.setPlatformForTest(holdPlatform);
     delete process.env["FORCE_COLOR"];
     delete process.env["NO_COLOR"];
   });
 
   afterAll(() => {
-    util.platform = holdPlatform;
+    util.setPlatformForTest(holdPlatform);
     util.restoreEnvVar("FORCE_COLOR", holdForceColor);
     util.restoreEnvVar("NO_COLOR", holdNoColor);
   });
@@ -43,12 +43,12 @@ describe("shouldDisableColour:", () => {
   });
 
   test("win32", () => {
-    util.platform = "win32";
+    util.setPlatformForTest("win32");
     testShouldDisable();
   });
 
   test("non-Windows", () => {
-    util.platform = "darwin";
+    util.setPlatformForTest("darwin");
     testShouldDisable();
   });
 });
@@ -61,10 +61,10 @@ describe("util:", () => {
     expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");
 
     const holdPlatform = util.platform;
-    util.platform = "win32";
+    util.setPlatformForTest("win32");
     const winPath = path.win32.join("a", "b", "c");
     expect(util.normalizeToPosix(winPath)).toEqual("a/b/c");
-    util.platform = holdPlatform;
+    util.setPlatformForTest(holdPlatform);
 
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");

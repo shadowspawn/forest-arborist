@@ -1,13 +1,13 @@
 // These are the routines which implement the command line
 
-import childProcess = require("child_process");
-import fs = require("fs");
-import fsX = require("fs-extra");
-import path = require("path");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as fsX from "fs-extra";
+import * as path from "path";
 // Mine
-import dvcsUrl = require("./dvcs-url");
-import repo = require("./repo");
-import util = require("./util");
+import * as dvcsUrl from "./dvcs-url";
+import * as repo from "./repo";
+import * as util from "./util";
 
 
 export interface DependencyEntry {

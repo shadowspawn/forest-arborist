@@ -1,11 +1,11 @@
-import path = require("path");
-import tmp = require("tmp");
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import command = require("../src/command");
-// import coreFor = require("../src/core-for");
-import repo = require("../src/repo");
-import util = require("../src/util");
+import * as cc from "./core-common";
+import * as command from "../src/command";
+// import * as coreFor from "../src/core-for";
+import * as repo from "../src/repo";
+import * as util from "../src/util";
 
 
 describe("core for:", () => {

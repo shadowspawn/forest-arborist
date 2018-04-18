@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // Mine
-import command = require("./command");
-import util = require("./util");
+import * as command from "./command";
+import * as util from "./util";
 
 
 const program = command.makeProgram();

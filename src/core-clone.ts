@@ -1,12 +1,12 @@
-import fs = require("fs");
-import fsX = require("fs-extra");
-import path = require("path");
-import tmp = require("tmp");
+import * as fs from "fs";
+import * as fsX from "fs-extra";
+import * as path from "path";
+import * as tmp from "tmp";
 // Mine
-import core = require("./core");
-import dvcsUrl = require("./dvcs-url");
-import repo = require("./repo");
-import util = require("./util");
+import * as core from "./core";
+import * as dvcsUrl from "./dvcs-url";
+import * as repo from "./repo";
+import * as util from "./util";
 
 
 export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {

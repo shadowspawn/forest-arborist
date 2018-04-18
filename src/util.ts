@@ -5,15 +5,22 @@
 // an option.
 
 const chalk = require("chalk");
-import childProcess = require("child_process");
-import fs = require("fs");
-import fsX = require("fs-extra");
-import path = require("path");
-import shellQuote = require("shell-quote");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as fsX from "fs-extra";
+import * as path from "path";
+import * as shellQuote from "shell-quote";
+import { stringify } from "querystring";
 
 declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
-export var platform: string = process.platform; // Mutable platform to allow cross-platform testing.
+
+
+// Mutable platform to allow cross-platform testing.
+export let platform: string = process.platform;
+export function setPlatformForTest(platformParam: string) {
+  platform = platformParam;
+}
 
 
 // Exported for tests, no need to call otherwise.

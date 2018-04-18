@@ -1,10 +1,10 @@
-import childProcess = require("child_process");
-import fs = require("fs");
-import tmp = require("tmp");
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as tmp from "tmp";
 // Mine
-import cc = require("./core-common");
-import repo = require("../src/repo");
-import util = require("../src/util");
+import * as cc from "./core-common";
+import * as repo from "../src/repo";
+import * as util from "../src/util";
 
 
 describe("repo:", () => {

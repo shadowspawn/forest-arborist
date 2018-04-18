@@ -1,11 +1,11 @@
-import fs = require("fs");
-import path = require("path");
+import * as fs from "fs";
+import * as path from "path";
 // Mine
-import core = require("./core");
-import coreClone = require("./core-clone");
-import dvcsUrl = require("./dvcs-url");
-import repo = require("./repo");
-import util = require("./util");
+import * as core from "./core";
+import * as coreClone from "./core-clone";
+import * as dvcsUrl from "./dvcs-url";
+import * as repo from "./repo";
+import * as util from "./util";
 
 
 function doSemiInstall() {
