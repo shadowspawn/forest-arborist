@@ -20,7 +20,7 @@
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent --env=node",
-    "lint": "tslint --project tsconfig.json src/**/*.ts{,x}"
+    "lint": "tslint --project ."
   },
   "author": "John Gee",
   "license": "MIT",
