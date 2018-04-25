@@ -31,23 +31,4 @@ describe("util", () => {
     fs.unlinkSync(tmpPath);
   });
 
-  test("execCommandSync", () => {
-    // Most of execCommandSync is about nice output, do some simple checks.
-    // Bad command throws. Relying on behaviour of git here, cross-platform commands are limited!
-    expect(() => {
-      util.execCommandSync({ cmd: "git" });
-    }).toThrowError();
-    expect(() => {
-      util.execCommandSync({ cmd: "git", allowedShellStatus: 1 });
-    }).not.toThrowError();
-
-    // cwd changes working directory.
-    const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
-    util.execCommandSync(
-      { cmd: "git", args: ["init", "foo"], cwd: tempFolder.name }
-    );
-    expect(fs.existsSync(path.join(tempFolder.name, "foo"))).toBe(true);
-    tempFolder.removeCallback();
-  });
-
 });

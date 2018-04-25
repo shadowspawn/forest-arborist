@@ -1,3 +1,4 @@
+import * as childProcess from "child_process";
 import * as path from "path";
 // Mine
 import * as util from "../src/util";
@@ -120,7 +121,7 @@ test("coloured text", () => {
  });
 
 
- describe("normalizeToPosix", () => {
+describe("normalizeToPosix", () => {
 
   test("native", () => {
     const nativePath = path.join("a", "b", "c");
@@ -138,6 +139,44 @@ test("coloured text", () => {
     expect(util.normalizeToPosix("")).toEqual(".");
     expect(util.normalizeToPosix(undefined)).toEqual(".");
     });
+
+});
+
+
+describe("execCommandSync", () => {
+  // Testing the key functionality, but not the command logging.
+
+  test("allowedShellStatus", () => {
+    const spy = jest.spyOn(childProcess, 'execFileSync');
+    spy.mockImplementation(() => {
+      throw({ status: 99 });
+    });
+
+    expect(() => {
+      util.execCommandSync({ cmd: "command" });
+    }).toThrow();
+
+    expect(() => {
+      util.execCommandSync({ cmd: "command", allowedShellStatus: 99 });
+    }).not.toThrow();
+
+    spy.mockRestore();
+  });
+
+  test("cwd", () => {
+    const spy = jest.spyOn(childProcess, 'execFileSync');
+    spy.mockImplementation(() => {
+      // do nothing
+    });
+
+    util.execCommandSync({ cmd: "command" });
+    expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": ".", "stdio": "pipe" });
+
+    util.execCommandSync({ cmd: "command", cwd: "dir" });
+    expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": "dir", "stdio": "pipe" });
+
+    spy.mockRestore();
+  });
 
 });
 
