@@ -137,31 +137,6 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
 }
 
 
-export function fileExistsSync(filePath: fs.PathLike) {
-  // (Provided for symmetry with dirExistsSync, but could just use fs.existsSync.)
-  try {
-    return fs.statSync(filePath).isFile();
-  } catch (err) {
-    if (err.code === "ENOENT") {
-      return false;
-    }
-    throw err;
-  }
-}
-
-
-export function dirExistsSync(filePath: fs.PathLike) {
-  try {
-    return fs.statSync(filePath).isDirectory();
-  } catch (err) {
-    if (err.code === "ENOENT") {
-      return false;
-    }
-    throw err;
-  }
-}
-
-
 export function restoreEnvVar(key: string, restoreValue?: string) {
   if (restoreValue === undefined) {
     delete process.env[key];

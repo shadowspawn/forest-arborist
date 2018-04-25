@@ -28,11 +28,11 @@ export const fabRootFilename: string = ".fab-root.json"; // stored in root direc
 
 export function cdRootDirectory(): void {
   const startDir = process.cwd();
-  const startedInMainDirectory = util.dirExistsSync(".fab");
+  const startedInMainDirectory = fs.existsSync(".fab");
 
   let tryParent = true;
   do {
-    if (util.fileExistsSync(fabRootFilename)) {
+    if (fs.existsSync(fabRootFilename)) {
       return;
     }
 
@@ -80,7 +80,7 @@ export function manifestPath(options: ManifestOptions): string {
 
 export function manifestList(mainPath: string): number | undefined  {
   const manifestDir = path.join(mainPath, ".fab");
-  if (!util.dirExistsSync(manifestDir)) {
+  if (!fs.existsSync(manifestDir)) {
     console.log("(No manifest folder found. Do you need to cd to main repo, or run \"fab init\"?)");
     return undefined;
   }
@@ -134,7 +134,8 @@ export interface WriteRootFileOptions {
 
 export function writeRootFile(options: WriteRootFileOptions) {
   let initialisedWord = "Initialised";
-  if (util.fileExistsSync(options.rootFilePath)) initialisedWord = "Reinitialised";
+  if (fs.existsSync(options.rootFilePath))
+    initialisedWord = "Reinitialised";
   const rootObject = {
     mainPath: util.normalizeToPosix(options.mainPath),
     manifest: options.manifest,
@@ -190,7 +191,7 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   const fabManifest = manifestPath({ mainPath, manifest });
 
   // Display some clues if file not foung
-  if (!util.fileExistsSync(fabManifest)) {
+  if (!fs.existsSync(fabManifest)) {
     manifestList(mainPath);
     if (manifest !== undefined) {
       util.terminate(`manifest not found: ${manifest}`);

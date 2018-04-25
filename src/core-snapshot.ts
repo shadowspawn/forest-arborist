@@ -32,7 +32,7 @@ function doSemiInstall() {
   const dependencies = manifestObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (util.dirExistsSync(repoPath)) {
+    if (fs.existsSync(repoPath)) {
       coreClone.checkoutEntry(entry, repoPath, freeBranch);
     }
   });
@@ -136,7 +136,7 @@ export function doRecreate(snapshotPath: string, destinationParam: string) {
 
 
 export function doRestore(snapshotPath?: string) {
-  if (snapshotPath !== undefined && !util.fileExistsSync(snapshotPath)) {
+  if (snapshotPath !== undefined && !fs.existsSync(snapshotPath)) {
     util.terminate(`snapshot file not found "${snapshotPath}"`);
   }
 
@@ -157,7 +157,7 @@ export function doRestore(snapshotPath?: string) {
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (util.dirExistsSync(repoPath)) {
+    if (fs.existsSync(repoPath)) {
       coreClone.checkoutEntry(entry, repoPath);
     } else {
       coreClone.cloneEntry(entry, repoPath);

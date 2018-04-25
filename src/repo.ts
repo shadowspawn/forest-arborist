@@ -1,4 +1,5 @@
 import * as childProcess from "child_process";
+import * as fs from "fs";
 import * as path from "path";
 // Mine
 import * as util from "./util";
@@ -7,9 +8,9 @@ export type RepoType = "git" | "hg";
 
 
 export function getRepoTypeForLocalPath(repoPath: string): RepoType {
-  if (util.dirExistsSync(path.join(repoPath, ".git"))) {
+  if (fs.existsSync(path.join(repoPath, ".git"))) {
     return "git";
-  } else if (util.dirExistsSync(path.join(repoPath, ".hg"))) {
+  } else if (fs.existsSync(path.join(repoPath, ".hg"))) {
     return "hg";
   }
 

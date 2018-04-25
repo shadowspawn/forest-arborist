@@ -1,4 +1,5 @@
 import * as childProcess from "child_process";
+import * as fs from "fs";
 import * as tmp from "tmp";
 // Mine
 import * as cc from "./core-common";
@@ -33,23 +34,23 @@ describe("core init", () => {
   test("empty git repo", () => {
     // Check we don"t fall over in empty repo
     childProcess.execFileSync("git", ["init"]);
-    expect(util.dirExistsSync(".git")).toBe(true);
+    expect(fs.existsSync(".git")).toBe(true);
 
     command.fab(["init"]);
-    expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
-    expect(util.fileExistsSync(core.manifestPath({}))).toBe(true);
+    expect(fs.existsSync(core.fabRootFilename)).toBe(true);
+    expect(fs.existsSync(core.manifestPath({}))).toBe(true);
     // Not too worried about root and manifest contents!
   });
 
   test("--manifest", () => {
     // Check manifest self consistent
     childProcess.execFileSync("git", ["init"]);
-    expect(util.dirExistsSync(".git")).toBe(true);
+    expect(fs.existsSync(".git")).toBe(true);
 
     const manifest = "custom";
     command.fab(["init", "--manifest", manifest]);
-    expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
-    expect(util.fileExistsSync(core.manifestPath({ manifest }))).toBe(true);
+    expect(fs.existsSync(core.fabRootFilename)).toBe(true);
+    expect(fs.existsSync(core.manifestPath({ manifest }))).toBe(true);
 
     const rootObject = core.readRootFile();
     expect(rootObject.mainPath).toEqual(".");

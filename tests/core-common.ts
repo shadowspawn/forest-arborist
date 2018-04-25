@@ -6,7 +6,6 @@ import * as path from "path";
 import * as core from "../src/core";
 import * as coreInit from "../src/core-init";
 import * as repo from "../src/repo";
-import * as util from "../src/util";
 
 
 const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
@@ -180,16 +179,16 @@ export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
   process.chdir(options.rootDir);
 
   // Check root
-  expect(util.fileExistsSync(core.fabRootFilename)).toBe(true);
+  expect(fs.existsSync(core.fabRootFilename)).toBe(true);
 
   // Check main
   expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
-  expect(util.fileExistsSync(
+  expect(fs.existsSync(
     core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);
 
   // check dependencies
   suiteDependencies.forEach((repoPath) => {
-    expect(util.dirExistsSync(repoPath)).toBe(true);
+    expect(fs.existsSync(repoPath)).toBe(true);
   });
   expect(repo.getBranch("free")).toEqual(options.freeBranch);
   expect(repo.getBranch(path.join("Libs", "locked"))).toEqual("master");

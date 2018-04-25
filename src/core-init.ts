@@ -19,10 +19,10 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
   const itemList = fs.readdirSync(startingDirectory);
   itemList.forEach((item) => {
     const itemPath = path.join(startingDirectory, item);
-    if (util.dirExistsSync(itemPath)) {
-      if (util.dirExistsSync(path.join(itemPath, ".git"))) {
+    if (fs.statSync(itemPath).isDirectory()) {
+      if (fs.existsSync(path.join(itemPath, ".git"))) {
         callback(itemPath, "git");
-      } else if (util.dirExistsSync(path.join(itemPath, ".hg"))) {
+      } else if (fs.existsSync(path.join(itemPath, ".hg"))) {
         callback(itemPath, "hg");
       }
 
@@ -110,7 +110,7 @@ export function doInit(options: InitOptions) {
   const startDir = process.cwd();
 
   const relManifestPath = core.manifestPath({ manifest: options.manifest });
-  if (util.fileExistsSync(relManifestPath)) {
+  if (fs.existsSync(relManifestPath)) {
     console.log(util.errorColour(`Skipping init, already have ${relManifestPath}`));
     console.log("(Delete it to start over, or did you want \"fab install\"?)");
     process.exitCode = 1;

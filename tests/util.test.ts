@@ -7,50 +7,6 @@ import * as util from "../src/util";
 
 describe("util", () => {
 
-  test("dirExistsSync", () => {
-    // Do this one by hand rather than create and delete and worry about timing.
-    expect(util.dirExistsSync("dir-which-do-not-expect-to-exist")).toBe(false);
-
-    const tempFolder = tmp.dirSync({ keep: true});
-    expect(util.dirExistsSync(tempFolder.name)).toBe(true);
-    tempFolder.removeCallback();
-
-    const tempFile = tmp.fileSync({ keep: true });
-    expect(util.dirExistsSync(tempFile.name)).toBe(false);
-    tempFile.removeCallback();
-
-    const spy = jest.spyOn(fs, "statSync");
-    spy.mockImplementation(() => {
-      throw "unexpected error";
-    });
-    expect(() => {
-      util.dirExistsSync("abc");
-    }).toThrow();
-    spy.mockRestore();
-  });
-
-  test("fileExistsSync", () => {
-    // Do this one by hand rather than create and delete and worry about timing.
-    expect(util.fileExistsSync("file-which-do-not-expect-to-exist")).toBe(false);
-
-    const tempFolder = tmp.dirSync({ keep: true });
-    expect(util.fileExistsSync(tempFolder.name)).toBe(false);
-    tempFolder.removeCallback();
-
-    const tempFile = tmp.fileSync({ keep: true });
-    expect(util.fileExistsSync(tempFile.name)).toBe(true);
-    tempFile.removeCallback();
-
-    const spy = jest.spyOn(fs, "statSync");
-    spy.mockImplementation(() => {
-      throw "unexpected error";
-    });
-    expect(() => {
-      util.fileExistsSync("abc");
-    }).toThrow();
-    spy.mockRestore();
-  });
-
   test("readJson", () => {
     const tmpPath = tmp.tmpNameSync();
 
@@ -90,7 +46,7 @@ describe("util", () => {
     util.execCommandSync(
       { cmd: "git", args: ["init", "foo"], cwd: tempFolder.name }
     );
-    expect(util.dirExistsSync(path.join(tempFolder.name, "foo"))).toBe(true);
+    expect(fs.existsSync(path.join(tempFolder.name, "foo"))).toBe(true);
     tempFolder.removeCallback();
   });
 

@@ -131,7 +131,7 @@ export function doInstall(options: InstallOptions) {
 
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
-    if (util.dirExistsSync(repoPath)) {
+    if (fs.existsSync(repoPath)) {
       checkoutEntry(entry, repoPath, freeBranch);
     } else {
       cloneEntry(entry, repoPath, freeBranch);
@@ -176,7 +176,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
   cloneEntry(mainEntry, destination, options.branch);
 
   const fabManifest = core.manifestPath({ mainPath: destination });
-  if (!util.fileExistsSync(fabManifest)) {
+  if (!fs.existsSync(fabManifest)) {
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 

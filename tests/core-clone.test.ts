@@ -7,7 +7,6 @@ import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
 // import * as coreClone from "../src/core-clone";
-import * as util from "../src/util";
 
 
 describe("core clone", () => {
@@ -53,7 +52,7 @@ describe("core clone", () => {
     command.fab(["clone", "--manifest", "sub", path.join(suite.remotesDir, "main-nested"), "sub-nested"]);
     cc.expectSuiteRepoLayout({ rootDir: "branch-nested", mainDir: ".", freeBranch: "develop", manifest: "sub", pinnedRevision: suite.pinnedRevision });
     // Look for the extra repo in the sub manifest
-    expect(util.dirExistsSync(path.join("sub-nested", "sub"))).toBe(true);
+    expect(fs.existsSync(path.join("sub-nested", "sub"))).toBe(true);
 
     // Check root has manifest
     process.chdir("sub-nested");
@@ -119,7 +118,7 @@ describe("core install", () => {
     command.fab(["install", "--manifest", "sub"]);
     cc.expectSuiteRepoLayout({ rootDir: ".", mainDir: ".", freeBranch: "master", pinnedRevision: suite.pinnedRevision });
     // Look for the extra repo in the sub manifest
-    expect(util.dirExistsSync("sub")).toBe(true);
+    expect(fs.existsSync("sub")).toBe(true);
 
     // Check root has manifest
     const rootObject = core.readRootFile();
