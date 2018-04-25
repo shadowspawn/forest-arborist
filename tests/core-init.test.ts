@@ -5,6 +5,7 @@ import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
 // import * as coreInit from "../src/core-init";
+import * as dvcsUrl from "../src/dvcs-url";
 import * as repo from "../src/repo";
 import * as util from "../src/util";
 
@@ -157,7 +158,7 @@ describe("core init", () => {
     expect(entry.pinRevision).toBeUndefined();
     expect(entry.lockBranch).toBeUndefined();
     expect(entry.origin).not.toBeUndefined();
-    expect(util.isRelativePath(entry.origin)).toBe(true);
+    expect(dvcsUrl.isRelativePath(entry.origin)).toBe(true);
   });
 
   // Uncovered:

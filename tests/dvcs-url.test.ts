@@ -354,3 +354,17 @@ describe("dvcs-url", () => {
     util.setPlatformForTest(process.platform);
   });
 });
+
+
+test("isRelativePath", () => {
+  expect(dvcsUrl.isRelativePath(<any>null)).toBe(false);
+  expect(dvcsUrl.isRelativePath(<any>undefined)).toBe(false);
+  expect(dvcsUrl.isRelativePath("")).toBe(false);
+  expect(dvcsUrl.isRelativePath("a")).toBe(false);
+  expect(dvcsUrl.isRelativePath("a/b")).toBe(false);
+  expect(dvcsUrl.isRelativePath("a/../b")).toBe(false);
+  expect(dvcsUrl.isRelativePath("/")).toBe(false);
+  expect(dvcsUrl.isRelativePath("/absolute")).toBe(false);
+  expect(dvcsUrl.isRelativePath("./relative")).toBe(true);
+  expect(dvcsUrl.isRelativePath("../relative")).toBe(true);
+});

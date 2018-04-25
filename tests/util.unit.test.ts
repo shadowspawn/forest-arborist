@@ -1,3 +1,4 @@
+import * as path from "path";
 // Mine
 import * as util from "../src/util";
 
@@ -56,4 +57,87 @@ describe("shouldDisableColour", () => {
 
 
 describe("terminate", () => {
+
+  test("throws", () => {
+      expect(() => {
+        util.terminate("Goodbye");
+      }).toThrowError(util.suppressTerminateExceptionMessage);
+    });
+
+  test("displays message", () => {
+    const message = "custom message";
+    const spy = jest.spyOn(global.console, 'error');
+    try {
+      util.terminate(message);
+    } catch(err) {
+    }
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect(spy.mock.calls[0][0]).toContain(message);
+    spy.mockRestore();
+  });
+
 });
+
+
+describe("restoreEnvVar", () => {
+  const key = "FOREST_ARBORIST_RESTORE_ENV_VAR_KEY";
+
+  afterEach(() => {
+    delete process.env[key];
+  });
+
+  test("restores defined value", () => {
+    delete process.env[key];
+    util.restoreEnvVar(key, "1");
+    expect(process.env[key]).toEqual("1");
+
+    process.env[key] = "existing value";
+    util.restoreEnvVar(key, "2");
+    expect(process.env[key]).toEqual("2");
+
+  });
+
+  test("restores missing value", () => {
+    delete process.env[key];
+    util.restoreEnvVar(key);
+    expect(process.env[key]).toBeUndefined();
+    expect(key in process.env).toBe(false);
+
+    process.env[key] = "existing value";
+    util.restoreEnvVar(key);
+    expect(process.env[key]).toBeUndefined();
+    expect(key in process.env).toBe(false);
+  });
+
+});
+
+
+test("coloured text", () => {
+  // Simple check that message gets included in styled text
+   const sampleString = "Aa+Bb (Yy-Zz)";
+   expect(util.errorColour(sampleString)).toContain(sampleString);
+   expect(util.commandColour(sampleString)).toContain(sampleString);
+ });
+
+
+ describe("normalizeToPosix", () => {
+
+  test("native", () => {
+    const nativePath = path.join("a", "b", "c");
+    expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");
+  });
+
+  test("win32", () => {
+    util.setPlatformForTest("win32");
+    const winPath = path.win32.join("a", "b", "c");
+    expect(util.normalizeToPosix(winPath)).toEqual("a/b/c");
+    util.setPlatformForTest(process.platform);
+  });
+
+  test("identity", () => {
+    expect(util.normalizeToPosix("")).toEqual(".");
+    expect(util.normalizeToPosix(undefined)).toEqual(".");
+    });
+
+});
+

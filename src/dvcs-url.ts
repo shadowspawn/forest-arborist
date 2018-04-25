@@ -161,3 +161,11 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   parsedTemp.pathname = path.posix.normalize(temp2);
   return url.format(parsedTemp);
 }
+
+
+export function isRelativePath(pathname: string) {
+  if (pathname === null || pathname === undefined) { return false; }
+
+  // (string.startsWith only available from ES6)
+  return pathname.indexOf("./") === 0 || pathname.indexOf("../") === 0;
+}

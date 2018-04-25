@@ -72,7 +72,7 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
         console.log("    (free)");
         const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
         // Should always be true?
-        if (util.isRelativePath(relativePath)) {
+        if (dvcsUrl.isRelativePath(relativePath)) {
           entry.origin = relativePath;
         }
       }

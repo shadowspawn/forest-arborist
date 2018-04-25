@@ -229,7 +229,7 @@ export function readManifest(options: ReadManifestOptions): Manifest {
     }
 
     // Turn relative repos into absolute repos.
-    if (util.isRelativePath(entry.origin)) {
+    if (dvcsUrl.isRelativePath(entry.origin)) {
       entry.origin = dvcsUrl.resolve(parsedMainOrigin, entry.origin);
     }
   });

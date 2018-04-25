@@ -75,14 +75,6 @@ export function normalizeToPosix(relPathParam?: string) {
 }
 
 
-export function isRelativePath(pathname: string) {
-  if (pathname === null || pathname === undefined) { return false; }
-
-  // (string.startsWith only available from ES6)
-  return pathname.indexOf("./") === 0 || pathname.indexOf("../") === 0;
-}
-
-
 export function readJson(targetPath: string, requiredProperties: string[]) {
   let rootObject = fsX.readJsonSync(targetPath);
 
