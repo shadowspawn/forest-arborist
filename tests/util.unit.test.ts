@@ -2,7 +2,7 @@
 import * as util from "../src/util";
 
 
-describe.only("shouldDisableColour:", () => {
+describe("shouldDisableColour", () => {
   const holdForceColor = process.env["FORCE_COLOR"];
   const holdNoColor = process.env["NO_COLOR"];
 
@@ -52,4 +52,8 @@ describe.only("shouldDisableColour:", () => {
     checkShouldDisableAlways(false);
     delete process.env["FORCE_COLOR"];
   });
+});
+
+
+describe("terminate", () => {
 });

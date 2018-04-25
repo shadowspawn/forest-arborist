@@ -8,7 +8,7 @@ import * as cc from "./core-common";
 import * as command from "../src/command";
 
 
-describe("core other:", () => {
+describe("core other", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
 

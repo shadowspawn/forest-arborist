@@ -9,7 +9,7 @@ import * as repo from "../src/repo";
 import * as util from "../src/util";
 
 
-describe("core init:", () => {
+describe("core init", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
 

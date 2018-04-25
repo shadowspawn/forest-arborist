@@ -12,7 +12,7 @@ import * as dvcsUrl from "../src//dvcs-url";
 import * as util from "../src/util";
 
 
-describe("core:", () => {
+describe("core", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
 

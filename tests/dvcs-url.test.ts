@@ -256,7 +256,7 @@ describe("dvcs-url resolve", () => {
 });
 
 
-describe("dvcs-url:", () => {
+describe("dvcs-url", () => {
   test("parse undefined", () => {
     expect(dvcsUrl.parse()).toEqual({ protocol: "", pathname: "" });
   });

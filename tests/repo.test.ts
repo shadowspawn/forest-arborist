@@ -7,7 +7,7 @@ import * as repo from "../src/repo";
 import * as util from "../src/util";
 
 
-describe("repo:", () => {
+describe("repo", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
   const testOrigin = "git@ex.com:path/to/main.git";

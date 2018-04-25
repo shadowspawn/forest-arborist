@@ -6,7 +6,7 @@ import * as tmp from "tmp";
 import * as util from "../src/util";
 
 
-describe("util:", () => {
+describe("util", () => {
 
   test("normalizeToPosix", () => {
     const nativePath = path.join("a", "b", "c");

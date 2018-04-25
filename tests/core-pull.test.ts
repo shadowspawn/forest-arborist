@@ -15,7 +15,7 @@ interface RevisionMap {
 }
 
 
-describe("core pull:", () => {
+describe("core pull", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
   let suite: cc.RepoSuiteResult;

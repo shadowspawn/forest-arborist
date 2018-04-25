@@ -10,7 +10,7 @@ import * as core from "../src/core";
 import * as util from "../src/util";
 
 
-describe("core clone:", () => {
+describe("core clone", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
   let suite: cc.RepoSuiteResult;
@@ -74,7 +74,7 @@ describe("core clone:", () => {
 });
 
 
-describe("core install:", () => {
+describe("core install", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
   let suite: cc.RepoSuiteResult;

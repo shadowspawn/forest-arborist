@@ -8,7 +8,7 @@ import * as repo from "../src/repo";
 import * as util from "../src/util";
 
 
-describe("core for:", () => {
+describe("core for", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
   const nestedRoot = path.join(tempFolder.name, "nested");
