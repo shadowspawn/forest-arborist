@@ -1,4 +1,5 @@
 import * as childProcess from "child_process";
+import * as fsX from "fs-extra";
 import * as path from "path";
 // Mine
 import * as util from "../src/util";
@@ -180,3 +181,19 @@ describe("execCommandSync", () => {
 
 });
 
+
+test("readJson", () => {
+  const subject = { required: "value", extra: "extra" };
+  const spy = jest.spyOn(fsX, 'readJsonSync');
+  spy.mockImplementation(() => {
+    return subject;
+  });
+
+  expect(util.readJson('dummyFile')).toEqual(subject);
+  expect(util.readJson('dummyFile', ["required"])).toEqual(subject);
+  expect(() => {
+    util.readJson('dummyFile', ["missing"]);
+  }).toThrow();
+
+  spy.mockRestore();
+});

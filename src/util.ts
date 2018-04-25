@@ -75,15 +75,17 @@ export function normalizeToPosix(relPathParam?: string) {
 }
 
 
-export function readJson(targetPath: string, requiredProperties: string[]) {
+export function readJson(targetPath: string, requiredProperties?: string[]) {
   let rootObject = fsX.readJsonSync(targetPath);
 
   // Sanity check. Possible errors due to hand editing, but during development
   // usually unsupported old file formats!
-  for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
-    const required = requiredProperties[index];
-    if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
-      terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
+  if (requiredProperties !== undefined) {
+    for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
+      const required = requiredProperties[index];
+      if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
+        terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
+      }
     }
   }
 

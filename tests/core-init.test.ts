@@ -153,7 +153,7 @@ describe("core init", () => {
 
     // Want to check that raw manifest has free and relative dependency.
     const fabManifest = core.manifestPath({ mainPath: "." });
-    const manifestObject = util.readJson(fabManifest, []);
+    const manifestObject = util.readJson(fabManifest);
     const dependencies = manifestObject.dependencies;
     const entry = dependencies.boost;
     expect(entry.pinRevision).toBeUndefined();
