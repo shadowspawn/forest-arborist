@@ -15,29 +15,29 @@ declare var JEST_RUNNING: boolean | undefined; // Set via jest options in packag
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 
-// Mutable platform to allow cross-platform testing.
-export let platform: string = process.platform;
+// Mutable platform to allow cross-platform testing, where needed.
+let gPlatform: string = process.platform;
 export function setPlatformForTest(platformParam: string) {
-  platform = platformParam;
+  gPlatform = platformParam;
 }
 
 
 // Exported for tests, no need to call otherwise.
-export function shouldDisableColour(): boolean {
-  let shouldDisableColour = false;
+export function shouldDisableColour(platform:string = gPlatform): boolean {
+  let shouldDisable = false;
 
   if ("NO_COLOR" in process.env) {
     // http://http://no-color.org
-    shouldDisableColour = true;
+    shouldDisable = true;
   } else if ("FORCE_COLOR" in process.env) {
     // Leave it up to Chalk
     // https://www.npmjs.com/package/chalk#chalksupportscolor
-    shouldDisableColour = false;
-  } else if (exports.platform === "win32") {
+    shouldDisable = false;
+  } else if (platform === "win32") {
     // Windows shell colours are so problematic that disable.
-    shouldDisableColour = true;
+    shouldDisable = true;
   }
-  return shouldDisableColour;
+  return shouldDisable;
 }
 
 
@@ -66,7 +66,7 @@ export function normalizeToPosix(relPathParam?: string) {
   }
 
   // On win32 turn a\\b into a/b
-  if (exports.platform === "win32") {
+  if (gPlatform === "win32") {
     relPath = relPath.replace(/\\/g, "/");
   }
 

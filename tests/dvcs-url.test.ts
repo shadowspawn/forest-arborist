@@ -124,13 +124,12 @@ describe("dvcs-url parse recognises git URL protocols", () => {
   });
 
   test("git path-win32", () => {
-    const holdPlatform = util.platform;
     util.setPlatformForTest("win32");
     const windowsPath = "C:\\Users\\repo";
     const parsed = dvcsUrl.parse(windowsPath);
     expect(parsed.protocol).toEqual("path-win32");
     expect(parsed.pathname).toEqual(windowsPath);
-    util.setPlatformForTest(holdPlatform);
+    util.setPlatformForTest(process.platform);
   });
 });
 
@@ -247,13 +246,12 @@ describe("dvcs-url resolve", () => {
   });
 
   test("win32 protocol", () => {
-    const holdPlatform = util.platform;
     util.setPlatformForTest("win32");
     const base = "C:\\Users\\repo.git";
     const parsedBase = dvcsUrl.parse(base);
     const result = dvcsUrl.resolve(parsedBase, "../other.git");
     expect(result).toEqual("C:\\Users\\other.git");
-    util.setPlatformForTest(holdPlatform);
+    util.setPlatformForTest(process.platform);
   });
 });
 
@@ -348,12 +346,11 @@ describe("dvcs-url:", () => {
       dvcsUrl.parse("/path/b")
     )).toBe("../b");
 
-    const holdPlatform = util.platform;
     util.setPlatformForTest("win32");
     expect(dvcsUrl.relative(
       dvcsUrl.parse("C:\\Users\\a"),
       dvcsUrl.parse("C:\\Users\\b")
     )).toBe("../b");
-    util.setPlatformForTest(holdPlatform);
+    util.setPlatformForTest(process.platform);
   });
 });

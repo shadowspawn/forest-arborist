@@ -6,65 +6,16 @@ import * as tmp from "tmp";
 import * as util from "../src/util";
 
 
-describe("shouldDisableColour:", () => {
-  const holdPlatform = util.platform;
-  const holdForceColor = process.env["FORCE_COLOR"];
-  const holdNoColor = process.env["NO_COLOR"];
-
-  beforeEach(() => {
-    util.setPlatformForTest(holdPlatform);
-    delete process.env["FORCE_COLOR"];
-    delete process.env["NO_COLOR"];
-  });
-
-  afterAll(() => {
-    util.setPlatformForTest(holdPlatform);
-    util.restoreEnvVar("FORCE_COLOR", holdForceColor);
-    util.restoreEnvVar("NO_COLOR", holdNoColor);
-  });
-
-  function testShouldDisable() {
-    // default
-    expect(util.shouldDisableColour()).toEqual(util.platform === "win32");
-
-    process.env["NO_COLOR"] = "1";
-    expect(util.shouldDisableColour()).toEqual(true);
-    delete process.env["NO_COLOR"];
-
-    // FORCE_COLOR means we leave it to Chalk, so always false.
-    process.env["FORCE_COLOR"] = "1";
-    expect(util.shouldDisableColour()).toEqual(false);
-    process.env["FORCE_COLOR"] = "0";
-    expect(util.shouldDisableColour()).toEqual(false);
-  }
-
-  test("native", () => {
-    testShouldDisable();
-  });
-
-  test("win32", () => {
-    util.setPlatformForTest("win32");
-    testShouldDisable();
-  });
-
-  test("non-Windows", () => {
-    util.setPlatformForTest("darwin");
-    testShouldDisable();
-  });
-});
-
-
 describe("util:", () => {
 
   test("normalizeToPosix", () => {
     const nativePath = path.join("a", "b", "c");
     expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");
 
-    const holdPlatform = util.platform;
     util.setPlatformForTest("win32");
     const winPath = path.win32.join("a", "b", "c");
     expect(util.normalizeToPosix(winPath)).toEqual("a/b/c");
-    util.setPlatformForTest(holdPlatform);
+    util.setPlatformForTest(process.platform);
 
     // Produce a single identity form for path.
     expect(util.normalizeToPosix("")).toEqual(".");
