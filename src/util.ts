@@ -41,14 +41,6 @@ export function shouldDisableColour(platform:string = gPlatform): boolean {
 }
 
 
-export function terminate(message: string): never {
-  console.error(exports.errorColour(`Error: ${message}`));
-  // Using throw rather than terminate so that we can catch in unit tests
-  throw new Error(suppressTerminateExceptionMessage);
-  // process.exit(1);
-}
-
-
 export function errorColour(text: string) {
   return chalk.red(text);
 }
@@ -56,6 +48,14 @@ export function errorColour(text: string) {
 
 export function commandColour(text: string) {
   return chalk.magenta(text);
+}
+
+
+export function terminate(message: string): never {
+  console.error(errorColour(`Error: ${message}`));
+  // Using throw rather than terminate so that we can catch in unit tests
+  throw new Error(suppressTerminateExceptionMessage);
+  // process.exit(1);
 }
 
 
@@ -129,7 +129,8 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
     // Note: this stdio option hooks up child stream to parent so we get live progress.
     let stdio = "inherit";
     // Using inherit mucks up jest --silent, so use default pipe
-    if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING) stdio = "pipe";
+    if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
+      stdio = "pipe";
     childProcess.execFileSync(
       command.cmd, command.args,
       { cwd: command.cwd, stdio }
