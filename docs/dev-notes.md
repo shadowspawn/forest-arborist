@@ -16,6 +16,11 @@
 ## Backlog Musing
 
 - checklist for release
+- consider snapshots for detecting changes, rather than results, in some cases?
+- separate unit (*.unit.test.ts) vs functional (*.func.test.ts) tests?
+- refactor to allow more unit testing?
+- coreFoo.doFoo() -> coreFoo.foo() ?
+- unit test CLI by spying on called routines?
 
 ## Patterns
 
@@ -32,32 +37,7 @@ Terminology Inspirations
 - Mercurial
 - npm
 
-## References
-
-Using
-
-- [command](https://www.npmjs.com/package/commander)
-- [chalk](https://github.com/sindresorhus/chalk)
-
-Developer
-
-- [w3schools javascript](http://www.w3schools.com/js/default.asp)
-- [node](https://nodejs.org/docs/latest/api/index.html)
-- [node ES6 support](http://node.green)
-- [Building command line tools with Node.js](https://developer.atlassian.com/blog/2015/11/scripting-with-node/) from Atlassian
-
-Interesting
-
-- [shelljs](http://documentup.com/arturadib/shelljs#command-reference)
-- [async](http://caolan.github.io/async/)
-- [defaults](https://www.npmjs.com/package/defaults)
-- [omnipath](https://www.npmjs.com/package/omnipath) for transparent consistent handling of paths and urls
-
-git-flow equivalent git commands
-
-- <https://gist.github.com/JamesMGreene/cdd0ac49f90c987e45ac>
-
-Other Approaches
+## Other Approaches
 
 - git submodules
 - git subtree
