@@ -8,7 +8,7 @@ import * as repo from "../src/repo";
 import * as util from "../src/util";
 
 
-describe("core branch:", () => {
+describe("core branch", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.SynchrounousResult;
 
