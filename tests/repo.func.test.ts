@@ -17,8 +17,8 @@ describe("repo", () => {
     process.chdir(tempFolder.name);
 
     fs.mkdirSync("notRepo");
-    childProcess.execFileSync("git", ["init", "gitRepo"]);
-    childProcess.execFileSync("hg", ["init", "hgRepo"]);
+    childProcess.execFileSync("git", ["init", "emptyGitRepo"]);
+    childProcess.execFileSync("hg", ["init", "emptyHgRepo"]);
     cc.makeOneGitRepo("hasOrigin", testOrigin);
     cc.makeOneGitRepo("detached", testOrigin);
     cc.commitAndDetach("detached");
@@ -39,66 +39,46 @@ describe("repo", () => {
 
   test("isGitRepository", () => {
     expect(repo.isGitRepository("notRepo")).toBe(false);
-    expect(repo.isGitRepository("gitRepo")).toBe(true);
-    expect(repo.isGitRepository("detached")).toBe(true);
-    expect(repo.isGitRepository("hgRepo")).toBe(false);
     expect(repo.isGitRepository("doesNotExist")).toBe(false);
+    expect(repo.isGitRepository("emptyGitRepo")).toBe(true);
+    expect(repo.isGitRepository("emptyHgRepo")).toBe(false);
   });
 
   test("isHgRepository", () => {
     expect(repo.isHgRepository("notRepo")).toBe(false);
-    expect(repo.isHgRepository("gitRepo")).toBe(false);
-    expect(repo.isHgRepository("hgRepo")).toBe(true);
     expect(repo.isGitRepository("doesNotExist")).toBe(false);
-  });
-
-  test("getRepoTypeForLocalPath", () => {
-    expect(() => {
-      repo.getRepoTypeForLocalPath("notRepo");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
-    expect(repo.getRepoTypeForLocalPath("gitRepo")).toEqual("git");
-    expect(repo.getRepoTypeForLocalPath("detached")).toEqual("git");
-    expect(repo.getRepoTypeForLocalPath("hgRepo")).toEqual("hg");
-    expect(() => {
-      repo.getRepoTypeForLocalPath("doesNotExist");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    expect(repo.isHgRepository("emptyGitRepo")).toBe(false);
+    expect(repo.isHgRepository("emptyHgRepo")).toBe(true);
   });
 
   test("getOrigin", () => {
     expect(() => {
       repo.getOrigin("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    // We have local only repos, so no origin.
-    expect(repo.getOrigin("gitRepo")).toBeUndefined();
-    expect(repo.getOrigin("gitRepo", "git")).toBeUndefined();
-    expect(repo.getOrigin("hgRepo")).toBeUndefined();
-    expect(repo.getOrigin("hgRepo", "hg")).toBeUndefined();
-    expect(repo.getOrigin("hasOrigin")).toBe(testOrigin);
-    expect(repo.getOrigin("detached")).toBe(testOrigin);
     expect(() => {
       repo.getOrigin("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    // Add some real origins?
+    // We have local only repos, so no origin.
+    expect(repo.getOrigin("emptyGitRepo", "git")).toBeUndefined();
+    expect(repo.getOrigin("emptyHgRepo", "hg")).toBeUndefined();
+
+    expect(repo.getOrigin("hasOrigin", "git")).toBe(testOrigin);
   });
 
   test("getBranch", () => {
     expect(() => {
       repo.getBranch("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    // We have local only repos, so no origin.
-    expect(repo.getBranch("gitRepo")).toBe("master");
-    expect(repo.getBranch("gitRepo", "git")).toBe("master");
-    expect(repo.getBranch("detached")).toBeUndefined();
-    expect(repo.getBranch("hgRepo")).toBe("default");
-    expect(repo.getBranch("hgRepo", "hg")).toBe("default");
     expect(() => {
       repo.getBranch("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    // Add some real origins?
+    expect(repo.getBranch("emptyGitRepo", "git")).toBe("master");
+    expect(repo.getBranch("detached", "git")).toBeUndefined();
+    expect(repo.getBranch("emptyHgRepo", "hg")).toBe("default");
   });
 
   test("getRevision", () => {
-    // Basic checks, thow on no repo
+    // Basic checks, throw on no repo
     expect(() => {
       repo.getRevision("notRepo");
     }).toThrowError(util.suppressTerminateExceptionMessage);
@@ -106,11 +86,11 @@ describe("repo", () => {
       repo.getRevision("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
 
-    // Empty repo is messy for git
+    // Empty repo is messy for git!
     expect(() => {
-      repo.getRevision("gitRepo");
+      repo.getRevision("emptyGitRepo");
     }).toThrowError();
-    expect(repo.getRevision("hgRepo")).toBe("0000000000000000000000000000000000000000");
-    expect(repo.getRevision("hgRepo", "hg")).toBe("0000000000000000000000000000000000000000");
+
+    expect(repo.getRevision("emptyHgRepo", "hg")).toBe("0000000000000000000000000000000000000000");
   });
 });
