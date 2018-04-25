@@ -173,6 +173,9 @@ describe("execCommandSync", () => {
     util.execCommandSync({ cmd: "command" });
     expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": ".", "stdio": "pipe" });
 
+    util.execCommandSync({ cmd: "command", args: ["a", "b"] });
+    expect(spy).toHaveBeenLastCalledWith("command", ["a", "b"], { "cwd": ".", "stdio": "pipe" });
+
     util.execCommandSync({ cmd: "command", cwd: "dir" });
     expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": "dir", "stdio": "pipe" });
 
