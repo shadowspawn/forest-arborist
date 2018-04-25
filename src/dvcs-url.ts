@@ -41,7 +41,7 @@ export interface DvcsUrl {
   protocol: string;
   pathname: string;
   href?: string;
-  authAndHost?: string;
+  scpAuthAndHost?: string;
 }
 
 export function parse(urlString?: string): DvcsUrl {
@@ -77,7 +77,7 @@ export function parse(urlString?: string): DvcsUrl {
       result = {
         protocol: "scp", // leave off colon for fake protocol
         pathname: urlString.substring(colonPos + 1),
-        authAndHost: urlString.substring(0, colonPos)
+        scpAuthAndHost: urlString.substring(0, colonPos)
       };
     } else {
       result = {
@@ -103,7 +103,7 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
   } else if (object1.protocol === "path-win32") {
     return (path.win32.dirname(object1.pathname) === path.win32.dirname(object2.pathname));
   } else if (object1.protocol === "scp") {
-    return (object1.authAndHost === object2.authAndHost)
+    return (object1.scpAuthAndHost === object2.scpAuthAndHost)
       && (path.posix.dirname(object1.pathname) === path.posix.dirname(object2.pathname));
   }
 
@@ -151,7 +151,7 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   } else if (urlObject.protocol === "scp") {
     const temp = path.posix.join(urlObject.pathname, relativePath);
     const absolutePathname = path.posix.normalize(temp);
-    return `${urlObject.authAndHost}:${absolutePathname}`;
+    return `${urlObject.scpAuthAndHost}:${absolutePathname}`;
   }
 
   // Proper protocol! Tweak path and reconstruct full URL.
