@@ -12,6 +12,7 @@ import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
 import * as coreForEach from "../src/core-for";
 import * as coreInit from "../src/core-init";
+import * as coreSnapshot from "../src/core-snapshot";
 
 
 describe("clone cli", () => {
@@ -306,6 +307,108 @@ describe("make-branch cli", () => {
   test("make-branch --publish branch start-point", () => {
     command.fab(["make-branch", "--publish", "branch", "start-point"]);
     expect(makeBranchSpy).toHaveBeenCalledWith("branch", "start-point", expect.objectContaining({ publish: true }));
+  });
+
+});
+
+
+describe("snapshot cli", () => {
+  const snapshotSpy = jest.spyOn(coreSnapshot, 'doSnapshot');
+
+  beforeAll(() => {
+    snapshotSpy.mockImplementation((options: coreSnapshot.SnapshotOptions) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    snapshotSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    snapshotSpy.mockReset();
+  });
+
+  // least
+  test("snapshot", () => {
+    command.fab(["snapshot"]);
+    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+    const options: coreSnapshot.SnapshotOptions = snapshotSpy.mock.calls[0][0];
+    expect(options.output).toBeUndefined();
+  });
+
+  test("snapshot -o file", () => {
+    command.fab(["snapshot", "-o", "file"]);
+    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ output: "file" }));
+  });
+
+  test("snapshot --output file", () => {
+    command.fab(["snapshot", "--output", "file"]);
+    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ output: "file" }));
+  });
+
+});
+
+
+describe("recreate cli", () => {
+  const recreateSpy = jest.spyOn(coreSnapshot, 'doRecreate');
+
+  beforeAll(() => {
+    recreateSpy.mockImplementation((snapshotPath: string, destinationParam?: string) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    recreateSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    recreateSpy.mockReset();
+  });
+
+  // least
+  test("recreate snapshot", () => {
+    command.fab(["recreate", "snapshot"]);
+    expect(recreateSpy).toHaveBeenCalledWith("snapshot", undefined);
+  });
+
+  // most
+  test("recreate snapshot destination", () => {
+    command.fab(["recreate", "snapshot", "destinaton"]);
+    expect(recreateSpy).toHaveBeenCalledWith("snapshot", "destinaton");
+  });
+
+});
+
+
+describe("restore cli", () => {
+  const restoreSpy = jest.spyOn(coreSnapshot, 'doRestore');
+
+  beforeAll(() => {
+    restoreSpy.mockImplementation((snapshotPath?: string) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    restoreSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    restoreSpy.mockReset();
+  });
+
+  // least
+  test("restore", () => {
+    command.fab(["restore"]);
+    expect(restoreSpy).toHaveBeenCalledWith(undefined);
+  });
+
+  // most
+  test("restore snapshot", () => {
+    command.fab(["restore", "snapshot"]);
+    expect(restoreSpy).toHaveBeenCalledWith("snapshot");
   });
 
 });

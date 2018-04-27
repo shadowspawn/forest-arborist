@@ -89,7 +89,7 @@ export function doSnapshot(options: SnapshotOptions) {
 }
 
 
-export function doRecreate(snapshotPath: string, destinationParam: string) {
+export function doRecreate(snapshotPath: string, destinationParam?: string) {
   const startDir = process.cwd();
   const snapshotObject = util.readJson(
     snapshotPath,
