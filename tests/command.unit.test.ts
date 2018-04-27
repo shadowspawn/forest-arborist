@@ -5,6 +5,7 @@
 // - least
 // - each individual
 // - most
+// - unexpected
 
 import * as command from "../src/command";
 // Mine
@@ -123,6 +124,12 @@ describe("init cli", () => {
     expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name", root: ".." }));
   });
 
+  test("init unexpected-param", () => {
+    expect(() => {
+      command.fab(["init", "unexpected-param"]);
+    }).toThrow();
+  });
+
 });
 
 
@@ -159,6 +166,12 @@ describe("install cli", () => {
   test("install --manifest name", () => {
     command.fab(["install", "--manifest", "name"]);
     expect(installSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
+  });
+
+  test("install unexpected-param", () => {
+    expect(() => {
+      command.fab(["install", "unexpected-param"]);
+    }).toThrow();
   });
 
 });
@@ -348,6 +361,12 @@ describe("snapshot cli", () => {
     expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ output: "file" }));
   });
 
+  test("snapshot unexpected-param", () => {
+    expect(() => {
+      command.fab(["snapshot", "unexpected-param"]);
+    }).toThrow();
+  });
+
 });
 
 
@@ -491,6 +510,12 @@ describe("manifest cli", () => {
   test("manifest --delete depend", () => {
     command.fab(["manifest", "--delete", "depend"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: "depend" }));
+  });
+
+  test("manifest unexpected-param", () => {
+    expect(() => {
+      command.fab(["manifest", "unexpected-param"]);
+    }).toThrow();
   });
 
 });
