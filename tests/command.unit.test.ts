@@ -8,6 +8,7 @@
 
 import * as command from "../src/command";
 // Mine
+import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
 import * as coreForEach from "../src/core-for";
 import * as coreInit from "../src/core-init";
@@ -161,11 +162,11 @@ describe("install cli", () => {
 });
 
 
-describe.only("for cli", () => {
+describe("for cli", () => {
   const forEachSpy = jest.spyOn(coreForEach, 'doForEach');
 
   beforeAll(() => {
-    forEachSpy.mockImplementation((cmd: string, args: string[], options: ForOptions) => {
+    forEachSpy.mockImplementation((cmd: string, args: string[], options: coreForEach.ForOptions) => {
       // do not call through
     });
   });
@@ -231,6 +232,80 @@ describe.only("for cli", () => {
   test("for-free --keepgoing command a b c", () => {
     command.fab(["for-free", "--keepgoing", "--", "command", "--option", "a", "b", "c"]);
     expect(forEachSpy).toHaveBeenCalledWith("command", ["--option", "a", "b", "c"], expect.objectContaining({ freeOnly: true, keepgoing: true }));
+  });
+
+});
+
+
+describe("switch cli", () => {
+  const switchSpy = jest.spyOn(coreBranch, 'doSwitch');
+
+  beforeAll(() => {
+    switchSpy.mockImplementation((branchName: string) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    switchSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    switchSpy.mockReset();
+  });
+
+  test("switch branch", () => {
+    command.fab(["switch", "branch"]);
+    expect(switchSpy).toHaveBeenCalledWith("branch");
+  });
+
+});
+
+
+describe("make-branch cli", () => {
+  const makeBranchSpy = jest.spyOn(coreBranch, 'doMakeBranch');
+
+  beforeAll(() => {
+    makeBranchSpy.mockImplementation((branch: string, startPoint?: string, optionsParam?: coreBranch.MakeBranchOptions) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    makeBranchSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    makeBranchSpy.mockReset();
+  });
+
+  // least
+  test("make-branch branch", () => {
+    command.fab(["make-branch", "branch"]);
+    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ }));
+    const options: coreBranch.MakeBranchOptions = makeBranchSpy.mock.calls[0][2];
+    expect(options.publish).toBeUndefined();
+  });
+
+  test("make-branch branch start-point", () => {
+    command.fab(["make-branch", "branch", "start-point"]);
+    expect(makeBranchSpy).toHaveBeenCalledWith("branch", "start-point", expect.objectContaining({ }));
+  });
+
+  test("make-branch -p branch", () => {
+    command.fab(["make-branch", "-p", "branch"]);
+    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ publish: true }));
+  });
+
+  test("make-branch --publish branch", () => {
+    command.fab(["make-branch", "--publish", "branch"]);
+    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ publish: true }));
+  });
+
+  // most
+  test("make-branch --publish branch start-point", () => {
+    command.fab(["make-branch", "--publish", "branch", "start-point"]);
+    expect(makeBranchSpy).toHaveBeenCalledWith("branch", "start-point", expect.objectContaining({ publish: true }));
   });
 
 });
