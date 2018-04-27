@@ -12,11 +12,12 @@ import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
 import * as coreForEach from "../src/core-for";
 import * as coreInit from "../src/core-init";
+import * as coreManifest from "../src/core-manifest";
 import * as coreSnapshot from "../src/core-snapshot";
 
 
 describe("clone cli", () => {
-  const cloneSpy = jest.spyOn(coreClone, 'doClone');
+  const cloneSpy = jest.spyOn(coreClone, "doClone");
 
   beforeAll(() => {
     cloneSpy.mockImplementation((source, destination, options) => {
@@ -76,7 +77,7 @@ describe("clone cli", () => {
 
 
 describe("init cli", () => {
-  const initSpy = jest.spyOn(coreInit, 'doInit');
+  const initSpy = jest.spyOn(coreInit, "doInit");
 
   beforeAll(() => {
     initSpy.mockImplementation((options) => {
@@ -126,7 +127,7 @@ describe("init cli", () => {
 
 
 describe("install cli", () => {
-  const installSpy = jest.spyOn(coreClone, 'doInstall');
+  const installSpy = jest.spyOn(coreClone, "doInstall");
 
   beforeAll(() => {
     installSpy.mockImplementation((options) => {
@@ -164,7 +165,7 @@ describe("install cli", () => {
 
 
 describe("for cli", () => {
-  const forEachSpy = jest.spyOn(coreForEach, 'doForEach');
+  const forEachSpy = jest.spyOn(coreForEach, "doForEach");
 
   beforeAll(() => {
     forEachSpy.mockImplementation((cmd: string, args: string[], options: coreForEach.ForOptions) => {
@@ -239,7 +240,7 @@ describe("for cli", () => {
 
 
 describe("switch cli", () => {
-  const switchSpy = jest.spyOn(coreBranch, 'doSwitch');
+  const switchSpy = jest.spyOn(coreBranch, "doSwitch");
 
   beforeAll(() => {
     switchSpy.mockImplementation((branchName: string) => {
@@ -264,7 +265,7 @@ describe("switch cli", () => {
 
 
 describe("make-branch cli", () => {
-  const makeBranchSpy = jest.spyOn(coreBranch, 'doMakeBranch');
+  const makeBranchSpy = jest.spyOn(coreBranch, "doMakeBranch");
 
   beforeAll(() => {
     makeBranchSpy.mockImplementation((branch: string, startPoint?: string, optionsParam?: coreBranch.MakeBranchOptions) => {
@@ -313,7 +314,7 @@ describe("make-branch cli", () => {
 
 
 describe("snapshot cli", () => {
-  const snapshotSpy = jest.spyOn(coreSnapshot, 'doSnapshot');
+  const snapshotSpy = jest.spyOn(coreSnapshot, "doSnapshot");
 
   beforeAll(() => {
     snapshotSpy.mockImplementation((options: coreSnapshot.SnapshotOptions) => {
@@ -351,7 +352,7 @@ describe("snapshot cli", () => {
 
 
 describe("recreate cli", () => {
-  const recreateSpy = jest.spyOn(coreSnapshot, 'doRecreate');
+  const recreateSpy = jest.spyOn(coreSnapshot, "doRecreate");
 
   beforeAll(() => {
     recreateSpy.mockImplementation((snapshotPath: string, destinationParam?: string) => {
@@ -383,7 +384,7 @@ describe("recreate cli", () => {
 
 
 describe("restore cli", () => {
-  const restoreSpy = jest.spyOn(coreSnapshot, 'doRestore');
+  const restoreSpy = jest.spyOn(coreSnapshot, "doRestore");
 
   beforeAll(() => {
     restoreSpy.mockImplementation((snapshotPath?: string) => {
@@ -409,6 +410,87 @@ describe("restore cli", () => {
   test("restore snapshot", () => {
     command.fab(["restore", "snapshot"]);
     expect(restoreSpy).toHaveBeenCalledWith("snapshot");
+  });
+
+});
+
+
+describe("manifest cli", () => {
+  const manifestSpy = jest.spyOn(coreManifest, "doManifest");
+
+  beforeAll(() => {
+    manifestSpy.mockImplementation((options: coreManifest.ManifestOptions) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    manifestSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    manifestSpy.mockReset();
+  });
+
+  // least
+  test("manifest", () => {
+    command.fab(["manifest"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+    const options: coreManifest.ManifestOptions = manifestSpy.mock.calls[0][0];
+    expect(options.edit).toBeUndefined();
+    expect(options.list).toBeUndefined();
+    expect(options.add).toBeUndefined();
+    expect(options.delete).toBeUndefined();
+  });
+
+  test("manifest -e", () => {
+    command.fab(["manifest", "-e"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ edit: true }));
+  });
+
+  test("manifest --edit", () => {
+    command.fab(["manifest", "--edit"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ edit: true }));
+  });
+
+  test("manifest -l", () => {
+    command.fab(["manifest", "-l"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ list: true }));
+  });
+
+  test("manifest --list", () => {
+    command.fab(["manifest", "--list"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ list: true }));
+  });
+
+  test("manifest -a", () => {
+    command.fab(["manifest", "-a"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: true }));
+  });
+
+  test("manifest --add", () => {
+    command.fab(["manifest", "--add"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: true }));
+  });
+
+  test("manifest --add depend", () => {
+    command.fab(["manifest", "--add", "depend"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: "depend" }));
+  });
+
+  test("manifest -d", () => {
+    command.fab(["manifest", "-d"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: true }));
+  });
+
+  test("manifest --delete", () => {
+    command.fab(["manifest", "--delete"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: true }));
+  });
+
+  test("manifest --delete depend", () => {
+    command.fab(["manifest", "--delete", "depend"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: "depend" }));
   });
 
 });
