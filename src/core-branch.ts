@@ -2,8 +2,16 @@
 import * as core from "./core";
 import * as util from "./util";
 
+export interface MakeBranchOptions {
+  publish?: string;
+}
 
-export function doMakeBranch(branch: string, startPoint?: string, publish?: boolean) {
+
+export function doMakeBranch(branch: string, startPoint?: string, optionsParam?: MakeBranchOptions) {
+  let options: MakeBranchOptions = {};
+  if (optionsParam !== undefined) {
+    options = optionsParam;
+  }
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
@@ -22,7 +30,7 @@ export function doMakeBranch(branch: string, startPoint?: string, publish?: bool
       const args = ["checkout", "-b", branch];
       if (startPoint !== undefined) args.push(startPoint);
       util.execCommandSync({ cmd: "git", args, cwd: repoPath });
-      if (publish) {
+      if (options.publish) {
         util.execCommandSync(
           { cmd: "git", args: ["push", "--set-upstream", "origin", branch], cwd: repoPath }
         );
@@ -32,7 +40,7 @@ export function doMakeBranch(branch: string, startPoint?: string, publish?: bool
         util.execCommandSync({ cmd: "hg", args: ["update", startPoint], cwd: repoPath });
       }
       util.execCommandSync({ cmd: "hg", args: ["branch", branch], cwd: repoPath });
-      if (publish) {
+      if (options.publish) {
         util.execCommandSync(
           { cmd: "hg", args: ["commit", "--message", "Create branch"], cwd: repoPath }
         );

@@ -260,7 +260,7 @@ export function makeProgram(): Command {
     .option("-p, --publish", "push newly created branch")
     .description("create new branch in free repos")
     .action((branch, startPoint, options) => {
-      coreBranch.doMakeBranch(branch, startPoint, options.publish);
+      coreBranch.doMakeBranch(branch, startPoint, options);
     });
 
   program
