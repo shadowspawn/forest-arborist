@@ -19,7 +19,7 @@
     "copy-up": "git checkout master && git merge develop && tsc && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
-    "test": "jest --silent --verbose --env=node",
+    "test": "jest --silent --verbose",
     "lint": "tslint --project ."
   },
   "author": "John Gee",
@@ -31,6 +31,7 @@
     "globals": {
       "JEST_RUNNING": true
     },
+    "testEnvironment": "node",
     "transform": {
       "^.+\\.tsx?$": "<rootDir>/node_modules/ts-jest/preprocessor.js"
     },
