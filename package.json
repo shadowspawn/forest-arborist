@@ -17,6 +17,7 @@
   "scripts": {
     "copy-down": "git checkout develop && git merge master && tsc && npm --no-git-tag-version version prepatch",
     "copy-up": "git checkout master && git merge develop && tsc && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
+    "create-playground": "node dist/tests/create-playground",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent --verbose",

@@ -16,11 +16,10 @@
 ## Backlog Musing
 
 - checklist for release
-- consider snapshots for detecting changes, rather than results, in some cases?
 - separate unit (*.unit.test.ts) vs functional (*.func.test.ts) tests?
+- separate system tests?
 - refactor to allow more unit testing?
-- coreFoo.doFoo() -> coreFoo.foo() ?
-- unit test CLI by spying on called routines?
+- add npm run script to create repo sandpit for testing/tryout
 
 ## Patterns
 
