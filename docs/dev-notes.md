@@ -19,7 +19,6 @@
 - separate unit (*.unit.test.ts) vs functional (*.func.test.ts) tests?
 - separate system tests?
 - refactor to allow more unit testing?
-- add npm run script to create repo sandpit for testing/tryout
 
 ## Patterns
 

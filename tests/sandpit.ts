@@ -7,7 +7,7 @@ import * as repo from "../src/repo";
 import * as coreInit from "../src/core-init";
 
 
-export function makePlayground(destination: string) {
+export function makePlayground(destination: string): string {
   const startDir = process.cwd();
 
   fsX.ensureDirSync(destination);
@@ -17,7 +17,7 @@ export function makePlayground(destination: string) {
   // Make empty bare repos for remotes: free, locked, pinned, and a main for nested and sibling
   fs.mkdirSync("remotes");
   process.chdir("remotes");
-  const remotesDir = process.cwd();;
+  const remotesDir = process.cwd();
   const allRemoteRepos = [
     path.join("libs", "locked.git"),
     path.join("libs", "pinned.git"),
@@ -60,7 +60,7 @@ export function makePlayground(destination: string) {
 
   // Setup main
   process.chdir(nestedRoot);
-  coreInit.doInit({ })
+  coreInit.doInit({ });
   childProcess.execFileSync("git", ["add", ".fab"]);
   childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
   childProcess.execFileSync("git", ["push"]);
@@ -87,10 +87,11 @@ export function makePlayground(destination: string) {
 
   // Setup main
   process.chdir(path.join(siblingRoot, "main"));
-  coreInit.doInit({ root: ".." })
+  coreInit.doInit({ root: ".." });
   childProcess.execFileSync("git", ["add", ".fab"]);
   childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
   childProcess.execFileSync("git", ["push"]);
 
   process.chdir(startDir);
+  return pinnedRevision;
 }
