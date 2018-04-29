@@ -76,10 +76,9 @@ describe("core init", () => {
     expect(manifestObject.dependencies[sub]).not.toBeUndefined();
 
     // Check repeat init fails
-    process.exitCode = 0;
-    command.fab(["init"]);
-    expect(process.exitCode).not.toBe(0);
-    process.exitCode = 0;
+    expect(() => {
+      command.fab(["init"]);
+    }).toThrow(util.suppressTerminateExceptionMessage);
   });
 
   test("sibling (--root)", () => {

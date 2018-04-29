@@ -113,7 +113,7 @@ export function doInit(options: InitOptions) {
   if (fs.existsSync(relManifestPath)) {
     console.log(util.errorColour(`Skipping init, already have ${relManifestPath}`));
     console.log("(Delete it to start over, or did you want \"fab install\"?)");
-    process.exitCode = 1;
+    util.terminate();
     return;
   }
   const absManifestPath = path.resolve(startDir, relManifestPath);
