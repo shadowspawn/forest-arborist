@@ -84,7 +84,7 @@ export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
 
   if (repoType === "git") {
     try {
-      // This will fail if have detached head, but does work for an empty repo
+      // This will fail if have detached head, but does work for an empty repo.
       branch = childProcess.execFileSync(
         "git", ["symbolic-ref", "--short", "HEAD"],
         { cwd: repoPath, stdio: ["pipe", "pipe", "ignore"] }
@@ -106,9 +106,10 @@ export function getRevision(repoPath: string, repoTypeParam?: RepoType) {
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
   if (repoType === "git") {
-    revision = childProcess.execFileSync(
-      "git", ["rev-parse", "HEAD"], { cwd: repoPath }
-    ).toString().trim();
+      // This will throw noisily in an empty repo, but does work for a detached head.
+      revision = childProcess.execFileSync(
+        "git", ["rev-parse", "HEAD"], { cwd: repoPath }
+      ).toString().trim();
   } else if (repoType === "hg") {
     revision = childProcess.execFileSync(
       "hg", ["log", "--rev", ".", "--template", "{node}"], { cwd: repoPath }
