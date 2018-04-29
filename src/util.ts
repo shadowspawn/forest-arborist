@@ -51,11 +51,13 @@ export function commandColour(text: string) {
 }
 
 
-export function terminate(message: string): never {
-  console.error(errorColour(`Error: ${message}`));
+export function terminate(message?: string): never {
+  if (message !== undefined)
+    console.error(errorColour(`Error: ${message}`));
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
-  // process.exit(1);
+  // Set the error code in cli so no side-affects for other clients.
+  //process.exit(1);
 }
 
 
