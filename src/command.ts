@@ -328,13 +328,7 @@ export function makeProgram(): Command {
   program
     .command("*", undefined, { noHelp: true })
     .action((command) => {
-      // Tempting to try passing through to for-each, but primary
-      // focus is management. KISS.
-      // Display error in same style commander uses for unrecognised options.
-      console.log("");
-      console.log(`  error: unknown command \`${command}"`);
-      console.log("");
-      process.exitCode = 1;
+      util.terminate(`unknown command: ${command}`);
     });
 
     return program;
