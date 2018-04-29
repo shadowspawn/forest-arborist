@@ -1,3 +1,5 @@
+// See also repo.int.unit.ts for unit tests.
+
 import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as tmp from "tmp";

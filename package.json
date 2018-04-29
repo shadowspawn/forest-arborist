@@ -21,6 +21,9 @@
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "test": "jest --silent --verbose",
+    "test:unit": "jest --silent --verbose unit",
+    "test:integration": "jest --silent --verbose .int",
+    "test:system": "jest --silent --verbose system",
     "lint": "tslint --project ."
   },
   "author": "John Gee",

@@ -1,8 +1,11 @@
+// System tests with shared setup of full playground.
+
 import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
 import * as command from "../src/command";
+import * as core from "../src/core";
 import * as sandpit from "./sandpit";
 import * as util from "../src/util";
 
@@ -13,6 +16,7 @@ describe("system (full functionality)", () => {
   let pinnedRevision: string;
   let nestedRoot: string;
   let siblingRoot: string;
+  let remotes: string;
 
   beforeAll(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
@@ -20,6 +24,7 @@ describe("system (full functionality)", () => {
     process.chdir(tempFolder.name);
     nestedRoot = path.join(process.cwd(), "nested");
     siblingRoot = path.join(process.cwd(), "sibling");
+    remotes = path.join(tempFolder.name, "remotes"); // avoid resolving to /private on mac
     process.chdir(startDir);
 });
 
@@ -40,6 +45,42 @@ describe("system (full functionality)", () => {
     expect(() => {
       command.fab(["unexpected-command"]);
     }).toThrow(util.suppressTerminateExceptionMessage);
+  });
+
+  test("playground init of nested", () => {
+    process.chdir(nestedRoot);
+
+    const rootObject = core.readRootFile();
+    expect(rootObject.mainPath).toEqual(".");
+    expect(rootObject.manifest).toBeUndefined();
+
+    const manifestObject = core.readManifest({ fromRoot: true });
+    expect(manifestObject.rootDirectory).toEqual(".");
+    expect(manifestObject.mainPathFromRoot).toEqual(".");
+
+    const dependencies = manifestObject.dependencies;
+    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "nested", "free") });
+    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "pinned"), pinRevision: pinnedRevision });
+    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "locked"), lockBranch: "lockedBranch" });
+
+  });
+
+  test("playground init of sibling", () => {
+    process.chdir(siblingRoot);
+
+    const rootObject = core.readRootFile();
+    expect(rootObject.mainPath).toEqual("main");
+    expect(rootObject.manifest).toBeUndefined();
+
+    const manifestObject = core.readManifest({ fromRoot: true });
+    expect(manifestObject.rootDirectory).toEqual("..");
+    expect(manifestObject.mainPathFromRoot).toEqual("main");
+
+    const dependencies = manifestObject.dependencies;
+    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "sibling", "free") });
+    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "pinned"), pinRevision: pinnedRevision });
+    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "locked"), lockBranch: "lockedBranch" });
+
   });
 
 

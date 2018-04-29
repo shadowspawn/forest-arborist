@@ -1,3 +1,5 @@
+// See also system.test.ts for other init tests.
+
 import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as tmp from "tmp";
@@ -57,109 +59,6 @@ describe("core init", () => {
     expect(rootObject.manifest).toEqual(manifest);
   });
 
-  test("nested", () => {
-    // Check cross referencing for nested setup.
-    const sub = "child";
-    childProcess.execFileSync("git", ["init"]);
-    childProcess.execFileSync("git", ["init", sub]);
-
-    command.fab(["init"]);
-
-    const rootObject = core.readRootFile();
-    expect(rootObject.mainPath).toEqual(".");
-    expect(rootObject.manifest).toBeUndefined();
-
-    const manifestObject = core.readManifest({ fromRoot: true });
-    expect(manifestObject.rootDirectory).toEqual(".");
-    expect(manifestObject.mainPathFromRoot).toEqual(".");
-
-    expect(manifestObject.dependencies[sub]).not.toBeUndefined();
-
-    // Check repeat init fails
-    expect(() => {
-      command.fab(["init"]);
-    }).toThrow(util.suppressTerminateExceptionMessage);
-  });
-
-  test("sibling (--root)", () => {
-    // Check cross referencing for sibling setup.
-    const sibling = "sibling";
-    childProcess.execFileSync("git", ["init", "main"]);
-    childProcess.execFileSync("git", ["init", sibling]);
-    process.chdir("main");
-
-    command.fab(["init", "--root", ".."]);
-
-    process.chdir("..");
-    const rootObject = core.readRootFile();
-    expect(rootObject.mainPath).toEqual("main");
-    expect(rootObject.manifest).toBeUndefined();
-
-    const manifestObject = core.readManifest({ fromRoot: true });
-    expect(manifestObject.rootDirectory).toEqual("..");
-    expect(manifestObject.mainPathFromRoot).toEqual("main");
-
-    expect(manifestObject.dependencies[sibling]).not.toBeUndefined();
-  });
-
-  test("pinned", () => {
-    // Auto detect pinned revision
-    childProcess.execFileSync("git", ["init"]);
-    childProcess.execFileSync("git", ["init", "boost"]);
-    const revision = cc.commitAndDetach("boost");
-
-    command.fab(["init"]);
-
-    const manifestObject = core.readManifest({ fromRoot: true });
-    const dependencies = manifestObject.dependencies;
-    const entry = dependencies.boost;
-
-    // After all that...
-    expect(entry.lockBranch).toBeUndefined();
-    expect(entry.pinRevision).not.toBeUndefined();
-    expect(entry.pinRevision).toEqual(revision);
-  });
-
-  test("locked", () => {
-    // Auto detect locked when branches differ
-    childProcess.execFileSync("git", ["init"]);
-    childProcess.execFileSync("git", ["init", "locked"]);
-    childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: "locked" });
-    childProcess.execFileSync("git", ["checkout", "-b", "locked"], { cwd: "locked" });
-
-    command.fab(["init"]);
-
-    const manifestObject = core.readManifest({ fromRoot: true });
-    const dependencies = manifestObject.dependencies;
-    const entry = dependencies["locked"];
-    expect(entry.pinRevision).toBeUndefined();
-    expect(entry.lockBranch).not.toBeUndefined();
-    expect(entry.lockBranch).toEqual("locked");
-  });
-
-  test("free", () => {
-    // Auto detect free
-    childProcess.execFileSync("git", ["init"]);
-    childProcess.execFileSync("git", [
-      "remote", "add", "origin", "git@example.com:path/to/main.git",
-    ]);
-    childProcess.execFileSync("git", ["init", "boost"]);
-    childProcess.execFileSync("git", [
-      "remote", "add", "origin", "git@example.com:path/to/boost.git",
-    ], { cwd: "boost" });
-
-    command.fab(["init"]);
-
-    // Want to check that raw manifest has free and relative dependency.
-    const fabManifest = core.manifestPath({ mainPath: "." });
-    const manifestObject = util.readJson(fabManifest);
-    const dependencies = manifestObject.dependencies;
-    const entry = dependencies.boost;
-    expect(entry.pinRevision).toBeUndefined();
-    expect(entry.lockBranch).toBeUndefined();
-    expect(entry.origin).not.toBeUndefined();
-    expect(dvcsUrl.isRelativePath(entry.origin)).toBe(true);
-  });
 
   // Uncovered:
   // - hg

@@ -1,3 +1,5 @@
+// See also repo.ini.test.ts for integration tests.
+
 import * as fs from "fs";
 // Mine
 import * as repo from "../src/repo";
