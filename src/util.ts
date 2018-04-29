@@ -122,7 +122,7 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
   try {
     // Note: this stdio option hooks up child stream to parent so we get live progress.
     let stdio = "inherit";
-    // Using inherit mucks up jest --silent, so use default pipe
+    // `jest --silent` does not suppress "inherit", so use default "pipe".
     if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
       stdio = "pipe";
     childProcess.execFileSync(
