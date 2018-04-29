@@ -7,90 +7,93 @@ import * as repo from "../src/repo";
 import * as coreInit from "../src/core-init";
 
 
+function makeGitRepoAndCd(repoPath: string) {
+  childProcess.execFileSync("git", ["init", repoPath]);
+  process.chdir(repoPath);
+  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
+}
+
+
 export function makePlayground(destination: string): string {
   const startDir = process.cwd();
 
+  const playgroundDir = path.resolve(process.cwd(), destination);
   fsX.ensureDirSync(destination);
-  process.chdir(destination);
-  const playgroundDir = process.cwd();
 
-  // Make empty bare repos for remotes: free, locked, pinned, and a main for nested and sibling
-  fs.mkdirSync("remotes");
-  process.chdir("remotes");
-  const remotesDir = process.cwd();
-  const allRemoteRepos = [
-    path.join("libs", "locked.git"),
-    path.join("libs", "pinned.git"),
-    path.join("sibling", "main.git"),
-    path.join("sibling", "free.git"),
-    path.join("nested", "main.git"),
-    path.join("nested", "free.git"),
-  ];
-  allRemoteRepos.forEach((repoPath) => {
-    childProcess.execFileSync("git", ["init", "--bare", repoPath]);
-  });
-
-  // Nested forest: free, libs/locked, libs/pinned
-  process.chdir(playgroundDir);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "nested", "main.git"), "nested"]);
-  process.chdir("nested");
-  const nestedRoot = process.cwd();
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "nested", "free.git")]);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "libs", "locked.git"), path.join("libs", "locked")]);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "libs", "pinned.git"), path.join("libs", "pinned")]);
+  // Nested
+  console.log("\nCreating nested forest\n");
+  const nestedRoot = path.resolve(playgroundDir, "nested");
+  makeGitRepoAndCd(nestedRoot);
 
   // Setup pinned
-  process.chdir(path.join(nestedRoot, "libs", "pinned"));
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
+  makeGitRepoAndCd(path.join(nestedRoot, "libs", "pinned"));
   const pinnedRevision = repo.getRevision(".");
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
-  childProcess.execFileSync("git", ["push"]);
-  childProcess.execFileSync("git", ["checkout", pinnedRevision]);
+  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Another empty but real commit"]);
+  childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
 
   // Setup locked
-  process.chdir(path.join(nestedRoot, "libs", "locked"));
-  childProcess.execFileSync("git", ["checkout", "-b", "lockedBranch"]);
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-  childProcess.execFileSync("git", ["push", "--set-upstream", "origin", "lockedBranch"]);
+  makeGitRepoAndCd(path.join(nestedRoot, "libs", "locked"));
+  childProcess.execFileSync("git", ["checkout", "--quiet", "-b", "lockedBranch"]);
 
   // Setup free
-  process.chdir(path.join(nestedRoot, "free"));
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-  childProcess.execFileSync("git", ["push"]);
+  makeGitRepoAndCd(path.join(nestedRoot, "free"));
 
   // Setup main
   process.chdir(nestedRoot);
   coreInit.doInit({ });
   childProcess.execFileSync("git", ["add", ".fab"]);
   childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
-  childProcess.execFileSync("git", ["push"]);
 
-  // Sibling forest: free, libs/locked, libs/pinned
-  process.chdir(playgroundDir);
-  fs.mkdirSync("sibling");
-  process.chdir("sibling");
-  const siblingRoot = process.cwd();
+  console.log("\nCreating remotes (so can push and pull)\n");
+  const remotesDir = path.join(playgroundDir, "remotes");
+  fs.mkdirSync(remotesDir);
 
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "sibling", "main.git")]);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "sibling", "free.git")]);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "libs", "locked.git"), "--branch", "lockedBranch", path.join("libs", "locked")]);
-  childProcess.execFileSync("git", ["clone", path.join(remotesDir, "libs", "pinned.git"), path.join("libs", "pinned")]);
+  function makeAndSetRemote(source: string, destination: string) {
+    const remotePath = path.join(remotesDir, destination);
+    // childProcess.execFileSync("git", ["clone", "--quiet", "--bare", "--branch", "master", source, remotePath]);
+    childProcess.execFileSync("git", ["init", "--bare", remotePath]);
+    // Add origin
+    childProcess.execFileSync("git", ["remote", "add", "origin", remotePath], { cwd: source });
+    // Prepare all branches for push and pull
+    childProcess.execFileSync("git", ["push", "--quiet", "--all", "--set-upstream", "origin"], { cwd: source });
+  }
 
-  // Setup pinned
-  process.chdir(path.join(siblingRoot, "libs", "pinned"));
-  childProcess.execFileSync("git", ["checkout", pinnedRevision]);
+  process.chdir(nestedRoot);
+  makeAndSetRemote(".", path.join("nested", "main.git"));
+  makeAndSetRemote("free", path.join("nested", "free.git"));
+  makeAndSetRemote(path.join("libs", "pinned"), path.join("libs", "pinned.git"));
+  makeAndSetRemote(path.join("libs", "locked"), path.join("libs", "locked.git"));
+
+  // Sibling
+  console.log("\nCreating sibling forest\n");
+  const siblingRoot = path.resolve(playgroundDir, "sibling");
+  fs.mkdirSync(siblingRoot);
 
   // Setup free
-  process.chdir(path.join(siblingRoot, "free"));
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-  childProcess.execFileSync("git", ["push"]);
+  makeGitRepoAndCd(path.join(siblingRoot, "free"));
+
+  // Setup pinned
+  process.chdir(siblingRoot);
+  childProcess.execFileSync("git", ["clone", "--quiet", path.join(remotesDir, "libs", "pinned.git"), path.join("libs", "pinned")]);
+  childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision], { cwd: path.join("libs", "pinned") });
+
+  // Setup locked
+  process.chdir(siblingRoot);
+  childProcess.execFileSync("git", [
+    "clone", "--quiet", "--branch", "lockedBranch",
+    path.join(remotesDir, "libs", "locked.git"), path.join("libs", "locked")
+  ]);
 
   // Setup main
-  process.chdir(path.join(siblingRoot, "main"));
+  makeGitRepoAndCd(path.join(siblingRoot, "main"));
   coreInit.doInit({ root: ".." });
   childProcess.execFileSync("git", ["add", ".fab"]);
   childProcess.execFileSync("git", ["commit", "-m", "fab initialised"]);
-  childProcess.execFileSync("git", ["push"]);
+
+  console.log("\nCreating remotes (so can push and pull)\n");
+  process.chdir(siblingRoot);
+  makeAndSetRemote("main", path.join("sibling", "main.git"));
+  makeAndSetRemote("free", path.join("sibling", "free.git"));
 
   process.chdir(startDir);
   return pinnedRevision;
