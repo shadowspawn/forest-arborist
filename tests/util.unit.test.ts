@@ -154,11 +154,11 @@ describe("execCommandSync", () => {
     });
 
     expect(() => {
-      util.execCommandSync({ cmd: "command" });
+      util.execCommandSync("command");
     }).toThrow();
 
     expect(() => {
-      util.execCommandSync({ cmd: "command", allowedShellStatus: 99 });
+      util.execCommandSync("command", [], { allowedShellStatus: 99 });
     }).not.toThrow();
 
     spy.mockRestore();
@@ -170,14 +170,14 @@ describe("execCommandSync", () => {
       // do nothing
     });
 
-    util.execCommandSync({ cmd: "command" });
-    expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": ".", "stdio": "pipe" });
+    util.execCommandSync("command");
+    expect(spy).toHaveBeenLastCalledWith("command", undefined, { "cwd": ".", "stdio": "pipe" });
 
-    util.execCommandSync({ cmd: "command", args: ["a", "b"] });
+    util.execCommandSync("command", ["a", "b"]);
     expect(spy).toHaveBeenLastCalledWith("command", ["a", "b"], { "cwd": ".", "stdio": "pipe" });
 
-    util.execCommandSync({ cmd: "command", cwd: "dir" });
-    expect(spy).toHaveBeenLastCalledWith("command", [], { "cwd": "dir", "stdio": "pipe" });
+    util.execCommandSync("command", undefined, { cwd: "dir" });
+    expect(spy).toHaveBeenLastCalledWith("command", undefined, { "cwd": "dir", "stdio": "pipe" });
 
     spy.mockRestore();
   });

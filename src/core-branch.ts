@@ -29,23 +29,23 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
       // Could check for remote branch using "git fetch origin ${branch}" ?
       const args = ["checkout", "-b", branch];
       if (startPoint !== undefined) args.push(startPoint);
-      util.execCommandSync({ cmd: "git", args, cwd: repoPath });
+      util.execCommandSync("git", args, { cwd: repoPath });
       if (options.publish) {
         util.execCommandSync(
-          { cmd: "git", args: ["push", "--set-upstream", "origin", branch], cwd: repoPath }
+          "git", ["push", "--set-upstream", "origin", branch], { cwd: repoPath }
         );
       }
     } else if (repoType === "hg") {
       if (startPoint !== undefined) {
-        util.execCommandSync({ cmd: "hg", args: ["update", startPoint], cwd: repoPath });
+        util.execCommandSync("hg", ["update", startPoint], { cwd: repoPath });
       }
-      util.execCommandSync({ cmd: "hg", args: ["branch", branch], cwd: repoPath });
+      util.execCommandSync("hg", ["branch", branch], { cwd: repoPath });
       if (options.publish) {
         util.execCommandSync(
-          { cmd: "hg", args: ["commit", "--message", "Create branch"], cwd: repoPath }
+          "hg", ["commit", "--message", "Create branch"], { cwd: repoPath }
         );
         util.execCommandSync(
-          { cmd: "hg", args: ["push", "--branch", branch, "--new-branch"], cwd: repoPath }
+          "hg", ["push", "--branch", branch, "--new-branch"], { cwd: repoPath }
         );
       }
     }
@@ -70,11 +70,11 @@ export function doSwitch(branch: string) {
     const repoType = entry.repoType;
     if (repoType === "git") {
       util.execCommandSync(
-        { cmd: "git", args: ["checkout", branch], cwd: repoPath }
+         "git", ["checkout", branch], { cwd: repoPath }
       );
     } else if (repoType === "hg") {
       util.execCommandSync(
-        { cmd: "hg", args: ["update", branch], cwd: repoPath }
+        "hg", ["update", branch], { cwd: repoPath }
       );
     }
   });

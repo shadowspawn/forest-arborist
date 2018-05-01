@@ -18,7 +18,7 @@ function doSemiInstall() {
   let freeBranch = repo.getBranch(mainPath);
   if (freeBranch === undefined && repo.isGitRepository(mainPath)) {
     util.execCommandSync(
-      { cmd: "git", args: ["checkout", "@{-1}"], cwd: mainPath }
+      "git", ["checkout", "@{-1}"], { cwd: mainPath }
     );
     // childProcess.execFileSync("git", ["checkout", "@{-1}"], { cwd: mainPath });
     freeBranch = repo.getBranch(mainPath);

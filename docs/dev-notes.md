@@ -17,8 +17,7 @@
 
 - checklist for release
 - separate unit (*.unit.test.ts) vs functional (*.func.test.ts) tests?
-- separate system tests?
-- refactor to allow more unit testing?
+- refactor to allow more unit testing? Start with init taking scanned repos and returning manifest?
 
 ## Patterns
 

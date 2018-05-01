@@ -22,16 +22,16 @@ function hgAutoMerge(repoPath: string) {
     );
     if (tipNode !== parentNode) {
       util.execCommandSync(
-        { cmd: "hg", args: ["update"], cwd: repoPath }
+        "hg", ["update"], { cwd: repoPath }
       );
     }
   } else {
     try {
       util.execCommandSync(
-        { cmd: "hg", args: ["merge", "--tool", "internal:merge"], cwd: repoPath }
+        "hg", ["merge", "--tool", "internal:merge"], { cwd: repoPath }
       );
       util.execCommandSync(
-        { cmd: "hg", args: ["commit", "--message", "Merge"], cwd: repoPath }
+        "hg", ["commit", "--message", "Merge"], { cwd: repoPath }
       );
     } catch (err) {
       if (err.status === 1) {
@@ -62,11 +62,11 @@ export function doPull() {
       const repoType = entry.repoType;
       if (repoType === "git") {
         util.execCommandSync(
-          { cmd: "git", args: ["pull"], cwd: repoPath }
+          "git", ["pull"], { cwd: repoPath }
         );
       } else if (repoType === "hg") {
         util.execCommandSync(
-          { cmd: "hg", args: ["pull"], cwd: repoPath }
+          "hg", ["pull"], { cwd: repoPath }
         );
         hgAutoMerge(repoPath);
       }

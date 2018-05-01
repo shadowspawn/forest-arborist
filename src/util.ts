@@ -96,30 +96,29 @@ export function readJson(targetPath: string, requiredProperties?: string[]) {
 
 
 export interface ExecCommandSyncOptions {
-  cmd: string;
-  args?: string[];
   cwd?: string;
   allowedShellStatus?: number;
   suppressContext?: boolean;
 }
 
 
-export function execCommandSync(commandParam: ExecCommandSyncOptions) {
-  const command = commandParam;
-  if (command.args === undefined) command.args = [];
-  let cwdDisplay = `${command.cwd}: `;
-  if (command.cwd === undefined || command.cwd === "" || command.cwd === ".") {
+export function execCommandSync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions) {
+  let options = Object.assign({ }, optionsParam);
+  let cwdDisplay = `${options.cwd}: `;
+  if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
     cwdDisplay = "(root): ";
-    command.cwd = ".";
+    options.cwd = ".";
   }
-  if (command.suppressContext) cwdDisplay = "";
+  if (options.suppressContext)
+    cwdDisplay = "";
 
   // Trying hard to get a possibly copy-and-paste command.
-  // let quotedArgs = "";
-  // if (command.args.length > 0) quotedArgs = `'${command.args.join("' '")}'`;
-  let quotedArgs = shellQuote.quote(command.args);
-  quotedArgs = quotedArgs.replace(/\n/g, "\\n");
-  console.log(commandColour(`${cwdDisplay}${command.cmd} ${quotedArgs}`));
+  let quotedArgs = "";
+  if (args !== undefined) {
+    shellQuote.quote(args);
+    quotedArgs = quotedArgs.replace(/\n/g, "\\n");
+    }
+  console.log(commandColour(`${cwdDisplay}${cmd} ${quotedArgs}`));
 
   try {
     // Note: this stdio option hooks up child stream to parent so we get live progress.
@@ -128,12 +127,12 @@ export function execCommandSync(commandParam: ExecCommandSyncOptions) {
     if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
       stdio = "pipe";
     childProcess.execFileSync(
-      command.cmd, command.args,
-      { cwd: command.cwd, stdio }
+      cmd, args,
+      { cwd: options.cwd, stdio }
     );
   } catch (err) {
     // Some commands return non-zero for expected situations
-    if (command.allowedShellStatus === undefined || command.allowedShellStatus !== err.status) {
+    if (options.allowedShellStatus === undefined || options.allowedShellStatus !== err.status) {
       throw err;
     }
   }

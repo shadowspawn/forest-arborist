@@ -33,11 +33,11 @@ function doStatus() {
     const entry = forestRepos[repoPath];
     if (entry.repoType === "git") {
       util.execCommandSync(
-        { cmd: "git", args: ["status", "--short"], cwd: repoPath }
+        "git", ["status", "--short"], { cwd: repoPath }
       );
     } else if (entry.repoType === "hg") {
       util.execCommandSync(
-        { cmd: "hg", args: ["status"], cwd: repoPath }
+        "hg", ["status"], { cwd: repoPath }
       );
     }
   });

@@ -25,7 +25,7 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
 
     try {
       util.execCommandSync(
-        { cmd, args, cwd: repoPath }
+        cmd, args, { cwd: repoPath }
       );
     } catch (err) {
       if (options.keepgoing) {

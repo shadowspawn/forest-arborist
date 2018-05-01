@@ -51,17 +51,17 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   if (entry.origin === undefined) util.terminate("origin undefined");
   args.push(entry.origin!, repoPath);
   // Clone command ready!
-  util.execCommandSync({ cmd: entry.repoType, args, suppressContext: true });
+  util.execCommandSync(entry.repoType, args, { suppressContext: true });
 
   // Second command to checkout pinned revision
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === "git") {
       util.execCommandSync(
-        { cmd: "git", args: ["checkout", "--quiet", entry.pinRevision], cwd: repoPath }
+        "git", ["checkout", "--quiet", entry.pinRevision], { cwd: repoPath }
       );
     } else if (entry.repoType === "hg") {
       util.execCommandSync(
-        { cmd: "hg", args: ["update", "--rev", entry.pinRevision], cwd: repoPath }
+        "hg", ["update", "--rev", entry.pinRevision], { cwd: repoPath }
       );
     }
   }
@@ -91,11 +91,11 @@ export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, fre
   if (revision !== undefined) {
     if (entry.repoType === "git") {
       util.execCommandSync(
-        { cmd: "git", args: gitConfig.concat(["checkout", revision]), cwd: repoPath }
+        "git", gitConfig.concat(["checkout", revision]), { cwd: repoPath }
       );
     } else if (entry.repoType === "hg") {
       util.execCommandSync(
-        { cmd: "hg", args: ["update", "--rev", revision], cwd: repoPath }
+        "hg", ["update", "--rev", revision], { cwd: repoPath }
       );
     }
   } else {
