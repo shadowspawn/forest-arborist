@@ -16,6 +16,7 @@ describe("core branch", () => {
     execCommandSyncSpy.mockImplementation(() => {
       // do nothing
     });
+    // readManifestSpy custom per test
   });
 
   afterAll(() => {
@@ -30,7 +31,23 @@ describe("core branch", () => {
     execCommandSyncSpy.mockReset();
   });
 
-  test("switch free sanity check", () => {
+  test("switch free - git", () => {
+    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
+      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: ".", mainPathFromRoot: "." };
+    });
+    coreBranch.doSwitch("x");
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "x"], { cwd: "g"});
+  });
+
+  test("switch free - hg", () => {
+    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
+      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: "..", mainPathFromRoot: "main" };
+    });
+    coreBranch.doSwitch("y");
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "y"], { cwd: "h"});
+  });
+
+  test("switch free - multiple", () => {
     // Light check that gets called for each.
     readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
       return { dependencies: {
@@ -39,24 +56,9 @@ describe("core branch", () => {
       }, rootDirectory: "..", mainPathFromRoot: "main" };
     });
     coreBranch.doSwitch("z");
-    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true });
-    expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
-  });
-
-  test("switch free git", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: ".", mainPathFromRoot: "." };
-    });
-    coreBranch.doSwitch("x");
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "x"], { cwd: "g"});
-  });
-
-  test("switch free hg", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: "..", mainPathFromRoot: "main" };
-    });
-    coreBranch.doSwitch("y");
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "y"], { cwd: "h"});
+    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // check once
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "z"], { cwd: "g"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "z"], { cwd: "h"});
   });
 
   test("switch does not do locked and pinned", () => {
@@ -67,7 +69,7 @@ describe("core branch", () => {
         "h": { repoType: "hg", pinRevision: "DEADBEEF" },
       }, rootDirectory: "..", mainPathFromRoot: "main" };
     });
-    coreBranch.doSwitch("a");
+    coreBranch.doSwitch("never");
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
   });
 
