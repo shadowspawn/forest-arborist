@@ -5,7 +5,8 @@ import * as util from "../src/util";
 
 
 describe("core branch", () => {
-  let cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
+  // Spy heavy!
+  const cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
   const readManifestSpy = jest.spyOn(core, "readManifest");
   const execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
 
@@ -64,7 +65,7 @@ describe("core branch", () => {
     expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "b"], { cwd: "h"});
   });
 
-  test("switch does not do locked and pinned", () => {
+  test("switch does not do locked and pinned #mixed", () => {
     readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
       return { dependencies: {
         "g": { repoType: "git", lockBranch: "lockedBranch" },
@@ -75,7 +76,7 @@ describe("core branch", () => {
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
   });
 
-  test("make-branch does not do locked and pinned", () => {
+  test("make-branch does not do locked and pinned #mixed", () => {
     // Light check that gets called for each.
     readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
       return { dependencies: {
