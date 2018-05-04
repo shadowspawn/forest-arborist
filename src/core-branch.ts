@@ -3,7 +3,7 @@ import * as core from "./core";
 import * as util from "./util";
 
 export interface MakeBranchOptions {
-  publish?: string;
+  publish?: boolean;
 }
 
 
