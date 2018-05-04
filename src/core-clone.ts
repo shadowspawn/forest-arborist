@@ -73,7 +73,8 @@ export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, fre
   let revision;
   let gitConfig: string[] = [];
   let displayName = repoPath;
-  if (displayName === "" || displayName === ".") displayName = "(root)";
+  if (displayName === "" || displayName === ".")
+    displayName = "(root)";
   if (entry.pinRevision !== undefined) {
     console.log(`# ${displayName}: checkout pinned revision`);
     revision = entry.pinRevision;
