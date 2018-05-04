@@ -6,12 +6,16 @@ import * as util from "../src/util";
 
 describe("core branch", () => {
   // Spy heavy!
-  const cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
-  const readManifestSpy = jest.spyOn(core, "readManifest");
-  const getBranchSpy = jest.spyOn(repo, "getBranch");
-  const execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
+  let cdRootDirectorySpy: jest.SpyInstance;
+  let readManifestSpy: jest.SpyInstance;
+  let getBranchSpy: jest.SpyInstance;
+  let execCommandSyncSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
+    readManifestSpy = jest.spyOn(core, "readManifest");
+    getBranchSpy = jest.spyOn(repo, "getBranch");
+    execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
     cdRootDirectorySpy.mockImplementation(() => {
       // do nothing
     });

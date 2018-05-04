@@ -18,9 +18,10 @@ import * as coreSnapshot from "../src/core-snapshot";
 
 
 describe("clone cli", () => {
-  const cloneSpy = jest.spyOn(coreClone, "doClone");
+  let cloneSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    cloneSpy = jest.spyOn(coreClone, "doClone");
     cloneSpy.mockImplementation((source, destination, options) => {
       // do not call through
     });
@@ -78,9 +79,10 @@ describe("clone cli", () => {
 
 
 describe("init cli", () => {
-  const initSpy = jest.spyOn(coreInit, "doInit");
+  let initSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    initSpy = jest.spyOn(coreInit, "doInit");
     initSpy.mockImplementation((options) => {
       // do not call through
     });
@@ -134,9 +136,10 @@ describe("init cli", () => {
 
 
 describe("install cli", () => {
-  const installSpy = jest.spyOn(coreClone, "doInstall");
+  let installSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    installSpy = jest.spyOn(coreClone, "doInstall");
     installSpy.mockImplementation((options) => {
       // do not call through
     });
@@ -178,9 +181,10 @@ describe("install cli", () => {
 
 
 describe("for cli", () => {
-  const forEachSpy = jest.spyOn(coreForEach, "doForEach");
+  let forEachSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    forEachSpy = jest.spyOn(coreForEach, "doForEach");
     forEachSpy.mockImplementation((cmd: string, args: string[], options: coreForEach.ForOptions) => {
       // do not call through
     });
@@ -253,9 +257,10 @@ describe("for cli", () => {
 
 
 describe("switch cli", () => {
-  const switchSpy = jest.spyOn(coreBranch, "doSwitch");
+  let switchSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    switchSpy = jest.spyOn(coreBranch, "doSwitch");
     switchSpy.mockImplementation((branchName: string) => {
       // do not call through
     });
@@ -278,9 +283,10 @@ describe("switch cli", () => {
 
 
 describe("make-branch cli", () => {
-  const makeBranchSpy = jest.spyOn(coreBranch, "doMakeBranch");
+  let makeBranchSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    makeBranchSpy = jest.spyOn(coreBranch, "doMakeBranch");
     makeBranchSpy.mockImplementation((branch: string, startPoint?: string, optionsParam?: coreBranch.MakeBranchOptions) => {
       // do not call through
     });
@@ -327,9 +333,10 @@ describe("make-branch cli", () => {
 
 
 describe("snapshot cli", () => {
-  const snapshotSpy = jest.spyOn(coreSnapshot, "doSnapshot");
+  let snapshotSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    snapshotSpy = jest.spyOn(coreSnapshot, "doSnapshot");
     snapshotSpy.mockImplementation((options: coreSnapshot.SnapshotOptions) => {
       // do not call through
     });
@@ -371,9 +378,10 @@ describe("snapshot cli", () => {
 
 
 describe("recreate cli", () => {
-  const recreateSpy = jest.spyOn(coreSnapshot, "doRecreate");
+  let recreateSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    recreateSpy = jest.spyOn(coreSnapshot, "doRecreate");
     recreateSpy.mockImplementation((snapshotPath: string, destinationParam?: string) => {
       // do not call through
     });
@@ -403,9 +411,10 @@ describe("recreate cli", () => {
 
 
 describe("restore cli", () => {
-  const restoreSpy = jest.spyOn(coreSnapshot, "doRestore");
+  let restoreSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    restoreSpy = jest.spyOn(coreSnapshot, "doRestore");
     restoreSpy.mockImplementation((snapshotPath?: string) => {
       // do not call through
     });
@@ -435,9 +444,10 @@ describe("restore cli", () => {
 
 
 describe("manifest cli", () => {
-  const manifestSpy = jest.spyOn(coreManifest, "doManifest");
+  let manifestSpy: jest.SpyInstance;
 
   beforeAll(() => {
+    manifestSpy = jest.spyOn(coreManifest, "doManifest");
     manifestSpy.mockImplementation((options: coreManifest.ManifestOptions) => {
       // do not call through
     });
