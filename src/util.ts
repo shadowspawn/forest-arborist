@@ -6,7 +6,6 @@
 
 import chalk from "chalk";
 import * as childProcess from "child_process";
-import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
 import * as shellQuote from "shell-quote";

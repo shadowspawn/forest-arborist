@@ -4,9 +4,9 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as repo from "../src/repo";
 import * as util from "../src/util";
+import * as cc from "./core-common";
 
 
 describe("repo", () => {

@@ -5,11 +5,10 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
+import * as core from "../src/core";
+import * as util from "../src/util";
 // Mine
 import * as cc from "./core-common";
-import * as core from "../src/core";
-import * as dvcsUrl from "../src//dvcs-url";
-import * as util from "../src/util";
 
 
 describe("core", () => {

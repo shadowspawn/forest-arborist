@@ -3,9 +3,9 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
+import * as cc from "./core-common";
 // import * as coreClone from "../src/core-clone";
 
 

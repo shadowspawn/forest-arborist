@@ -90,7 +90,7 @@ describe("cloneEntry", () => {
 });
 
 
-describe.only("checkoutEntry", () => {
+describe("checkoutEntry", () => {
   let execCommandSyncSpy: jest.SpyInstance;
 
   beforeAll(() => {

@@ -1,11 +1,9 @@
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as command from "../src/command";
-// import * as coreFor from "../src/core-for";
 import * as repo from "../src/repo";
-import * as util from "../src/util";
+import * as cc from "./core-common";
 
 
 describe("core for", () => {

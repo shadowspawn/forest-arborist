@@ -2,12 +2,12 @@
 // tabtab does not have up to date typings.
 
 import * as childProcess from "child_process";
-import * as path from "path";
 import * as commander from "commander";
-const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
+import * as path from "path";
 // Mine
 import * as core from "./core";
 import * as repo from "./repo";
+const tabtab: TabTab = require("tabtab")({ name: "fab", cache: false });
 
 let gProgram: commander.Command; // Clunky way of getting access to current command (was originally using module as global).
 

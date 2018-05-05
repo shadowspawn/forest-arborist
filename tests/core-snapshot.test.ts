@@ -3,13 +3,12 @@ import * as fsX from "fs-extra";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
 import * as coreClone from "../src/core-clone";
-// import * as coreSnapshot from "../src/core-snapshot";
 import * as repo from "../src/repo";
 import * as util from "../src/util";
+import * as cc from "./core-common";
 
 
 interface RevisionMap {

@@ -4,12 +4,8 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
-// import * as coreInit from "../src/core-init";
-import * as dvcsUrl from "../src/dvcs-url";
-import * as repo from "../src/repo";
 import * as util from "../src/util";
 
 

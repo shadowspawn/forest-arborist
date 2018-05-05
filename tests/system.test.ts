@@ -1,13 +1,12 @@
 // System tests with shared setup of full playground.
 
-import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
 import * as command from "../src/command";
 import * as core from "../src/core";
-import * as sandpit from "./sandpit";
 import * as util from "../src/util";
+import * as sandpit from "./sandpit";
 
 
 describe("system (full functionality)", () => {

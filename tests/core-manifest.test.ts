@@ -5,12 +5,11 @@ import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
-import * as cc from "./core-common";
 import * as command from "../src/command";
 import * as core from "../src/core";
 import * as coreInit from "../src/core-init";
-// import * as coreManifest from "../src/core-manifest";
 import * as util from "../src/util";
+import * as cc from "./core-common";
 
 
 describe("core manifest", () => {

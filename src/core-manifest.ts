@@ -1,8 +1,8 @@
 // This file implements the "fab manifest" command options (not the base manifest operations).
 
 import * as childProcess from "child_process";
-import * as path from "path";
 import * as fsX from "fs-extra";
+import * as path from "path";
 import * as process from "process";
 // Mine
 import * as core from "./core";

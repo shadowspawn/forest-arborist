@@ -4,11 +4,8 @@
 // Naming used in this file: the repo/directory containing the manifest file is the main repo/.
 
 import * as commander from "commander";
-import * as fs from "fs";
 import * as path from "path";
 // Mine
-// Trickery to cope with different relative paths for typescipt and javascript
-const myPackage = require("dummy_for_node_modules/../../package.json");
 import * as completion from "./completion";
 import * as core from "./core";
 import * as coreBranch from "./core-branch";
@@ -18,8 +15,9 @@ import * as coreInit from "./core-init";
 import * as coreManifest from "./core-manifest";
 import * as corePull from "./core-pull";
 import * as coreSnapshot from "./core-snapshot";
-import * as repo from "./repo";
 import * as util from "./util";
+// Trickery to cope with different relative paths for typescipt and javascript
+const myPackage = require("dummy_for_node_modules/../../package.json");
 
 
 function doStatus() {

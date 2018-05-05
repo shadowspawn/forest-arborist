@@ -2,9 +2,9 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as repo from "../src/repo";
 // Mine
 import * as coreInit from "../src/core-init";
+import * as repo from "../src/repo";
 
 
 function makeRemotes(remotesPath: string) {
