@@ -67,7 +67,7 @@
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
     "jest": "^22.4.3",
-    "ts-jest": "^22.4.4",
+    "ts-jest": "^22.4.5",
     "tslint": "^5.10.0",
     "typescript": "^2.8.3"
   },
