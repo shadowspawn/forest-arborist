@@ -55,24 +55,24 @@ export function makeNestedGitForest() {
 
 
 // Sibling, direct construction of a sandpit.
-export function makeSiblingGitForest() {
-  const startingDir = process.cwd();
-  fs.mkdirSync("sibling");
-  process.chdir("sibling");
-  makeOneGitRepo("main", "git@ex.com:path/to/main.git");
-  makeOneGitRepo("free", "git@ex.com:path/to/free.git");
+// export function makeSiblingGitForest() {
+//   const startingDir = process.cwd();
+//   fs.mkdirSync("sibling");
+//   process.chdir("sibling");
+//   makeOneGitRepo("main", "git@ex.com:path/to/main.git");
+//   makeOneGitRepo("free", "git@ex.com:path/to/free.git");
 
-  makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
-  commitAndDetach("pinned");
+//   makeOneGitRepo("pinned", "git@ex.com:path/to/pinned.git");
+//   commitAndDetach("pinned");
 
-  // locked (because origin path different)
-  makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
+//   // locked (because origin path different)
+//   makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
 
-  // fab init
-  process.chdir("main");
-  coreInit.doInit({ root: ".." });
-  process.chdir(startingDir);
-}
+//   // fab init
+//   process.chdir("main");
+//   coreInit.doInit({ root: ".." });
+//   process.chdir(startingDir);
+// }
 
 
 export interface RepoSuiteResult {

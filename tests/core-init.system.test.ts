@@ -32,7 +32,6 @@ describe("core init", () => {
   test("empty git repo", () => {
     // Check we don"t fall over in empty repo
     childProcess.execFileSync("git", ["init"]);
-    expect(fs.existsSync(".git")).toBe(true);
 
     command.fab(["init"]);
     expect(fs.existsSync(core.fabRootFilename)).toBe(true);
@@ -43,7 +42,6 @@ describe("core init", () => {
   test("--manifest", () => {
     // Check manifest self consistent
     childProcess.execFileSync("git", ["init"]);
-    expect(fs.existsSync(".git")).toBe(true);
 
     const manifest = "custom";
     command.fab(["init", "--manifest", manifest]);
@@ -55,8 +53,13 @@ describe("core init", () => {
     expect(rootObject.manifest).toEqual(manifest);
   });
 
+  test("re-init should fail", () => {
+    childProcess.execFileSync("git", ["init"]);
 
-  // Uncovered:
-  // - hg
+    command.fab(["init"]);
+    expect(() => {
+      command.fab(["init"]);
+    }).toThrow(util.suppressTerminateExceptionMessage);
+  });
 
 });
