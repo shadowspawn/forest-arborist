@@ -46,7 +46,7 @@ describe("system (full functionality)", () => {
     }).toThrow(util.suppressTerminateExceptionMessage);
   });
 
-  test("playground init of nested", () => {
+  test("playground init of hg nested", () => {
     process.chdir(nestedRoot);
 
     const rootObject = core.readRootFile();
@@ -58,13 +58,12 @@ describe("system (full functionality)", () => {
     expect(manifestObject.mainPathFromRoot).toEqual(".");
 
     const dependencies = manifestObject.dependencies;
-    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "nested", "free") });
-    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "pinned"), pinRevision: pinnedRevision });
-    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "locked"), lockBranch: "lockedBranch" });
-
+    expect(dependencies["free"]).toEqual(       { repoType: "hg", origin: path.join(remotes, "hg", "free") });
+    // expect(dependencies["libs/pinned"]).toEqual({ repoType: "hg", origin: path.join(remotes, "hg", "libs", "pinned"), pinRevision: pinnedRevision });
+    expect(dependencies["libs/locked"]).toEqual({ repoType: "hg", origin: path.join(remotes, "hg", "libs", "locked"), lockBranch: "lockedBranch" });
   });
 
-  test("playground init of sibling", () => {
+  test("playground init of git sibling", () => {
     process.chdir(siblingRoot);
 
     const rootObject = core.readRootFile();
@@ -76,10 +75,9 @@ describe("system (full functionality)", () => {
     expect(manifestObject.mainPathFromRoot).toEqual("main");
 
     const dependencies = manifestObject.dependencies;
-    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "sibling", "free") });
-    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "pinned"), pinRevision: pinnedRevision });
-    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "libs", "locked"), lockBranch: "lockedBranch" });
-
+    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "git", "free") });
+    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "git", "libs", "pinned"), pinRevision: pinnedRevision });
+    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "git", "libs", "locked"), lockBranch: "lockedBranch" });
   });
 
 
