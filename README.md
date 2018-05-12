@@ -79,11 +79,17 @@ The various commands operate on an appropriate subset of the repos. For example
 the switch command only affects the free repositories, the pull command affects
 free and locked, and the status command runs on all the repos.
 
-There are two general purpose convenience routines to run commands across the forest. A `--` is used to mark the end of the fab options, and is optional if there are no additional options.
-e.g.
+## Running Commands Across Forest
+
+There are two general purpose commands to run arbitrary commands across the forest. A `--` is used to mark the end of the fab options, and is optional if there are no additional options.
 
     fab for-each -- git remote -v
     fab for-free -- git branch
+
+There are two commands to run specifically git or hg commands across the forest repositories of matching type.
+
+    fab git -- remote -v
+    fab hg -- summary
 
 ## Help
 

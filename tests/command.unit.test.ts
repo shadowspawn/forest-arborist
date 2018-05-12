@@ -256,6 +256,75 @@ describe("for cli", () => {
 });
 
 
+describe("git (for)", () => {
+  let forRepoTypeSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    forRepoTypeSpy = jest.spyOn(coreForEach, "doForRepoType");
+    forRepoTypeSpy.mockImplementation((args: string[], options) => {
+      // do not call through
+    });
+  });
+
+  afterAll(() => {
+    forRepoTypeSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    forRepoTypeSpy.mockReset();
+  });
+
+  // least
+  test("git command", () => {
+    command.fab(["git", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ }));
+    const options: coreForEach.ForOptions = forRepoTypeSpy.mock.calls[0][2];
+    expect(options.keepgoing).toBeUndefined();
+  });
+
+  test("git -k command", () => {
+    command.fab(["git", "-k", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ keepgoing: true }));
+  });
+
+  test("git --keepgoing command", () => {
+    command.fab(["git", "--keepgoing", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ keepgoing: true }));
+  });
+
+  // most
+  test("git --keepgoing command -a b c", () => {
+    command.fab(["git", "--keepgoing", "--", "command", "-a", "b", "c"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command", "-a", "b", "c"], expect.objectContaining({ keepgoing: true }));
+  });
+
+  // least
+  test("hg command", () => {
+    command.fab(["hg", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ }));
+    const options: coreForEach.ForOptions = forRepoTypeSpy.mock.calls[0][2];
+    expect(options.keepgoing).toBeUndefined();
+  });
+
+  test("hg -k command", () => {
+    command.fab(["hg", "-k", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ keepgoing: true }));
+  });
+
+  test("hg --keepgoing command", () => {
+    command.fab(["hg", "--keepgoing", "command"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ keepgoing: true }));
+  });
+
+  // most
+  test("hg --keepgoing command -a b c", () => {
+    command.fab(["hg", "--keepgoing", "--", "command", "-a", "b", "c"]);
+    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command", "-a", "b", "c"], expect.objectContaining({ keepgoing: true }));
+  });
+
+});
+
+
 describe("switch cli", () => {
   let switchSpy: jest.SpyInstance;
 

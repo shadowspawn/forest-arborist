@@ -78,7 +78,7 @@ export function makeProgram(): Command {
 
     Commands Summary
     Forest management: clone, init, install
-    Utility: status, pull, for-each, for-free
+    Utility: status, pull, for-each, for-free, git, hg
     Branch: make-branch, switch
     Reproducible state: snapshot, recreate, restore
     Display: root, main, manifest
@@ -230,7 +230,6 @@ export function makeProgram(): Command {
     .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
     .arguments("-- <command> [args...]")
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
-    // .allowUnknownOption() disabled as not convenient way to get unknown options yet
     .action((command, args, options) => {
       coreFor.doForEach(command, args, options);
     });
@@ -240,10 +239,27 @@ export function makeProgram(): Command {
     .description("run specified command on repos which are not locked or pinned")
     .arguments("-- <command> [args...]")
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
-    // .allowUnknownOption() disabled as not convenient way to get unknown options yet
     .action((command, args, options) => {
       options.freeOnly = true; // Sticking in our own option!
       coreFor.doForEach(command, args, options);
+    });
+
+  program
+    .command("git")
+    .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+    .description("run specified git command on each git repo in the forest, e.g. \"fab git -- remote -v\"")
+    .arguments("-- [args...]")
+    .action((args, options) => {
+      coreFor.doForRepoType("git", args, options);
+    });
+
+  program
+    .command("hg")
+    .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
+    .description("run specified hg command on each hg repo in the forest, e.g. \"fab hg -- outgoing\"")
+    .arguments("-- [args...]")
+    .action((args, options) => {
+      coreFor.doForRepoType("hg", args, options);
     });
 
   program
