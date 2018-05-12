@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
+- `fab git` to run git commands on git repos
+- `fab hg` to run hg commands on hg repos
+
 ### Changed
 
 - BREAKING: cloning a sibling forest from repo `main` without specifying destination now creates a root directory called `main-forest` (previously created root `main` containing main `main`, see the problem?).
