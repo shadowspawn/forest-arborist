@@ -72,6 +72,13 @@ export function makePlayground(playgroundDestination: string): string {
   process.chdir(siblingRoot);
   childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "main")]);
   childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "free")]);
+
+  // Slim manifest
+  process.chdir(path.join(siblingRoot, "main"));
+  coreInit.doInit({ root: "..", manifest: "slim" });
+
+  // Get libs
+  process.chdir(path.join(siblingRoot));
   childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
   childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);
 
@@ -101,6 +108,13 @@ export function makePlayground(playgroundDestination: string): string {
   process.chdir(nestedRoot);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "main"), "."]);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "free"), "free"]);
+
+  // Slim manifest
+  process.chdir(nestedRoot);
+  coreInit.doInit({ manifest: "slim" });
+
+  // Get libs
+  process.chdir(nestedRoot);
   fsX.ensureDirSync("libs");
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);

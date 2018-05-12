@@ -5,19 +5,15 @@
 ## Known Issues
 
 - hg specific issues (low priority at moment)
-    - "hg push" returns status 1 so breaks for-each
     - if "hg pull" gets nothing then no need to call "hg update"
     - not auto-detecting pinned revision (could do it by detecting not on tip)
-- path.resolve does not reliably fallback to cwd when running jest?
-    - Work-around: path.resolve(process.cwd(), ...)
 - tmp does not reliably cleanup when running jest?
     - Workaround: manual cleanup, set keep: true and call removeCallback explicitly
 
 ## Backlog Musing
 
 - checklist for release
-- separate unit (*.unit.test.ts) vs functional (*.func.test.ts) tests?
-- refactor to allow more unit testing? Start with init taking scanned repos and returning manifest?
+- refine testing strategies, focus on value not coverage
 
 ## Patterns
 
