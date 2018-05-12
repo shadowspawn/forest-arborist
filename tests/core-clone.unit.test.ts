@@ -1,3 +1,5 @@
+// Test the core-clone routines generate the expected shell commands.
+
 import * as fsX from "fs-extra";
 // Mine
 import * as coreClone from "../src/core-clone";
@@ -10,13 +12,9 @@ describe("cloneEntry", () => {
 
   beforeAll(() => {
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
+    execCommandSyncSpy.mockReturnValue(undefined);
     ensureDirSyncSpy = jest.spyOn(fsX, "ensureDirSync");
-    execCommandSyncSpy.mockImplementation(() => {
-      // do nothing
-    });
-    ensureDirSyncSpy.mockImplementation(() => {
-      // do nothing
-    });
+    ensureDirSyncSpy.mockReturnValue(undefined);
   });
 
   afterAll(() => {
@@ -95,9 +93,7 @@ describe("checkoutEntry", () => {
 
   beforeAll(() => {
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
-    execCommandSyncSpy.mockImplementation(() => {
-      // do nothing
-    });
+    execCommandSyncSpy.mockReturnValue(undefined);
   });
 
   afterAll(() => {

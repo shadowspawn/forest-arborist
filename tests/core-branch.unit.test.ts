@@ -1,3 +1,5 @@
+// Test the core-branch routines generate the expected shell commands.
+
 // Mine
 import * as core from "../src/core";
 import * as coreBranch from "../src/core-branch";

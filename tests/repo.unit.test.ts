@@ -8,9 +8,7 @@ import * as repo from "../src/repo";
 test("getRepoTypeForLocalPath", () => {
   const spy = jest.spyOn(fs, "existsSync");
 
-  spy.mockImplementation(() => {
-    return false;
-  });
+  spy.mockReturnValue(false);
   expect(() => {
     repo.getRepoTypeForLocalPath("notRepo");
   }).toThrowError();
