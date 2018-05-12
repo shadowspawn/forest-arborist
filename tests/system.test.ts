@@ -2,6 +2,7 @@
 
 import * as childProcess from "child_process";
 import * as fs from "fs";
+import * as fsX from "fs-extra";
 import * as path from "path";
 import * as tmp from "tmp";
 // Mine
@@ -268,9 +269,8 @@ describe("system (full functionality)", () => {
     });
 
     // Install gets indirectly tested by clone, but do some explicit tests.
-    // Use slim to reduce number of repos getting copies for simple test.
 
-    test("install --manifest slim #hg #nested", () => {
+    test("install --manifest slim #hg #nested #clean", () => {
       const branch = "develop";
       childProcess.execFileSync("hg", ["clone", "--branch", branch, path.join(remotes, "hg", "main"), "nested"]);
 
@@ -284,21 +284,27 @@ describe("system (full functionality)", () => {
       expect(fs.existsSync("libs")).toBe(false);
     });
 
-    test("install --manifest slim #git #sibling", () => {
-      const branch = "master";
-      fs.mkdirSync("sibling");
-      process.chdir("sibling");
-      childProcess.execFileSync("git", ["clone", path.join(remotes, "git", "main")]);
+    test("install #git #sibling #dirty", () => {
+      coreClone.doClone(path.join(remotes, "git", "main"), "sibling");
 
+      // Make changes to check install imposes changes. Missing repo, and change locked and pinned.
+      process.chdir("sibling");
+      fsX.removeSync("free");
+      childProcess.execFileSync("git", ["checkout", "master"], { cwd: path.join("libs", "locked")});
+      childProcess.execFileSync("git", ["checkout", "master"], { cwd: path.join("libs", "pinned")});
+
+      expect(fs.existsSync("free")).toBe(false);
+      expect(repo.getBranch(path.join("libs", "locked"))).not.toEqual("lockedBranch");
+      expect(repo.getRevision(path.join("libs", "pinned"))).not.toEqual(pinnedRevision);
+      //
       process.chdir("main");
-      coreClone.doInstall({ manifest: "slim" });
+      coreClone.doInstall({ });
       process.chdir("..");
-      // Check root
-      expect(fs.existsSync(core.fabRootFilename)).toBe(true);
-      // Check for slim repos, no libs
-      expect(repo.getBranch("main")).toEqual(branch);
-      expect(repo.getBranch("free")).toEqual(branch);
-      expect(fs.existsSync("libs")).toBe(false);
+      //
+      expect(fs.existsSync("free")).toBe(true);
+      expect(repo.getBranch("free")).toEqual("master");
+      expect(repo.getBranch(path.join("libs", "locked"))).toEqual("lockedBranch");
+      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(pinnedRevision);
     });
 
   });

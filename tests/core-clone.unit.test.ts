@@ -1,4 +1,5 @@
 // Test the core-clone routines generate the expected shell commands.
+// See also system tests.
 
 import * as fsX from "fs-extra";
 // Mine
