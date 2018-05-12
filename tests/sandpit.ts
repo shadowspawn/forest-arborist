@@ -101,7 +101,7 @@ export function makePlayground(playgroundDestination: string): string {
   process.chdir(nestedRoot);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "main"), "."]);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "free"), "free"]);
-  fsX.ensureDir("libs");
+  fsX.ensureDirSync("libs");
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);
 
