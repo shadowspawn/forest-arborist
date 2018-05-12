@@ -113,7 +113,7 @@ export interface RootFile {
 
 export function readRootFile(): RootFile {
   // Use absolute path so appears in any errors
-  const fabRootPath = path.resolve(process.cwd(), fabRootFilename);
+  const fabRootPath = path.resolve(fabRootFilename);
   const rootObject = util.readJson(fabRootPath, ["mainPath"]);
   // rootObject may also have manifest property.
 

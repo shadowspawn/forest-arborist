@@ -124,7 +124,7 @@ export function doRecreate(snapshotPath: string, destinationParam?: string) {
 
   // Install root file
   core.writeRootFile({
-    rootFilePath: path.resolve(process.cwd(), core.fabRootFilename),
+    rootFilePath: path.resolve(core.fabRootFilename),
     mainPath: snapshotObject.mainPathFromRoot,
     manifest: snapshotObject.manifest,
   });

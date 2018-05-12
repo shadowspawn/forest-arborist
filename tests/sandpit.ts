@@ -45,7 +45,7 @@ function makeRemotes(absoluteRemotesPath: string) {
     fsX.ensureDirSync(path.dirname(repoPath));
     childProcess.execFileSync("hg", ["init", repoPath]);
     const dummyFile = ".dummy";
-    fs.writeFileSync(path.join(repoPath, dummyFile), "x")
+    fs.writeFileSync(path.join(repoPath, dummyFile), "x");
     childProcess.execFileSync("hg", ["add", dummyFile], { cwd: repoPath });
     childProcess.execFileSync("hg", ["commit", "-m", "First commit"], { cwd: repoPath });
     childProcess.execFileSync("hg", ["update", "null"], { cwd: repoPath });
@@ -58,7 +58,7 @@ function makeRemotes(absoluteRemotesPath: string) {
 export function makePlayground(playgroundDestination: string): string {
   const startDir = process.cwd();
 
-  const playgroundDir = path.resolve(process.cwd(), playgroundDestination);
+  const playgroundDir = path.resolve(playgroundDestination);
   fsX.ensureDirSync(playgroundDestination);
 
   makeRemotes(path.join(playgroundDir, "remotes"));
@@ -119,7 +119,7 @@ export function makePlayground(playgroundDestination: string): string {
   process.chdir(path.join(nestedRoot));
   coreInit.doInit({ });
   childProcess.execFileSync("hg", ["add", ".fab"]);
-  fs.writeFileSync(".hgignore", core.fabRootFilename)
+  fs.writeFileSync(".hgignore", core.fabRootFilename);
   childProcess.execFileSync("hg", ["add", ".hgignore"]);
   childProcess.execFileSync("hg", ["commit", "-m", "fab initialised"]);
   childProcess.execFileSync("hg", ["push"]);

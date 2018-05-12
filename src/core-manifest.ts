@@ -28,7 +28,7 @@ export function doManifest(options: ManifestOptions) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const mainPath = path.resolve(process.cwd(), rootObject.mainPath);
+  const mainPath = path.resolve(rootObject.mainPath);
   const manifestPath = core.manifestPath({ mainPath, manifest: rootObject.manifest });
 
   if (options.edit) {
@@ -43,7 +43,7 @@ export function doManifest(options: ManifestOptions) {
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const relTargetPath = rootRelative(startDir, options.add);
-    const absTargetPath = path.resolve(process.cwd(), relTargetPath);
+    const absTargetPath = path.resolve(relTargetPath);
     if (mainPath === absTargetPath) {
       util.terminate("Main folder cannot be added as a dependency");
     }

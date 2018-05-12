@@ -220,7 +220,7 @@ export function makeProgram(): Command {
       assertNoExtraArgs(program.args);
       core.cdRootDirectory();
       const rootObject = core.readRootFile();
-      const mainPath = path.resolve(process.cwd(), rootObject.mainPath);
+      const mainPath = path.resolve(rootObject.mainPath);
       console.log(mainPath);
     });
 
