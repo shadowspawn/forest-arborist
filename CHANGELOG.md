@@ -16,7 +16,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- BREAKING: cloning a sibling forest from repo `main` without specifying destination now creates a root directory called `main-forest` (previously created root `main` containing main `main`, see the problem?).
+- BREAKING: cloning a sibling forest from repo "main" without specifying destination now creates a root directory called "main-forest" (previously created root "main" containing main "main").
+- no longer logging exceptions when use `--keepgoing` with `for-each` and `for-free`
+- refactored tests
 
 ### Removed
 
