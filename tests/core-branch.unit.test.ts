@@ -12,14 +12,10 @@ describe("core branch", () => {
 
   beforeAll(() => {
     cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
-    readManifestSpy = jest.spyOn(core, "readManifest");
+    cdRootDirectorySpy.mockReturnValue(undefined);
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
-    cdRootDirectorySpy.mockImplementation(() => {
-      // do nothing
-    });
-    execCommandSyncSpy.mockImplementation(() => {
-      // do nothing
-    });
+    execCommandSyncSpy.mockReturnValue(undefined);
+    readManifestSpy = jest.spyOn(core, "readManifest");
     // readManifestSpy custom per test
   });
 
@@ -38,29 +34,29 @@ describe("core branch", () => {
   // switch
 
   test("switch branch #git", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" };
-    });
+    readManifestSpy.mockReturnValue(
+      { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" }
+    );
     coreBranch.doSwitch("b");
     expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // just checking once
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "g"});
   });
 
   test("switch branch #hg", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "." };
-    });
+    readManifestSpy.mockReturnValue(
+      { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "." }
+    );
     coreBranch.doSwitch("b");
     expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "b"], { cwd: "h"});
   });
 
   test("switch branch #mixed", () => {
     // Light check that gets called for each.
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: {
+    readManifestSpy.mockReturnValue({
+      dependencies: {
         "g": { repoType: "git" },
         "h": { repoType: "hg" },
-      }, rootDirectory: "..", mainPathFromRoot: "main" };
+      }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doSwitch("b");
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
@@ -69,11 +65,11 @@ describe("core branch", () => {
   });
 
   test("switch does not do locked and pinned #mixed", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: {
+    readManifestSpy.mockReturnValue({
+      dependencies: {
         "g": { repoType: "git", lockBranch: "lockedBranch" },
         "h": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", mainPathFromRoot: "main" };
+      }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doSwitch("never");
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
@@ -81,11 +77,11 @@ describe("core branch", () => {
 
   test("make-branch does not do locked and pinned #mixed", () => {
     // Light check that gets called for each.
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: {
+    readManifestSpy.mockReturnValue({
+      dependencies: {
         "g": { repoType: "git", lockBranch: "lockedBranch" },
         "h": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", mainPathFromRoot: "main" };
+      }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("never");
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
@@ -94,8 +90,8 @@ describe("core branch", () => {
   // make-branch
 
   test("make-branch branch #git", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("b");
     expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // just checking once
@@ -103,24 +99,24 @@ describe("core branch", () => {
   });
 
   test("make-branch branch #hg", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "." };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "."
     });
     coreBranch.doMakeBranch("b");
     expect(execCommandSyncSpy.mock.calls).toEqual([["hg", ["branch", "b"], { cwd: "h"}]]);
   });
 
   test("make-branch branch start-point #git", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("b", "start-point");
     expect(execCommandSyncSpy.mock.calls).toEqual([["git", ["checkout", "-b", "b", "start-point"], { cwd: "g"}]]);
   });
 
   test("make-branch branch start-point #hg", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "." };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "."
     });
     coreBranch.doMakeBranch("b", "start-point");
     expect(execCommandSyncSpy.mock.calls).toEqual([
@@ -130,8 +126,8 @@ describe("core branch", () => {
   });
 
   test("make-branch branch --publish #git", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("b", undefined, { publish: true });
     expect(execCommandSyncSpy.mock.calls).toEqual([
@@ -141,8 +137,8 @@ describe("core branch", () => {
   });
 
   test("make-branch branch --publish #hg]", () => {
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "." };
+    readManifestSpy.mockReturnValue({
+      dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", mainPathFromRoot: "."
     });
     coreBranch.doMakeBranch("b", undefined, { publish: true });
     expect(execCommandSyncSpy.mock.calls).toEqual([
@@ -154,11 +150,11 @@ describe("core branch", () => {
 
   test("make-branch branch #mixed", () => {
     // Light check that gets called for each.
-    readManifestSpy.mockImplementation((options: core.ReadManifestOptions): core.Manifest => {
-      return { dependencies: {
+    readManifestSpy.mockReturnValue({
+      dependencies: {
         "g": { repoType: "git" },
         "h": { repoType: "hg" },
-      }, rootDirectory: "..", mainPathFromRoot: "main" };
+      }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("b");
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
