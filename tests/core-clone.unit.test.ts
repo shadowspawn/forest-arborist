@@ -13,7 +13,7 @@ describe("cloneEntry", () => {
   beforeAll(() => {
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
     execCommandSyncSpy.mockReturnValue(undefined);
-    ensureDirSyncSpy = jest.spyOn(fsX, "ensureDirSync");
+    ensureDirSyncSpy = jest.spyOn(fsX, "ensureDirSync"); // Implementation detail to make paths for hg like git does.
     ensureDirSyncSpy.mockReturnValue(undefined);
   });
 
