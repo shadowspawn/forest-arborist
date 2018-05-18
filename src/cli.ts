@@ -10,7 +10,7 @@ const program = command.makeProgram();
 try {
   program.parse(process.argv);
 } catch (err) {
-  if (program.opts().debug) {
+  if (program.debug) {
     console.log(`${err.stack}`);
   }
   // util.terminate(`caught exception with message ${err.message}`);
