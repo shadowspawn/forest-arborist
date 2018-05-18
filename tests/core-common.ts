@@ -165,35 +165,35 @@ export function makeGitRepoSuite() {
 }
 
 
-export interface ExpectSuiteRepoLayoutOptions {
-  rootDir: string;
-  mainDir: string;
-  freeBranch: string;
-  pinnedRevision: string;
-  manifest?: string;
-}
+// export interface ExpectSuiteRepoLayoutOptions {
+//   rootDir: string;
+//   mainDir: string;
+//   freeBranch: string;
+//   pinnedRevision: string;
+//   manifest?: string;
+// }
 
 
-export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
-  const startDir2 = process.cwd();
-  process.chdir(options.rootDir);
+// export function expectSuiteRepoLayout(options: ExpectSuiteRepoLayoutOptions) {
+//   const startDir2 = process.cwd();
+//   process.chdir(options.rootDir);
 
-  // Check root
-  expect(fs.existsSync(core.fabRootFilename)).toBe(true);
+//   // Check root
+//   expect(fs.existsSync(core.fabRootFilename)).toBe(true);
 
-  // Check main
-  expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
-  expect(fs.existsSync(
-    core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);
+//   // Check main
+//   expect(repo.getBranch(options.mainDir)).toEqual(options.freeBranch);
+//   expect(fs.existsSync(
+//     core.manifestPath({ manifest: options.manifest, mainPath: options.mainDir }))).toBe(true);
 
-  // check dependencies
-  suiteDependencies.forEach((repoPath) => {
-    expect(fs.existsSync(repoPath)).toBe(true);
-  });
-  expect(repo.getBranch("free")).toEqual(options.freeBranch);
-  expect(repo.getBranch(path.join("Libs", "locked"))).toEqual("master");
-  expect(repo.getBranch(path.join("Libs", "pinned"))).toBeUndefined();
-  expect(repo.getRevision(path.join("Libs", "pinned"))).toEqual(options.pinnedRevision);
+//   // check dependencies
+//   suiteDependencies.forEach((repoPath) => {
+//     expect(fs.existsSync(repoPath)).toBe(true);
+//   });
+//   expect(repo.getBranch("free")).toEqual(options.freeBranch);
+//   expect(repo.getBranch(path.join("Libs", "locked"))).toEqual("master");
+//   expect(repo.getBranch(path.join("Libs", "pinned"))).toBeUndefined();
+//   expect(repo.getRevision(path.join("Libs", "pinned"))).toEqual(options.pinnedRevision);
 
-  process.chdir(startDir2);
-}
+//   process.chdir(startDir2);
+// }
