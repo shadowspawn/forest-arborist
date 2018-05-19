@@ -8,9 +8,6 @@ import * as coreInit from "../src/core-init";
 import * as repo from "../src/repo";
 
 
-const suiteDependencies: string[] = ["free", path.join("Libs", "pinned"), path.join("Libs", "locked")];
-
-
 export function commitAndDetach(repoPath: string) {
   const startingDir = process.cwd();
   process.chdir(repoPath);
