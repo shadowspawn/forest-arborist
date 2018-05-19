@@ -32,10 +32,10 @@ describe("core branch", () => {
   });
 
   beforeEach(() => {
-    cdRootDirectorySpy.mockReset();
+    cdRootDirectorySpy.mockClear();
     readManifestSpy.mockReset();
     getBranchSpy.mockReset();
-    execCommandSyncSpy.mockReset();
+    execCommandSyncSpy.mockClear();
   });
 
   test("pull #git", () => {

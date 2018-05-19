@@ -30,8 +30,8 @@ describe("clone cli", () => {
     cloneSpy.mockRestore();
   });
 
-  afterEach(() => {
-    cloneSpy.mockReset();
+  beforeEach(() => {
+    cloneSpy.mockClear();
   });
 
   // simplest
@@ -89,8 +89,8 @@ describe("init cli", () => {
     initSpy.mockRestore();
   });
 
-  afterEach(() => {
-    initSpy.mockReset();
+  beforeEach(() => {
+    initSpy.mockClear();
   });
 
   // simplest
@@ -144,8 +144,8 @@ describe("install cli", () => {
     installSpy.mockRestore();
   });
 
-  afterEach(() => {
-    installSpy.mockReset();
+  beforeEach(() => {
+    installSpy.mockClear();
   });
 
   // simplest
@@ -187,8 +187,8 @@ describe("for-each cli", () => {
     forEachSpy.mockRestore();
   });
 
-  afterEach(() => {
-    forEachSpy.mockReset();
+  beforeEach(() => {
+    forEachSpy.mockClear();
   });
 
   // simplest
@@ -236,8 +236,8 @@ describe("for-free cli", () => {
     forFreeSpy.mockRestore();
   });
 
-  afterEach(() => {
-    forFreeSpy.mockReset();
+  beforeEach(() => {
+    forFreeSpy.mockClear();
   });
 
   // simplest
@@ -279,8 +279,8 @@ describe("git (for)", () => {
     forGitSpy.mockRestore();
   });
 
-  afterEach(() => {
-    forGitSpy.mockReset();
+  beforeEach(() => {
+    forGitSpy.mockClear();
   });
 
   // simplest
@@ -322,8 +322,8 @@ describe("hg (for)", () => {
     forHgSpy.mockRestore();
   });
 
-  afterEach(() => {
-    forHgSpy.mockReset();
+  beforeEach(() => {
+    forHgSpy.mockClear();
   });
 
   // simplest
@@ -365,8 +365,8 @@ describe("switch cli", () => {
     switchSpy.mockRestore();
   });
 
-  afterEach(() => {
-    switchSpy.mockReset();
+  beforeEach(() => {
+    switchSpy.mockClear();
   });
 
   // simplest
@@ -390,8 +390,8 @@ describe("make-branch cli", () => {
     makeBranchSpy.mockRestore();
   });
 
-  afterEach(() => {
-    makeBranchSpy.mockReset();
+  beforeEach(() => {
+    makeBranchSpy.mockClear();
   });
 
   // simplest
@@ -438,8 +438,8 @@ describe("snapshot cli", () => {
     snapshotSpy.mockRestore();
   });
 
-  afterEach(() => {
-    snapshotSpy.mockReset();
+  beforeEach(() => {
+    snapshotSpy.mockClear();
   });
 
   // simplest
@@ -481,8 +481,8 @@ describe("recreate cli", () => {
     recreateSpy.mockRestore();
   });
 
-  afterEach(() => {
-    recreateSpy.mockReset();
+  beforeEach(() => {
+    recreateSpy.mockClear();
   });
 
   // simplest
@@ -511,8 +511,8 @@ describe("restore cli", () => {
     restoreSpy.mockRestore();
   });
 
-  afterEach(() => {
-    restoreSpy.mockReset();
+  beforeEach(() => {
+    restoreSpy.mockClear();
   });
 
   // simplest
@@ -541,8 +541,8 @@ describe("manifest cli", () => {
     manifestSpy.mockRestore();
   });
 
-  afterEach(() => {
-    manifestSpy.mockReset();
+  beforeEach(() => {
+    manifestSpy.mockClear();
   });
 
   // simplest

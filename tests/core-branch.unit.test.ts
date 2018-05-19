@@ -28,9 +28,9 @@ describe("core branch", () => {
   });
 
   beforeEach(() => {
-    cdRootDirectorySpy.mockReset();
+    cdRootDirectorySpy.mockClear();
     readManifestSpy.mockReset();
-    execCommandSyncSpy.mockReset();
+    execCommandSyncSpy.mockClear();
   });
 
   // switch

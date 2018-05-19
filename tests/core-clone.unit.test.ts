@@ -24,8 +24,8 @@ describe("cloneEntry", () => {
   });
 
   beforeEach(() => {
-    ensureDirSyncSpy.mockReset();
-    execCommandSyncSpy.mockReset();
+    ensureDirSyncSpy.mockClear();
+    execCommandSyncSpy.mockClear();
   });
 
   test("cloneEntry free skipped #git", () => {
@@ -102,7 +102,7 @@ describe("checkoutEntry", () => {
   });
 
   beforeEach(() => {
-    execCommandSyncSpy.mockReset();
+    execCommandSyncSpy.mockClear();
   });
 
   test("checkoutEntry free #git", () => {
