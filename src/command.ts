@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 // Node location may vary between Mac and Lin, so env for portability.
 
-// Naming used in this file: the repo/directory containing the manifest file is the main repo/.
-
 import * as commander from "commander";
 import * as path from "path";
 // Mine
