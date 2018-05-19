@@ -10,6 +10,7 @@ import * as command from "../src/command";
 import * as core from "../src/core";
 import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
+import * as coreSnapshot from "../src/core-snapshot";
 import * as repo from "../src/repo";
 import * as util from "../src/util";
 import * as sandpit from "./sandpit";
@@ -87,7 +88,7 @@ describe("system (full functionality)", () => {
   });
 
 
-  describe ("test display commands", () => {
+  describe("test display commands", () => {
     let spy: jest.SpyInstance;
 
     beforeAll(() => {
@@ -305,6 +306,78 @@ describe("system (full functionality)", () => {
       expect(repo.getBranch("free")).toEqual("master");
       expect(repo.getBranch(path.join("libs", "locked"))).toEqual("lockedBranch");
       expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(pinnedRevision);
+    });
+
+  });
+
+  describe("snapshots", () => {
+    let snapshotsSandpit: string;
+    let snapshotPath: string;
+    interface RevisionMap {
+      [index: string]: string;
+    }
+    const snapshotRevisions: RevisionMap = {};
+
+    beforeAll(() => {
+      snapshotsSandpit = path.join(tempFolder.name, "snapshots");
+      fs.mkdirSync(snapshotsSandpit);
+      snapshotPath = path.resolve(tempFolder.name, "ss");
+    });
+
+    beforeEach(() => {
+      process.chdir(snapshotsSandpit);
+    });
+
+    test("snapshot --output ss", () => {
+      coreClone.doClone(path.join(remotes, "git", "main"), path.join(snapshotsSandpit, "sibling"), { });
+      process.chdir("sibling");
+
+      // Remember state
+      const repoPaths = [
+        "main",
+        "free",
+        path.join("libs", "locked"),
+        path.join("libs", "pinned"),
+      ];
+      repoPaths.forEach((repoPath) => {
+        snapshotRevisions[repoPath] = repo.getExistingRevision(repoPath);
+      });
+
+      coreSnapshot.doSnapshot({ output: snapshotPath });
+      // Not testing contents, just setting up for following tests.
+      expect(fs.existsSync(snapshotPath)).toBe(true);
+    });
+
+    test("restore ss", () => {
+      process.chdir("sibling");
+      Object.keys(snapshotRevisions).forEach((repoPath) => {
+        childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
+      });
+
+      coreSnapshot.doRestore(snapshotPath);
+      Object.keys(snapshotRevisions).forEach((repoPath) => {
+        expect(repo.getRevision(repoPath)).toEqual(snapshotRevisions[repoPath]);
+      });
+    });
+
+    test("restore", () => {
+      process.chdir("sibling");
+      coreSnapshot.doRestore();
+
+      // Restoring to an unpinned state, expect for pinned which will be restore to pinned.
+      expect(repo.getRevision("main")).not.toEqual(snapshotRevisions["main"]);
+      expect(repo.getRevision("free")).not.toEqual(snapshotRevisions["free"]);
+      expect(repo.getRevision(path.join("libs", "locked"))).not.toEqual(snapshotRevisions[path.join("libs", "locked")]);
+      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(snapshotRevisions[path.join("libs", "pinned")]);
+    });
+
+    test("recreate ss", () => {
+      // Bit weak since same as clone, but KISS.
+      coreSnapshot.doRecreate(snapshotPath, "recreated");
+      process.chdir("recreated");
+      Object.keys(snapshotRevisions).forEach((repoPath) => {
+        expect(repo.getRevision(repoPath)).toEqual(snapshotRevisions[repoPath]);
+      });
     });
 
   });
