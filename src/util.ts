@@ -114,7 +114,7 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
   // Trying hard to get a possibly copy-and-paste command.
   let quotedArgs = "";
   if (args !== undefined) {
-    shellQuote.quote(args);
+    quotedArgs = shellQuote.quote(args);
     quotedArgs = quotedArgs.replace(/\n/g, "\\n");
     }
   console.log(commandColour(`${cwdDisplay}${cmd} ${quotedArgs}`));
