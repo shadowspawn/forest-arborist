@@ -89,7 +89,7 @@ describe("repo", () => {
     }).toThrowError(util.suppressTerminateExceptionMessage);
 
     expect(repo.getRevision("detached", "git")).not.toBeUndefined();
-    // empty repo causes a noisy throw that not currently interested in testing!
+    expect(repo.getRevision("emptyGitRepo", "git")).toBeUndefined();
 
     expect(repo.getRevision("emptyHgRepo", "hg")).toBe("0000000000000000000000000000000000000000");
   });

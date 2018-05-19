@@ -1,3 +1,7 @@
+// Ideally git commands in this file should be plumbing rather than porcelain.
+// Reference list: https://git.github.io/htmldocs/git.html
+// (Some porcelain have --porcelain flag to make more usable for other porcelain, i.e. as plumbing!)
+
 import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as path from "path";
@@ -102,18 +106,31 @@ export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
 
 
 export function getRevision(repoPath: string, repoTypeParam?: RepoType) {
-  let revision = "";
+  let revision: string | undefined = "";
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
   if (repoType === "git") {
+    try {
       // This will throw noisily in an empty repo, but does work for a detached head.
       revision = childProcess.execFileSync(
-        "git", ["rev-parse", "HEAD"], { cwd: repoPath }
+        "git", ["rev-list", "--max-count=1", "HEAD"], { cwd: repoPath }
       ).toString().trim();
+    } catch (err) {
+      revision = undefined;
+    }
   } else if (repoType === "hg") {
     revision = childProcess.execFileSync(
       "hg", ["log", "--rev", ".", "--template", "{node}"], { cwd: repoPath }
     ).toString().trim();
+  }
+  return revision;
+}
+
+
+export function getExistingRevision(repoPath: string, repoTypeParam?: RepoType): string {
+  const revision = getRevision(repoPath, repoTypeParam);
+  if (revision === undefined) {
+    return util.terminate(`failed to find revision for ${repoPath}`);
   }
   return revision;
 }

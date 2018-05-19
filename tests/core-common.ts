@@ -15,7 +15,7 @@ export function commitAndDetach(repoPath: string) {
   const startingDir = process.cwd();
   process.chdir(repoPath);
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
-  const revision = repo.getRevision(".");
+  const revision = repo.getExistingRevision(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", revision]);
   process.chdir(startingDir);
@@ -136,7 +136,7 @@ export function makeGitRepoSuite() {
 
   // Create the extra revision in pinned and rollback
   process.chdir(path.join("Libs", "pinned"));
-  const pinnedRevision = repo.getRevision(".");
+  const pinnedRevision = repo.getExistingRevision(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Second empty but real commit"]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);

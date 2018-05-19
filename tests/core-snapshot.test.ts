@@ -56,7 +56,7 @@ describe("core snapshot", () => {
     // Note before revisions, and commit and push new revision so different from before.
     const beforeRevisions: RevisionMap = {};
     Object.keys(forestRepos).forEach((repoPath) => {
-      beforeRevisions[repoPath] = repo.getRevision(repoPath);
+      beforeRevisions[repoPath] = repo.getExistingRevision(repoPath);
       // Unpin
       childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: repoPath });
       // New revision

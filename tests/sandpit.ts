@@ -84,7 +84,7 @@ export function makePlayground(playgroundDestination: string): string {
 
   // Setup pinned
   process.chdir(path.join(siblingRoot, "libs", "pinned"));
-  const pinnedRevision = repo.getRevision(".");
+  const pinnedRevision = repo.getExistingRevision(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Another empty but real commit"]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
