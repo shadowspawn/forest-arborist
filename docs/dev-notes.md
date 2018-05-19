@@ -4,16 +4,14 @@
 
 ## Known Issues
 
-- hg specific issues (low priority at moment)
-    - if "hg pull" gets nothing then no need to call "hg update"
-    - not auto-detecting pinned revision (could do it by detecting not on tip)
 - tmp does not reliably cleanup when running jest?
     - Workaround: manual cleanup, set keep: true and call removeCallback explicitly
+- `fab manifest` would be nicer with subcommands rather than options
 
 ## Backlog Musing
 
+- detect hg pinned revision
 - checklist for release
-- refine testing strategies, focus on value not coverage
 
 ## Patterns
 

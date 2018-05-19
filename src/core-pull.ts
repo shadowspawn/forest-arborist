@@ -6,25 +6,15 @@ import * as util from "./util";
 
 
 function hgAutoMerge(repoPath: string) {
-  // Battle tested code from hgh tool
+  // Note: assuming always want merge, which implies developers avoid floating heads.
+  // Rework if anyone reports using other workflows.
   const headCount = childProcess.execFileSync(
     "hg", ["heads", ".", "--repository", repoPath, "--template", "x"]
   ).length;
   if (headCount === 0) {
     // Brand new repo, nothing to do
   } else if (headCount === 1) {
-    // We just did a pull, so looking for an update.
-    const tipNode = childProcess.execFileSync(
-      "hg", ["tip", "--repository", repoPath, "--template", "{node}"]
-    );
-    const parentNode = childProcess.execFileSync(
-      "hg", ["parents", "--repository", repoPath, "--template", "{node}"]
-    );
-    if (tipNode !== parentNode) {
-      util.execCommandSync(
-        "hg", ["update"], { cwd: repoPath }
-      );
-    }
+    // If there was an update, it has already been done.
   } else {
     try {
       util.execCommandSync(
@@ -56,7 +46,7 @@ export function doPull() {
     const entry = forestRepos[repoPath];
     if (entry.pinRevision !== undefined) {
       console.log(`Skipping pinned repo: ${repoPath}\n`);
-    } else if (repo.getBranch(repoPath, entry.repoType) === undefined) {
+    } else if (entry.repoType === "git" && repo.getBranch(repoPath, entry.repoType) === undefined) {
       console.log(`Skipping repo with detached HEAD: ${repoPath}\n`);
     } else {
       const repoType = entry.repoType;
@@ -66,7 +56,7 @@ export function doPull() {
         );
       } else if (repoType === "hg") {
         util.execCommandSync(
-          "hg", ["pull"], { cwd: repoPath }
+          "hg", ["pull", "--update"], { cwd: repoPath }
         );
         hgAutoMerge(repoPath);
       }
