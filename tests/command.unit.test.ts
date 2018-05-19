@@ -175,7 +175,7 @@ describe("install cli", () => {
 });
 
 
-describe("for cli", () => {
+describe("for-each cli", () => {
   let forEachSpy: jest.SpyInstance;
 
   beforeAll(() => {
@@ -196,7 +196,6 @@ describe("for cli", () => {
     command.fab(["for-each", "command"]);
     expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ }));
     const options: coreForEach.ForOptions = forEachSpy.mock.calls[0][2];
-    expect(options.freeOnly).toBeUndefined();
     expect(options.keepgoing).toBeUndefined();
   });
 
@@ -222,95 +221,133 @@ describe("for cli", () => {
     expect(forEachSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
+});
+
+
+describe("for-free cli", () => {
+  let forFreeSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    forFreeSpy = jest.spyOn(coreForEach, "doForFree");
+    forFreeSpy.mockReturnValue(undefined);
+  });
+
+  afterAll(() => {
+    forFreeSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    forFreeSpy.mockReset();
+  });
+
   // simplest
   test("for-free command", () => {
     command.fab(["for-free", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ freeOnly: true }));
-    const options: coreForEach.ForOptions = forEachSpy.mock.calls[0][2];
+    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ }));
+    const options: coreForEach.ForOptions = forFreeSpy.mock.calls[0][2];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("for-free -k command", () => {
     command.fab(["for-free", "-k", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ freeOnly: true, keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
   });
 
   test("for-free --keepgoing command", () => {
     command.fab(["for-free", "--keepgoing", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ freeOnly: true, keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
   });
 
   // dash-dash, because we document that calling pattern
   test("for-free --keepgoing -- command --option argument", () => {
     command.fab(["for-free", "--keepgoing", "--", "command", "--option", "argument"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ freeOnly: true, keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
 });
 
 
 describe("git (for)", () => {
-  let forRepoTypeSpy: jest.SpyInstance;
+  let forGitSpy: jest.SpyInstance;
 
   beforeAll(() => {
-    forRepoTypeSpy = jest.spyOn(coreForEach, "doForRepoType");
-    forRepoTypeSpy.mockReturnValue(undefined);
+    forGitSpy = jest.spyOn(coreForEach, "doForGit");
+    forGitSpy.mockReturnValue(undefined);
   });
 
   afterAll(() => {
-    forRepoTypeSpy.mockRestore();
+    forGitSpy.mockRestore();
   });
 
   afterEach(() => {
-    forRepoTypeSpy.mockReset();
+    forGitSpy.mockReset();
   });
 
   // simplest
   test("git command", () => {
     command.fab(["git", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ }));
-    const options: coreForEach.ForOptions = forRepoTypeSpy.mock.calls[0][2];
+    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ }));
+    const options: coreForEach.ForOptions = forGitSpy.mock.calls[0][1];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("git -k command", () => {
     command.fab(["git", "-k", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
   test("git --keepgoing command", () => {
     command.fab(["git", "--keepgoing", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
   // dash-dash, because we document that calling pattern
   test("git --keepgoing --- command --option argument", () => {
     command.fab(["git", "--keepgoing", "--", "command", "--option", "argument"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("git", ["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
+  });
+
+});
+
+
+describe("hg (for)", () => {
+  let forHgSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    forHgSpy = jest.spyOn(coreForEach, "doForHg");
+    forHgSpy.mockReturnValue(undefined);
+  });
+
+  afterAll(() => {
+    forHgSpy.mockRestore();
+  });
+
+  afterEach(() => {
+    forHgSpy.mockReset();
   });
 
   // simplest
   test("hg command", () => {
     command.fab(["hg", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ }));
-    const options: coreForEach.ForOptions = forRepoTypeSpy.mock.calls[0][2];
+    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ }));
+    const options: coreForEach.ForOptions = forHgSpy.mock.calls[0][1];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("hg -k command", () => {
     command.fab(["hg", "-k", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
   test("hg --keepgoing command", () => {
     command.fab(["hg", "--keepgoing", "command"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
   // dash-dash, because we document that calling pattern
   test("hg --keepgoing --- command --option argument", () => {
     command.fab(["hg", "--keepgoing", "--", "command", "--option", "argument"]);
-    expect(forRepoTypeSpy).toHaveBeenCalledWith("hg", ["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
 });
