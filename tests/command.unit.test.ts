@@ -15,6 +15,7 @@ import * as coreClone from "../src/core-clone";
 import * as coreForEach from "../src/core-for";
 import * as coreInit from "../src/core-init";
 import * as coreManifest from "../src/core-manifest";
+import * as corePull from "../src/core-pull";
 import * as coreSnapshot from "../src/core-snapshot";
 
 
@@ -612,6 +613,47 @@ describe("manifest cli", () => {
   test("manifest unexpected-param", () => {
     expect(() => {
       command.fab(["manifest", "unexpected-param"]);
+    }).toThrow();
+  });
+
+});
+
+
+describe("pull cli", () => {
+  let pullSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    pullSpy = jest.spyOn(corePull, "doPull");
+    pullSpy.mockReturnValue(undefined);
+  });
+
+  afterAll(() => {
+    pullSpy.mockRestore();
+  });
+
+  beforeEach(() => {
+    pullSpy.mockClear();
+  });
+
+  test("pull", () => {
+    command.fab(["pull"]);
+    expect(pullSpy).toHaveBeenCalledWith();
+  });
+
+  test("pull unexpected-param", () => {
+    expect(() => {
+      command.fab(["pull", "unexpected-param"]);
+    }).toThrow();
+  });
+
+});
+
+
+describe("unknown-command cli", () => {
+
+  test("unknown-command", () => {
+    expect(() => {
+      command.fab(["unknown-command"]);
     }).toThrow();
   });
 
