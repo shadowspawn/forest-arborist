@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - BREAKING: cloning a sibling forest from repo "main" without specifying destination now creates a root directory called "main-forest" (previously created root "main" containing main "main").
 - no longer logging exceptions when use `--keepgoing` with `for-each` and `for-free`
 - refactored tests
+- reduced number of commands run for hg repos by `fab pull` (in particular, unnecessary update command)
 
 ### Removed
 
