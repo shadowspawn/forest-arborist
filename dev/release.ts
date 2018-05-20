@@ -67,7 +67,7 @@ async function main() {
 
   console.log("\nnpm version");
   console.log("Version can be explicit like 1.0, or bump using major | minor | path");
-  console.log("(leave blank to skip version change)";
+  console.log("(leave blank to skip version change)");
   const newVersion = await readLineAsync("Version for release: ");
   if (newVersion.length > 0) {
     execCommandSync("npm", ["version", newVersion]);
