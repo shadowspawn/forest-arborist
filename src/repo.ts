@@ -6,6 +6,7 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 // Mine
+import * as dvcsUrl from "./dvcs-url";
 import * as util from "./util";
 
 export type RepoType = "git" | "hg";
@@ -34,6 +35,11 @@ export function getRepoTypeForParams(repoPath: string, repoType?: RepoType): Rep
 
 export function isGitRepository(repository: string) {
   try {
+    // ls-remote not always working for relative repo
+    const parsed = dvcsUrl.parse(repository);
+    if (parsed.protocol == "path-posix") {
+      repository = path.resolve(repository);
+    }
     // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
       "git", ["ls-remote", repository],

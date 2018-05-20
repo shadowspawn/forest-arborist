@@ -118,7 +118,7 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
 }
 
 
-// like basename
+// like path.basename
 export function repoName(urlObject: DvcsUrl): string {
   if (urlObject.protocol === "path-win32") {
     return path.win32.basename(urlObject.pathname, ".git");
@@ -128,7 +128,7 @@ export function repoName(urlObject: DvcsUrl): string {
 }
 
 
-// like basename
+// like path.relative
 export function relative(object1: DvcsUrl, object2: DvcsUrl): string {
   // We assume that client already determined this is a reasonable question!
   if (object1.protocol === "path-win32") {
@@ -140,6 +140,7 @@ export function relative(object1: DvcsUrl, object2: DvcsUrl): string {
 }
 
 
+// like path.resolve
 export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   // Do the fake protocols first
   if (urlObject.protocol === "path-posix") {
