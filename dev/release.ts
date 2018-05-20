@@ -66,7 +66,7 @@ async function main() {
   // npm-publish-dry-run goes here...
 
   console.log("\nnpm version");
-  console.log("Version can be explicit like 1.0, or bump using major | minor | path");
+  console.log("Bump version using major | minor | patch, or specify explicitly like 1.0");
   console.log("(leave blank to skip version change)");
   const newVersion = await readLineAsync("Version for release: ");
   if (newVersion.length > 0) {
