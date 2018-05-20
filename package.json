@@ -19,7 +19,7 @@
     "lint": "tslint --project .",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
-    "np": "node dist/dev/np",
+    "release": "node dist/dev/release",
     "test": "jest --silent --verbose"
   },
   "author": "John Gee",
