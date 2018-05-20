@@ -93,9 +93,9 @@ async function main() {
 
 main().then(() => {
   rl.close();
-  console.log("Done!");
 }).catch((reason) => {
   rl.close();
-  console.log("Failed!");
+  console.log(util.errorColour("Something went wrong, going back to develop branch."));
+  execCommandSync("git", ["checkout", "develop"]);
+  console.log(util.errorColour("Something went wrong, back on develop branch."));
 });
-
