@@ -1,16 +1,17 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "es6",
-        "noImplicitAny": true,
-        "sourceMap": true,
-        "declaration": false,
-        "outDir": "./dist",
-        "strict": true
-    },
-    "include": [
-        "./src/*",
-        "./tests/*"
-    ],
-    "compileOnSave": true
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "noImplicitAny": true,
+    "sourceMap": true,
+    "declaration": false,
+    "outDir": "./dist",
+    "strict": true
+  },
+  "include": [
+    "./dev/*",
+    "./src/*",
+    "./tests/*"
+  ],
+  "compileOnSave": true
 }

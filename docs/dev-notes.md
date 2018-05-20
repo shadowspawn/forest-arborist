@@ -11,7 +11,9 @@
 ## Backlog Musing
 
 - detect hg pinned revision
-- checklist for release
+- checklist for release. Automate
+
+- publish-dry-run test. Use playground. Just testing clone would be good start. Easy to extend to other commands.
 
 ## Patterns
 

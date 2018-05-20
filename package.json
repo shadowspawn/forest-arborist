@@ -15,16 +15,12 @@
     "url": "https://github.com/JohnRGee/forest-arborist.git"
   },
   "scripts": {
-    "copy-down": "git checkout develop && git merge master && tsc && npm --no-git-tag-version version prepatch",
-    "copy-up": "git checkout master && git merge develop && tsc && echo \"Now bump version appropriately, e.g. run npm version patch && git commit && git push && npm publish\"",
     "create-playground": "node dist/tests/create-playground",
+    "lint": "tslint --project .",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
-    "test": "jest --silent --verbose",
-    "test:unit": "jest --silent --verbose unit",
-    "test:integration": "jest --silent --verbose .int",
-    "test:system": "jest --silent --verbose system",
-    "lint": "tslint --project ."
+    "np": "node dist/dev/np",
+    "test": "jest --silent --verbose"
   },
   "author": "John Gee",
   "license": "MIT",
