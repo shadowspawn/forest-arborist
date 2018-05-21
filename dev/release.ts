@@ -78,7 +78,7 @@ async function main() {
   console.log("\nnpm publish");
   const otp = await readLineAsync("One Time Password for publish: ");
   if (otp.length > 0) {
-    execCommandSync("npm", ["publish", "--opt", otp]);
+    execCommandSync("npm", ["publish", ".", "--otp", otp]);
     execCommandSync("git", ["push", "--follow-tags"]);
   } else {
     console.log("Skipping publish");
