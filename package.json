@@ -15,7 +15,7 @@
     "url": "https://github.com/JohnRGee/forest-arborist.git"
   },
   "scripts": {
-    "create-playground": "node dist/tests/create-playground",
+    "create-playground": "node dist/dev/create-playground",
     "lint": "tslint --project .",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
