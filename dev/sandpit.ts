@@ -24,11 +24,12 @@ function makeRemotes(absoluteRemotesPath: string) {
   ];
   gitRemoteRepos.forEach((repoPath) => {
     // For ease of use, want a bare repo, but not an empty one!
-    const workRepo = repoPath.concat("-work"); // Could delete after cloning...
+    const workRepo = repoPath.concat("-work");
     const bareRepo = repoPath.concat(".git");
     childProcess.execFileSync("git", ["init", workRepo]);
     childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: workRepo });
     childProcess.execFileSync("git", ["clone", "--bare", "--quiet", workRepo, bareRepo]);
+    fsX.removeSync(workRepo);
   });
 
   const hgRemotesDir = path.join(absoluteRemotesPath, "hg");

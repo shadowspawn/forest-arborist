@@ -13,10 +13,13 @@ export type RepoType = "git" | "hg";
 
 
 export function getRepoTypeForLocalPath(repoPath: string): RepoType {
+  // Low fidelity check, just look for clues and not spin up git/hg.
   if (fs.existsSync(path.join(repoPath, ".git"))) {
     return "git";
   } else if (fs.existsSync(path.join(repoPath, ".hg"))) {
     return "hg";
+  } else if (path.extname(repoPath) === ".git") { // likely a bare repo
+    return "git";
   }
 
   // Fairly hardcore to terminate, but saves handling everywhere
@@ -35,11 +38,11 @@ export function getRepoTypeForParams(repoPath: string, repoType?: RepoType): Rep
 
 export function isGitRepository(repository: string) {
   try {
-    // ls-remote not always working for relative repo
+    // Handle local repos ourselves, as ls-remote only intended for remote repositories.
     const parsed = dvcsUrl.parse(repository);
-    if (parsed.protocol == "path-posix") {
-      repository = path.resolve(repository);
-    }
+    if (parsed.protocol === "path-posix" || parsed.protocol === "path-win32") {
+        return (fs.existsSync(path.join(repository, ".git")) || (path.extname(repository) === ".git"));
+      }
     // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
       "git", ["ls-remote", repository],

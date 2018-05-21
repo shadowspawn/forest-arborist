@@ -222,7 +222,7 @@ describe("system (full functionality)", () => {
     // Somewhat pairwise, some permutations.
 
     test("clone sibling --manifest slim", () => {
-      coreClone.doClone(path.join(remotes, "git", "main"), undefined, { manifest: "slim" });
+      coreClone.doClone(path.join(remotes, "git", "main.git"), undefined, { manifest: "slim" });
 
       // Check root
       expect(fs.existsSync("main-forest")).toBe(true);
@@ -241,7 +241,7 @@ describe("system (full functionality)", () => {
       coreBranch.doMakeBranch(branch, undefined, { publish: true });
 
       process.chdir(clonesSandpit);
-      coreClone.doClone(path.join(remotes, "git", "main"), "sibling2", { branch });
+      coreClone.doClone(path.join(remotes, "git", "main.git"), "sibling2", { branch });
 
       // Check root
       expect(fs.existsSync("sibling2")).toBe(true);
@@ -286,7 +286,7 @@ describe("system (full functionality)", () => {
     });
 
     test("install #git #sibling #dirty", () => {
-      coreClone.doClone(path.join(remotes, "git", "main"), "sibling");
+      coreClone.doClone(path.join(remotes, "git", "main.git"), "sibling");
 
       // Make changes to check install imposes changes. Missing repo, and change locked and pinned.
       process.chdir("sibling");
@@ -329,7 +329,7 @@ describe("system (full functionality)", () => {
     });
 
     test("snapshot --output ss", () => {
-      coreClone.doClone(path.join(remotes, "git", "main"), path.join(snapshotsSandpit, "sibling"), { });
+      coreClone.doClone(path.join(remotes, "git", "main.git"), path.join(snapshotsSandpit, "sibling"), { });
       process.chdir("sibling");
 
       // Remember state
