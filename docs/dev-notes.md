@@ -11,8 +11,6 @@
 ## Backlog Musing
 
 - detect hg pinned revision
-- checklist for release. Automate
-
 - publish-dry-run test. Use playground. Just testing clone would be good start. Easy to extend to other commands.
 
 ## Patterns
@@ -22,7 +20,7 @@ Version Plan
 - Use different versions on master (published) and develop (linked work in progress).
 - Tag version on master to match the published version.
 - Do not tag version on develop since changes. Use prerelease on develop.
-- See copy-up and copy-down run commands.
+- See release command, which follows `np` style steps to prepare and check and release a version to npm and github.
 
 Terminology Inspirations
 
