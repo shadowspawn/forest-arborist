@@ -10,9 +10,6 @@
 
 ## Backlog Musing
 
-- detect hg pinned revision
-    - hg log -r 'children(.) and branch(.)' --template x
-- publish-dry-run test. Use playground. Just testing clone would be good start. Easy to extend to other commands.
 
 ## Patterns
 
