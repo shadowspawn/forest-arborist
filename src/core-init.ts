@@ -1,3 +1,4 @@
+import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
@@ -33,6 +34,14 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
 }
 
 
+function isHgPinned(repoPath: string) {
+  const behindCount = childProcess.execFileSync(
+    "hg", ["--repository", repoPath, "log", "-r", "children(.) and branch(.)", "--template", "x"]
+  ).length;
+  return behindCount > 0;
+}
+
+
 interface MakeDependencyEntryWithDetailsOptions {
   repoPath: string;
   repoType: repo.RepoType;
@@ -54,11 +63,13 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
 
   // Pinned, then free, and fallback to locked.
   const lockBranch = repo.getBranch(repoPath, repoType);
-  if (lockBranch === undefined) {
+  if (repoType == "git" && lockBranch === undefined) {
     // likely git detached head
-    const revision = repo.getRevision(repoPath, repoType);
-    console.log(`    (pinned revision to ${revision})`);
-    entry.pinRevision = revision;
+    entry.pinRevision = repo.getRevision(repoPath, repoType);
+    console.log(`    (pinned revision to ${entry.pinRevision})`);
+  } else if (repoType === "hg" && isHgPinned(repoPath)) {
+    entry.pinRevision = repo.getRevision(repoPath, repoType);
+    console.log(`    (pinned revision to ${entry.pinRevision})`);
   } else if (lockBranch !== options.mainBranch) {
     console.log(`    (locked branch to ${lockBranch})`);
     entry.lockBranch = lockBranch;

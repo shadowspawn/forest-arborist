@@ -56,7 +56,7 @@ function makeRemotes(absoluteRemotesPath: string) {
 }
 
 
-export function makePlayground(playgroundDestination: string): string {
+export function makePlayground(playgroundDestination: string) {
   const startDir = process.cwd();
 
   const playgroundDir = path.resolve(playgroundDestination);
@@ -85,10 +85,10 @@ export function makePlayground(playgroundDestination: string): string {
 
   // Setup pinned
   process.chdir(path.join(siblingRoot, "libs", "pinned"));
-  const pinnedRevision = repo.getExistingRevision(".");
+  const gitPinnedRevision = repo.getExistingRevision(".");
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Another empty but real commit"]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
-  childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
+  childProcess.execFileSync("git", ["checkout", "--quiet", gitPinnedRevision]);
 
   // Setup locked
   process.chdir(path.join(siblingRoot, "libs", "locked"));
@@ -120,9 +120,14 @@ export function makePlayground(playgroundDestination: string): string {
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
   childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);
 
-  // // Setup pinned ???? Unit test for pinned disabled.
-  // process.chdir(path.join(nestedRoot, "libs", "pinned"));
-  // childProcess.execFileSync("git", ["checkout", "--quiet", pinnedRevision]);
+  // Setup pinned
+  process.chdir(path.join(nestedRoot, "libs", "pinned"));
+  const hgPinnedRevision = repo.getExistingRevision(".");
+  fs.writeFileSync(".dummy", "Hello, world");
+  childProcess.execFileSync("hg", ["add", ".dummy"]);
+  childProcess.execFileSync("hg", ["commit", "-m", "simple commit"]);
+  childProcess.execFileSync("hg", ["update", "--rev", hgPinnedRevision]);
+  childProcess.execFileSync("hg", ["push"]);
 
   // Setup locked
   process.chdir(path.join(nestedRoot, "libs", "locked"));
@@ -140,5 +145,5 @@ export function makePlayground(playgroundDestination: string): string {
   childProcess.execFileSync("hg", ["push"]);
 
   process.chdir(startDir);
-  return pinnedRevision;
+  return { gitPinnedRevision, hgPinnedRevision };
 }
