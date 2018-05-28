@@ -10,7 +10,6 @@
 
 ## Backlog Musing
 
-
 ## Patterns
 
 Version Plan
