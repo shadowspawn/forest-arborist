@@ -4,10 +4,6 @@
 
 ## Known Issues
 
-- tmp does not reliably cleanup when running jest?
-    - Workaround: manual cleanup, set keep: true and call removeCallback explicitly
-- `fab manifest` would be nicer with subcommands rather than options
-
 ## Backlog Musing
 
 ## Patterns
