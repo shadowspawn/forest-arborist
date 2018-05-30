@@ -304,8 +304,8 @@ export function makeProgram(): Command {
     .description("Placeholder for internal development code")
     .option("--expected")
     .action(() => {
-      console.log(program.args.length);
-      });
+      console.log("Called _test");
+    });
 
   program
     .command("manifest")
@@ -335,11 +335,9 @@ export function makeProgram(): Command {
       coreManifest.doManifest(options);
     });
 
-  // Catch-all, unrecognised command.
-  program
-    .command("*", undefined, { noHelp: true })
-    .action((command) => {
-      util.terminate(`unknown command: ${command}`);
+    program.on('command:*', () => {
+      console.error(`Unknown command: ${program.args.join()}\nSee "fab --help" for a list of available commands.`);
+      util.terminate();
     });
 
     return program;
