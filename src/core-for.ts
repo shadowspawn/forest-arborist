@@ -51,7 +51,6 @@ export function doForEach(cmd: string, args: string[], options: ForOptions) {
 
 export function doForFree(cmd: string, args: string[], options: ForOptions) {
   doFor(cmd, args, options, (entry) => {
-    console.log(entry);
     return (entry.lockBranch === undefined && entry.pinRevision === undefined);
   });
 }
