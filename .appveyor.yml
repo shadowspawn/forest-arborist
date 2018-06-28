@@ -22,5 +22,5 @@ test_script:
   # run tests
   - npm test
 
-# we are running scripts (and do not want default MSBuild mode)
-build_script:
+# Don't actually build. (Per example, and do not want default MSBuild.)
+build: off
