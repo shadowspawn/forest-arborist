@@ -59,11 +59,11 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^23.1.4",
+    "@types/jest": "^23.1.6",
     "@types/node": "^8.10.21",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
-    "jest": "^23.3.0",
+    "jest": "^23.4.1",
     "ts-jest": "^23.0.0",
     "tslint": "^5.10.0",
     "typescript": "^2.9.2"
