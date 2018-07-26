@@ -169,7 +169,7 @@ export interface ReadManifestOptions {
 export interface Manifest {
   dependencies: Dependencies;
   rootDirectory: string;
-  mainPathFromRoot: string;
+  mainPathFromRoot: string; // [sic] this should now be seedPathFromRoot
   tipsForManualEditing?: string[];
 }
 

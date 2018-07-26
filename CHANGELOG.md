@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+- refer to repo with manifest as seed repo rather than main repo
+
 ### Removed
 
 ## [2.0.0] (2018-05-21)
