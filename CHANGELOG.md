@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Removed
 
-## [2.0.0]
+## [2.0.0] (2018-05-21)
 
 ### Added
 
@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - reduced number of commands run for hg repos by `fab pull` (in particular, unnecessary update command)
 - detection of local git repos
 
-## [1.2.0]
+## [1.2.0] (2018-04-15)
 
 ### Added
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - raw command-line help from README
 
-## [1.1.2] - 2018-03-10
+## [1.1.2] (2018-03-10)
 
 ### Added
 
@@ -65,13 +65,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - threading bug running tests with new version of Jest
 
-## [1.1.1] - 2018-02-14
+## [1.1.1] (2018-02-14)
 
 ### Removed
 
 - colour output on Windows (because: PowerShell colours!)
 
-## [1.1.0] - 2017-11-05
+## [1.1.0] (2017-11-05)
 
 ### Added
 
@@ -81,13 +81,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - switched from Jasmine to Jest for tests
 
-## [1.0.1] - 2017-08-13
+## [1.0.1] (2017-08-13)
 
 ### Added
 
 - shrinkwrap
 
-## 1.0.0 - 2017-08-05
+## 1.0.0 (2017-08-05)
 
 - first stable release
 
