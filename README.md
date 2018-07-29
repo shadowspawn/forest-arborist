@@ -191,5 +191,5 @@ builds on develop branch :
 [![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
 [![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
 
-- OS: used on macOS, Windows, and Linux
+- OS: used on macOS, Windows, and Linux.
 - DVCS: main development with git, less testing with hg.

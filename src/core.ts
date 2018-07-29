@@ -30,7 +30,7 @@ export function cdRootDirectory(): void {
   const startDir = process.cwd();
   const startedInMainDirectory = fs.existsSync(".fab");
 
-  let tryParent = true;
+  let tryParent;
   do {
     if (fs.existsSync(fabRootFilename)) {
       return;

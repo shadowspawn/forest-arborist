@@ -1,6 +1,5 @@
 // Mine
 import * as core from "./core";
-import * as repo from "./repo";
 import * as util from "./util";
 
 
