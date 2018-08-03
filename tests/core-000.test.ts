@@ -2,7 +2,7 @@
 // (The 000 in the name is to run the utility functions before the commands.)
 
 import * as childProcess from "child_process";
-import * as fs from "fs";
+import * as fsX from "fs-extra";
 import * as path from "path";
 import * as tmp from "tmp";
 import * as core from "../src/core";
@@ -39,17 +39,27 @@ describe("core", () => {
     }).toThrow();
 
     // Main, but no root.
-    fs.mkdirSync(".fab");
+    fsX.mkdirSync(".fab");
     expect(() => {
       core.cdRootDirectory();
     }).toThrow();
 
     // Make it a fake context
-    fs.closeSync(fs.openSync(core.fabRootFilename, "w"));
+    fsX.closeSync(fsX.openSync(core.fabRootFilename, "w"));
     expect(() => {
       core.cdRootDirectory();
     }).not.toThrow();
     // expect(process.cwd()).toBe(tempFolder.name);
+  });
+
+  test("rootFile v1", () => {
+    // v1 and v2 wrote mainPath not seedPath
+    const testRootObject = { mainPath: "bar", manifest: "foo" };
+    const filename = core.fabRootFilename;
+    fsX.writeJsonSync(filename, testRootObject, { spaces: 2 });
+    const rootContents = core.readRootFile();
+    expect(rootContents.seedPath).toEqual(testRootObject.mainPath);
+    expect(rootContents.manifest).toEqual(testRootObject.manifest);
   });
 
   test("rootFile", () => {
@@ -60,16 +70,32 @@ describe("core", () => {
     expect(rootContents.manifest).toEqual(testRootOptions.manifest);
   });
 
+  test("readManifest v1", () => {
+    childProcess.execFileSync("git", ["init"]);
+    // v1 and v2 wrote mainPathFromRoot not seedPathFromRoot
+    const testManifestObject = {
+      dependencies: [],
+      rootDirectory: "root",
+      mainPathFromRoot: "main",
+    };
+    const fabManifest = core.manifestPath({ seedPath: "." });
+    fsX.mkdirpSync(path.dirname(fabManifest));
+    fsX.writeJsonSync(fabManifest, testManifestObject, { spaces: 2 });
+    const manifestContents = core.readManifest({ seedPath: "." });
+    expect(manifestContents.rootDirectory).toEqual(testManifestObject.rootDirectory);
+    expect(manifestContents.seedPathFromRoot).toEqual(testManifestObject.mainPathFromRoot);
+  });
+
   test("readManifest", () => {
     expect(core.manifestList(".")).toBeUndefined(); // List manifests when folder missing.
 
     // simple main repo
-    fs.mkdirSync(".fab");
+    fsX.mkdirSync(".fab");
     expect(core.manifestList(".")).toEqual(0); // List manifests empty folder.
-    fs.closeSync(fs.openSync(path.join(".fab", "notAManifest"), "w"));
+    fsX.closeSync(fsX.openSync(path.join(".fab", "notAManifest"), "w"));
     expect(core.manifestList(".")).toEqual(0); // List manifests no matching manifests.
     cc.makeOneGitRepo(".", "git://host.xz/path1");
-    childProcess.execFileSync("git", ["init"]);
+    // childProcess.execFileSync("git", ["init"]);
 
     // missing manifest
     expect(() => {
@@ -90,7 +116,7 @@ describe("core", () => {
       rootDirectory: ".",
       mainPathFromRoot: "."
     };
-    fs.writeFileSync(core.manifestPath({ manifest: "nested1" }), JSON.stringify(manifestWriteNested));
+    fsX.writeFileSync(core.manifestPath({ manifest: "nested1" }), JSON.stringify(manifestWriteNested));
     expect(core.manifestList(".")).toEqual(1);  // First manifest
 
     // discard unrecognised repo tyeps
@@ -119,7 +145,7 @@ describe("core", () => {
     core.writeRootFile(rootOptions4);
 
     // Default manifest name, and list
-    fs.writeFileSync(core.manifestPath({ }), JSON.stringify(manifestWriteNested));
+    fsX.writeFileSync(core.manifestPath({ }), JSON.stringify(manifestWriteNested));
     expect(core.manifestList(".")).toEqual(2); // Added default manifest
   });
 
