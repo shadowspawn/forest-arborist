@@ -164,22 +164,13 @@ export function doInit(options: InitOptions) {
   const manifest: core.Manifest = {
     dependencies,
     rootDirectory: util.normalizeToPosix(rootFromMain),
-    mainPathFromRoot: util.normalizeToPosix(mainFromRoot),
-    tipsForManualEditing: [
-      "The origin property for dependencies can be an URL ",
-      "  or a relative path which is relative to the main repo origin.)",
-      "The key for the dependencies map is the local relative path from the root directory.",
-      "Use forward slashes in paths (e.g. path/to not path\to).",
-      "Dependent repos come in three flavours, determined by the properties:",
-      "  1) if has pinRevision property, repo pinned to specified revision or tag (commit-ish)",
-      "  2) if has lockBranch property, repo locked to specified branch",
-      "  3) otherwise, repo is free and included in branch affecting commands",
-    ],
+    seedPathFromRoot: util.normalizeToPosix(mainFromRoot),
   };
 
   const manifestDir = path.dirname(absManifestPath);
   fsX.ensureDirSync(manifestDir);
-  fsX.writeJsonSync(absManifestPath, manifest, { spaces: 2 });
+  // fsX.writeJsonSync(absManifestPath, manifest, { spaces: 2 });
+  core.writeManifest(absManifestPath, manifest);
 
   console.log(`Initialised dependencies in ${relManifestPath}`);
 

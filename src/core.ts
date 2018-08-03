@@ -54,7 +54,7 @@ export function cdRootDirectory(): void {
 
 export interface ManifestOptions {
   manifest?: string;
-  mainPath?: string;
+  seedPath?: string;
 }
 
 
@@ -70,8 +70,8 @@ export function manifestPath(options: ManifestOptions): string {
   // directory
   manifest = `.fab/${manifest}`;
   // path
-  if (options.mainPath !== undefined) {
-    manifest = path.join(options.mainPath, manifest);
+  if (options.seedPath !== undefined) {
+    manifest = path.join(options.seedPath, manifest);
   }
 
   return manifest;
@@ -161,38 +161,45 @@ export function writeRootFile(options: WriteRootFileOptions) {
 
 export interface ReadManifestOptions {
   fromRoot?: boolean;
-  addMainToDependencies?: boolean;
-  mainPath?: string;
+  addSeedToDependencies?: boolean;
+  seedPath?: string;
   manifest?: string;
 }
 
 export interface Manifest {
   dependencies: Dependencies;
   rootDirectory: string;
-  mainPathFromRoot: string; // [sic] this should now be seedPathFromRoot
+  seedPathFromRoot: string;
+}
+
+interface ManifestOnDisk {
+  dependencies: Dependencies;
+  rootDirectory: string;
+  mainPathFromRoot: string;  // Old deprecated name
+  seedPathFromRoot?: string; // New name
   tipsForManualEditing?: string[];
 }
 
 export function readManifest(options: ReadManifestOptions): Manifest {
   // Sort out manifest location
-  let mainPath: string | undefined;
+  let seedPath: string | undefined;
   let manifest;
   if (options.fromRoot) {
     const rootObject = readRootFile();
-    mainPath = rootObject.mainPath;
+    seedPath = rootObject.mainPath;
     manifest = rootObject.manifest;
   } else {
-    mainPath = options.mainPath;
+    seedPath = options.seedPath;
     manifest = options.manifest;
   }
-  if (mainPath === undefined) {
-    mainPath = ".";
+  if (seedPath === undefined) {
+    seedPath = ".";
   }
-  const fabManifest = manifestPath({ mainPath, manifest });
+  const fabManifest = manifestPath({ seedPath, manifest });
 
   // Display some clues if file not foung
   if (!fs.existsSync(fabManifest)) {
-    manifestList(mainPath);
+    manifestList(seedPath);
     if (manifest !== undefined) {
       util.terminate(`manifest not found: ${manifest}`);
     } else {
@@ -201,20 +208,31 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   }
 
   // Hurrah, read manifest
-  const manifestObject = util.readJson(
+  // mainPathFromRoot is deprecated, but still must be present to support older versions of fab.
+  const manifestObjectFromDisk: ManifestOnDisk = util.readJson(
     fabManifest,
     ["dependencies", "rootDirectory", "mainPathFromRoot"]
   );
+  if (manifestObjectFromDisk.seedPathFromRoot === undefined) {
+    // File written by older version.
+    manifestObjectFromDisk.seedPathFromRoot = manifestObjectFromDisk.mainPathFromRoot;
+  }
 
-  // Cleanup as may have been edited or old versions.
-  manifestObject.rootDirectory = util.normalizeToPosix(manifestObject.rootDirectory);
-  manifestObject.mainPathFromRoot = util.normalizeToPosix(manifestObject.mainPathFromRoot);
+  // Cleanup as may have been edited or set poorly in old versions.
+  manifestObjectFromDisk.rootDirectory = util.normalizeToPosix(manifestObjectFromDisk.rootDirectory);
+  manifestObjectFromDisk.seedPathFromRoot = util.normalizeToPosix(manifestObjectFromDisk.seedPathFromRoot);
 
-  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
-  const mainOrigin = repo.getOrigin(mainPath, mainRepoType);
-  const parsedMainOrigin = dvcsUrl.parse(mainOrigin);
-  if (options.addMainToDependencies) {
-    manifestObject.dependencies[manifestObject.mainPathFromRoot] = { origin: mainOrigin, repoType: mainRepoType };
+  const manifestObject: Manifest = {
+    dependencies: manifestObjectFromDisk.dependencies,
+    rootDirectory: manifestObjectFromDisk.rootDirectory,
+    seedPathFromRoot: manifestObjectFromDisk.seedPathFromRoot,
+  };
+
+  const seedRepoType = repo.getRepoTypeForLocalPath(seedPath);
+  const seedOrigin = repo.getOrigin(seedPath, seedRepoType);
+  const parsedSeedOrigin = dvcsUrl.parse(seedOrigin);
+  if (options.addSeedToDependencies) {
+    manifestObject.dependencies[manifestObject.seedPathFromRoot] = { origin: seedOrigin, repoType: seedRepoType };
   }
 
   Object.keys(manifestObject.dependencies).forEach((repoPath) => {
@@ -230,10 +248,32 @@ export function readManifest(options: ReadManifestOptions): Manifest {
     }
 
     // Turn relative repos into absolute repos.
-    if (dvcsUrl.isRelativePath(entry.origin)) {
-      entry.origin = dvcsUrl.resolve(parsedMainOrigin, entry.origin);
+    if (entry.origin !== undefined && dvcsUrl.isRelativePath(entry.origin)) {
+      entry.origin = dvcsUrl.resolve(parsedSeedOrigin, entry.origin);
     }
   });
 
   return manifestObject;
+}
+
+
+export function writeManifest(manifestPath: string, manifestObject: Manifest) {
+  const manifestObjectToDisk = {
+    dependencies: manifestObject.dependencies,
+    rootDirectory: manifestObject.rootDirectory,
+    seedPathFromRoot: manifestObject.seedPathFromRoot,
+    mainPathFromRoot: manifestObject.seedPathFromRoot,
+    tipsForManualEditing: [
+      "The origin property for dependencies can be an URL ",
+      "  or a relative path which is relative to the main repo origin.)",
+      "The key for the dependencies map is the local relative path from the root directory.",
+      "Use forward slashes in paths (e.g. path/to not path\to).",
+      "Dependent repos come in three flavours, determined by the properties:",
+      "  1) if has pinRevision property, repo pinned to specified revision or tag (commit-ish)",
+      "  2) if has lockBranch property, repo locked to specified branch",
+      "  3) otherwise, repo is free and included in branch affecting commands",
+      "Note: mainPathFromRoot is old name for seedPathFromRoot and deprecated.",
+    ],
+  };
+  fsX.writeJsonSync(manifestPath, manifestObjectToDisk, { spaces: 2 });
 }

@@ -62,7 +62,7 @@ describe("system (full functionality)", () => {
 
     const manifestObject = core.readManifest({ fromRoot: true });
     expect(manifestObject.rootDirectory).toEqual(".");
-    expect(manifestObject.mainPathFromRoot).toEqual(".");
+    expect(manifestObject.seedPathFromRoot).toEqual(".");
 
     const dependencies = manifestObject.dependencies;
     expect(dependencies["free"]).toEqual(       { repoType: "hg", origin: path.join(remotes, "hg", "free") });
@@ -79,7 +79,7 @@ describe("system (full functionality)", () => {
 
     const manifestObject = core.readManifest({ fromRoot: true });
     expect(manifestObject.rootDirectory).toEqual("..");
-    expect(manifestObject.mainPathFromRoot).toEqual("main");
+    expect(manifestObject.seedPathFromRoot).toEqual("main");
 
     const dependencies = manifestObject.dependencies;
     expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "git", "free") });

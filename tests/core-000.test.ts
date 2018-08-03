@@ -28,8 +28,8 @@ describe("core", () => {
   test("manifestPath", () => {
     expect(util.normalizeToPosix(core.manifestPath({}))).toEqual(".fab/manifest.json");
     expect(util.normalizeToPosix(core.manifestPath({ manifest: "custom" }))).toEqual(".fab/custom_manifest.json");
-    expect(util.normalizeToPosix(core.manifestPath({ mainPath: "main" }))).toEqual("main/.fab/manifest.json");
-    expect(util.normalizeToPosix(core.manifestPath({ mainPath: "main", manifest: "custom" }))).toEqual("main/.fab/custom_manifest.json");
+    expect(util.normalizeToPosix(core.manifestPath({ seedPath: "main" }))).toEqual("main/.fab/manifest.json");
+    expect(util.normalizeToPosix(core.manifestPath({ seedPath: "main", manifest: "custom" }))).toEqual("main/.fab/custom_manifest.json");
   });
 
   test("cdRootDirectoy", () => {
@@ -73,10 +73,10 @@ describe("core", () => {
 
     // missing manifest
     expect(() => {
-      core.readManifest({ mainPath: "." });
+      core.readManifest({ seedPath: "." });
     }).toThrow();
     expect(() => {
-      core.readManifest({ mainPath: ".", manifest: "willNotFindThis" });
+      core.readManifest({ seedPath: ".", manifest: "willNotFindThis" });
     }).toThrow();
 
     // Nested forest
@@ -94,7 +94,7 @@ describe("core", () => {
     expect(core.manifestList(".")).toEqual(1);  // First manifest
 
     // discard unrecognised repo tyeps
-    const manifestReadNested1 = core.readManifest({ mainPath: ".", manifest: "nested1" });
+    const manifestReadNested1 = core.readManifest({ seedPath: ".", manifest: "nested1" });
     expect(manifestReadNested1.dependencies["git"]).not.toBeUndefined();
     expect(manifestReadNested1.dependencies["hg"]).not.toBeUndefined();
     // drop unrecognised repo types
@@ -105,7 +105,7 @@ describe("core", () => {
     expect(manifestReadNested1.dependencies["relativeOrigin"].origin).toEqual("git://host.xz/path1/relativeOrigin");
 
     // add main repo on request
-    const manifestReadNested2 = core.readManifest({ mainPath: ".", manifest: "nested1", addMainToDependencies: true });
+    const manifestReadNested2 = core.readManifest({ seedPath: ".", manifest: "nested1", addSeedToDependencies: true });
     expect(manifestReadNested2.dependencies["."]).not.toBeUndefined();
 
     // fromRoot

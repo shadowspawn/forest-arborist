@@ -28,8 +28,8 @@ export function doManifest(options: ManifestOptions) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const mainPath = path.resolve(rootObject.mainPath);
-  const manifestPath = core.manifestPath({ mainPath, manifest: rootObject.manifest });
+  const seedPath = path.resolve(rootObject.mainPath);
+  const manifestPath = core.manifestPath({ seedPath, manifest: rootObject.manifest });
 
   if (options.edit) {
     // Same checks as osenv.editor
@@ -38,30 +38,29 @@ export function doManifest(options: ManifestOptions) {
       ||((process.platform === "win32") ? "notepad.exe" : "vi");
       childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
   } else if (options.list) {
-    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
-    delete manifestObject.tipsForManualEditing;
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const relTargetPath = rootRelative(startDir, options.add);
     const absTargetPath = path.resolve(relTargetPath);
-    if (mainPath === absTargetPath) {
+    if (seedPath === absTargetPath) {
       util.terminate("Main folder cannot be added as a dependency");
     }
-    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
     console.log(`Adding dependency for ${absTargetPath}`);
     manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] = coreInit.makeDependencyEntry({
       repoPath: relTargetPath,
-      mainRepoPath: mainPath,
+      mainRepoPath: seedPath,
     });
-    fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });
+    core.writeManifest(manifestPath, manifestObject);
   } else if (options.delete) {
     const targetPath = rootRelative(startDir, options.delete);
-    const manifestObject = core.readManifest({ mainPath, manifest: rootObject.manifest });
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
     if (manifestObject.dependencies[targetPath] === undefined) {
       util.terminate(`No manifest dependency for: ${targetPath}`);
     }
     delete manifestObject.dependencies[targetPath];
-    fsX.writeJsonSync(manifestPath, manifestObject, { spaces: 2 });
+    core.writeManifest(manifestPath, manifestObject);
     console.log(`Deleted manifest dependency for ${targetPath}`);
   } else {
     // Do something vaguely useful, like `fab root` and `fab main`

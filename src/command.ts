@@ -22,7 +22,7 @@ function doStatus() {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
+    { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
 
   Object.keys(forestRepos).forEach((repoPath) => {

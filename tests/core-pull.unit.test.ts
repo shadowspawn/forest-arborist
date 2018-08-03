@@ -45,7 +45,7 @@ describe("core branch", () => {
     getBranchSpy.mockReturnValue("master");
 
     corePull.doPull();
-    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // just checking once
+    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addSeedToDependencies: true }); // just checking once
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], { cwd: "g"});
   });
 

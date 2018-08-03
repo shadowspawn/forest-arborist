@@ -40,7 +40,7 @@ describe("core branch", () => {
       { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main" }
     );
     coreBranch.doSwitch("b");
-    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // just checking once
+    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addSeedToDependencies: true }); // just checking once
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "g"});
   });
 
@@ -96,7 +96,7 @@ describe("core branch", () => {
       dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
     });
     coreBranch.doMakeBranch("b");
-    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addMainToDependencies: true }); // just checking once
+    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addSeedToDependencies: true }); // just checking once
     expect(execCommandSyncSpy.mock.calls).toEqual([["git", ["checkout", "-b", "b"], { cwd: "g"}]]);
   });
 

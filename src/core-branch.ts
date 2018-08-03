@@ -13,7 +13,7 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
+    { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
 
   Object.keys(forestRepos).forEach((repoPath) => {
@@ -56,7 +56,7 @@ export function doSwitch(branch: string) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
-    { fromRoot: true, addMainToDependencies: true }
+    { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
 
   Object.keys(forestRepos).forEach((repoPath) => {

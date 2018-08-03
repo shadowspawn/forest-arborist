@@ -114,7 +114,7 @@ export function doInstall(options: InstallOptions) {
   const startDir = process.cwd();
   // Use same branch as main for free branches
   const manifestObject = core.readManifest({
-    mainPath: ".",
+    seedPath: ".",
     manifest: options.manifest,
   });
   const rootAbsolutePath = path.resolve(startDir, manifestObject.rootDirectory);
@@ -176,17 +176,17 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
   const mainEntry: core.DependencyEntry = { origin: source, repoType };
   cloneEntry(mainEntry, destination, options.branch);
 
-  const fabManifest = core.manifestPath({ mainPath: destination });
+  const fabManifest = core.manifestPath({ seedPath: destination });
   if (!fs.existsSync(fabManifest)) {
     util.terminate(`stopping as did not find manifest ${fabManifest}`);
   }
 
   // Look in manifest and sort out nested vs sibling layout.
   const manifest = core.readManifest({
-    mainPath: destination,
+    seedPath: destination,
     manifest: options.manifest,
   });
-  if (manifest.mainPathFromRoot !== ".") {
+  if (manifest.seedPathFromRoot !== ".") {
     console.log("Using sibling repo layout");
     // Play shell game for sibling layout to get main in to destination root folder.
     // Easy to get confused!
@@ -204,7 +204,7 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     }
     fs.mkdirSync(rootDestination);
     // Move main into root with manifest supplied name
-    const mainPathFromHere = path.join(rootDestination, manifest.mainPathFromRoot);
+    const mainPathFromHere = path.join(rootDestination, manifest.seedPathFromRoot);
     fs.renameSync(shelfRepoPath, mainPathFromHere);
     tmpObj.removeCallback();
     process.chdir(mainPathFromHere);

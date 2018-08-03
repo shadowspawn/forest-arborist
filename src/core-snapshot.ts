@@ -74,7 +74,7 @@ export function doSnapshot(options: SnapshotOptions) {
   const snapshot = {
     dependencies,
     rootDirectory: manifestObject.rootDirectory,
-    mainPathFromRoot: manifestObject.mainPathFromRoot,
+    mainPathFromRoot: manifestObject.seedPathFromRoot,
     manifest: rootObject.manifest,
     mainRepo
   };
