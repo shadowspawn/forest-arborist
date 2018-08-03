@@ -53,10 +53,10 @@ describe("core", () => {
   });
 
   test("rootFile", () => {
-    const testRootOptions: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, mainPath: ".", manifest: "foo" };
+    const testRootOptions: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "foo" };
     core.writeRootFile(testRootOptions);
     const rootContents = core.readRootFile();
-    expect(rootContents.mainPath).toEqual(testRootOptions.mainPath);
+    expect(rootContents.seedPath).toEqual(testRootOptions.seedPath);
     expect(rootContents.manifest).toEqual(testRootOptions.manifest);
   });
 
@@ -109,13 +109,13 @@ describe("core", () => {
     expect(manifestReadNested2.dependencies["."]).not.toBeUndefined();
 
     // fromRoot
-    const rootOptions3: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, mainPath: ".", manifest: "nested1" };
+    const rootOptions3: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "nested1" };
     core.writeRootFile(rootOptions3);
     const manifestReadNested3 = core.readManifest({ fromRoot: true });
     expect(manifestReadNested3.dependencies["git"]).not.toBeUndefined();
 
     // tipToAddToIgnore. Only informational, not exercising code and not checking detail.
-    const rootOptions4: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, mainPath: ".", manifest: "nested4", tipToAddToIgnore: true };
+    const rootOptions4: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "nested4", tipToAddToIgnore: true };
     core.writeRootFile(rootOptions4);
 
     // Default manifest name, and list

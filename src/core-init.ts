@@ -177,7 +177,7 @@ export function doInit(options: InitOptions) {
   // Root placeholder file. Safe to overwrite as low content.
   core.writeRootFile({
     rootFilePath: path.join(rootAbsolutePath, core.fabRootFilename),
-    mainPath: mainFromRoot,
+    seedPath: mainFromRoot,
     manifest: options.manifest,
     tipToAddToIgnore: true,
   });

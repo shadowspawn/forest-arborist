@@ -14,19 +14,19 @@ function doSemiInstall() {
   const rootObject = core.readRootFile();
   const manifestObject = core.readManifest({ fromRoot: true, manifest: rootObject.manifest });
 
-  const mainPath = rootObject.mainPath;
-  let freeBranch = repo.getBranch(mainPath);
-  if (freeBranch === undefined && repo.isGitRepository(mainPath)) {
+  const seedPath = rootObject.seedPath;
+  let freeBranch = repo.getBranch(seedPath);
+  if (freeBranch === undefined && repo.isGitRepository(seedPath)) {
     util.execCommandSync(
-      "git", ["checkout", "@{-1}"], { cwd: mainPath }
+      "git", ["checkout", "@{-1}"], { cwd: seedPath }
     );
-    // childProcess.execFileSync("git", ["checkout", "@{-1}"], { cwd: mainPath });
-    freeBranch = repo.getBranch(mainPath);
+    // childProcess.execFileSync("git", ["checkout", "@{-1}"], { cwd: seedPath });
+    freeBranch = repo.getBranch(seedPath);
   } else {
-    const origin = repo.getOrigin(mainPath);
-    const repoType = repo.getRepoTypeForLocalPath(mainPath);
+    const origin = repo.getOrigin(seedPath);
+    const repoType = repo.getRepoTypeForLocalPath(seedPath);
     const mainEntry = { origin, repoType };
-    coreClone.checkoutEntry(mainEntry, mainPath, freeBranch);
+    coreClone.checkoutEntry(mainEntry, seedPath, freeBranch);
   }
 
   const dependencies = manifestObject.dependencies;
@@ -63,12 +63,12 @@ export function doSnapshot(options: SnapshotOptions) {
     };
   });
 
-  const mainPath = rootObject.mainPath;
-  const mainRepoType = repo.getRepoTypeForLocalPath(mainPath);
+  const seedPath = rootObject.seedPath;
+  const mainRepoType = repo.getRepoTypeForLocalPath(seedPath);
   const mainRepo = {
-    origin: repo.getOrigin(mainPath, mainRepoType),
+    origin: repo.getOrigin(seedPath, mainRepoType),
     repoType: mainRepoType,
-    pinRevision: repo.getRevision(mainPath, mainRepoType),
+    pinRevision: repo.getRevision(seedPath, mainRepoType),
   };
 
   const snapshot = {
@@ -125,7 +125,7 @@ export function doRecreate(snapshotPath: string, destinationParam?: string) {
   // Install root file
   core.writeRootFile({
     rootFilePath: path.resolve(core.fabRootFilename),
-    mainPath: snapshotObject.mainPathFromRoot,
+    seedPath: snapshotObject.mainPathFromRoot,
     manifest: snapshotObject.manifest,
   });
 

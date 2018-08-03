@@ -28,7 +28,7 @@ export function doManifest(options: ManifestOptions) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const seedPath = path.resolve(rootObject.mainPath);
+  const seedPath = path.resolve(rootObject.seedPath);
   const manifestPath = core.manifestPath({ seedPath, manifest: rootObject.manifest });
 
   if (options.edit) {

@@ -49,7 +49,7 @@ describe("core init", () => {
     expect(fs.existsSync(core.manifestPath({ manifest }))).toBe(true);
 
     const rootObject = core.readRootFile();
-    expect(rootObject.mainPath).toEqual(".");
+    expect(rootObject.seedPath).toEqual(".");
     expect(rootObject.manifest).toEqual(manifest);
   });
 

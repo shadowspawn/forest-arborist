@@ -122,7 +122,7 @@ export function doInstall(options: InstallOptions) {
   const freeBranch = repo.getBranch(".");
   core.writeRootFile({
     rootFilePath: path.join(rootAbsolutePath, core.fabRootFilename),
-    mainPath: mainFromRoot,
+    seedPath: mainFromRoot,
     manifest: options.manifest,
   });
   console.log();

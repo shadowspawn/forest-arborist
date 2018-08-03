@@ -57,7 +57,7 @@ describe("system (full functionality)", () => {
     process.chdir(nestedRoot);
 
     const rootObject = core.readRootFile();
-    expect(rootObject.mainPath).toEqual(".");
+    expect(rootObject.seedPath).toEqual(".");
     expect(rootObject.manifest).toBeUndefined();
 
     const manifestObject = core.readManifest({ fromRoot: true });
@@ -74,7 +74,7 @@ describe("system (full functionality)", () => {
     process.chdir(siblingRoot);
 
     const rootObject = core.readRootFile();
-    expect(rootObject.mainPath).toEqual("main");
+    expect(rootObject.seedPath).toEqual("main");
     expect(rootObject.manifest).toBeUndefined();
 
     const manifestObject = core.readManifest({ fromRoot: true });

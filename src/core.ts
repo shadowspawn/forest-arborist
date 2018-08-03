@@ -106,7 +106,7 @@ export function manifestList(mainPath: string): number | undefined  {
 
 
 export interface RootFile {
-  mainPath: string;
+  seedPath: string;
   manifest?: string;
 }
 
@@ -114,11 +114,23 @@ export interface RootFile {
 export function readRootFile(): RootFile {
   // Use absolute path so appears in any errors
   const fabRootPath = path.resolve(fabRootFilename);
-  const rootObject = util.readJson(fabRootPath, ["mainPath"]);
-  // rootObject may also have manifest property.
+  const rootObjectOnDisk = util.readJson(fabRootPath);
+  // mainPath: fab v1 and v2
+  // seedPath: fab v3
+  if (rootObjectOnDisk.seedPath === undefined) {
+    rootObjectOnDisk.seedPath = rootObjectOnDisk.mainPath;
+  }
+  if (rootObjectOnDisk.seedPath === undefined) {
+    util.terminate(`problem parsing: ${fabRootPath}\nMissing property 'seedPath'`);
+  }
+
+  const rootObject: RootFile = {
+    seedPath: rootObjectOnDisk.seedPath,
+    manifest: rootObjectOnDisk.manifest,
+  };
 
   // Santise inputs: normalise mainPath
-  rootObject.mainPath = util.normalizeToPosix(rootObject.mainPath);
+  rootObject.seedPath = util.normalizeToPosix(rootObject.seedPath);
 
   return rootObject;
 }
@@ -126,7 +138,7 @@ export function readRootFile(): RootFile {
 
 export interface WriteRootFileOptions {
   rootFilePath: string;
-  mainPath: string;
+  seedPath: string;
   manifest?: string;
   tipToAddToIgnore?: boolean;
 }
@@ -137,7 +149,7 @@ export function writeRootFile(options: WriteRootFileOptions) {
   if (fs.existsSync(options.rootFilePath))
     initialisedWord = "Reinitialised";
   const rootObject = {
-    mainPath: util.normalizeToPosix(options.mainPath),
+    seedPath: util.normalizeToPosix(options.seedPath),
     manifest: options.manifest,
   };
   fsX.writeJsonSync(options.rootFilePath, rootObject, { spaces: 2 });
@@ -186,7 +198,7 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   let manifest;
   if (options.fromRoot) {
     const rootObject = readRootFile();
-    seedPath = rootObject.mainPath;
+    seedPath = rootObject.seedPath;
     manifest = rootObject.manifest;
   } else {
     seedPath = options.seedPath;

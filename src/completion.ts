@@ -82,11 +82,11 @@ tabtab.on("switch", function (data, done) {
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
 
-  if (repo.isGitRepository(rootObject.mainPath)) {
+  if (repo.isGitRepository(rootObject.seedPath)) {
     const branches = childProcess.execFileSync(
       "git",
       ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
-      { cwd: rootObject.mainPath }
+      { cwd: rootObject.seedPath }
     ).toString().trim();
     done(null, branches.split("\n"));
   }
