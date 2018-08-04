@@ -9,15 +9,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+Changed nomenclature for the repo containing the manifests from _main_ to _seed_. 
+
 ### Added
 
 - detection of hg pinned revision in `fab init`
+- `fab seed` showing path of seed repo (to replace `fab main`)
 
 ### Changed
 
-- refer to repo with manifest as seed repo rather than main repo
+- README updated for _seed_
+- `.fab-root.json` file format updated for _seed_
+- manifest file format updated for _seed_. The changes in `fab v3` are forwards and backwards compatible with `fab v1` and `fab v2`, but a future version will drop support for old versions reading the new files.
 
-### Removed
+### Deprecated
+
+- `fab main` is deprecated and will be removed in a future version
 
 ## [2.0.0] (2018-05-21)
 

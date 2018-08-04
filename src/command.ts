@@ -79,7 +79,7 @@ export function makeProgram(): Command {
     Utility: status, pull, for-each, for-free, git, hg
     Branch: make-branch, switch
     Reproducible state: snapshot, recreate, restore
-    Display: root, main, manifest
+    Display: root, seed, manifest
     Manifest management: manifest --edit, --list, --add, --delete
 
     See https://github.com/JohnRGee/forest-arborist.git for usage overview.

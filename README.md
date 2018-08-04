@@ -141,7 +141,7 @@ Example:
     }
 },
 "rootDirectory": ".",
-"mainPathFromRoot": "."
+"seedPathFromRoot": "."
 }
 ```
 
