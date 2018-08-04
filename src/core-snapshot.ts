@@ -25,8 +25,8 @@ function doSemiInstall() {
   } else {
     const origin = repo.getOrigin(seedPath);
     const repoType = repo.getRepoTypeForLocalPath(seedPath);
-    const mainEntry = { origin, repoType };
-    coreClone.checkoutEntry(mainEntry, seedPath, freeBranch);
+    const seedEntry = { origin, repoType };
+    coreClone.checkoutEntry(seedEntry, seedPath, freeBranch);
   }
 
   const dependencies = manifestObject.dependencies;
@@ -64,19 +64,19 @@ export function doSnapshot(options: SnapshotOptions) {
   });
 
   const seedPath = rootObject.seedPath;
-  const mainRepoType = repo.getRepoTypeForLocalPath(seedPath);
-  const mainRepo = {
-    origin: repo.getOrigin(seedPath, mainRepoType),
-    repoType: mainRepoType,
-    pinRevision: repo.getRevision(seedPath, mainRepoType),
+  const seedRepoType = repo.getRepoTypeForLocalPath(seedPath);
+  const seedRepo = {
+    origin: repo.getOrigin(seedPath, seedRepoType),
+    repoType: seedRepoType,
+    pinRevision: repo.getRevision(seedPath, seedRepoType),
   };
 
   const snapshot = {
     dependencies,
     rootDirectory: manifestObject.rootDirectory,
-    mainPathFromRoot: manifestObject.seedPathFromRoot,
+    seedPathFromRoot: manifestObject.seedPathFromRoot,
     manifest: rootObject.manifest,
-    mainRepo
+    seedRepo
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, "  ");
@@ -89,29 +89,50 @@ export function doSnapshot(options: SnapshotOptions) {
 }
 
 
-export function doRecreate(snapshotPath: string, destinationParam?: string) {
-  const startDir = process.cwd();
+function readSnapshot(snapshotPath: string) {
   const snapshotObject = util.readJson(
     snapshotPath,
-    ["mainRepo", "dependencies", "rootDirectory", "mainPathFromRoot"]
+    ["dependencies", "rootDirectory"]
   );
-  const mainRepoEntry = snapshotObject.mainRepo;
+
+  // Used mainRepo and mainPathFromRoot in fab v1 amd v2
+  if (snapshotObject.seedRepo === undefined) {
+    snapshotObject.seedRepo = snapshotObject.mainRepo;
+  }
+  if (!Object.prototype.hasOwnProperty.call(snapshotObject, "seedRepo")) {
+    util.terminate(`problem parsing: ${snapshotPath}\nMissing property 'seedRepo'`);
+  }
+  if (snapshotObject.seedPathFromRoot === undefined) {
+    snapshotObject.seedPathFromRoot = snapshotObject.mainPathFromRoot;
+  }
+  if (!Object.prototype.hasOwnProperty.call(snapshotObject, "seedPathFromRoot")) {
+    util.terminate(`problem parsing: ${snapshotPath}\nMissing property 'seedPathFromRoot'`);
+  }
+
+  return snapshotObject;
+}
+
+
+export function doRecreate(snapshotPath: string, destinationParam?: string) {
+  const startDir = process.cwd();
+  const snapshotObject = readSnapshot(snapshotPath);
+  const seedRepoEntry = snapshotObject.seedRepo;
 
   let destination = destinationParam;
   if (destination === undefined || destination === "") {
-    destination = dvcsUrl.repoName(dvcsUrl.parse(mainRepoEntry.origin));
+    destination = dvcsUrl.repoName(dvcsUrl.parse(seedRepoEntry.origin));
   }
 
   // Clone seed repo first and cd to root
-  const mainPathFromRoot = util.normalizeToPosix(snapshotObject.mainPathFromRoot);
-  if (mainPathFromRoot !== ".") {
+  const seedPathFromRoot = util.normalizeToPosix(snapshotObject.seedPathFromRoot);
+  if (seedPathFromRoot !== ".") {
     // Sibling layout. Make wrapper root directory.
     fs.mkdirSync(destination);
     process.chdir(destination);
-    destination = mainPathFromRoot;
-    coreClone.cloneEntry(mainRepoEntry, destination);
+    destination = seedPathFromRoot;
+    coreClone.cloneEntry(seedRepoEntry, destination);
   } else {
-    coreClone.cloneEntry(mainRepoEntry, destination);
+    coreClone.cloneEntry(seedRepoEntry, destination);
     process.chdir(destination);
   }
 
@@ -125,7 +146,7 @@ export function doRecreate(snapshotPath: string, destinationParam?: string) {
   // Install root file
   core.writeRootFile({
     rootFilePath: path.resolve(core.fabRootFilename),
-    seedPath: snapshotObject.mainPathFromRoot,
+    seedPath: snapshotObject.seedPathFromRoot,
     manifest: snapshotObject.manifest,
   });
 
@@ -146,13 +167,10 @@ export function doRestore(snapshotPath?: string) {
   }
 
   const startDir = process.cwd();
-  const snapshotObject = util.readJson(
-    snapshotPath,
-    ["mainRepo", "dependencies", "rootDirectory", "mainPathFromRoot"]
-  );
+  const snapshotObject = readSnapshot(snapshotPath);
   core.cdRootDirectory();
 
-  coreClone.checkoutEntry(snapshotObject.mainRepo, snapshotObject.mainPathFromRoot);
+  coreClone.checkoutEntry(snapshotObject.seedRepo, snapshotObject.seedPathFromRoot);
 
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {

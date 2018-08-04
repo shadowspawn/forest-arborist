@@ -21,6 +21,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - README updated for _seed_
 - `.fab-root.json` file format updated for _seed_
 - manifest file format updated for _seed_. The changes in `fab v3` are forwards and backwards compatible with `fab v1` and `fab v2`, but a future version will drop support for old versions reading the new files.
+- snapshot file format updated for _seed_. New files can not be read by `fab v1` and `fab v2`.
 
 ### Deprecated
 
