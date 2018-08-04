@@ -135,21 +135,21 @@ describe("system (full functionality)", () => {
       expect(spy).toHaveBeenLastCalledWith(siblingRoot);
       });
 
-    test("main from nested forest", () => {
+    test("seed from nested forest", () => {
       process.chdir(path.join("nested", "libs"));
-      command.fab(["main"]);
+      command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
       });
 
-    test("main from nested forest", () => {
+    test("seed from nested forest", () => {
       process.chdir(path.join("nested", "libs"));
-      command.fab(["main"]);
+      command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
       });
 
-    test("main from sibling forest", () => {
+    test("seed from sibling forest", () => {
       process.chdir(path.join("sibling", "libs"));
-      command.fab(["main"]);
+      command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(path.join(siblingRoot, "main"));
       });
 

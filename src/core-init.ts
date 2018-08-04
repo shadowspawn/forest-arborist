@@ -128,7 +128,7 @@ export function doInit(options: InitOptions) {
   }
   const absManifestPath = path.resolve(startDir, relManifestPath);
 
-  // Find main origin, if we can.
+  // Find seed origin, if we can.
   const mainRepoType = repo.getRepoTypeForLocalPath(".");
   const mainOrigin = repo.getOrigin(".", mainRepoType);
   const mainBranch = repo.getBranch(".", mainRepoType);
@@ -139,7 +139,7 @@ export function doInit(options: InitOptions) {
     parsedMainOrigin = dvcsUrl.parse(mainOrigin);
   }
 
-  // Sort out main and root paths
+  // Sort out seed and root paths
   const mainAbsolutePath = process.cwd();
   let rootAbsolutePath;
   if (options.root === undefined) {
@@ -152,7 +152,7 @@ export function doInit(options: InitOptions) {
   const mainFromRoot = path.relative(rootAbsolutePath, mainAbsolutePath);
   const rootFromMain = path.relative(mainAbsolutePath, rootAbsolutePath);
 
-  // Dependencies (implicitly finds main too, but that gets deleted)
+  // Dependencies (implicitly finds seed too, but that gets deleted)
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
   findRepositories(".", (repoPath, repoType) => {

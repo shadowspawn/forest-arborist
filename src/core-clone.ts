@@ -112,7 +112,7 @@ export interface InstallOptions {
 
 export function doInstall(options: InstallOptions) {
   const startDir = process.cwd();
-  // Use same branch as main for free branches
+  // Use same branch as seed for free branches
   const manifestObject = core.readManifest({
     seedPath: ".",
     manifest: options.manifest,
@@ -188,22 +188,22 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
   });
   if (manifest.seedPathFromRoot !== ".") {
     console.log("Using sibling repo layout");
-    // Play shell game for sibling layout to get main in to destination root folder.
+    // Play shell game for sibling layout to get seed in to destination root folder.
     // Easy to get confused!
     // Support destination including some path, like path/to/new-root.
     const destinationParentDir = path.dirname(destination);
     // Make a temporary directory
     const tmpObj = tmp.dirSync({ dir: destinationParentDir, keep: true });
-    // Move the main repo into the temporary directory, getting it out of the way
+    // Move the seed repo into the temporary directory, getting it out of the way
     // so we can make root with the destination name.
-    const shelfRepoPath = path.join(tmpObj.name, "main");
+    const shelfRepoPath = path.join(tmpObj.name, "seed");
     fs.renameSync(destination, shelfRepoPath);
     // Make the wrapper root folder. Should we add name decoration if not specified, like foo-forest?
     if (destinationParam === undefined) {
       rootDestination = rootDestination.concat("-forest");
     }
     fs.mkdirSync(rootDestination);
-    // Move main into root with manifest supplied name
+    // Move seed into root with manifest supplied name
     const mainPathFromHere = path.join(rootDestination, manifest.seedPathFromRoot);
     fs.renameSync(shelfRepoPath, mainPathFromHere);
     tmpObj.removeCallback();

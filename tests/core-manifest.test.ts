@@ -45,7 +45,7 @@ describe("core manifest", () => {
 
   test("show", () => {
     const manifestPath = path.resolve(core.manifestPath({ }));
-    process.chdir("free"); // test one option from somewhere in tree other than main
+    process.chdir("free"); // test one option from somewhere in tree other than seed
 
     const spy = jest.spyOn(global.console, 'log');
     command.fab(["manifest"]);
@@ -118,7 +118,7 @@ describe("core manifest", () => {
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
 
-    // Block adding main
+    // Block adding seed
     expect(() => {
       command.fab(["manifest", "--add"]);
     }).toThrow();

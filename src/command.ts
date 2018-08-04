@@ -96,11 +96,11 @@ export function makeProgram(): Command {
       /* istanbul ignore next  */
       console.log(`
     Description:
-      Clones a forest by cloning the main repo into a newly created directory
+      Clones a forest by cloning the seed repo into a newly created directory
       and installing its dependencies.
 
       The optional destination is the name for the newly created root directory.
-      For a nested forest the new directory is the main repo, like with
+      For a nested forest the new directory is the seed repo, like with
       the git and hg clone commands. For a sibling forest the new directory
       is the root directory for the forest and not a repository itself.
      `);
@@ -146,10 +146,10 @@ export function makeProgram(): Command {
       console.log(`
     Description:
       Use init to create the manifest based on your current sandpit.
-      Run from your main repo and it finds the dependent repos.
+      Run from your seed repo and it finds the dependent repos.
 
     Examples:
-      For a forest layout with dependent repos nested in the main repo:
+      For a forest layout with dependent repos nested in the seed repo:
           fab init
 
       For a forest layout with sibling repositories:
@@ -169,7 +169,7 @@ export function makeProgram(): Command {
       /* istanbul ignore next  */
       console.log(`
     Description:
-      Run Install from the main repo.
+      Run Install from the seed repo.
 
       Target repos: all missing and pinned repos. Pinned repos will be updated
                     to match the <pinRevision> from the manifest if necessary.

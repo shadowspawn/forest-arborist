@@ -38,7 +38,7 @@ describe("core", () => {
       core.cdRootDirectory();
     }).toThrow();
 
-    // Main, but no root.
+    // Seed, but no root.
     fsX.mkdirSync(".fab");
     expect(() => {
       core.cdRootDirectory();
@@ -89,7 +89,7 @@ describe("core", () => {
   test("readManifest", () => {
     expect(core.manifestList(".")).toBeUndefined(); // List manifests when folder missing.
 
-    // simple main repo
+    // simple seed repo
     fsX.mkdirSync(".fab");
     expect(core.manifestList(".")).toEqual(0); // List manifests empty folder.
     fsX.closeSync(fsX.openSync(path.join(".fab", "notAManifest"), "w"));
@@ -125,12 +125,12 @@ describe("core", () => {
     expect(manifestReadNested1.dependencies["hg"]).not.toBeUndefined();
     // drop unrecognised repo types
     expect(manifestReadNested1.dependencies["silly"]).toBeUndefined();
-    // main repo not present by default
+    // seed repo not present by default
     expect(manifestReadNested1.dependencies["."]).toBeUndefined();
     // absolute origin
     expect(manifestReadNested1.dependencies["relativeOrigin"].origin).toEqual("git://host.xz/path1/relativeOrigin");
 
-    // add main repo on request
+    // add seed repo on request
     const manifestReadNested2 = core.readManifest({ seedPath: ".", manifest: "nested1", addSeedToDependencies: true });
     expect(manifestReadNested2.dependencies["."]).not.toBeUndefined();
 

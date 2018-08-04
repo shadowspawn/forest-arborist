@@ -44,7 +44,7 @@ export function doManifest(options: ManifestOptions) {
     const relTargetPath = rootRelative(startDir, options.add);
     const absTargetPath = path.resolve(relTargetPath);
     if (seedPath === absTargetPath) {
-      util.terminate("Main folder cannot be added as a dependency");
+      util.terminate("Seed folder cannot be added as a dependency");
     }
     const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
     console.log(`Adding dependency for ${absTargetPath}`);
@@ -63,7 +63,7 @@ export function doManifest(options: ManifestOptions) {
     core.writeManifest(manifestPath, manifestObject);
     console.log(`Deleted manifest dependency for ${targetPath}`);
   } else {
-    // Do something vaguely useful, like `fab root` and `fab main`
+    // Do something vaguely useful, like `fab root` and `fab seed`
     console.log(manifestPath);
   }
   process.chdir(startDir);

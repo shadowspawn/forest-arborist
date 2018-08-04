@@ -102,7 +102,7 @@ export function doRecreate(snapshotPath: string, destinationParam?: string) {
     destination = dvcsUrl.repoName(dvcsUrl.parse(mainRepoEntry.origin));
   }
 
-  // Clone main repo first and cd to root
+  // Clone seed repo first and cd to root
   const mainPathFromRoot = util.normalizeToPosix(snapshotObject.mainPathFromRoot);
   if (mainPathFromRoot !== ".") {
     // Sibling layout. Make wrapper root directory.

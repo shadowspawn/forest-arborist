@@ -81,7 +81,7 @@ export function manifestPath(options: ManifestOptions): string {
 export function manifestList(mainPath: string): number | undefined  {
   const manifestDir = path.join(mainPath, ".fab");
   if (!fs.existsSync(manifestDir)) {
-    console.log("(No manifest folder found. Do you need to cd to main repo, or run \"fab init\"?)");
+    console.log("(No manifest folder found. Do you need to cd to seed repo, or run \"fab init\"?)");
     return undefined;
   }
 
@@ -277,7 +277,7 @@ export function writeManifest(manifestPath: string, manifestObject: Manifest) {
     mainPathFromRoot: manifestObject.seedPathFromRoot,
     tipsForManualEditing: [
       "The origin property for dependencies can be an URL ",
-      "  or a relative path which is relative to the main repo origin.)",
+      "  or a relative path which is relative to the seed repo origin.)",
       "The key for the dependencies map is the local relative path from the root directory.",
       "Use forward slashes in paths (e.g. path/to not path\to).",
       "Dependent repos come in three flavours, determined by the properties:",
