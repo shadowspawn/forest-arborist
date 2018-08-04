@@ -114,7 +114,8 @@ describe("core", () => {
     const manifestWriteNested = {
       dependencies: dependencies1,
       rootDirectory: ".",
-      mainPathFromRoot: "."
+      seedPathFromRoot: ".",
+      mainPathFromRoot: ".",
     };
     fsX.writeFileSync(core.manifestPath({ manifest: "nested1" }), JSON.stringify(manifestWriteNested));
     expect(core.manifestList(".")).toEqual(1);  // First manifest

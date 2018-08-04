@@ -50,7 +50,7 @@ export function doManifest(options: ManifestOptions) {
     console.log(`Adding dependency for ${absTargetPath}`);
     manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] = coreInit.makeDependencyEntry({
       repoPath: relTargetPath,
-      mainRepoPath: seedPath,
+      seedRepoPath: seedPath,
     });
     core.writeManifest(manifestPath, manifestObject);
   } else if (options.delete) {

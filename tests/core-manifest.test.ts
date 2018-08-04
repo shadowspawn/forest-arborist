@@ -113,7 +113,7 @@ describe("core manifest", () => {
 
   test("add", () => {
     const manifestBefore = core.readManifest({ });
-    manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({ mainRepoPath: ".", repoPath: "pinned" });
+    manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({ seedRepoPath: ".", repoPath: "pinned" });
     command.fab(["manifest", "--add", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);

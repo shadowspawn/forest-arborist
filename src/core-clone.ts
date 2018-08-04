@@ -118,11 +118,11 @@ export function doInstall(options: InstallOptions) {
     manifest: options.manifest,
   });
   const rootAbsolutePath = path.resolve(startDir, manifestObject.rootDirectory);
-  const mainFromRoot = path.relative(rootAbsolutePath, process.cwd());
+  const seedFromRoot = path.relative(rootAbsolutePath, process.cwd());
   const freeBranch = repo.getBranch(".");
   core.writeRootFile({
     rootFilePath: path.join(rootAbsolutePath, core.fabRootFilename),
-    seedPath: mainFromRoot,
+    seedPath: seedFromRoot,
     manifest: options.manifest,
   });
   console.log();
@@ -173,8 +173,8 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     console.log("(Does the source repo exist?)");
     util.terminate(`failed to find repository type for ${source}`);
   }
-  const mainEntry: core.DependencyEntry = { origin: source, repoType };
-  cloneEntry(mainEntry, destination, options.branch);
+  const seedEntry: core.DependencyEntry = { origin: source, repoType };
+  cloneEntry(seedEntry, destination, options.branch);
 
   const fabManifest = core.manifestPath({ seedPath: destination });
   if (!fs.existsSync(fabManifest)) {
@@ -204,10 +204,10 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     }
     fs.mkdirSync(rootDestination);
     // Move seed into root with manifest supplied name
-    const mainPathFromHere = path.join(rootDestination, manifest.seedPathFromRoot);
-    fs.renameSync(shelfRepoPath, mainPathFromHere);
+    const seedPathFromHere = path.join(rootDestination, manifest.seedPathFromRoot);
+    fs.renameSync(shelfRepoPath, seedPathFromHere);
     tmpObj.removeCallback();
-    process.chdir(mainPathFromHere);
+    process.chdir(seedPathFromHere);
   } else {
     process.chdir(destination);
   }

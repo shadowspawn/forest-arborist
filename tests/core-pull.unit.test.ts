@@ -40,7 +40,7 @@ describe("core branch", () => {
 
   test("pull #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
+      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
     });
     getBranchSpy.mockReturnValue("master");
 
@@ -51,7 +51,7 @@ describe("core branch", () => {
 
   test("pull in locked #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git", lockBranch: "locked" } }, rootDirectory: "..", mainPathFromRoot: "main"
+      dependencies: { "g": { repoType: "git", lockBranch: "locked" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
     });
     getBranchSpy.mockReturnValue("locked");
 
@@ -61,7 +61,7 @@ describe("core branch", () => {
 
   test("pull in detached #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", mainPathFromRoot: "main"
+      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
     });
     getBranchSpy.mockReturnValue(undefined);
 
@@ -74,7 +74,7 @@ describe("core branch", () => {
       dependencies: {
         "g": { repoType: "git", pinRevision: "DEADBEEF" },
         "h": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", mainPathFromRoot: "main"
+      }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main",
     });
 
     corePull.doPull();

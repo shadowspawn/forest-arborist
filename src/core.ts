@@ -78,8 +78,8 @@ export function manifestPath(options: ManifestOptions): string {
 }
 
 
-export function manifestList(mainPath: string): number | undefined  {
-  const manifestDir = path.join(mainPath, ".fab");
+export function manifestList(seedPath: string): number | undefined  {
+  const manifestDir = path.join(seedPath, ".fab");
   if (!fs.existsSync(manifestDir)) {
     console.log("(No manifest folder found. Do you need to cd to seed repo, or run \"fab init\"?)");
     return undefined;

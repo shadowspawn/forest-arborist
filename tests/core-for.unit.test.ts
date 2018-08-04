@@ -24,7 +24,7 @@ describe("core for", () => {
         "h": { repoType: "hg" },
         "locked": { repoType: "git", lockBranch: "lockedBranch" },
         "pinned": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", mainPathFromRoot: "main"
+      }, rootDirectory: "..", seedPathFromRoot: "main"
     });
   });
 

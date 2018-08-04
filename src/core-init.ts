@@ -45,14 +45,14 @@ function isHgPinned(repoPath: string) {
 interface MakeDependencyEntryWithDetailsOptions {
   repoPath: string;
   repoType: repo.RepoType;
-  mainBranch: string | undefined;
-  parsedMainOrigin: dvcsUrl.DvcsUrl;
+  seedBranch: string | undefined;
+  parsedSeedOrigin: dvcsUrl.DvcsUrl;
 }
 
 function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsOptions): core.DependencyEntry {
   const repoPath = options.repoPath;
   const repoType = repo.getRepoTypeForParams(options.repoPath, options.repoType);
-  const parsedMainOrigin = options.parsedMainOrigin;
+  const parsedSeedOrigin = options.parsedSeedOrigin;
   const origin = repo.getOrigin(repoPath, repoType);
 
   console.log(`  ${repoPath}`);
@@ -70,18 +70,21 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
   } else if (repoType === "hg" && isHgPinned(repoPath)) {
     entry.pinRevision = repo.getRevision(repoPath, repoType);
     console.log(`    (pinned revision to ${entry.pinRevision})`);
-  } else if (lockBranch !== options.mainBranch) {
+  } else if (lockBranch !== options.seedBranch) {
     console.log(`    (locked branch to ${lockBranch})`);
     entry.lockBranch = lockBranch;
   } else {
     // Fairly conservative about choosing free.
     let locked = true;
-    if (origin !== undefined && parsedMainOrigin !== undefined) {
+    if (origin !== undefined && parsedSeedOrigin
+   !== undefined) {
       const parsedOrigin = dvcsUrl.parse(origin);
-      if (dvcsUrl.sameDir(parsedOrigin, parsedMainOrigin)) {
+      if (dvcsUrl.sameDir(parsedOrigin, parsedSeedOrigin
+  )) {
         locked = false;
         console.log("    (free)");
-        const relativePath = dvcsUrl.relative(parsedMainOrigin, parsedOrigin);
+        const relativePath = dvcsUrl.relative(parsedSeedOrigin
+      , parsedOrigin);
         // Should always be true?
         if (dvcsUrl.isRelativePath(relativePath)) {
           entry.origin = relativePath;
@@ -100,15 +103,15 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
 
 export interface MakeDependencyEntryOptions {
   repoPath: string;
-  mainRepoPath: string;
+  seedRepoPath: string;
 }
 
 export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.DependencyEntry {
   const repoPath = options.repoPath;
   const repoType = repo.getRepoTypeForLocalPath(repoPath);
-  const mainBranch = repo.getBranch(options.mainRepoPath);
-  const parsedMainOrigin = dvcsUrl.parse(repo.getOrigin(options.mainRepoPath));
-  return makeDependencyEntryWithDetails({ repoPath, repoType, mainBranch, parsedMainOrigin});
+  const seedBranch = repo.getBranch(options.seedRepoPath);
+  const parsedSeedOrigin = dvcsUrl.parse(repo.getOrigin(options.seedRepoPath));
+  return makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin});
 }
 
 
@@ -129,14 +132,15 @@ export function doInit(options: InitOptions) {
   const absManifestPath = path.resolve(startDir, relManifestPath);
 
   // Find seed origin, if we can.
-  const mainRepoType = repo.getRepoTypeForLocalPath(".");
-  const mainOrigin = repo.getOrigin(".", mainRepoType);
-  const mainBranch = repo.getBranch(".", mainRepoType);
-  let parsedMainOrigin: dvcsUrl.DvcsUrl;
-  if (mainOrigin === undefined) {
+  const seedRepoType = repo.getRepoTypeForLocalPath(".");
+  const seedOrigin = repo.getOrigin(".", seedRepoType);
+  const seedBranch = repo.getBranch(".", seedRepoType);
+  let parsedSeedOrigin: dvcsUrl.DvcsUrl;
+  if (seedOrigin === undefined) {
     console.log(util.errorColour("(origin not specified for starting repo)"));
   } else {
-    parsedMainOrigin = dvcsUrl.parse(mainOrigin);
+    parsedSeedOrigin
+ = dvcsUrl.parse(seedOrigin);
   }
 
   // Sort out seed and root paths
@@ -156,7 +160,8 @@ export function doInit(options: InitOptions) {
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
   findRepositories(".", (repoPath, repoType) => {
-    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, mainBranch, parsedMainOrigin });
+    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin
+ });
     dependencies[util.normalizeToPosix(repoPath)] = entry;
   });
   delete dependencies[mainFromRoot];
