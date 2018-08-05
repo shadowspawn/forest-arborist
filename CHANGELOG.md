@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
+## [Unreleased]
+
+### Added
+
+- `help` command (same as `--help`)
+
+### Fixed
+
+- spurious `Unknown command:` before help when ran `fab` with no command
+- indentation in command-line help
+ 
+### Changed
+
+### Removed
+
 ## [3.0.0] (2018-08-04)
 
 Changed nomenclature for the repo containing the manifests from _main_ to _seed_.

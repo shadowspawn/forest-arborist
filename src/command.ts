@@ -70,11 +70,11 @@ export function makeProgram(): Command {
   /* istanbul ignore next  */
   program.on("--help", () => {
     console.log(`
-    Files:
-      ${core.manifestPath({})} default manifest for forest
-      ${core.fabRootFilename} marks root of forest (do not commit to VCS)
+  Files:
+    ${core.manifestPath({})} default manifest for forest
+    ${core.fabRootFilename} marks root of forest (do not commit to VCS)
 
-    Commands Summary
+  Commands Summary
     Forest management: clone, init, install
     Utility: status, pull, for-each, for-free, git, hg
     Branch: make-branch, switch
@@ -82,8 +82,8 @@ export function makeProgram(): Command {
     Display: root, seed, manifest
     Manifest management: manifest --edit, --list, --add, --delete
 
-    See https://github.com/JohnRGee/forest-arborist.git for usage overview.
-    See also "fab <command> --help" for individual command options and further help.
+  See https://github.com/JohnRGee/forest-arborist.git for usage overview.
+  See also "fab <command> --help" for individual command options and further help.
     `);
   });
 
@@ -95,14 +95,14 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Description:
-      Clones a forest by cloning the seed repo into a newly created directory
-      and installing its dependencies.
+  Description:
+    Clones a forest by cloning the seed repo into a newly created directory
+    and installing its dependencies.
 
-      The optional destination is the name for the newly created root directory.
-      For a nested forest the new directory is the seed repo, like with
-      the git and hg clone commands. For a sibling forest the new directory
-      is the root directory for the forest and not a repository itself.
+    The optional destination is the name for the newly created root directory.
+    For a nested forest the new directory is the seed repo, like with
+    the git and hg clone commands. For a sibling forest the new directory
+    is the root directory for the forest and not a repository itself.
      `);
     })
     .action((source, destination, options) => {
@@ -115,17 +115,17 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Description:
-      Generates shell completion script.
+  Description:
+    Generates shell completion script.
 
-      For trying out shell completion without writing files on Lin:
-          source < (fab completion)
-      on Mac:
-          eval \`$(fab completion)\`
+    For trying out shell completion without writing files on Lin:
+        source < (fab completion)
+    on Mac:
+        eval \`$(fab completion)\`
 
-      To install permanently, write to a startup file in
-      same way as "npm completion". For interactive assistance:
-          npx tabtab install fab --name=fab
+    To install permanently, write to a startup file in
+    same way as "npm completion". For interactive assistance:
+        npx tabtab install fab --name=fab
       `);
     })
     .action(() => {
@@ -144,16 +144,16 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Description:
-      Use init to create the manifest based on your current sandpit.
-      Run from your seed repo and it finds the dependent repos.
+  Description:
+    Use init to create the manifest based on your current sandpit.
+    Run from your seed repo and it finds the dependent repos.
 
-    Examples:
-      For a forest layout with dependent repos nested in the seed repo:
-          fab init
+  Examples:
+    For a forest layout with dependent repos nested in the seed repo:
+        fab init
 
-      For a forest layout with sibling repositories:
-          fab init --root ..
+    For a forest layout with sibling repositories:
+        fab init --root ..
       `);
     })
     .action((options) => {
@@ -168,11 +168,11 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Description:
-      Run Install from the seed repo.
+  Description:
+    Run Install from the seed repo.
 
-      Target repos: all missing and pinned repos. Pinned repos will be updated
-                    to match the <pinRevision> from the manifest if necessary.
+    Target repos: all missing and pinned repos. Pinned repos will be updated
+    to match the <pinRevision> from the manifest if necessary.
       `);
     })
     .action((options) => {
@@ -194,7 +194,7 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Target repos: free and branch-locked, excludes repos pinned to a revision.
+  Target repos: free and branch-locked, excludes repos pinned to a revision.
       `);
     })
     .action(() => {
@@ -327,17 +327,17 @@ export function makeProgram(): Command {
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
-    Description:
-      Specify an option to list or make changes to manifest. Can be used from
-      anywhere in forest.
+  Description:
+    Specify an option to list or make changes to manifest. Can be used from
+    anywhere in forest.
 
-      You can optionally specify the repo-path for --add and --delete,
-      which otherwise default to the current working directory.
+    You can optionally specify the repo-path for --add and --delete,
+    which otherwise default to the current working directory.
 
-      --edit uses the EDITOR or VISUAL environment variable if specified,
-      and falls back to Notepad on Windows and vi on other platforms.
+    --edit uses the EDITOR or VISUAL environment variable if specified,
+    and falls back to Notepad on Windows and vi on other platforms.
 
-      With no options, show the manifest path.
+    With no options, show the manifest path.
       `);
     })
     .action((options) => {
@@ -345,12 +345,21 @@ export function makeProgram(): Command {
       coreManifest.doManifest(options);
     });
 
-    program.on('command:*', () => {
-      console.error(`Unknown command: ${program.args.join()}\nSee "fab --help" for a list of available commands.`);
-      util.terminate();
+  program
+    .command("help")
+    .description("output usage information")
+    .action(() => {
+      program.help();
     });
 
-    return program;
+  program.on('command:*', () => {
+    if (program.args.length > 0) {
+      console.error(`Unknown command: ${program.args.join()}\nSee "fab --help" for a list of available commands.`);
+      util.terminate();
+    }
+  });
+
+  return program;
 }
 
 
