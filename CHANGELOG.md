@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased]
+## [3.1.0] (2018-08-05)
 
 ### Added
 
@@ -119,6 +119,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [Unreleased]: https://github.com/JohnRGee/forest-arborist/compare/master...develop
+[3.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.2.0...v2.0.0
 [1.2.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.1.2...v1.2.0
