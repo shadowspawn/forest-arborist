@@ -1,5 +1,9 @@
 # Forest Arborist
 
+[![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
+[![travis build](https://img.shields.io/travis/JohnRGee/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/JohnRGee/forest-arborist)
+[![appveyor build](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
+
 - [Forest Arborist](#forest-arborist)
     - [Overview](#overview)
     - [Installation](#installation)
@@ -11,14 +15,13 @@
     - [Manifest Files (Internals)](#manifest-files-internals)
     - [Command-line Completion](#command-line-completion)
     - [Colour Output](#colour-output)
-    - [Status](#status)
-
+    - [Developing](#developing)
 
 ## Overview
 
 Provide key operations on a loosely coupled forest of repositories. The
 forest can be nested under a main repo or siblings in a plain directory. Supports
-both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories.
+both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories. Tested on MacOS, Windows, and Linux.
 
 Aims to be lightweight and coexist with other tooling, rather than intrusive and opinionated.
 
@@ -196,17 +199,16 @@ To install, write the output of `fab completion` to a shell startup file. (c.f. 
 
 Colour output is off by default on Windows and on by default for other platforms. You can explicitly enable or disable colour using [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), or disable colour using [NO_COLOR](http://no-color.org).
 
-## Status
+## Developing
 
-[![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
+| Branch | MacOS & Linux | Windows |
+| --- | --- | --- |
+| develop | [![travis build](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/JohnRGee/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/JohnRGee/forest-arborist) |
 
-builds on master branch:
-[![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/master.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
-[![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/master.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
+Quick start:
 
-builds on develop branch :
-[![travis status status](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?&label=mac+%26+lin)](https://travis-ci.org/JohnRGee/forest-arborist)
-[![appveyor status status](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?label=win)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
-
-- OS: used on macOS, Windows, and Linux.
-- DVCS: main development with git, less testing with hg.
+    git clone git@github.com:JohnRGee/forest-arborist.git
+    cd forest-arborist
+    npm install
+    npm link
+    npm run test

@@ -32,8 +32,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - list commands in alphabetical order in command-line help
 
-### Removed
-
 ## [3.0.0] (2018-08-04)
 
 Changed nomenclature for the repo containing the manifests from _main_ to _seed_.
