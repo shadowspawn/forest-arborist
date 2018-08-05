@@ -1,5 +1,21 @@
 # Forest Arborist
 
+- [Forest Arborist](#forest-arborist)
+    - [Overview](#overview)
+    - [Installation](#installation)
+    - [Forest Management Commands](#forest-management-commands)
+    - [Utility Commands](#utility-commands)
+    - [Working With Branches](#working-with-branches)
+    - [Reproducing Forest State](#reproducing-forest-state)
+    - [Dependent Repository Types](#dependent-repository-types)
+    - [Manifest Files (Internals)](#manifest-files-internals)
+    - [Command-line Completion](#command-line-completion)
+    - [Colour Output](#colour-output)
+    - [Status](#status)
+
+
+## Overview
+
 Provide key operations on a loosely coupled forest of repositories. The
 forest can be nested under a main repo or siblings in a plain directory. Supports
 both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories.
@@ -7,24 +23,31 @@ both Git and Mercurial repositories. Inspired by experience with Mercurial subre
 Aims to be lightweight and coexist with other tooling, rather than intrusive and opinionated.
 
 Uses a manifest file in the seed repo and a marker file at the root of the forest.
-Allows some commands to be run from anywhere in the forest, by searching up for
+Allows most commands to be run from anywhere in the forest, by searching up for
 the root marker file.
 
 Terminology:
 
-- forest: a collection of repositories and their working trees
-- root: directory at the root of the forest
-- manifest: lists dependent repositories and forest configuration
-- seed repository: where the manifest is stored
+- _forest_: a collection of repositories and their working trees
+- _root_: directory at the root of the forest
+- _manifest_: lists dependent repositories and forest configuration
+- _seed_ repository: where the manifest is stored
 
-## Getting Started
+## Installation
 
-To create a manifest from an existing forest you run `init` from the seed repo:
+Requires `node` and `npm`.
 
-- `fab init` from master repository for a nested forest
+    npm install --global @shadowspawn/forest-arborist
+    fab help
+
+## Forest Management Commands
+
+To add `fab` to an existing forest you run `init` from the seed repo where you want the manifest to be stored.
+
+- `fab init` from root repo for a nested forest
 - `fab init --root ..` from seed repo for a sibling forest
 
-Commit the manifest file, and then you can `clone` the seed repo to get the forest:
+You `clone` a seed repo to get the forest. This uses the manifest to find the dependent repos and forest layout.
 
     fab clone ssh://user@host:/path
 
@@ -33,6 +56,44 @@ platform libraries or production vs development, you can specify a manifest name
 
     fab init --manifest mac
     fab clone --manifest mac ssh://user@host:/path
+
+To (re)install dependent repos if the manifest has changed, or install dependent repos after cloning just the seed repo:
+
+    fab install
+
+## Utility Commands
+
+To see a compact status listing for each repo in the forest:
+
+    fab status
+
+To pull new changesets:
+
+    fab pull
+
+There are two commands which take an explicit additional command to run across the forest. A `--` is used to mark the end of the `fab` options, and is optional if there are no options in the additional command. (_free_ is explained in [Dependent Repository Types](#dependent-repository-types))
+
+    fab for-each -- git remote -v
+    fab for-free -- git branch
+
+There are two commands which run specifically `git` or `hg` commands across the forest repositories of matching type:
+
+    fab git -- remote -v
+    fab hg -- summary
+
+## Working With Branches
+
+You can specify the starting branch when you make the clone:
+
+    fab clone --branch develop ssh://user@host:/path
+
+There are commands to make a new branch and to switch to an existing branch:
+
+    fab make-branch feature/bells
+    fab make-branch --publish feature/working-with-others
+    fab switch master
+
+The branch commands operate on the _free_ repositories, and not the _pinned_ or _locked_ repositories. (See next section.)
 
 ## Reproducing Forest State
 
@@ -50,19 +111,6 @@ Example commands:
     cd ~/sandpit
     fab recreate ~/snapshot1 myTempRepo
 
-## Working With Branches
-
-You can specify the starting branch when you make the clone:
-
-    fab clone --branch develop ssh://user@host:/path
-
-There are commands to make a new branch and to switch to an existing branch:
-
-    fab make-branch feature/bells
-    fab switch master
-
-The branch commands operate on the _free_ repositories, and not the pinned or locked repositories. (See next section.)
-
 ## Dependent Repository Types
 
 Some of the repositories you work with are actively developed along with the seed repo,
@@ -71,31 +119,13 @@ at a specific version.
 
 The dependent repos can be configured in three ways:
 
-- pinned to a specified changeset or tag
-- locked to a specified branch
-- free to follow the seed repo
+- _pinned_ to a specified changeset or tag
+- _locked_ to a specified branch
+- _free_ to follow the seed repo
 
 The various commands operate on an appropriate subset of the repos. For example
-the switch command only affects the free repositories, the pull command affects
-free and locked, and the status command runs on all the repos.
-
-## Running Commands Across Forest
-
-There are two general purpose commands to run arbitrary commands across the forest. A `--` is used to mark the end of the fab options, and is optional if there are no additional options.
-
-    fab for-each -- git remote -v
-    fab for-free -- git branch
-
-There are two commands to run specifically git or hg commands across the forest repositories of matching type.
-
-    fab git -- remote -v
-    fab hg -- summary
-
-## Help
-
-    fab
-    fab --help
-    fab clone --help
+the switch command only affects the _free_ repositories, the pull command affects
+_free_ and _locked_, and the status command runs on all the repos.
 
 ## Manifest Files (Internals)
 
@@ -162,22 +192,9 @@ To install, write the output of `fab completion` to a shell startup file. (c.f. 
 
      npx tabtab install fab --name=fab
 
-## Colour
+## Colour Output
 
 Colour output is off by default on Windows and on by default for other platforms. You can explicitly enable or disable colour using [FORCE_COLOR](https://www.npmjs.com/package/chalk#chalksupportscolor), or disable colour using [NO_COLOR](http://no-color.org).
-
-## Installing
-
-Requires node and npm. Easy install:
-
-    npm install --global @shadowspawn/forest-arborist
-
-For more flexibility including development:
-
-    git clone https://github.com/JohnRGee/forest-arborist.git
-    cd forest-arborist
-    npm install
-    npm link
 
 ## Status
 
