@@ -17,8 +17,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - spurious `Unknown command:` before help when ran `fab` with no command
 - indentation in command-line help
- 
+
 ### Changed
+
+- list commands in alphabetical order in command-line help
 
 ### Removed
 

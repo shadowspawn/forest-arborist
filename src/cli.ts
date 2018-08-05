@@ -7,6 +7,14 @@ import * as util from "./util";
 
 const program = command.makeProgram();
 
+// Sort commands so alphabetical in help. Using internal knowledge!
+// https://github.com/tj/commander.js/issues/625
+if (program.commands) {
+  program.commands.sort((a: command.Command, b: command.Command) => {
+    return a._name.localeCompare(b._name);
+  });
+}
+
 try {
   program.parse(process.argv);
 } catch (err) {
