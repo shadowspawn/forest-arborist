@@ -93,7 +93,7 @@ There are commands to make a new branch and to switch to an existing branch:
     fab make-branch --publish feature/working-with-others
     fab switch master
 
-The branch commands operate on the _free_ repositories, and not the _pinned_ or _locked_ repositories. (See next section.)
+The branch commands operate on the _free_ repositories, and not the _pinned_ or _locked_ repositories. (See [Dependent Repository Types](#dependent-repository-types).)
 
 ## Reproducing Forest State
 
