@@ -2,7 +2,7 @@
 
 ## Issues
 
-New bug reports and feature requests are welcome. You are also welcome to contribute by adding helpful comments on an existing issue.
+New issues are welcome. You are also welcome to contribute by adding helpful comments on an existing issue.
 
 I maintain the project in my own time, but you can expect a response within 7 days.
 
