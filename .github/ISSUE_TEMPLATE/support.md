@@ -4,14 +4,21 @@ about: Got a problem?
 
 ---
 
-# Problem Template
+# Problem
 
-_The text in italics is instructions you can delete before submitting your issue._
+<!--
+The text in these markdown comments is instructions that will not appear in the displayed issue.
+This is a suggested template, but you don't have to follow it!
+-->
 
 ## Short Version
 
-_Add a clear and concise description of your problem._
+<!--
+Add a clear and concise description of your problem. Include what operating system you are on. 
+-->
 
 ## Long Version
 
-_Add any other useful information or commentary. Especially what operating system you are on!_
+<!--
+Add more explanation and useful information or commentary as needed.
+-->
