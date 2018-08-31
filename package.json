@@ -60,13 +60,13 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.1",
-    "@types/node": "^8.10.26",
+    "@types/node": "^8.10.29",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
     "jest": "^23.5.0",
     "ts-jest": "^23.1.4",
     "tslint": "^5.11.0",
-    "typescript": "^3.0.1"
+    "typescript": "^3.0.3"
   },
   "bugs": {
     "url": "https://github.com/JohnRGee/forest-arborist/issues"
