@@ -71,10 +71,12 @@ export function makeProgram(): Command {
   program.on("--help", () => {
     console.log(`
 Files:
+
   ${core.manifestPath({})} default manifest for forest
   ${core.fabRootFilename} marks root of forest (do not commit to VCS)
 
-Commands Summary
+Commands Summary:
+
   Forest management: clone, init, install
   Utility: status, pull, for-each, for-free, git, hg
   Branch: make-branch, switch
@@ -95,6 +97,7 @@ See also "fab <command> --help" for individual command options and further help.
       /* istanbul ignore next  */
       console.log(`
 Description:
+
   Clones a forest by cloning the seed repo into a newly created directory
   and installing its dependencies.
 
@@ -114,6 +117,7 @@ Description:
       /* istanbul ignore next  */
       console.log(`
 Description:
+
   Generates shell completion script.
 
   For trying out shell completion without writing files on Lin:
@@ -142,10 +146,12 @@ Description:
       /* istanbul ignore next  */
       console.log(`
 Description:
+
   Use init to create the manifest based on your current sandpit.
   Run from your seed repo and it finds the dependent repos.
 
 Examples:
+
   For a forest layout with dependent repos nested in the seed repo:
       fab init
 
@@ -165,6 +171,7 @@ Examples:
       /* istanbul ignore next  */
       console.log(`
 Description:
+
   Run Install from the seed repo.
 
   Target repos: all missing and pinned repos. Pinned repos will be updated
@@ -322,6 +329,7 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
       /* istanbul ignore next  */
       console.log(`
 Description:
+
   Specify an option to list or make changes to manifest. Can be used from
   anywhere in forest.
 
