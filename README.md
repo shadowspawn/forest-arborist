@@ -207,7 +207,7 @@ Colour output is off by default on Windows and on by default for other platforms
 
 Quick start:
 
-    git clone git@github.com:JohnRGee/forest-arborist.git
+    git clone --branch develop git@github.com:JohnRGee/forest-arborist.git
     cd forest-arborist
     npm install
     npm link
