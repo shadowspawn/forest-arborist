@@ -12,7 +12,7 @@ describe("core branch", () => {
   let cdRootDirectorySpy: jest.SpyInstance;
   let readManifestSpy: jest.SpyInstance;
   let execCommandSyncSpy: jest.SpyInstance;
-  let getRepoTypeForLocalPathSpy: jest.SpyInstance;
+  let getRepoTypeForLocalPathSpy: jest.SpyInstance; // Needed for switch
 
   beforeAll(() => {
     cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
@@ -20,7 +20,13 @@ describe("core branch", () => {
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
     execCommandSyncSpy.mockReturnValue(undefined);
     getRepoTypeForLocalPathSpy = jest.spyOn(repo, "getRepoTypeForLocalPath");
-    getRepoTypeForLocalPathSpy.mockReturnValue('git');
+    getRepoTypeForLocalPathSpy.mockImplementation((repoPath: string) => {
+      if (repoPath === "h" || repoPath == "." ) {
+        return "hg";
+      } else {
+        return 'git';
+      }
+    });
     readManifestSpy = jest.spyOn(core, "readManifest");
     // readManifestSpy custom per test
   });
@@ -44,7 +50,9 @@ describe("core branch", () => {
       { dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main" }
     );
     coreBranch.doSwitch("b");
+    expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
     expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true }); // just checking once
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "g"});
   });
 
@@ -53,6 +61,8 @@ describe("core branch", () => {
       { dependencies: { "h": { repoType: "hg" } }, rootDirectory: ".", seedPathFromRoot: "." }
     );
     coreBranch.doSwitch("b");
+    expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "b"], { cwd: "."});
     expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["update", "b"], { cwd: "h"});
   });
 
@@ -83,6 +93,22 @@ describe("core branch", () => {
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
   });
 
+  test("switch branch #git, manifest changes", () => {
+    readManifestSpy.mockReturnValueOnce(
+      { dependencies: { "before": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main" }
+    ).mockReturnValueOnce(
+      { dependencies: { "after": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main" }
+    );
+    coreBranch.doSwitch("b");
+    // No calls on extra repos because, as explained by command itself:
+    //    before: no longer in forest manifest, not changing branch
+    //    after: missing, run "fab install" to clone
+    expect(execCommandSyncSpy).toHaveBeenCalledTimes(1);
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
+  });
+
+  // make-branch
+
   test("make-branch does not do locked and pinned #mixed", () => {
     readManifestSpy.mockReturnValue({
       dependencies: {
@@ -95,8 +121,6 @@ describe("core branch", () => {
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(1);
     expect(execCommandSyncSpy.mock.calls).toEqual([["git", ["checkout", "-b", "b"], { cwd: "main"}]]);
   });
-
-  // make-branch
 
   test("make-branch branch #git", () => {
     readManifestSpy.mockReturnValue({
