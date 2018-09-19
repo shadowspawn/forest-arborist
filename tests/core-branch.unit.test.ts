@@ -1,5 +1,6 @@
 // Test the core-branch routines generate the expected shell commands.
 
+import * as fs from "fs";
 // Mine
 import * as core from "../src/core";
 import * as coreBranch from "../src/core-branch";
@@ -13,6 +14,7 @@ describe("core branch", () => {
   let readManifestSpy: jest.SpyInstance;
   let execCommandSyncSpy: jest.SpyInstance;
   let getRepoTypeForLocalPathSpy: jest.SpyInstance; // Needed for switch
+  let existsSyncSpy: jest.SpyInstance; // Needed for switch when manifest changes
 
   beforeAll(() => {
     cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
@@ -28,19 +30,25 @@ describe("core branch", () => {
       }
     });
     readManifestSpy = jest.spyOn(core, "readManifest");
-    // readManifestSpy custom per test
+    // readManifestSpy is defined per test
+    existsSyncSpy = jest.spyOn(fs, "existsSync");
+    existsSyncSpy.mockReturnValue(false); // default, override as needed
   });
 
   afterAll(() => {
     cdRootDirectorySpy.mockRestore();
     readManifestSpy.mockRestore();
     execCommandSyncSpy.mockRestore();
+    getRepoTypeForLocalPathSpy.mockRestore();
+    existsSyncSpy.mockRestore();
   });
 
   beforeEach(() => {
     cdRootDirectorySpy.mockClear();
     readManifestSpy.mockReset();
     execCommandSyncSpy.mockClear();
+    getRepoTypeForLocalPathSpy.mockClear();
+    existsSyncSpy.mockClear();
   });
 
   // switch
@@ -93,18 +101,59 @@ describe("core branch", () => {
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
   });
 
-  test("switch branch #git, manifest changes", () => {
+  test("switch branch #git, manifest changes: repo removed, repo added but not cloned", () => {
     readManifestSpy.mockReturnValueOnce(
       { dependencies: { "before": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main" }
     ).mockReturnValueOnce(
       { dependencies: { "after": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main" }
     );
+    existsSyncSpy.mockReturnValueOnce(false); // new repo missing
     coreBranch.doSwitch("b");
-    // No calls on extra repos because, as explained by command itself:
-    //    before: no longer in forest manifest, not changing branch
-    //    after: missing, run "fab install" to clone
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(1);
     expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
+  });
+
+  test("switch branch #git, manifest changes: new repos cloned", () => {
+    readManifestSpy.mockReturnValueOnce(
+      { rootDirectory: "..", seedPathFromRoot: "main" }
+    ).mockReturnValueOnce(
+      { dependencies: {
+        "afterFree": { repoType: "git" },
+        "afterLocked": { repoType: "git", lockBranch: "lock" },
+        "afterPinned": { repoType: "git", pinRevision: "v1.2" }
+      }, rootDirectory: "..", seedPathFromRoot: "main" }
+    );
+    existsSyncSpy.mockReturnValue(true); // new repos exist
+
+    coreBranch.doSwitch("b");
+    expect(execCommandSyncSpy).toHaveBeenCalledTimes(4);
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "afterFree"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "lock"], { cwd: "afterLocked"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["-c", "advice.detachedHead=false", "checkout", "v1.2"], { cwd: "afterPinned"});
+  });
+
+  test("switch branch #git, manifest changes dependent repository type", () => {
+    readManifestSpy.mockReturnValueOnce(
+      {  dependencies: {
+        "toFree": { repoType: "git", pinRevision: "v1.2" },
+        "toLocked": { repoType: "git" },
+        "toPinned": { repoType: "git", lockBranch: "lock" }
+      }, rootDirectory: "..", seedPathFromRoot: "main" }
+    ).mockReturnValueOnce(
+      { dependencies: {
+        "toFree": { repoType: "git" },
+        "toLocked": { repoType: "git", lockBranch: "lock" },
+        "toPinned": { repoType: "git", pinRevision: "v1.2" }
+      }, rootDirectory: "..", seedPathFromRoot: "main" }
+    );
+
+    coreBranch.doSwitch("b");
+    expect(execCommandSyncSpy).toHaveBeenCalledTimes(4);
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "main"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "b"], { cwd: "toFree"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["checkout", "lock"], { cwd: "toLocked"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["-c", "advice.detachedHead=false", "checkout", "v1.2"], { cwd: "toPinned"});
   });
 
   // make-branch

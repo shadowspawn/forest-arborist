@@ -1,6 +1,7 @@
 import * as fs from "fs";
 // Mine
 import * as core from "./core";
+import * as coreClone from "./core-clone";
 import * as repo from "./repo";
 import * as util from "./util";
 
@@ -71,45 +72,62 @@ export function doSwitch(branch: string) {
   const startDir = process.cwd();
   core.cdRootDirectory();
 
-  // Switch is straight forward when manifest stays the same, but care needed when repos change,
-  // and not attempting to cope with changes in free/locked/pinnned for now.
-  // Perhaps should be calling checkoutEntry ??
+  // Switch free repos is easy when manifest stays the same.
+  // Lots of extra code to cope with the various manifest changes.
+  // (Do not actually need switchOneRepo, could just call noisier coreClone.checkoutEntry.)
 
   const beforeManifest = core.readManifest({ fromRoot: true });
   switchOneRepo(branch, repo.getRepoTypeForLocalPath(beforeManifest.seedPathFromRoot), beforeManifest.seedPathFromRoot);
   const beforeDependencies = beforeManifest.dependencies;
   const afterDependencies = core.readManifest({ fromRoot: true }).dependencies;
 
-  // Repo listed still in manifest on new branch.
-  Object.keys(beforeDependencies).forEach((repoPath) => {
-    const entryAfter = afterDependencies[repoPath];
-    if (entryAfter !== undefined && entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
-      switchOneRepo(branch, entryAfter.repoType, repoPath);
-    }
-  });
+  // Repo listed in manifest before and after branch change.
+  if (beforeDependencies !== undefined && afterDependencies !== undefined) {
+    Object.keys(beforeDependencies).forEach((repoPath) => {
+      const entryAfter = afterDependencies[repoPath];
+      if (entryAfter !== undefined) {
+        const entryBefore = beforeDependencies[repoPath];
+        if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
+          // Switch branch of free repo.
+          switchOneRepo(branch, entryAfter.repoType, repoPath);
+        } else if (entryBefore.lockBranch !== entryAfter.lockBranch || entryBefore.pinRevision !== entryAfter.pinRevision) {
+          // Repo changed to locked or pinned, checkout new state.
+          coreClone.checkoutEntry(entryAfter, repoPath, branch);
+        }
+      }
+    });
+  }
 
   // Repo missing from manifest on new branch.
-  Object.keys(beforeDependencies).forEach((repoPath) => {
-    const entryBefore = beforeDependencies[repoPath];
-    const entryAfter = afterDependencies[repoPath];
-    if (entryAfter === undefined && entryBefore.lockBranch === undefined && entryBefore.pinRevision === undefined) {
-      // Leave it up to caller, although tempting to change branch which might be useful during a copy-up.
-      console.log(`${repoPath}: no longer in forest manifest, not changing branch\n`);
-    }
-  });
+  if (beforeDependencies !== undefined) {
+    Object.keys(beforeDependencies).forEach((repoPath) => {
+      if (afterDependencies === undefined || afterDependencies[repoPath] === undefined) {
+        const entryBefore = beforeDependencies[repoPath];
+        if (entryBefore.lockBranch === undefined && entryBefore.pinRevision === undefined) {
+          // Leave it up to caller, although tempting to change branch which might be useful during a copy-up.
+          console.log(`${repoPath}: no longer in forest manifest, not changing branch\n`);
+        }
+      }
+    });
+  }
 
   // Repo added to manifest on new branch.
-  Object.keys(afterDependencies).forEach((repoPath) => {
-    const entryBefore = beforeDependencies[repoPath];
-    const entryAfter = afterDependencies[repoPath];
-    if (entryBefore === undefined) {
-      if (!fs.existsSync(repoPath)) {
-        console.log(`${repoPath}: missing, run \"fab install\" to clone\n`);
-      } else if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
-        switchOneRepo(branch, entryAfter.repoType, repoPath);
+  if (afterDependencies !== undefined) {
+    Object.keys(afterDependencies).forEach((repoPath) => {
+      if (beforeDependencies === undefined || beforeDependencies[repoPath] === undefined) {
+        const entryAfter = afterDependencies[repoPath];
+        if (!fs.existsSync(repoPath)) {
+          console.log(`${repoPath}: missing, run \"fab install\" to clone\n`);
+        } else if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
+          // Switch branch of free repo.
+          switchOneRepo(branch, entryAfter.repoType, repoPath);
+        } else {
+          // Checkout state to match branch manifest
+          coreClone.checkoutEntry(entryAfter, repoPath, branch);
+        }
       }
-    }
-  });
+    });
+  }
 
   process.chdir(startDir); // Simplify unit tests and reuse
 }
