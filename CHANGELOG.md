@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- `fab switch` now uses destination branch manifest rather than starting manifest to determine free repos. In addition, applies changes to free/locked/pinned dependency type, and displays a message about missing new repos. Resolves [Issue #8](https://github.com/JohnRGee/forest-arborist/issues/8).
+- `fab switch` now uses destination branch manifest rather than starting manifest to determine free repos. In addition, applies changes to free/locked/pinned dependency type, and displays a message about missing new repos. Resolves [#8](https://github.com/JohnRGee/forest-arborist/issues/8).
 
 ## [3.1.1] (2018-09-15)
 
