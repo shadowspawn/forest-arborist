@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [3.2.0] (2018-09-22)
+
+### Changed
+
+- `fab switch` now uses destination branch manifest rather than starting manifest to determine free repos. In addition, applies changes to free/locked/pinned dependency type, and displays a message about missing new repos. Resolves [Issue #8](https://github.com/JohnRGee/forest-arborist/issues/8).
 
 ## [3.1.1] (2018-09-15)
 
@@ -130,6 +134,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [Unreleased]: https://github.com/JohnRGee/forest-arborist/compare/master...develop
+[3.2.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v2.0.0...v3.0.0
