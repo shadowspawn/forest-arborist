@@ -1,6 +1,3 @@
-#!/usr/bin/env node
-// Node location may vary between Mac and Lin, so env for portability.
-
 import * as commander from "commander";
 import * as path from "path";
 // Mine
