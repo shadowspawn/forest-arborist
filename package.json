@@ -60,7 +60,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/jest": "^23.3.2",
-    "@types/node": "^8.10.29",
+    "@types/node": "^8.10.30",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
     "jest": "^23.6.0",
