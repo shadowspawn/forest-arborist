@@ -48,9 +48,9 @@
       "dev": true
     },
     "@types/node": {
-      "version": "8.10.30",
-      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.10.30.tgz",
-      "integrity": "sha512-Le8HGMI5gjFSBqcCuKP/wfHC19oURzkU2D+ERIescUoJd+CmNEMYBib9LQ4zj1HHEZOJQWhw2ZTnbD8weASh/Q==",
+      "version": "8.10.32",
+      "resolved": "https://registry.npmjs.org/@types/node/-/node-8.10.32.tgz",
+      "integrity": "sha512-8OfXpkB3E0jhpcpyVlqJDV5mkXlrsJrDZR7q0uss8SBdW8IxNdx/J2o5m7cM2qbFzyd/o+aV5Z4OJcIukI6UlA==",
       "dev": true
     },
     "@types/shell-quote": {
