@@ -54,7 +54,6 @@
     "commander": "^2.19.0",
     "fs-extra": "^7.0.0",
     "shell-quote": "^1.6.1",
-    "tabtab": "^2.2.2",
     "tmp": "0.0.33"
   },
   "devDependencies": {

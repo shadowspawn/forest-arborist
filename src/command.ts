@@ -109,29 +109,23 @@ Description:
 
   program
     .command("completion")
-    .description("generate shell completion script")
+    .description("output shell completion script")
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
 Description:
 
-  Generates shell completion script.
+  Output shell completion script.
 
   For trying out shell completion without writing files on Lin:
       source < (fab completion)
   on Mac:
       eval \`$(fab completion)\`
 
-  To install permanently, write to a startup file in
-  same way as "npm completion". For interactive assistance:
-      npx tabtab install fab --name=fab`);
+  To install permanently, invoke from your shell startup file. (c.f. npm completion)`);
     })
     .action(() => {
-      if (process.argv.length === 3) {
-        completion.shellCompletion(program);
-      } else {
-        completion.complete(program);
-      }
+      completion.completion(program);
     });
 
   program

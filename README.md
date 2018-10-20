@@ -191,9 +191,8 @@ on Mac:
 
     eval `$(fab completion)`
 
-To install, write the output of `fab completion` to a shell startup file. (c.f. [npm completion](https://docs.npmjs.com/cli/completion)) For interactive assistance installing the command-line completion:
-
-     npx tabtab install fab --name=fab
+To install, write the output of `fab completion` to a shell startup file, or to a file and invoke from a shell startup file.
+(c.f. [npm completion](https://docs.npmjs.com/cli/completion))
 
 ## Colour Output
 
