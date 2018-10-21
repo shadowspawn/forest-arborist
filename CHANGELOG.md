@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [3.3.0] (2018-10-21)
+
+### Changed
+
+- rewrote command line tab completion
+- dependencies
+
+### Removed
+
+- tabtab module
 
 ## [3.2.0] (2018-09-22)
 
@@ -136,6 +145,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [Unreleased]: https://github.com/JohnRGee/forest-arborist/compare/master...develop
+[3.3.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.2.0...v3.3.0
 [3.2.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.0.0...v3.1.0
