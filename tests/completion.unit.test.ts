@@ -36,6 +36,8 @@ describe("completion", () => {
     logSpy.mockReturnValue(undefined);
 
     program = new commander.Command();
+    program.option("-g, --global");
+    program.option("--debug");
     program.command("alpha");
     program.command("betaOne");
     program.command("betaTwo");
@@ -80,13 +82,40 @@ describe("completion", () => {
     expect(logSpy).toHaveBeenCalledWith("alpha");
   });
 
+  test("global option: short", () => {
+    setEnv("fab -");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("-g");
+  });
+
+  test("global option: long", () => {
+    setEnv("fab --");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(2);
+    expect(logSpy).toHaveBeenCalledWith("--debug");
+    expect(logSpy).toHaveBeenCalledWith("--global");
+  });
+
+  test("global option: long matching", () => {
+    setEnv("fab --gl");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("--global");
+  });
+
+  test("global option: multiple", () => {
+    setEnv("fab --debug --gl");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("--global");
+  });
+
   // global options
-  // - short
-  // - long
   // - command after global option
 
   // command options
-  // - short
-  // - long
+  // - short, not including global except help
+  // - long, not including global except help
 
 });

@@ -4,11 +4,12 @@
 import * as commander from "commander";
 import * as fs from "fs";
 import * as path from "path";
+import { Z_PARTIAL_FLUSH } from "zlib";
 // Mine
 // import * as repo from "./repo";
 
 export interface CompletionEnv {
-  COMP_CWORD: number;
+  COMP_CWORD: number; // index of word with cursor, but index of an array we do not have
   COMP_LINE: string;
   COMP_POINT: number;
   // commandName: string | undefined;
@@ -34,7 +35,8 @@ function trace(param: string | object) {
 
 
 export function splitLine(line: string) {
-  // TODO: quoted strings
+  // To emulate the command line parsing we should parse quoted strings,
+  // but simple split covers all our current usage so KISS.
   return line.split(" ");
 }
 
@@ -44,13 +46,29 @@ function processEnv(): CompletionEnv {
   const COMP_LINE = process.env.COMP_LINE!;
   const COMP_POINT = Number(process.env.COMP_POINT!);
 
-  const words = splitLine(COMP_LINE.substr(0, COMP_POINT));
-  let partial = "";
-  if (COMP_CWORD < words.length) {
-    partial = words[COMP_CWORD];
-  }
+  const args = splitLine(COMP_LINE.substr(0, COMP_POINT));
+  const partial = args[args.length - 1];
 
   return { COMP_CWORD, COMP_LINE, COMP_POINT, partial };
+}
+
+
+function getOptionNames(partial: string, options: any): string[] {
+  let optionNames: string[] = [];
+  if (/^--\w?/.test(partial)) {
+    optionNames = options.map((option: any) => {
+      return option.long;
+    });
+  } else if (/^-\w?/.test(partial)) {
+    optionNames = options.map((option: any) => {
+      return option.short;
+    });
+  }
+  optionNames = optionNames.filter((e) => {
+    return (e !== undefined);
+  });
+
+  return optionNames;
 }
 
 
@@ -70,7 +88,9 @@ function complete(program: commander.Command) {
   trace(env);
   const candidates: string[] = [];
 
-  if (env.COMP_CWORD < 2) {
+  if (env.partial.startsWith("-")) {
+    candidates.push(...getOptionNames(env.partial, program.options));
+  } else {
     candidates.push(...getCommandNames(program));
   }
 
