@@ -33,13 +33,13 @@ describe("completion", () => {
 
   beforeAll(() => {
     logSpy = jest.spyOn(global.console, 'log');
+    logSpy.mockReturnValue(undefined);
 
     program = new commander.Command();
-    program
-    .command("alpha")
-    .command("betaOne")
-    .command("betaTwo")
-    .command("secret", undefined, { noHelp: true });
+    program.command("alpha");
+    program.command("betaOne");
+    program.command("betaTwo");
+    program.command("secret", undefined, { noHelp: true });
   });
 
   afterAll(() => {
