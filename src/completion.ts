@@ -1,12 +1,14 @@
 // // Not doing much type checking here as we are using command internals and
 // // tabtab does not have up to date typings.
 
+import * as childProcess from "child_process";
 import * as commander from "commander";
 import * as fs from "fs";
 import * as path from "path";
 import { Z_PARTIAL_FLUSH } from "zlib";
 // Mine
-// import * as repo from "./repo";
+import * as core from "./core";
+import * as repo from "./repo";
 
 export interface CompletionEnv {
   COMP_CWORD: number; // index of word with cursor, but index of an array we do not have
@@ -62,9 +64,6 @@ function processEnv(program: commander.Command): CompletionEnv {
   let commandName = args.slice(1, -1).find((word) => {
     return !word.startsWith("-");
   });
-  if (commandName !== undefined && findCommand(commandName, program) === undefined) {
-    commandName = undefined;
-  }
 
   const lookingForOption = partial.startsWith("-") && lineToPoint.indexOf(" -- ") === -1;
 
@@ -102,6 +101,27 @@ function getCommandNames(program: commander.Command) {
 }
 
 
+function getSwitchBranches() {
+  let branches: string[] = [];
+  const startDir = process.cwd();
+  core.cdRootDirectory();
+  const rootObject = core.readRootFile();
+
+  if (repo.isGitRepository(rootObject.seedPath)) {
+    const gitBranches = childProcess.execFileSync(
+      "git",
+      ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
+      { cwd: rootObject.seedPath }
+    ).toString().trim();
+    branches = gitBranches.split("\n");
+  }
+  // hg...
+
+  process.chdir(startDir);
+  return branches;
+}
+
+
 function complete(program: commander.Command) {
   const env: CompletionEnv = processEnv(program);
   trace(env);
@@ -115,10 +135,16 @@ function complete(program: commander.Command) {
     }
   } else {
     const command = findCommand(env.commandName, program);
-    if (command !== undefined && env.lookingForOption) {
-      candidates.push(...getOptionNames(env.partial, command.options));
-      if (env.partial.startsWith("--")) {
-        candidates.push("--help");
+    if (command !== undefined) {
+      if (env.lookingForOption) {
+        candidates.push(...getOptionNames(env.partial, command.options));
+        if (env.partial.startsWith("--")) {
+          candidates.push("--help");
+        }
+      } else if (!env.partial.startsWith("-")) {
+        if (env.commandName === "switch") {
+          candidates.push(...getSwitchBranches());
+        }
       }
     }
   }
