@@ -26,7 +26,8 @@
   "author": "John Gee",
   "license": "MIT",
   "files": [
-    "dist/src/*.js"
+    "dist/src/*.js",
+    "resources/*"
   ],
   "jest": {
     "globals": {
