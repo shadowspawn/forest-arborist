@@ -38,7 +38,10 @@ describe("completion", () => {
     program = new commander.Command();
     program.option("-g, --global");
     program.option("--debug");
-    program.command("alpha");
+    program
+      .command("alpha <foo>")
+      .option("-s, --short")
+      .option("--long");
     program.command("betaOne");
     program.command("betaTwo");
     program.command("secret", undefined, { noHelp: true });
@@ -52,7 +55,7 @@ describe("completion", () => {
     logSpy.mockClear();
   });
 
-  test("command: <all>", () => {
+  test("partial command: <all>", () => {
     setEnv("fab ");
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(3);
@@ -61,7 +64,7 @@ describe("completion", () => {
     expect(logSpy).toHaveBeenCalledWith("betaTwo");
   });
 
-  test("command: matching", () => {
+  test("partial command: matching", () => {
     setEnv("fab b");
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(2);
@@ -69,13 +72,13 @@ describe("completion", () => {
     expect(logSpy).toHaveBeenCalledWith("betaTwo");
   });
 
-  test("command: no matches", () => {
+  test("partial command: no matches", () => {
     setEnv("fab UNRECOGNISED");
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(0);
   });
 
-  test("command: ignoring after cursor", () => {
+  test("partial command: ignoring after cursor", () => {
     setEnv("fab a^lphabet");
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(1);
@@ -104,18 +107,53 @@ describe("completion", () => {
     expect(logSpy).toHaveBeenCalledWith("--global");
   });
 
-  test("global option: multiple", () => {
+  test("global option: after global option", () => {
     setEnv("fab --debug --gl");
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(1);
     expect(logSpy).toHaveBeenCalledWith("--global");
   });
 
-  // global options
-  // - command after global option
+  test("partial command: after global option", () => {
+    setEnv("fab --debug a");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("alpha");
+  });
 
-  // command options
-  // - short, not including global except help
-  // - long, not including global except help
+  test("command: argument", () => {
+    setEnv("fab alpha ");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(0);
+  });
+
+  test("command: short option", () => {
+    setEnv("fab alpha -");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("-s");
+  });
+
+  test("command: long option", () => {
+    setEnv("fab alpha --");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(3);
+    expect(logSpy).toHaveBeenCalledWith("--short");
+    expect(logSpy).toHaveBeenCalledWith("--long");
+    expect(logSpy).toHaveBeenCalledWith("--help"); // bonus item
+  });
+
+  test("command: option matching", () => {
+    setEnv("fab alpha --lo");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith("--long");
+  });
+
+  test("command: options disabled", () => {
+    setEnv("fab alpha -- --lo");
+    completion.completion(program);
+    expect(logSpy).toHaveBeenCalledTimes(0);
+  });
 
 });

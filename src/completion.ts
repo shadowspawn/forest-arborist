@@ -12,8 +12,9 @@ export interface CompletionEnv {
   COMP_CWORD: number; // index of word with cursor, but index of an array we do not have
   COMP_LINE: string;
   COMP_POINT: number;
-  // commandName: string | undefined;
   partial: string; // Word being completed. May be blank.
+  lookingForOption: boolean;
+  commandName: string | undefined;
 }
 
 const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
@@ -41,25 +42,43 @@ export function splitLine(line: string) {
 }
 
 
-function processEnv(): CompletionEnv {
+function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
+  return program.commands.find((cmd: any) => {
+    return commandName === cmd._name && !cmd._noHelp;
+  });
+}
+
+
+function processEnv(program: commander.Command): CompletionEnv {
   const COMP_CWORD = Number(process.env.COMP_CWORD!);
   const COMP_LINE = process.env.COMP_LINE!;
   const COMP_POINT = Number(process.env.COMP_POINT!);
 
-  const args = splitLine(COMP_LINE.substr(0, COMP_POINT));
+  const lineToPoint = COMP_LINE.substr(0, COMP_POINT);
+  const args = splitLine(lineToPoint);
   const partial = args[args.length - 1];
 
-  return { COMP_CWORD, COMP_LINE, COMP_POINT, partial };
+  // Look for command earlier in line.
+  let commandName = args.slice(1, -1).find((word) => {
+    return !word.startsWith("-");
+  });
+  if (commandName !== undefined && findCommand(commandName, program) === undefined) {
+    commandName = undefined;
+  }
+
+  const lookingForOption = partial.startsWith("-") && lineToPoint.indexOf(" -- ") === -1;
+
+  return { COMP_CWORD, COMP_LINE, COMP_POINT, partial, commandName, lookingForOption };
 }
 
 
 function getOptionNames(partial: string, options: any): string[] {
   let optionNames: string[] = [];
-  if (/^--\w?/.test(partial)) {
+  if (partial.startsWith("--")) {
     optionNames = options.map((option: any) => {
       return option.long;
     });
-  } else if (/^-\w?/.test(partial)) {
+  } else if (partial.startsWith("-")) {
     optionNames = options.map((option: any) => {
       return option.short;
     });
@@ -84,14 +103,24 @@ function getCommandNames(program: commander.Command) {
 
 
 function complete(program: commander.Command) {
-  const env: CompletionEnv = processEnv();
+  const env: CompletionEnv = processEnv(program);
   trace(env);
-  const candidates: string[] = [];
 
-  if (env.partial.startsWith("-")) {
-    candidates.push(...getOptionNames(env.partial, program.options));
+  const candidates: string[] = [];
+  if (env.commandName === undefined) {
+    if (env.lookingForOption) {
+      candidates.push(...getOptionNames(env.partial, program.options));
+    } else if (!env.partial.startsWith("-")) {
+      candidates.push(...getCommandNames(program));
+    }
   } else {
-    candidates.push(...getCommandNames(program));
+    const command = findCommand(env.commandName, program);
+    if (command !== undefined && env.lookingForOption) {
+      candidates.push(...getOptionNames(env.partial, command.options));
+      if (env.partial.startsWith("--")) {
+        candidates.push("--help");
+      }
+    }
   }
 
   const matches = candidates.filter((word) => {
