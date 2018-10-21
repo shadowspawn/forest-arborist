@@ -10,6 +10,7 @@
 
 import * as command from "../src/command";
 // Mine
+import * as completion from "../src/completion";
 import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
 import * as coreForEach from "../src/core-for";
@@ -644,6 +645,35 @@ describe("pull cli", () => {
     expect(() => {
       command.fab(["pull", "unexpected-param"]);
     }).toThrow();
+  });
+
+});
+
+
+describe("completion cli", () => {
+  let completionSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    completionSpy = jest.spyOn(completion, "completion");
+    completionSpy.mockReturnValue(undefined);
+  });
+
+  afterAll(() => {
+    completionSpy.mockRestore();
+  });
+
+  beforeEach(() => {
+    completionSpy.mockClear();
+  });
+
+  test("completion", () => {
+    command.fab(["completion"]);
+    expect(completionSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test("completion -- fab swit", () => {
+    command.fab(["completion"]);
+    expect(completionSpy).toHaveBeenCalledTimes(1);
   });
 
 });

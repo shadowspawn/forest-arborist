@@ -122,7 +122,8 @@ Description:
   on Mac:
       eval \`$(fab completion)\`
 
-  To install permanently, invoke from your shell startup file. (c.f. npm completion)`);
+  To install, write the output to a shell startup file, or to a file and invoke from a shell startup file.
+  (c.f. npm completion)`);
     })
     .action(() => {
       completion.completion(program);

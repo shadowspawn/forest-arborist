@@ -13,7 +13,7 @@
     - [Reproducing Forest State](#reproducing-forest-state)
     - [Dependent Repository Types](#dependent-repository-types)
     - [Manifest Files (Internals)](#manifest-files-internals)
-    - [Command-line Completion](#command-line-completion)
+    - [Command-line Tab Completion](#command-line-tab-completion)
     - [Colour Output](#colour-output)
     - [Developing](#developing)
 
@@ -181,7 +181,7 @@ Example:
 The manifests are stored in the `.fab` folder of the seed repo.
 Custom manifests follow the template &lt;custom&gt;\_manifest.json.
 
-## Command-line Completion
+## Command-line Tab Completion
 
 For trying out shell completion on Linux:
 
