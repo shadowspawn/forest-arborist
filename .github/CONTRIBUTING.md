@@ -9,8 +9,8 @@ I maintain the project in my own time, but you can expect a response within 7 da
 
 ## Pull Requests
 
-To be clear: I may not accept your pull request. I may change it significantly. If that is a problem,
-then open an issue to discuss your idea first!
+Pull Requests will be considered, but I may not accept your pull request, or I may change it significantly.
+Please open an issue to discuss your idea before requesting big changes.
 
 Code changes should follow the existing style. Lint and tests should pass:
 
