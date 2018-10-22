@@ -1,8 +1,5 @@
-// // Not doing much type checking here as we are using command internals and
-// // tabtab does not have up to date typings.
-
 import * as childProcess from "child_process";
-import * as commander from "commander";
+import * as commander from "commander"; // NB: accessing undocumented commander internals.
 import * as fs from "fs";
 import * as path from "path";
 import { Z_PARTIAL_FLUSH } from "zlib";
@@ -45,13 +42,13 @@ export function splitLine(line: string) {
 
 
 function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
-  return program.commands.find((cmd: any) => {
-    return commandName === cmd._name && !cmd._noHelp;
+  return program.commands.find((cmd: commander.Command) => {
+    return commandName === cmd.name() && !cmd._noHelp;
   });
 }
 
 
-function processEnv(program: commander.Command): CompletionEnv {
+function processEnv(): CompletionEnv {
   const COMP_CWORD = Number(process.env.COMP_CWORD!);
   const COMP_LINE = process.env.COMP_LINE!;
   const COMP_POINT = Number(process.env.COMP_POINT!);
@@ -91,12 +88,13 @@ function getOptionNames(partial: string, options: any): string[] {
 
 
 function getCommandNames(program: commander.Command) {
+  // (Not including aliases, by design.)
   return program.commands
     .filter((cmd: any) => {
       return !cmd._noHelp;
     })
-    .map((cmd: any) => {
-      return cmd._name;
+    .map((cmd: commander.Command) => {
+      return cmd.name();
     });
 }
 
@@ -123,7 +121,7 @@ function getSwitchBranches() {
 
 
 function complete(program: commander.Command) {
-  const env: CompletionEnv = processEnv(program);
+  const env: CompletionEnv = processEnv();
   trace(env);
 
   const candidates: string[] = [];
