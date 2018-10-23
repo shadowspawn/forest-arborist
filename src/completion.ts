@@ -7,13 +7,13 @@ import { Z_PARTIAL_FLUSH } from "zlib";
 import * as core from "./core";
 import * as repo from "./repo";
 
-export interface CompletionEnv {
-  COMP_CWORD: number; // index of word with cursor, but index of an array we do not have
-  COMP_LINE: string;
-  COMP_POINT: number;
-  partial: string; // Word being completed. May be blank.
-  lookingForOption: boolean;
-  commandName: string | undefined;
+export interface CompletionContext {
+  readonly compLine: string; // COMP_LINE
+  readonly compPoint: number;// COMP_POINT
+  readonly partial: string; // Word being completed. May be blank.
+  readonly lookingForOption: boolean;
+  readonly commandName: string | undefined; // e.g. "git clone f" gives clone
+  suggest(...possible: string[]): void;  // logs possible(s), and skips ones that do not match partial
 }
 
 const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
@@ -21,8 +21,8 @@ const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
 
 function trace(param: string | object) {
   if (gDebug) {
-      // Reopening for each log (KISS!)
-      const stream = fs.createWriteStream(process.env.FAB_COMPLETION_LOG!, { flags: 'a+' });
+    // Reopening for each log (KISS!)
+    const stream = fs.createWriteStream(process.env.FAB_COMPLETION_LOG!, { flags: 'a+' });
     if (typeof param === "string") {
       stream.write(`${param}\n`);
     } else if (typeof param === "object") {
@@ -48,23 +48,37 @@ function findCommand(commandName: string, program: commander.Command): commander
 }
 
 
-function processEnv(): CompletionEnv {
-  const COMP_CWORD = Number(process.env.COMP_CWORD!);
-  const COMP_LINE = process.env.COMP_LINE!;
-  const COMP_POINT = Number(process.env.COMP_POINT!);
+function processEnv(): CompletionContext {
+  // Not using COMP_CWORD.
+  const compLine = process.env.COMP_LINE!;
+  const compPoint = Number(process.env.COMP_POINT!);
 
-  const lineToPoint = COMP_LINE.substr(0, COMP_POINT);
+  const lineToPoint = compLine.substr(0, compPoint);
   const args = splitLine(lineToPoint);
   const partial = args[args.length - 1];
 
   // Look for command earlier in line.
+  // This is a very simplistic approach ignoring:
+  // - there may be just arguments and not commands (probably ok)
+  // - options could take parameters
   let commandName = args.slice(1, -1).find((word) => {
     return !word.startsWith("-");
   });
 
   const lookingForOption = partial.startsWith("-") && lineToPoint.indexOf(" -- ") === -1;
 
-  return { COMP_CWORD, COMP_LINE, COMP_POINT, partial, commandName, lookingForOption };
+  const suggest = (...possible: string[]) => {
+    possible.filter((suggestion) => {
+      return (partial.length === 0) || suggestion.startsWith(partial);
+    }).forEach((suggestion) => {
+      if (gDebug) {
+        trace(`suggest: ${suggestion}`);
+      console.log(suggestion);
+      }
+    });
+  };
+
+  return { compLine, compPoint, partial, commandName, lookingForOption, suggest };
 }
 
 
@@ -121,41 +135,29 @@ function getSwitchBranches() {
 
 
 function complete(program: commander.Command) {
-  const env: CompletionEnv = processEnv();
-  trace(env);
+  const context: CompletionContext = processEnv();
+  trace(context);
 
-  const candidates: string[] = [];
-  if (env.commandName === undefined) {
-    if (env.lookingForOption) {
-      candidates.push(...getOptionNames(env.partial, program.options));
-    } else if (!env.partial.startsWith("-")) {
-      candidates.push(...getCommandNames(program));
+  if (context.commandName === undefined) {
+    if (context.lookingForOption) {
+      context.suggest(...getOptionNames(context.partial, program.options));
+    } else {
+      context.suggest(...getCommandNames(program));
     }
   } else {
-    const command = findCommand(env.commandName, program);
-    if (command !== undefined) {
-      if (env.lookingForOption) {
-        candidates.push(...getOptionNames(env.partial, command.options));
-        if (env.partial.startsWith("--")) {
-          candidates.push("--help");
-        }
-      } else if (!env.partial.startsWith("-")) {
-        if (env.commandName === "switch") {
-          candidates.push(...getSwitchBranches());
-        }
+    if (context.lookingForOption) {
+      const command = findCommand(context.commandName, program);
+      if (command !== undefined) {
+        context.suggest(...getOptionNames(context.partial, command.options));
+      }
+      if (context.partial.startsWith("--")) {
+        context.suggest("--help");
+      }
+    } else {
+      if (context.commandName === "switch") {
+        context.suggest(...getSwitchBranches());
       }
     }
-  }
-
-  const matches = candidates.filter((word) => {
-    return (env.partial.length === 0) || word.startsWith(env.partial);
-  });
-  if (matches.length > 0) {
-    if (gDebug) trace(`offer: ${matches.join(", ")}`);
-    // Make separate console calls to simplify testing.
-    matches.forEach((word) => {
-      console.log(word);
-    });
   }
 }
 
