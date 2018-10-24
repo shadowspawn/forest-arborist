@@ -205,16 +205,6 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
     });
 
   program
-    .command("main", undefined, { noHelp: true })
-    .description("show the main directory of the forest")
-    .action(() => {
-      assertNoExtraArgs(program.args);
-      core.cdRootDirectory();
-      const rootObject = core.readRootFile();
-      const seedPath = path.resolve(rootObject.seedPath);
-      console.log(seedPath);
-    });
-  program
     .command("seed")
     .description("show the seed directory of the forest")
     .action(() => {
@@ -267,7 +257,7 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
     .description("switch branch of free repos")
     .action((branch) => {
       coreBranch.doSwitch(branch);
-    })
+    });
   program.on("completion:switch:", (context: completion.CompletionContext) => {
     coreBranch.completeSwitch(context);
   });
