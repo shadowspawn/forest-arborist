@@ -2,10 +2,11 @@ import * as childProcess from "child_process";
 import * as commander from "commander"; // NB: accessing undocumented commander internals.
 import * as fs from "fs";
 import * as path from "path";
-import { Z_PARTIAL_FLUSH } from "zlib";
+import * as shellQuote from "shell-quote";
 // Mine
 import * as core from "./core";
 import * as repo from "./repo";
+import { quote } from "shell-quote";
 
 export interface CompletionContext {
   readonly compLine: string; // COMP_LINE
@@ -34,13 +35,6 @@ function trace(param: string | object) {
 }
 
 
-export function splitLine(line: string) {
-  // To emulate the command line parsing we should parse quoted strings,
-  // but simple split covers all our current usage so KISS.
-  return line.split(" ");
-}
-
-
 function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
   return program.commands.find((cmd: commander.Command) => {
     return commandName === cmd.name() && !cmd._noHelp;
@@ -48,13 +42,25 @@ function findCommand(commandName: string, program: commander.Command): commander
 }
 
 
+// Use shell-quote to do the heavy lifting for quotes et al. If it wasn't for COMP_POINT, we could just use process.args.
+// Incomplete quoted strings in progress are not handled, but that is a weird state to ask for tab completion anyway!
+
+export function splitIntoArgs(line: string) {
+  let tokens = shellQuote.parse(line);
+  if (line.endsWith(" ")) {
+    tokens.push("");
+  }
+  return tokens;
+}
+
 function processEnv(): CompletionContext {
   // Not using COMP_CWORD.
   const compLine = process.env.COMP_LINE!;
   const compPoint = Number(process.env.COMP_POINT!);
 
   const lineToPoint = compLine.substr(0, compPoint);
-  const args = splitLine(lineToPoint);
+  const args = splitIntoArgs(lineToPoint);
+  trace(args);
   const partial = args[args.length - 1];
 
   // Look for command earlier in line.

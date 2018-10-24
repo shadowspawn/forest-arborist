@@ -15,7 +15,7 @@ function setEnv(line: string) {
   }
   process.env.COMP_POINT = point.toString();
   process.env.COMP_LINE = line;
-  process.env.COMP_CWORD = (completion.splitLine(line).length - 1).toString();
+  process.env.COMP_CWORD = (completion.splitIntoArgs(line).length - 1).toString();
 }
 
 
