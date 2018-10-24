@@ -79,8 +79,8 @@ function processEnv(): CompletionContext {
     }).forEach((suggestion) => {
       if (gDebug) {
         trace(`suggest: ${suggestion}`);
-      console.log(suggestion);
       }
+      console.log(suggestion);
     });
   };
 
@@ -119,31 +119,29 @@ function getCommandNames(program: commander.Command) {
 }
 
 
-function getSwitchBranches() {
-  let branches: string[] = [];
-  const startDir = process.cwd();
-  core.cdRootDirectory();
-  const rootObject = core.readRootFile();
-
-  if (repo.isGitRepository(rootObject.seedPath)) {
-    const gitBranches = childProcess.execFileSync(
-      "git",
-      ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
-      { cwd: rootObject.seedPath }
-    ).toString().trim();
-    branches = gitBranches.split("\n");
-  }
-  // hg...
-
-  process.chdir(startDir);
-  return branches;
-}
-
-
 function complete(program: commander.Command) {
   const context: CompletionContext = processEnv();
   trace(context);
 
+  // Not currently handled:
+  // - arguments for options
+
+  // Build event name.
+  let completionEvent = "completion:";
+  if (context.commandName !== undefined) {
+    completionEvent = `${completionEvent}${context.commandName}:`;
+  }
+  if (context.lookingForOption) {
+    completionEvent = `${completionEvent}--`;
+  }
+  // Look for custom handler.
+  if (program.listenerCount(completionEvent) > 0) {
+    trace(`emit: ${completionEvent}`);
+    program.emit(completionEvent, context);
+    return;
+  }
+
+  // Handle it ourselves.
   if (context.commandName === undefined) {
     if (context.lookingForOption) {
       context.suggest(...getOptionNames(context.partial, program.options));
@@ -160,9 +158,7 @@ function complete(program: commander.Command) {
         context.suggest("--help");
       }
     } else {
-      if (context.commandName === "switch") {
-        context.suggest(...getSwitchBranches());
-      }
+      // nothing we can suggest for command arguments
     }
   }
 }

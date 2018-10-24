@@ -1,9 +1,12 @@
+import * as childProcess from "child_process";
 import * as fs from "fs";
 // Mine
+import * as completion from "./completion";
 import * as core from "./core";
 import * as coreClone from "./core-clone";
 import * as repo from "./repo";
 import * as util from "./util";
+import { Context } from "vm";
 
 export interface MakeBranchOptions {
   publish?: boolean;
@@ -130,4 +133,25 @@ export function doSwitch(branch: string) {
   }
 
   process.chdir(startDir); // Simplify unit tests and reuse
+}
+
+
+export function completeSwitch(context: completion.CompletionContext) {
+  let branches: string[] = [];
+  const startDir = process.cwd();
+  core.cdRootDirectory();
+  const rootObject = core.readRootFile();
+
+  if (repo.isGitRepository(rootObject.seedPath)) {
+    const gitBranches = childProcess.execFileSync(
+      "git",
+      ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
+      { cwd: rootObject.seedPath }
+    ).toString().trim();
+    branches = gitBranches.split("\n");
+  }
+  // hg...
+
+  process.chdir(startDir);
+  context.suggest(...branches);
 }
