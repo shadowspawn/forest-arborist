@@ -136,7 +136,7 @@ function complete(program: commander.Command) {
   }
   // Look for custom handler.
   if (program.listenerCount(completionEvent) > 0) {
-    trace(`emit: ${completionEvent}`);
+    trace(`invoke listener for ${completionEvent}`);
     program.emit(completionEvent, context);
     return;
   }
