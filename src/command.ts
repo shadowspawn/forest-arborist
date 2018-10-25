@@ -257,10 +257,10 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
     .description("switch branch of free repos")
     .action((branch) => {
       coreBranch.doSwitch(branch);
+    })
+    .on("completion:", (context: completion.CompletionContext) => {
+      coreBranch.completeSwitch(context);
     });
-  program.on("completion:switch:", (context: completion.CompletionContext) => {
-    coreBranch.completeSwitch(context);
-  });
 
   program
     .command("make-branch <branch> [start_point]")

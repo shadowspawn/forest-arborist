@@ -123,34 +123,30 @@ function complete(program: commander.Command) {
   const context: CompletionContext = processEnv();
   trace(context);
 
-  // Not currently handled:
-  // - arguments for options
+  // Not currently handled specially
+  // - arguments to commands
+  // - arguments to options
 
   // Build event name.
   let completionEvent = "completion:";
-  if (context.commandName !== undefined) {
-    completionEvent = `${completionEvent}${context.commandName}:`;
-  }
   if (context.lookingForOption) {
     completionEvent = `${completionEvent}--`;
   }
-  // Look for custom handler.
-  if (program.listenerCount(completionEvent) > 0) {
-    trace(`invoke listener for ${completionEvent}`);
-    program.emit(completionEvent, context);
-    return;
-  }
 
-  // Handle it ourselves.
+  // Work out what to suggest.
   if (context.commandName === undefined) {
-    if (context.lookingForOption) {
+    if (program.listenerCount(completionEvent) > 0) {
+      program.emit(completionEvent, context);
+    } else if (context.lookingForOption) {
       context.suggest(...getOptionNames(context.partial, program.options));
     } else {
       context.suggest(...getCommandNames(program));
     }
   } else {
-    if (context.lookingForOption) {
-      const command = findCommand(context.commandName, program);
+    const command = findCommand(context.commandName, program);
+    if (command !== undefined && command.listenerCount(completionEvent) > 0) {
+      command.emit(completionEvent, context);
+    } else if (context.lookingForOption) {
       if (command !== undefined) {
         context.suggest(...getOptionNames(context.partial, command.options));
       }
