@@ -9,7 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
-### Fixed
+### Added
+
+- `--nested` and `--sibling` options to `fab init`
+
+### Changed
+
+- `fab init` now requires one of `--sibling`, `--nested`, `--root`
+
 
 ## [3.3.0] (2018-10-21)
 

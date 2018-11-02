@@ -46,6 +46,6 @@ export function makeNestedGitForest() {
   makeOneGitRepo("locked", "git@ex.com:a/b/c/locked.git");
 
   // fab init
-  coreInit.doInit({});
+  coreInit.doInit({ root: "." });
   process.chdir(startingDir);
 }

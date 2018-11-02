@@ -117,7 +117,7 @@ export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.D
 
 export interface InitOptions {
   manifest?: string;
-  root?: string;
+  root: string;
 }
 
 export function doInit(options: InitOptions) {

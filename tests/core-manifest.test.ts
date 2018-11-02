@@ -132,7 +132,7 @@ describe("core manifest", () => {
   test("custom manifest name", () => {
     const customManifestPath = path.resolve(core.manifestPath({ manifest: "custom" }));
     fs.unlinkSync(path.resolve(core.manifestPath({ })));
-    coreInit.doInit({ manifest: "custom" });
+    coreInit.doInit({ root: ".", manifest: "custom" });
 
     const spy = jest.spyOn(global.console, 'log');
     command.fab(["manifest"]);

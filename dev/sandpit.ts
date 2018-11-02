@@ -112,7 +112,7 @@ export function makePlayground(playgroundDestination: string) {
 
   // Slim manifest
   process.chdir(nestedRoot);
-  coreInit.doInit({ manifest: "slim" });
+  coreInit.doInit({ root: ".", manifest: "slim" });
 
   // Get libs
   process.chdir(nestedRoot);
@@ -137,7 +137,7 @@ export function makePlayground(playgroundDestination: string) {
 
   // Setup main
   process.chdir(path.join(nestedRoot));
-  coreInit.doInit({ });
+  coreInit.doInit({ root: "." });
   childProcess.execFileSync("hg", ["add", ".fab"]);
   fs.writeFileSync(".hgignore", core.fabRootFilename);
   childProcess.execFileSync("hg", ["add", ".hgignore"]);

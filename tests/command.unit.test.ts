@@ -95,39 +95,63 @@ describe("init cli", () => {
     initSpy.mockClear();
   });
 
-  // simplest
-  test("init", () => {
-    command.fab(["init"]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
-    const options: coreInit.InitOptions = initSpy.mock.calls[0][0];
-    expect(options.manifest).toBeUndefined();
-    expect(options.root).toBeUndefined();
+  // failures, insufficent or excess parameters
+
+  test("init missing parameters", () => {
+    expect(() => {
+      command.fab(["init"]);
+    }).toThrow();
   });
 
+  test("init excess parameters", () => {
+    expect(() => {
+      command.fab(["init", "--nested", "--sibling"]);
+    }).toThrow();
+  });
+
+  test("init excess parameters", () => {
+    expect(() => {
+      command.fab(["init", "--nested", "--root", "."]);
+    }).toThrow();
+  });
+
+  test("init excess parameters", () => {
+    expect(() => {
+      command.fab(["init",  "--sibling", "--root", ".."]);
+    }).toThrow();
+  });
+
+  // simple
   test("init --root ..", () => {
     command.fab(["init", "--root", ".."]);
     expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: ".." }));
+    const options: coreInit.InitOptions = initSpy.mock.calls[0][0];
+    expect(options.manifest).toBeUndefined();
   });
 
-  test("init -m name", () => {
-    command.fab(["init", "-m", "name"]);
+  test("init --nested", () => {
+    command.fab(["init", "--nested"]);
+    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: "." }));
+  });
+
+  test("init --sibling", () => {
+    command.fab(["init", "--sibling"]);
+    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: ".." }));
+  });
+
+  test("init --sibling -m name", () => {
+    command.fab(["init", "--sibling", "-m", "name"]);
     expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
   });
 
-  test("init --manifest name", () => {
-    command.fab(["init", "--manifest", "name"]);
+  test("init --sibling --manifest name", () => {
+    command.fab(["init", "--sibling","--manifest", "name"]);
     expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
   });
 
-  // most complex
-  test("init --manifest name --root ..", () => {
-    command.fab(["init", "--manifest", "name", "--root", ".."]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name", root: ".." }));
-  });
-
-  test("init unexpected-param", () => {
+  test("init --sibling unexpected-param", () => {
     expect(() => {
-      command.fab(["init", "unexpected-param"]);
+      command.fab(["init", "--sibling", "unexpected-param"]);
     }).toThrow();
   });
 

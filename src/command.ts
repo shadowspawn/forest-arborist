@@ -131,7 +131,9 @@ Description:
 
   program
     .command("init")
-    .option("--root <dir>", "root directory of forest if not current directory")
+    .option("--sibling", "dependent repos are beside seed repo, root directory is above seed repo")
+    .option("--nested", "dependent repos inside seed repo, root directory is seed repo")
+    .option("--root <dir>", "root directory of forest relative to seed repo")
     .option("-m, --manifest <name>", "custom manifest file")
     .description("add manifest in current directory, and marker file at root of forest")
     .on("--help", () => {
@@ -141,17 +143,32 @@ Description:
 
   Use init to create the manifest based on your current sandpit.
   Run from your seed repo and it finds the dependent repos.
+  Specify the forest layout with --sibling, --nested, or --root.
 
 Examples:
 
-  For a forest layout with dependent repos nested in the seed repo:
-      fab init
+  For a forest layout with dependent repos nested in the seed repo, either:
+      fab init --nested
+      fab init --root .
 
-  For a forest layout with sibling repositories:
+  For a forest layout with sibling repositories, either:
+      fab init --sibling
       fab init --root ..`);
     })
     .action((options) => {
       assertNoExtraArgs(program.args);
+      if (!options.nested && !options.sibling && (options.root === undefined)) {
+        util.terminate("please specify one of --sibling, --nested, --root to specify forest layout");
+      }
+      if ((options.nested && options.sibling) || (options.nested && options.root !== undefined) || (options.sibling && options.root !== undefined)) {
+        util.terminate("specify only one of --sibling, --nested, --root to specify forest layout");
+      }
+      if (options.sibling) {
+        options.root = "..";
+      }
+      if (options.nested) {
+        options.root = ".";
+      }
       coreInit.doInit(options);
     });
 

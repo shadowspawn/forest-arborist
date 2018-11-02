@@ -25,7 +25,7 @@ describe("core init", () => {
 
   test("no repo", () => {
     expect(() => {
-      command.fab(["init"]);
+      command.fab(["init", "--nested"]);
     }).toThrowError(util.suppressTerminateExceptionMessage);
   });
 
@@ -33,7 +33,7 @@ describe("core init", () => {
     // Check we don"t fall over in empty repo
     childProcess.execFileSync("git", ["init"]);
 
-    command.fab(["init"]);
+    command.fab(["init", "--nested"]);
     expect(fs.existsSync(core.fabRootFilename)).toBe(true);
     expect(fs.existsSync(core.manifestPath({}))).toBe(true);
     // Not too worried about root and manifest contents!
@@ -44,7 +44,7 @@ describe("core init", () => {
     childProcess.execFileSync("git", ["init"]);
 
     const manifest = "custom";
-    command.fab(["init", "--manifest", manifest]);
+    command.fab(["init", "--nested", "--manifest", manifest]);
     expect(fs.existsSync(core.fabRootFilename)).toBe(true);
     expect(fs.existsSync(core.manifestPath({ manifest }))).toBe(true);
 
@@ -56,9 +56,9 @@ describe("core init", () => {
   test("re-init should fail", () => {
     childProcess.execFileSync("git", ["init"]);
 
-    command.fab(["init"]);
+    command.fab(["init", "--nested"]);
     expect(() => {
-      command.fab(["init"]);
+      command.fab(["init", "--nested"]);
     }).toThrow(util.suppressTerminateExceptionMessage);
   });
 
