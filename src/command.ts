@@ -151,7 +151,7 @@ Examples:
       fab init --nested
       fab init --root .
 
-  For a forest layout with sibling repositories, either:
+  For a forest layout with sibling repositories beside the seed repo, either:
       fab init --sibling
       fab init --root ..`);
     })
