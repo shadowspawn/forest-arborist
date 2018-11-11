@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+### Changed
+
+- removed extra blank line in output between repos for `for-each`, `for-free`, `git`, `hg`
+- dependencies
+
 ## [4.0.0] (2018-11-03)
 
 ### Added
