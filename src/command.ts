@@ -117,9 +117,9 @@ Description:
 
   Output shell completion script.
 
-  For trying out shell completion without writing files on Lin:
+  For trying out shell completion without writing files on Linux:
       source < (fab completion)
-  on Mac:
+  on macOS:
       eval \`$(fab completion)\`
 
   To install, write the output to a shell startup file, or to a file and invoke from a shell startup file.
