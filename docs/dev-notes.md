@@ -1,11 +1,5 @@
 # Forest Arborist
 
-## Backlog
-
-- make sibling `init` an equal citizen. Perhaps:
-    - `fab init --sibling` == `fab init --root ..`
-    - `fab init --nested` == `fab init --root .`
-
 ## Patterns
 
 Version Plan
