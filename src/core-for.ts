@@ -23,10 +23,9 @@ export function doFor(cmd: string, args: string[], options: ForOptions, filter: 
       util.execCommandSync(
         cmd, args, { cwd: repoPath }
       );
-      console.log(""); // blank line after command output
     } catch (err) {
       if (options.keepgoing) {
-        console.log("");
+        console.log(""); // blank line after command output
       } else {
         // Check whether the command was a typo before suggesting the --keepgoing option
         // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
