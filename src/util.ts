@@ -121,7 +121,7 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
 
   try {
     // Note: this stdio option hooks up child stream to parent so we get live progress.
-    let stdio = "inherit";
+    let stdio: childProcess.StdioOptions = "inherit";
     // `jest --silent` does not suppress "inherit", so use default "pipe".
     if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
       stdio = "pipe";
