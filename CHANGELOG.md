@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
+- changed `fab status` implementation from `git status --short` to `git status -sb` to add branch and ahead/behind (albeit longer)
 - removed extra blank line in output between repos for `for-each`, `for-free`, `git`, `hg`
 - dependencies
 

@@ -25,8 +25,9 @@ function doStatus() {
   Object.keys(forestRepos).forEach((repoPath) => {
     const entry = forestRepos[repoPath];
     if (entry.repoType === "git") {
+      // Using short form of options to reduce amount of output for commonly used command
       util.execCommandSync(
-        "git", ["status", "--short"], { cwd: repoPath }
+        "git", ["status", "-sb"], { cwd: repoPath }
       );
     } else if (entry.repoType === "hg") {
       util.execCommandSync(
