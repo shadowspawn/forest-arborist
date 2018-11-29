@@ -21,7 +21,7 @@
 
 Provide key operations on a loosely coupled forest of repositories. The
 forest repos can be nested under a main repo or siblings in a plain directory. Supports
-both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories. Tested on MacOS, Windows, and Linux.
+both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories. Tested on macOS, Windows, and Linux.
 
 Aims to be lightweight and coexist with other tooling, rather than intrusive and opinionated.
 
@@ -192,7 +192,7 @@ Colour output is off by default on Windows and on by default for other platforms
 
 ## Developing
 
-| Branch | MacOS & Linux | Windows |
+| Branch | macOS & Linux | Windows |
 | --- | --- | --- |
 | develop | [![travis build](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/JohnRGee/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/JohnRGee/forest-arborist) |
 
