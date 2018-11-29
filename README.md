@@ -183,15 +183,7 @@ Custom manifests follow the template &lt;custom&gt;\_manifest.json.
 
 ## Command-line Tab Completion
 
-For trying out shell completion on Linux:
-
-    source < (fab completion)
-
-on Mac:
-
-    eval `$(fab completion)`
-
-To install, write the output of `fab completion` to a shell startup file, or to a file and invoke from a shell startup file.
+To install command-line tab completion, write the output of `fab completion` to a suitable location to be executed, whether via your shell startup file or in a location which is read by the system. See `fab completion` for installation examples.
 (c.f. [npm completion](https://docs.npmjs.com/cli/completion))
 
 ## Colour Output

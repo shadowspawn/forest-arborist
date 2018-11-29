@@ -7,6 +7,7 @@
 #   fab completion > ~/.fab_completion; echo "source ~/.fab_completion" >> ~/.bashrc
 #   fab completion >> ~/.zshrc
 #   fab completion > /usr/local/etc/bash_completion.d/fab
+#   fab completion > /etc/bash_completion.d/fab
 
 if type complete &>/dev/null; then
   _fab_completion () {
