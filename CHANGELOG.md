@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - updated command-line tab completion instructions to include another example location, and remove broken suggestion in README. Resolves [#9](https://github.com/JohnRGee/forest-arborist/issues/9).
- 
+
 ## [4.1.0] (2018-11-22)
 
 ### Changed
