@@ -51,7 +51,7 @@
     ]
   },
   "dependencies": {
-    "chalk": "^2.4.1",
+    "chalk": "^2.4.2",
     "commander": "^2.19.0",
     "fs-extra": "^7.0.1",
     "shell-quote": "^1.6.1",
@@ -59,7 +59,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
-    "@types/jest": "^23.3.11",
+    "@types/jest": "^23.3.12",
     "@types/node": "^10.12.18",
     "@types/shell-quote": "^1.6.0",
     "@types/tmp": "0.0.33",
