@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## Fixed
+
+- command-line completion was failing on operators and comments (and returning an error message)
+
 ## [4.1.1] (2018-12-05)
 
 ### Changed

@@ -45,12 +45,20 @@ function findCommand(commandName: string, program: commander.Command): commander
 // Use shell-quote to do the heavy lifting for quotes et al. If it wasn't for COMP_POINT, we could just use process.args.
 // Incomplete quoted strings in progress are not handled, but that is a weird state to ask for tab completion anyway!
 
-export function splitIntoArgs(line: string) {
+export function splitIntoArgs(line: string): string[] {
   let tokens = shellQuote.parse(line);
   if (line.endsWith(" ")) {
     tokens.push("");
   }
-  return tokens;
+
+  // Parse can return {op} and {comment}, but not going to expand those.
+  return tokens.map((arg) => {
+    if (typeof arg === "string") {
+      return arg;
+    } else {
+      return JSON.stringify(arg);
+    }
+  });
 }
 
 function processEnv(): CompletionContext {
