@@ -229,7 +229,7 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
       assertNoExtraArgs(program.args);
       core.cdRootDirectory();
       const rootObject = core.readRootFile();
-      const seedPath = path.resolve(rootObject.seedPath);
+      const seedPath = path.resolve(process.cwd(), rootObject.seedPath);
       console.log(seedPath);
     });
 

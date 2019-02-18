@@ -28,7 +28,7 @@ export function doManifest(options: ManifestOptions) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const seedPath = path.resolve(rootObject.seedPath);
+  const seedPath = path.resolve(process.cwd(), rootObject.seedPath);
   const manifestPath = core.manifestPath({ seedPath, manifest: rootObject.manifest });
 
   if (options.edit) {
@@ -42,7 +42,7 @@ export function doManifest(options: ManifestOptions) {
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const relTargetPath = rootRelative(startDir, options.add);
-    const absTargetPath = path.resolve(relTargetPath);
+    const absTargetPath = path.resolve(process.cwd(), relTargetPath);
     if (seedPath === absTargetPath) {
       util.terminate("Seed folder cannot be added as a dependency");
     }

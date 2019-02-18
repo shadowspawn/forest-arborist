@@ -13,13 +13,13 @@ test("getRepoTypeForLocalPath", () => {
     repo.getRepoTypeForLocalPath("notRepo");
   }).toThrowError();
 
-  spy.mockImplementation((targetPath: string) => {
-    return targetPath.indexOf(".git") != -1;
+  spy.mockImplementation((targetPath: fs.PathLike) => {
+    return (typeof targetPath === "string") && (targetPath.indexOf(".git") != -1);
   });
   expect(repo.getRepoTypeForLocalPath("gitRepo")).toEqual("git");
 
-  spy.mockImplementation((targetPath: string) => {
-    return targetPath.indexOf(".hg") != -1;
+  spy.mockImplementation((targetPath: fs.PathLike) => {
+    return (typeof targetPath === "string") && (targetPath.indexOf(".hg") != -1);
   });
   expect(repo.getRepoTypeForLocalPath("hgRepo")).toEqual("hg");
 
@@ -32,13 +32,13 @@ test("getRepoTypeForParams", () => {
   expect(repo.getRepoTypeForParams("dummyRepo", "hg")).toBe("hg");
 
   const spy = jest.spyOn(fs, "existsSync");
-  spy.mockImplementation((targetPath: string) => {
-    return targetPath.indexOf(".git") != -1;
+  spy.mockImplementation((targetPath: fs.PathLike) => {
+    return (typeof targetPath === "string") && (targetPath.indexOf(".git") != -1);
   });
   expect(repo.getRepoTypeForParams("gitRepo")).toBe("git");
 
   spy.mockImplementation((targetPath) => {
-    return targetPath.indexOf(".hg") != -1;
+    return (typeof targetPath === "string") && (targetPath.indexOf(".hg") != -1);
   });
   expect(repo.getRepoTypeForParams("hgRepo")).toBe("hg");
 

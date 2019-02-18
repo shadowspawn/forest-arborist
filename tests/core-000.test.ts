@@ -78,7 +78,8 @@ describe("core", () => {
       rootDirectory: "root",
       mainPathFromRoot: "main",
     };
-    const fabManifest = core.manifestPath({ seedPath: "." });
+    // Failing test with relative path. Sigh, something skanky somewhere! Make absolute.
+    const fabManifest = path.resolve(process.cwd(), core.manifestPath({ seedPath: "." }));
     fsX.mkdirpSync(path.dirname(fabManifest));
     fsX.writeJsonSync(fabManifest, testManifestObject, { spaces: 2 });
     const manifestContents = core.readManifest({ seedPath: "." });

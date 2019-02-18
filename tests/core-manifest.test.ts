@@ -44,7 +44,7 @@ describe("core manifest", () => {
   });
 
   test("show", () => {
-    const manifestPath = path.resolve(core.manifestPath({ }));
+    const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
     process.chdir("free"); // test one option from somewhere in tree other than seed
 
     const spy = jest.spyOn(global.console, 'log');
@@ -66,14 +66,15 @@ describe("core manifest", () => {
 
   test("edit", () => {
     // Using knowledge of implementation, but hopefully worth it so we can test edit!
-    const manifestPath = path.resolve(core.manifestPath({ }));
+    const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
     const holdEditorName = process.env["EDITOR"];
     const editorName = "dummy-editor-not-called";
     process.env["EDITOR"] = editorName;
     const spy = jest.spyOn(childProcess, 'execFileSync');
-    spy.mockImplementation(() => {
+    spy.mockReturnValue(Buffer.alloc(0));
+    // spy.mockImplementation(() => {
       // dummy out editor!
-    });
+    // });
     command.fab(["manifest", "--edit"]);
     expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});
     spy.mockRestore();
@@ -130,8 +131,8 @@ describe("core manifest", () => {
   });
 
   test("custom manifest name", () => {
-    const customManifestPath = path.resolve(core.manifestPath({ manifest: "custom" }));
-    fs.unlinkSync(path.resolve(core.manifestPath({ })));
+    const customManifestPath = path.resolve(process.cwd(), core.manifestPath({ manifest: "custom" }));
+    fs.unlinkSync(path.resolve(process.cwd(), core.manifestPath({ })));
     coreInit.doInit({ root: ".", manifest: "custom" });
 
     const spy = jest.spyOn(global.console, 'log');

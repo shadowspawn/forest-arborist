@@ -59,7 +59,7 @@ function makeRemotes(absoluteRemotesPath: string) {
 export function makePlayground(playgroundDestination: string) {
   const startDir = process.cwd();
 
-  const playgroundDir = path.resolve(playgroundDestination);
+  const playgroundDir = path.resolve(process.cwd(), playgroundDestination);
   fsX.ensureDirSync(playgroundDestination);
 
   makeRemotes(path.join(playgroundDir, "remotes"));

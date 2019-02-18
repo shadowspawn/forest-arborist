@@ -113,7 +113,7 @@ export interface RootFile {
 
 export function readRootFile(): RootFile {
   // Use absolute path so appears in any errors
-  const fabRootPath = path.resolve(fabRootFilename);
+  const fabRootPath = path.resolve(process.cwd(), fabRootFilename);
   const rootObjectOnDisk = util.readJson(fabRootPath);
   // mainPath: fab v1 and v2
   // seedPath: fab v3

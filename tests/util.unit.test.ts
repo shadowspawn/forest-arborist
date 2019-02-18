@@ -166,7 +166,7 @@ describe("execCommandSync", () => {
 
   test("cwd", () => {
     const spy = jest.spyOn(childProcess, 'execFileSync');
-    spy.mockReturnValue(undefined);
+    spy.mockReturnValue(Buffer.alloc(0));
 
     util.execCommandSync("command");
     expect(spy).toHaveBeenLastCalledWith("command", undefined, { "cwd": ".", "stdio": "pipe" });
