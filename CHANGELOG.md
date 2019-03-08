@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- updated command-line tab completion instructions to include another example location, and remove broken suggestion in README. Resolves [#9](https://github.com/JohnRGee/forest-arborist/issues/9).
+- updated command-line tab completion instructions to include another example location, and remove broken suggestion in README. Resolves [#9](https://github.com/shadowspawn/forest-arborist/issues/9).
 
 ## [4.1.0] (2018-11-22)
 
@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
 
-- `fab switch` now uses destination branch manifest rather than starting manifest to determine free repos. In addition, applies changes to free/locked/pinned dependency type, and displays a message about missing new repos. Resolves [#8](https://github.com/JohnRGee/forest-arborist/issues/8).
+- `fab switch` now uses destination branch manifest rather than starting manifest to determine free repos. In addition, applies changes to free/locked/pinned dependency type, and displays a message about missing new repos. Resolves [#8](https://github.com/shadowspawn/forest-arborist/issues/8).
 
 ## [3.1.1] (2018-09-15)
 
@@ -177,19 +177,19 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 
 - first stable release
 
-[Unreleased]: https://github.com/JohnRGee/forest-arborist/compare/master...develop
-[4.1.2]: https://github.com/JohnRGee/forest-arborist/compare/v4.1.1...v4.1.2
-[4.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v4.1.0...v4.1.1
-[4.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v4.0.0...v4.1.0
-[4.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.3.0...v4.0.0
-[3.3.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.2.0...v3.3.0
-[3.2.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.1...v3.2.0
-[3.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v3.1.0...v3.1.1
-[3.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v3.0.0...v3.1.0
-[3.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v2.0.0...v3.0.0
-[2.0.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.2.0...v2.0.0
-[1.2.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.1.2...v1.2.0
-[1.1.2]: https://github.com/JohnRGee/forest-arborist/compare/1.1.1...v1.1.2
-[1.1.1]: https://github.com/JohnRGee/forest-arborist/compare/v1.1.0...1.1.1
-[1.1.0]: https://github.com/JohnRGee/forest-arborist/compare/v1.0.1...v1.1.0
-[1.0.1]: https://github.com/JohnRGee/forest-arborist/compare/v1.0.0...v1.0.1
+[Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[4.1.2]: https://github.com/shadowspawn/forest-arborist/compare/v4.1.1...v4.1.2
+[4.1.1]: https://github.com/shadowspawn/forest-arborist/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/shadowspawn/forest-arborist/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v3.3.0...v4.0.0
+[3.3.0]: https://github.com/shadowspawn/forest-arborist/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/shadowspawn/forest-arborist/compare/v3.1.1...v3.2.0
+[3.1.1]: https://github.com/shadowspawn/forest-arborist/compare/v3.1.0...v3.1.1
+[3.1.0]: https://github.com/shadowspawn/forest-arborist/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v2.0.0...v3.0.0
+[2.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v1.2.0...v2.0.0
+[1.2.0]: https://github.com/shadowspawn/forest-arborist/compare/v1.1.2...v1.2.0
+[1.1.2]: https://github.com/shadowspawn/forest-arborist/compare/1.1.1...v1.1.2
+[1.1.1]: https://github.com/shadowspawn/forest-arborist/compare/v1.1.0...1.1.1
+[1.1.0]: https://github.com/shadowspawn/forest-arborist/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/shadowspawn/forest-arborist/compare/v1.0.0...v1.0.1

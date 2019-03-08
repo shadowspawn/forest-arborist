@@ -82,7 +82,7 @@ Commands Summary:
   Display: root, seed, manifest
   Manifest management: manifest --edit, --list, --add, --delete
 
-See https://github.com/JohnRGee/forest-arborist.git for usage overview.
+See https://github.com/shadowspawn/forest-arborist.git for usage overview.
 See also "fab <command> --help" for individual command options and further help.`);
   });
 

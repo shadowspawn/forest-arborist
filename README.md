@@ -1,8 +1,8 @@
 # Forest Arborist
 
 [![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
-[![travis build](https://img.shields.io/travis/JohnRGee/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/JohnRGee/forest-arborist)
-[![appveyor build](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/JohnRGee/forest-arborist)
+[![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist)
+[![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist)
 
 - [Forest Arborist](#forest-arborist)
     - [Overview](#overview)
@@ -194,11 +194,11 @@ Colour output is off by default on Windows and on by default for other platforms
 
 | Branch | macOS & Linux | Windows |
 | --- | --- | --- |
-| develop | [![travis build](https://img.shields.io/travis/JohnRGee/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/JohnRGee/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/JohnRGee/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/JohnRGee/forest-arborist) |
+| develop | [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist) |
 
 Quick start:
 
-    git clone --branch develop git@github.com:JohnRGee/forest-arborist.git
+    git clone --branch develop git@github.com:shadowspawn/forest-arborist.git
     cd forest-arborist
     npm install
     npm link

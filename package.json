@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/JohnRGee/forest-arborist.git"
+    "url": "https://github.com/shadowspawn/forest-arborist.git"
   },
   "scripts": {
     "create-playground": "node dist/dev/create-playground",
@@ -69,7 +69,7 @@
     "typescript": "^3.3.3333"
   },
   "bugs": {
-    "url": "https://github.com/JohnRGee/forest-arborist/issues"
+    "url": "https://github.com/shadowspawn/forest-arborist/issues"
   },
   "optionalDependencies": {},
   "directories": {
