@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [4.1.3] (2019-03-09)
 
+## Added
+
+- `shrinkwrap.json` in published package to lock dependencies (as suggested for a CLI application)
+
 ### Changed
 
 - updated README and package et al with new GitHub username
