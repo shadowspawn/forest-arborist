@@ -11,7 +11,7 @@ import * as cc from "./core-common";
 
 describe("repo", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  let tempFolder: tmp.DirResult;
   const testOrigin = "git@ex.com:path/to/main.git";
 
   beforeAll(() => {

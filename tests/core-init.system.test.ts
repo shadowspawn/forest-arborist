@@ -11,7 +11,7 @@ import * as util from "../src/util";
 
 describe("core init", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  let tempFolder: tmp.DirResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });

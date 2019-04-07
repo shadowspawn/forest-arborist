@@ -18,7 +18,7 @@ import * as sandpit from "../dev/sandpit";
 
 describe("system (full functionality)", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  let tempFolder: tmp.DirResult;
   let sanddpitRevisions: ReturnType<typeof sandpit.makePlayground>;
   let nestedRoot: string;
   let siblingRoot: string;

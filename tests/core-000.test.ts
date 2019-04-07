@@ -13,7 +13,7 @@ import * as cc from "./core-common";
 
 describe("core", () => {
   const startDir = process.cwd();
-  let tempFolder: tmp.SynchrounousResult;
+  let tempFolder: tmp.DirResult;
 
   beforeEach(() => {
     tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
