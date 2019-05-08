@@ -61,15 +61,15 @@
     "tmp": "^0.1.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.5",
-    "@types/jest": "^24.0.11",
-    "@types/node": "^10.14.4",
+    "@types/fs-extra": "^5.1.0",
+    "@types/jest": "^24.0.12",
+    "@types/node": "^10.14.6",
     "@types/shell-quote": "^1.6.1",
     "@types/tmp": "^0.1.0",
-    "jest": "^24.7.1",
+    "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
-    "tslint": "^5.15.0",
-    "typescript": "^3.4.2"
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   },
   "bugs": {
     "url": "https://github.com/shadowspawn/forest-arborist/issues"
