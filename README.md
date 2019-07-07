@@ -4,30 +4,28 @@
 [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist)
 [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist)
 
-- [Forest Arborist](#forest-arborist)
-    - [Overview](#overview)
-    - [Installation](#installation)
-    - [Forest Management Commands](#forest-management-commands)
-    - [Utility Commands](#utility-commands)
-    - [Working With Branches](#working-with-branches)
-    - [Reproducing Forest State](#reproducing-forest-state)
-    - [Dependent Repository Types](#dependent-repository-types)
-    - [Manifest Files (Internals)](#manifest-files-internals)
-    - [Command-line Tab Completion](#command-line-tab-completion)
-    - [Colour Output](#colour-output)
-    - [Developing](#developing)
+- [Forest Arborist](#Forest-Arborist)
+    - [Overview](#Overview)
+    - [Installation](#Installation)
+    - [Forest Management Commands](#Forest-Management-Commands)
+    - [Utility Commands](#Utility-Commands)
+    - [Working With Branches](#Working-With-Branches)
+    - [Reproducing Forest State](#Reproducing-Forest-State)
+    - [Dependent Repository Types](#Dependent-Repository-Types)
+    - [Manifest Files (Internals)](#Manifest-Files-Internals)
+    - [Command-line Tab Completion](#Command-line-Tab-Completion)
+    - [Colour Output](#Colour-Output)
+    - [Developing](#Developing)
 
 ## Overview
 
-Provide key operations on a loosely coupled forest of repositories. The
-forest repos can be nested under a main repo or siblings in a plain directory. Supports
-both Git and Mercurial repositories. Inspired by experience with Mercurial subrepositories. Tested on macOS, Windows, and Linux.
+Work with a forest of repositories as easily as using a single repo: from `fab clone`, through `fab pull` and `fab status`, to custom commands.
 
-Aims to be lightweight and coexist with other tooling, rather than intrusive and opinionated.
+Supports Git and Mercurial repositories. Tested on macOS, Windows, and Linux.
 
-Uses a manifest file in the seed repo and a marker file at the root of the forest.
-Allows most commands to be run from anywhere in the forest, by searching up for
-the root marker file.
+Aims to be lightweight and coexist with other tooling, rather than intrusive and opinionated. Adds a manifest file in the seed repo and a marker file at the root of the forest.
+
+Most commands can be run from anywhere in the forest.
 
 Terminology:
 
