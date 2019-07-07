@@ -56,19 +56,19 @@
   "dependencies": {
     "chalk": "^2.4.2",
     "commander": "^2.20.0",
-    "fs-extra": "^8.0.1",
+    "fs-extra": "^8.1.0",
     "shell-quote": "^1.6.1",
     "tmp": "^0.1.0"
   },
   "devDependencies": {
-    "@types/fs-extra": "^7.0.0",
+    "@types/fs-extra": "^8.0.0",
     "@types/jest": "^24.0.15",
-    "@types/node": "^10.14.9",
+    "@types/node": "^10.14.12",
     "@types/shell-quote": "^1.6.1",
     "@types/tmp": "^0.1.0",
     "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
-    "tslint": "^5.17.0",
+    "tslint": "^5.18.0",
     "typescript": "^3.5.2"
   },
   "bugs": {
