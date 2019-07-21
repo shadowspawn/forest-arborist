@@ -16,8 +16,7 @@
   },
   "scripts": {
     "create-playground": "node dist/dev/create-playground",
-    "lint": "tslint --project .",
-    "eslint": "eslint ./src/**/*.ts ./dev/**/*.ts ./tests/**/*.ts",
+    "lint": "eslint ./src/**/*.ts ./dev/**/*.ts ./tests/**/*.ts",
     "prepack": "dev/prepack.sh",
     "postpack": "dev/postpack.sh",
     "prepare": "tsc",
