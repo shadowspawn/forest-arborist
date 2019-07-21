@@ -19,14 +19,6 @@ function setEnv(line: string) {
 }
 
 
-function clearEnv() {
-  process.env.COMP_POINT = undefined;
-  process.env.COMP_LINE = undefined;
-  process.env.COMP_CWORD = undefined;
-
-}
-
-
 describe("completion", () => {
   let logSpy: jest.SpyInstance;
   let program: commander.Command;

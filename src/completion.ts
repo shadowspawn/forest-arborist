@@ -1,12 +1,7 @@
-import * as childProcess from "child_process";
 import * as commander from "commander"; // NB: accessing undocumented commander internals.
 import * as fs from "fs";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
-// Mine
-import * as core from "./core";
-import * as repo from "./repo";
-import { quote } from "shell-quote";
 
 export interface CompletionContext {
   readonly compLine: string; // COMP_LINE

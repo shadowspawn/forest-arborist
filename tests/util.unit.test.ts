@@ -61,10 +61,10 @@ describe("shouldDisableColour", () => {
 describe("terminate", () => {
 
   test("throws", () => {
-      expect(() => {
-        util.terminate("Goodbye");
-      }).toThrowError(util.suppressTerminateExceptionMessage);
-    });
+    expect(() => {
+      util.terminate("Goodbye");
+    }).toThrowError(util.suppressTerminateExceptionMessage);
+  });
 
   test("displays message", () => {
     const message = "custom message";
@@ -116,10 +116,10 @@ describe("restoreEnvVar", () => {
 
 test("coloured text", () => {
   // Simple check that message gets included in styled text
-   const sampleString = "Aa+Bb (Yy-Zz)";
-   expect(util.errorColour(sampleString)).toContain(sampleString);
-   expect(util.commandColour(sampleString)).toContain(sampleString);
- });
+  const sampleString = "Aa+Bb (Yy-Zz)";
+  expect(util.errorColour(sampleString)).toContain(sampleString);
+  expect(util.commandColour(sampleString)).toContain(sampleString);
+});
 
 
 describe("normalizeToPosix", () => {
@@ -139,7 +139,7 @@ describe("normalizeToPosix", () => {
   test("identity", () => {
     expect(util.normalizeToPosix("")).toEqual(".");
     expect(util.normalizeToPosix(undefined)).toEqual(".");
-    });
+  });
 
 });
 

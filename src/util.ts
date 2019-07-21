@@ -22,7 +22,7 @@ export function setPlatformForTest(platformParam: string) {
 
 
 // Exported for tests, no need to call otherwise.
-export function shouldDisableColour(platform:string = gPlatform): boolean {
+export function shouldDisableColour(platform: string = gPlatform): boolean {
   let shouldDisable = false;
 
   if ("NO_COLOR" in process.env) {
@@ -116,7 +116,7 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
   if (args !== undefined) {
     quotedArgs = shellQuote.quote(args);
     quotedArgs = quotedArgs.replace(/\n/g, "\\n");
-    }
+  }
   console.log(commandColour(`${cwdDisplay}${cmd} ${quotedArgs}`));
 
   try {

@@ -73,7 +73,7 @@ describe("core manifest", () => {
     const spy = jest.spyOn(childProcess, 'execFileSync');
     spy.mockReturnValue(Buffer.alloc(0));
     // spy.mockImplementation(() => {
-      // dummy out editor!
+    // dummy out editor!
     // });
     command.fab(["manifest", "--edit"]);
     expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});

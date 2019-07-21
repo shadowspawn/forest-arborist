@@ -6,7 +6,6 @@ import * as core from "./core";
 import * as coreClone from "./core-clone";
 import * as repo from "./repo";
 import * as util from "./util";
-import { Context } from "vm";
 
 export interface MakeBranchOptions {
   publish?: boolean;
@@ -61,7 +60,7 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
 function switchOneRepo(branch: string, repoType: repo.RepoType, repoPath: string) {
   if (repoType === "git") {
     util.execCommandSync(
-       "git", ["checkout", branch], { cwd: repoPath }
+      "git", ["checkout", branch], { cwd: repoPath }
     );
   } else if (repoType === "hg") {
     util.execCommandSync(

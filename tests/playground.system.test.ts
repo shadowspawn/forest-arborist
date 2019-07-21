@@ -32,7 +32,7 @@ describe("system (full functionality)", () => {
     siblingRoot = path.join(process.cwd(), "sibling");
     remotes = path.join(tempFolder.name, "remotes"); // avoid resolving to /private on mac
     process.chdir(startDir);
-});
+  });
 
   afterAll(() => {
     process.chdir(startDir);
@@ -109,49 +109,49 @@ describe("system (full functionality)", () => {
       process.chdir("nested");
       command.fab(["root"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
-      });
+    });
 
     test("root from nested forest", () => {
       process.chdir(path.join("nested", "libs"));
       command.fab(["root"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
-      });
+    });
 
     test("root from sibling root", () => {
       process.chdir("sibling");
       command.fab(["root"]);
       expect(spy).toHaveBeenLastCalledWith(siblingRoot);
-      });
+    });
 
     test("root from sibling main", () => {
       process.chdir(path.join("sibling", "main"));
       command.fab(["root"]);
       expect(spy).toHaveBeenLastCalledWith(siblingRoot);
-      });
+    });
 
     test("root from sibling forest", () => {
       process.chdir(path.join("sibling", "libs"));
       command.fab(["root"]);
       expect(spy).toHaveBeenLastCalledWith(siblingRoot);
-      });
+    });
 
     test("seed from nested forest", () => {
       process.chdir(path.join("nested", "libs"));
       command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
-      });
+    });
 
     test("seed from nested forest", () => {
       process.chdir(path.join("nested", "libs"));
       command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(nestedRoot);
-      });
+    });
 
     test("seed from sibling forest", () => {
       process.chdir(path.join("sibling", "libs"));
       command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(path.join(siblingRoot, "main"));
-      });
+    });
 
   });
 

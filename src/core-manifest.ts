@@ -1,7 +1,6 @@
 // This file implements the "fab manifest" command options (not the base manifest operations).
 
 import * as childProcess from "child_process";
-import * as fsX from "fs-extra";
 import * as path from "path";
 import * as process from "process";
 // Mine
@@ -36,7 +35,7 @@ export function doManifest(options: ManifestOptions) {
     const editor = process.env.EDITOR
       || process.env.VISUAL
       ||((process.platform === "win32") ? "notepad.exe" : "vi");
-      childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
+    childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
   } else if (options.list) {
     const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
     console.log(JSON.stringify(manifestObject, undefined, "  "));

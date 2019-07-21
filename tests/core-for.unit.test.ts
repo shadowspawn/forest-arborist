@@ -1,5 +1,3 @@
-import * as path from "path";
-import * as tmp from "tmp";
 // Mine
 import * as core from "../src/core";
 import * as coreFor from "../src/core-for";

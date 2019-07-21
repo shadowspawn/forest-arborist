@@ -23,7 +23,7 @@ export interface Dependencies {
 
 
 
-export const fabRootFilename: string = ".fab-root.json"; // stored in root directory
+export const fabRootFilename = ".fab-root.json"; // stored in root directory
 
 
 export function cdRootDirectory(): void {

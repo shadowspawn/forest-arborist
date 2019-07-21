@@ -9,7 +9,7 @@ import * as repo from "./repo";
 import * as util from "./util";
 
 
-interface FindRepositoriesCallback { (repoPath: string, repoType: repo.RepoType): void; }
+interface FindRepositoriesCallback { (repoPath: string, repoType: repo.RepoType): void }
 
 
 function findRepositories(startingDirectory: string, callback: FindRepositoriesCallback) {
@@ -79,12 +79,10 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
     if (origin !== undefined && parsedSeedOrigin
    !== undefined) {
       const parsedOrigin = dvcsUrl.parse(origin);
-      if (dvcsUrl.sameDir(parsedOrigin, parsedSeedOrigin
-  )) {
+      if (dvcsUrl.sameDir(parsedOrigin, parsedSeedOrigin)) {
         locked = false;
         console.log("    (free)");
-        const relativePath = dvcsUrl.relative(parsedSeedOrigin
-      , parsedOrigin);
+        const relativePath = dvcsUrl.relative(parsedSeedOrigin, parsedOrigin);
         // Should always be true?
         if (dvcsUrl.isRelativePath(relativePath)) {
           entry.origin = relativePath;
@@ -160,8 +158,7 @@ export function doInit(options: InitOptions) {
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
   findRepositories(".", (repoPath, repoType) => {
-    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin
- });
+    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin});
     dependencies[util.normalizeToPosix(repoPath)] = entry;
   });
   delete dependencies[mainFromRoot];

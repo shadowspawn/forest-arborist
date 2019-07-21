@@ -1,6 +1,5 @@
 // Test publish should produce functional command.
 
-import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as tmp from "tmp";

@@ -41,8 +41,8 @@ export function isGitRepository(repository: string) {
     // Handle local repos ourselves, as ls-remote only intended for remote repositories.
     const parsed = dvcsUrl.parse(repository);
     if (parsed.protocol === "path-posix" || parsed.protocol === "path-win32") {
-        return (fs.existsSync(path.join(repository, ".git")) || (path.extname(repository) === ".git"));
-      }
+      return (fs.existsSync(path.join(repository, ".git")) || (path.extname(repository) === ".git"));
+    }
     // KISS and get git to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
       "git", ["ls-remote", repository],
