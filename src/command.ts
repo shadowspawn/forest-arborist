@@ -1,4 +1,5 @@
 import * as commander from "commander";
+import * as fsX from "fs-extra";
 import * as path from "path";
 // Mine
 import * as completion from "./completion";
@@ -11,9 +12,6 @@ import * as coreManifest from "./core-manifest";
 import * as corePull from "./core-pull";
 import * as coreSnapshot from "./core-snapshot";
 import * as util from "./util";
-// Trickery to cope with different relative paths for typescipt and javascript
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const myPackage = require("dummy_for_node_modules/../../package.json");
 
 
 function doStatus() {
@@ -60,6 +58,8 @@ export type Command = commander.Command;
 
 export function makeProgram(): Command {
   const program = new commander.Command();
+
+  const myPackage = fsX.readJsonSync(path.join(__dirname, "..", "..", "package.json"));
 
   program
     .version(myPackage.version)
