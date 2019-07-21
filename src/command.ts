@@ -45,7 +45,7 @@ function doStatus() {
 
 // Call with program.args which are the unconsumed arguments after parsing.
 
-function assertNoExtraArgs(args: any[]) {
+function assertNoExtraArgs(args: string[]) {
   // commander adds program as last parameter
   if (args.length > 1) {
     util.terminate(`unexpected extra argument: ${args[0]}`);
