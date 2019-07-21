@@ -148,6 +148,16 @@ export function restoreEnvVar(key: string, restoreValue?: string) {
 }
 
 
+// Narrow type particularly for string|undefined to let TypeScript see we checked
+export function getStringOrThrow(str: string | undefined, message?: string): string {
+  if (typeof str === "string")
+    return str;
+  throw message || "Expecting string";
+}
+
+
+
+
 // Initialisation
 
 /* istanbul ignore next  */

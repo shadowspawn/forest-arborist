@@ -48,8 +48,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
       args.push("--noupdate");
     }
   }
-  if (entry.origin === undefined) util.terminate("origin undefined");
-  args.push(entry.origin!, repoPath);
+  args.push(util.getStringOrThrow(entry.origin, "origin undefined"), repoPath);
   // Clone command ready!
   util.execCommandSync(entry.repoType, args, { suppressContext: true });
 

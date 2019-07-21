@@ -2,6 +2,8 @@ import * as commander from "commander"; // NB: accessing undocumented commander 
 import * as fs from "fs";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
+// Mine
+import * as util from "./util";
 
 export interface CompletionContext {
   readonly compLine: string; // COMP_LINE
@@ -18,7 +20,7 @@ const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
 function trace(param: string | object) {
   if (gDebug) {
     // Reopening for each log (KISS!)
-    const stream = fs.createWriteStream(process.env.FAB_COMPLETION_LOG!, { flags: 'a+' });
+    const stream = fs.createWriteStream(util.getStringOrThrow(process.env.FAB_COMPLETION_LOG), { flags: 'a+' });
     if (typeof param === "string") {
       stream.write(`${param}\n`);
     } else if (typeof param === "object") {
@@ -58,8 +60,8 @@ export function splitIntoArgs(line: string): string[] {
 
 function processEnv(): CompletionContext {
   // Not using COMP_CWORD.
-  const compLine = process.env.COMP_LINE!;
-  const compPoint = Number(process.env.COMP_POINT!);
+  const compLine = util.getStringOrThrow(process.env.COMP_LINE, "COMP_LINE");
+  const compPoint = Number(util.getStringOrThrow(process.env.COMP_POINT, "COMP_POINT"));
 
   const lineToPoint = compLine.substr(0, compPoint);
   const args = splitIntoArgs(lineToPoint);
