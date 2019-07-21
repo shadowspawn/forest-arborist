@@ -356,8 +356,10 @@ test("relative", () => {
 
 
 test("isRelativePath", () => {
-  expect(dvcsUrl.isRelativePath(<any>null)).toBe(false);
-  expect(dvcsUrl.isRelativePath(<any>undefined)).toBe(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expect(dvcsUrl.isRelativePath(null as any)).toBe(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  expect(dvcsUrl.isRelativePath(undefined as any)).toBe(false);
   expect(dvcsUrl.isRelativePath("")).toBe(false);
   expect(dvcsUrl.isRelativePath("a")).toBe(false);
   expect(dvcsUrl.isRelativePath("a/b")).toBe(false);

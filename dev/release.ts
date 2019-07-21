@@ -25,7 +25,7 @@ function execCommandSync(cmd: string, args?: string[]) {
 
 
 async function readLineAsync(message: string) {
-  return new Promise<string>((resolve, reject) => {
+  return new Promise<string>((resolve) => {
     rl.question(message, (answer) => {
       resolve(answer);
     });
@@ -93,7 +93,7 @@ async function main() {
 
 main().then(() => {
   rl.close();
-}).catch((reason) => {
+}).catch(() => {
   rl.close();
   console.log(util.errorColour("Something went wrong, going back to develop branch."));
   execCommandSync("git", ["checkout", "develop"]);

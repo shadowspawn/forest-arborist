@@ -53,7 +53,7 @@ export function doSnapshot(options: SnapshotOptions) {
   const manifestObject = core.readManifest({ fromRoot: true, manifest: rootObject.manifest });
 
   // Create dependencies with fixed revision and absolute repo.
-  const dependencies: any = {};
+  const dependencies: core.Dependencies = {};
   Object.keys(manifestObject.dependencies).forEach((repoPath) => {
     const entry = manifestObject.dependencies[repoPath];
     dependencies[repoPath] = {

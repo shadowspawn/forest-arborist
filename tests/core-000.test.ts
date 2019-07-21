@@ -107,9 +107,10 @@ describe("core", () => {
     }).toThrow();
 
     // Nested forest
-    const dependencies1: any  = {};
+    const dependencies1: core.Dependencies  = {};
     dependencies1["git"] = { repoType: "git" };
     dependencies1["hg"] = { repoType: "hg" };
+    // @ts-ignore: adding invalid value for testing
     dependencies1["silly"] = { repoType: "silly" };
     dependencies1["relativeOrigin"] = { repoType: "git", origin: "./relativeOrigin" };
     const manifestWriteNested = {
