@@ -36,7 +36,7 @@ describe("completion", () => {
       .option("--long");
     program.command("betaOne");
     program.command("betaTwo");
-    program.command("secret", undefined, { noHelp: true });
+    program.command("secret", { noHelp: true });
   });
 
   afterAll(() => {
