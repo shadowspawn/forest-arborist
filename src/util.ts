@@ -10,7 +10,7 @@ import * as fsX from "fs-extra";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
 
-declare var JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
+declare let JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 
@@ -77,7 +77,7 @@ export function normalizeToPosix(relPathParam?: string) {
 
 
 export function readJson(targetPath: string, requiredProperties?: string[]) {
-  let rootObject = fsX.readJsonSync(targetPath);
+  const rootObject = fsX.readJsonSync(targetPath);
 
   // Sanity check. Possible errors due to hand editing, but during development
   // usually unsupported old file formats!
@@ -102,7 +102,7 @@ export interface ExecCommandSyncOptions {
 
 
 export function execCommandSync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions) {
-  let options = Object.assign({ }, optionsParam);
+  const options = Object.assign({ }, optionsParam);
   let cwdDisplay = `${options.cwd}: `;
   if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
     cwdDisplay = "(root): ";

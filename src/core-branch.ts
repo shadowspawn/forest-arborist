@@ -13,7 +13,7 @@ export interface MakeBranchOptions {
 
 
 export function doMakeBranch(branch: string, startPoint?: string, optionsParam?: MakeBranchOptions) {
-  let options: MakeBranchOptions = Object.assign({ }, optionsParam);
+  const options: MakeBranchOptions = Object.assign({ }, optionsParam);
 
   const startDir = process.cwd();
   core.cdRootDirectory();

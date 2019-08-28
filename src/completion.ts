@@ -43,7 +43,7 @@ function findCommand(commandName: string, program: commander.Command): commander
 // Incomplete quoted strings in progress are not handled, but that is a weird state to ask for tab completion anyway!
 
 export function splitIntoArgs(line: string): string[] {
-  let tokens = shellQuote.parse(line);
+  const tokens = shellQuote.parse(line);
   if (line.endsWith(" ")) {
     tokens.push("");
   }
@@ -72,7 +72,7 @@ function processEnv(): CompletionContext {
   // This is a very simplistic approach ignoring:
   // - there may be just arguments and not commands (probably ok)
   // - options could take parameters
-  let commandName = args.slice(1, -1).find((word) => {
+  const commandName = args.slice(1, -1).find((word) => {
     return !word.startsWith("-");
   });
 
