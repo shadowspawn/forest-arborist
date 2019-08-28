@@ -93,16 +93,20 @@ function processEnv(): CompletionContext {
 }
 
 
-function getOptionNames(partial: string, options: any): string[] {
+function getOptionNames(partial: string, options: commander.Option[]): string[] {
   let optionNames: string[] = [];
   if (partial.startsWith("--")) {
-    optionNames = options.map((option: any) => {
+    optionNames = options.map((option) => {
       return option.long;
     });
   } else if (partial.startsWith("-")) {
-    optionNames = options.map((option: any) => {
-      return option.short;
-    });
+    optionNames = options
+      .filter((option) => {
+        return option.short !== undefined;
+      })
+      .map((option) => {
+        return option.short as string; // lint: excluded undefined in filter
+      });
   }
   optionNames = optionNames.filter((e) => {
     return (e !== undefined);
@@ -115,7 +119,7 @@ function getOptionNames(partial: string, options: any): string[] {
 function getCommandNames(program: commander.Command) {
   // (Not including aliases, by design.)
   return program.commands
-    .filter((cmd: any) => {
+    .filter((cmd: commander.Command) => {
       return !cmd._noHelp;
     })
     .map((cmd: commander.Command) => {
