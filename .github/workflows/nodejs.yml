@@ -6,7 +6,7 @@ on: [push]
 
 jobs:
   test-ubuntu:
-    name: Test on node ${{ matrix.node-version }}
+    name: Test on node ${{ matrix.node-version }} and ubuntu
     runs-on: ubuntu-latest
 
     strategy:
@@ -28,7 +28,7 @@ jobs:
       env:
         CI: true
   test-macos:
-    name: Test on node ${{ matrix.node-version }}
+    name: Test on node ${{ matrix.node-version }} and macOS
     runs-on: macos-latest
 
     strategy:
