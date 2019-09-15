@@ -2,16 +2,18 @@ name: Node CI
 
 on: [push]
 
-# Platform speecific handling required for installing mercurial
+# Some platform speecific handling required for installing mercurial
+# windows: choco install hg. currently already installed
 
 jobs:
   test-ubuntu:
-    name: Test on node ${{ matrix.node-version }} and ubuntu
-    runs-on: ubuntu-latest
+    name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
         node-version: [8.x, 10.x, 12.x]
+        os: [ubuntu-latest, windows-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -46,29 +48,6 @@ jobs:
         git config --global "user.email" "noreply@no.reply"
         git config --global "user.name" "Unit Test"
         brew install mercurial
-        npm install
-        npm test
-      env:
-        CI: true
-  test-windows:
-    name: Test on node ${{ matrix.node-version }} and windows
-    runs-on: windows-latest
-
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
-
-    steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, and test
-      run: |
-        git config --global "user.email" "noreply@no.reply"
-        git config --global "user.name" "Unit Test"
-        choco install hg
         npm install
         npm test
       env:
