@@ -10,7 +10,9 @@ jobs:
     strategy:
       matrix:
         node-version: [8.x, 10.x, 12.x]
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Mercurial is not installed by default on macos (had homebrew) and windows
+        #os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
