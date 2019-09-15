@@ -12,8 +12,10 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [8.x, 10.x, 12.x]
-        os: [ubuntu-latest, windows-latest]
+        # node-version: [8.x, 10.x, 12.x]
+        node-version: [10.x]
+        # os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -23,32 +25,37 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, and test
       run: |
+        echo 1
         git config --global "user.email" "noreply@no.reply"
+        echo 2
         git config --global "user.name" "Unit Test"
+        echo 3
         npm install
+        echo 4
         npm test
+        echo 5
       env:
         CI: true
-  test-macos:
-    name: Test on node ${{ matrix.node-version }} and macOS
-    runs-on: macos-latest
+  # test-macos:
+  #   name: Test on node ${{ matrix.node-version }} and macOS
+  #   runs-on: macos-latest
 
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
+  #   strategy:
+  #     matrix:
+  #       node-version: [8.x, 10.x, 12.x]
 
-    steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, and test
-      run: |
-        git config --global "user.email" "noreply@no.reply"
-        git config --global "user.name" "Unit Test"
-        brew install mercurial
-        npm install
-        npm test
-      env:
-        CI: true
+  #   steps:
+  #   - uses: actions/checkout@v1
+  #   - name: Use Node.js ${{ matrix.node-version }}
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: ${{ matrix.node-version }}
+  #   - name: npm install, and test
+  #     run: |
+  #       git config --global "user.email" "noreply@no.reply"
+  #       git config --global "user.name" "Unit Test"
+  #       brew install mercurial
+  #       npm install
+  #       npm test
+  #     env:
+  #       CI: true
