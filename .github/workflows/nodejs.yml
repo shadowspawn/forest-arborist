@@ -2,17 +2,16 @@ name: Node CI
 
 on: [push]
 
+# Platform speecific handling required for installing mercurial
+
 jobs:
-  test:
-    name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+  test-ubuntu:
+    name: Test on node ${{ matrix.node-version }}
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
         node-version: [8.x, 10.x, 12.x]
-        # Mercurial is not installed by default on macos (had homebrew) and windows
-        #os: [ubuntu-latest, windows-latest, macos-latest]
-        os: [ubuntu-latest]
 
     steps:
     - uses: actions/checkout@v1
@@ -24,6 +23,29 @@ jobs:
       run: |
         git config --global "user.email" "noreply@no.reply"
         git config --global "user.name" "Unit Test"
+        npm install
+        npm test
+      env:
+        CI: true
+  test-macos:
+    name: Test on node ${{ matrix.node-version }}
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, and test
+      run: |
+        git config --global "user.email" "noreply@no.reply"
+        git config --global "user.name" "Unit Test"
+        brew install mercurial
         npm install
         npm test
       env:
