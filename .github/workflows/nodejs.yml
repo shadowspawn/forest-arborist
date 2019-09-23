@@ -29,7 +29,7 @@ jobs:
       run: npm run test
       env:
         CI: true
-  macOS does not have Mercurial preinstalled
+  # macOS does not have Mercurial preinstalled
   test-macos:
     name: Test on node ${{ matrix.node-version }} and macOS
     runs-on: macos-latest
