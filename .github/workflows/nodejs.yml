@@ -2,6 +2,8 @@ name: Node CI
 
 on: [push]
 
+# Reminder: npm ci not available with node 8 (older npm)
+
 jobs:
   # Somewhat unexpectedly, can test Windows and Ubuntu together!
   test-windows:
@@ -24,8 +26,8 @@ jobs:
     - name: git config user.name
       run: git config --global "user.name" "Unit Test"
     - name: npm install
-      run: npm ci
-    - name: test
+      run: npm install
+    - name: npm test
       run: npm run test
       env:
         CI: true
@@ -46,10 +48,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, and test
       run: |
+        brew install mercurial
         git config --global "user.email" "noreply@no.reply"
         git config --global "user.name" "Unit Test"
-        brew install mercurial
         npm install
-        npm test
+        npm run test
       env:
         CI: true
