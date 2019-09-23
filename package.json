@@ -23,7 +23,7 @@
     "pull": "git pull && npm install && npm test",
     "release": "node dist/dev/release",
     "smoketest": "node dist/dev/smoketest",
-    "test": "jest --silent --verbose"
+    "test": "jest --silent"
   },
   "author": "John Gee",
   "license": "MIT",
