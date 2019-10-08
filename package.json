@@ -17,8 +17,6 @@
   "scripts": {
     "create-playground": "node dist/dev/create-playground",
     "lint": "eslint ./src/**/*.ts ./dev/**/*.ts ./tests/**/*.ts",
-    "prepack": "dev/prepack.sh",
-    "postpack": "dev/postpack.sh",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "release": "node dist/dev/release",

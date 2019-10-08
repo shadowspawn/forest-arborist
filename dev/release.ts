@@ -75,6 +75,21 @@ async function main() {
     console.log("Skipping version bump");
   }
 
+  // In theory we should publish npm-shrinkwrap.json for a reproducible production install of a cli application,
+  // but it is bit messy to do these days, and perhaps out of favour as applications have become more likely to be installed locally.
+  // shrinkwrap just renames the package-lock to npm-shrinkwrap and so need to do work to get down to production dependencies.
+  // I tried putting the following in prepack script, but didn't like it in practice and does not work for install from git.
+  // KISS and leave out shrinkwrap until proven needed!
+  //
+  // # prepack
+  // # Clean install of production modules using package-lock.json
+  // rm -rf node_modules
+  // rm -f npm-shrinkwrap.json
+  // npm install --production
+  // # Build shrinkwrap from production modules
+  // rm -f package-lock.json
+  // npm shrinkwrap
+
   console.log("\nnpm publish");
   const otp = await readLineAsync("One Time Password for npm publish: ");
   if (otp.length > 0) {
@@ -83,6 +98,12 @@ async function main() {
   } else {
     console.log("Skipping publish");
   }
+
+  // # postpack, if fixing up from prepack above
+  // rm npm-shrinkwrap.json
+  // git checkout -- package-lock.json
+  // # Skip the scripts as don't need to run tsc again (via prepare script).
+  // npm install --ignore-scripts
 
   console.log("Copy down for next version");
   execCommandSync("git", ["checkout", "develop"]);
