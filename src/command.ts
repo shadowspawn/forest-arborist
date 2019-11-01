@@ -45,10 +45,10 @@ function doStatus() {
 
 // Call with program.args which are the unconsumed arguments after parsing.
 
-function assertNoExtraArgs(args: string[]) {
+function assertNoExtraArgs(extraArgs?: string[]) {
   // commander adds program as last parameter
-  if (args.length > 1) {
-    util.terminate(`unexpected extra argument: ${args[0]}`);
+  if (extraArgs) {
+    util.terminate(`unexpected extra argument: ${extraArgs[0]}`);
   }
 }
 
@@ -157,8 +157,8 @@ Examples:
       fab init --sibling
       fab init --root ..`);
     })
-    .action((options) => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       if (!options.nested && !options.sibling && (options.root === undefined)) {
         util.terminate("please specify one of --sibling, --nested, --root to specify forest layout");
       }
@@ -188,16 +188,16 @@ Description:
   Target repos: all missing and pinned repos. Pinned repos will be updated
   to match the <pinRevision> from the manifest if necessary.`);
     })
-    .action((options) => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       coreClone.doInstall(options);
     });
 
   program
     .command("status")
     .description("show concise status for each repo in the forest")
-    .action(() => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       doStatus();
     });
 
@@ -209,16 +209,16 @@ Description:
       console.log(`
 Target repos: free and branch-locked, excludes repos pinned to a revision.`);
     })
-    .action(() => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       corePull.doPull();
     });
 
   program
     .command("root")
     .description("show the root directory of the forest")
-    .action(() => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       core.cdRootDirectory();
       console.log(process.cwd());
     });
@@ -226,8 +226,8 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
   program
     .command("seed")
     .description("show the seed directory of the forest")
-    .action(() => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       core.cdRootDirectory();
       const rootObject = core.readRootFile();
       const seedPath = path.resolve(process.cwd(), rootObject.seedPath);
@@ -293,8 +293,8 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
     .command("snapshot")
     .option("-o, --output <file>", "write snapshot to file rather then stdout")
     .description("display state of forest")
-    .action((options) => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       coreSnapshot.doSnapshot(options);
     });
 
@@ -345,8 +345,8 @@ Description:
 
   With no options, show the manifest path.`);
     })
-    .action((options) => {
-      assertNoExtraArgs(program.args);
+    .action((options, extraArgs) => {
+      assertNoExtraArgs(extraArgs);
       coreManifest.doManifest(options);
     });
 
