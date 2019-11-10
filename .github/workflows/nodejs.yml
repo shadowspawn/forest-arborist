@@ -1,6 +1,6 @@
 name: build
 
-on: [push]
+on: [push, pull_request]
 
 # Reminder: npm ci not available with node 8 (older npm)
 
