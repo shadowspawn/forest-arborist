@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+### Changed
+
+- require node 8 minimum (triggered by Chalk dependency)
+- dependencies
+
 ## [4.1.8] (2019-10-28)
 
 ### Changed

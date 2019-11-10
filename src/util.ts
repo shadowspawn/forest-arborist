@@ -4,7 +4,7 @@
 // with terminal colouring. May give up as more trouble than worth, or make
 // an option.
 
-import chalk from "chalk";
+import chalk = require('chalk'); // this import style required for chalk 3
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
@@ -162,5 +162,5 @@ export function getStringOrThrow(str: string | undefined, message?: string): str
 
 /* istanbul ignore next  */
 if (shouldDisableColour()) {
-  chalk.enabled = false;
+  chalk.level = 0;
 }
