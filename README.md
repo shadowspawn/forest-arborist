@@ -3,19 +3,20 @@
 [![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
 [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist)
 [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist)
+[![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg)]
 
-- [Forest Arborist](#Forest-Arborist)
-    - [Overview](#Overview)
-    - [Installation](#Installation)
-    - [Forest Management Commands](#Forest-Management-Commands)
-    - [Utility Commands](#Utility-Commands)
-    - [Working With Branches](#Working-With-Branches)
-    - [Reproducing Forest State](#Reproducing-Forest-State)
-    - [Dependent Repository Types](#Dependent-Repository-Types)
-    - [Manifest Files (Internals)](#Manifest-Files-Internals)
-    - [Command-line Tab Completion](#Command-line-Tab-Completion)
-    - [Colour Output](#Colour-Output)
-    - [Developing](#Developing)
+- [Forest Arborist](#forest-arborist)
+    - [Overview](#overview)
+    - [Installation](#installation)
+    - [Forest Management Commands](#forest-management-commands)
+    - [Utility Commands](#utility-commands)
+    - [Working With Branches](#working-with-branches)
+    - [Reproducing Forest State](#reproducing-forest-state)
+    - [Dependent Repository Types](#dependent-repository-types)
+    - [Manifest Files (Internals)](#manifest-files-internals)
+    - [Command-line Tab Completion](#command-line-tab-completion)
+    - [Colour Output](#colour-output)
+    - [Developing](#developing)
 
 ## Overview
 
@@ -190,9 +191,9 @@ Colour output is off by default on Windows and on by default for other platforms
 
 ## Developing
 
-| Branch | macOS & Linux | Windows |
-| --- | --- | --- |
-| develop | [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist) |
+| Branch | macOS & Linux | Windows | All |
+| --- | --- | --- | --- |
+| develop | [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist) | [![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg?branch=develop)] |
 
 Quick start:
 
