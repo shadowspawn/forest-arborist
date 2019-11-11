@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
 [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/master.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist)
 [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/master.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist)
-[![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg)]
+[![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg)](https://github.com/shadowspawn/forest-arborist/actions?query=workflow%3Abuild+branch%3Amaster)
 
 - [Forest Arborist](#forest-arborist)
     - [Overview](#overview)
@@ -193,7 +193,7 @@ Colour output is off by default on Windows and on by default for other platforms
 
 | Branch | macOS & Linux | Windows | All |
 | --- | --- | --- | --- |
-| develop | [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist) | [![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg?branch=develop)] |
+| develop | [![travis build](https://img.shields.io/travis/shadowspawn/forest-arborist/develop.svg?logo=travis)](https://travis-ci.org/shadowspawn/forest-arborist) | [![appveyor build](https://img.shields.io/appveyor/ci/shadowspawn/forest-arborist/develop.svg?logo=appveyor)](https://ci.appveyor.com/project/shadowspawn/forest-arborist) | [![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg?branch=develop)](https://github.com/shadowspawn/forest-arborist/actions?query=workflow%3Abuild+branch%3Adevelop) |
 
 Quick start:
 

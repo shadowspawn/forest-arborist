@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+### Fixed
+
+- badges for GitHub Action builds so display correctly as a functional link
+
 ## [5.0.1] (2019-11-10)
 
 ### Added
