@@ -58,8 +58,16 @@ function assertNoExtraArgs(extraArgs?: string[]) {
 
 export type Command = commander.Command;
 
-export function makeProgram(): Command {
+export function makeProgram(options?: { exitOverride: boolean }): Command {
   const program = new commander.Command();
+
+  // Configuration
+  if (options?.exitOverride) {
+    program.exitOverride();
+  }
+  program
+    .storeOptionsAsProperties(false)
+    .passCommandToAction(false);
 
   program
     .version(myPackage.version)
@@ -322,47 +330,45 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
       console.log("Called _test");
     });
 
-  program
+  // Side note: switched from options to subcommands and still using old calling pattern.
+  const manifestCommand = program
     .command("manifest")
     .description("manage manifest dependencies")
-    .option("-e, --edit", "open manifest in editor")
-    .option("-l, --list", "list dependencies from manifest")
-    .option("-a, --add [repo-path]", "add entry to manifest dependencies")
-    .option("-d, --delete [repo-path]", "delete entry from manifest dependencies")
     .on("--help", () => {
       /* istanbul ignore next  */
       console.log(`
 Description:
 
-  Specify an option to list or make changes to manifest. Can be used from
+  Specify a command to list or make changes to manifest. Can be used from
   anywhere in forest.
 
-  You can optionally specify the repo-path for --add and --delete,
+  You can optionally specify the repo-path for add and delete,
   which otherwise default to the current working directory.
 
-  --edit uses the EDITOR or VISUAL environment variable if specified,
-  and falls back to Notepad on Windows and vi on other platforms.
-
-  With no options, show the manifest path.`);
-    })
-    .action((options, extraArgs) => {
-      assertNoExtraArgs(extraArgs);
-      coreManifest.doManifest(options);
+  edit uses the EDITOR or VISUAL environment variable if specified,
+  and falls back to Notepad on Windows and vi on other platforms.`);
     });
 
-  program
-    .command("help")
-    .description("output usage information")
-    .action(() => {
-      program.help();
-    });
-
-  program.on('command:*', () => {
-    if (program.args.length > 0) {
-      console.error(`Unknown command: ${program.args.join()}\nSee "fab --help" for a list of available commands.`);
-      util.terminate();
-    }
-  });
+  manifestCommand
+    .command("add [repo-path]")
+    .description("add entry to manifest dependencies")
+    .action((repoPath) => coreManifest.doManifest({ add: repoPath || true }));
+  manifestCommand
+    .command("delete [repo-path]")
+    .description("delete entry from manifest dependencies")
+    .action((repoPath) => coreManifest.doManifest({ delete: repoPath || true }));
+  manifestCommand
+    .command("edit")
+    .description("open manifest in editor")
+    .action(() => coreManifest.doManifest({ edit: true }));
+  manifestCommand
+    .command("list")
+    .description("list dependencies from manifest")
+    .action(() => coreManifest.doManifest({ list: true }));
+  manifestCommand
+    .command("path")
+    .description("show path of manifest")
+    .action(() => coreManifest.doManifest({ }));
 
   return program;
 }
@@ -370,5 +376,5 @@ Description:
 
 export function fab(args: string[]): void {
   const baseArgs = ["node", "fab"];
-  makeProgram().parse(baseArgs.concat(args));
+  makeProgram({ exitOverride: true }).parse(baseArgs.concat(args));
 }

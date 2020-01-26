@@ -571,73 +571,44 @@ describe("manifest cli", () => {
     manifestSpy.mockClear();
   });
 
-  // simplest
-  test("manifest", () => {
-    command.fab(["manifest"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
-    const options: coreManifest.ManifestOptions = manifestSpy.mock.calls[0][0];
-    expect(options.edit).toBeUndefined();
-    expect(options.list).toBeUndefined();
-    expect(options.add).toBeUndefined();
-    expect(options.delete).toBeUndefined();
-  });
-
-  test("manifest -e", () => {
-    command.fab(["manifest", "-e"]);
+  test("manifest edit", () => {
+    command.fab(["manifest", "edit"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ edit: true }));
   });
 
-  test("manifest --edit", () => {
-    command.fab(["manifest", "--edit"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ edit: true }));
-  });
-
-  test("manifest -l", () => {
-    command.fab(["manifest", "-l"]);
+  test("manifest list", () => {
+    command.fab(["manifest", "list"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ list: true }));
   });
 
-  test("manifest --list", () => {
-    command.fab(["manifest", "--list"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ list: true }));
-  });
-
-  test("manifest -a", () => {
-    command.fab(["manifest", "-a"]);
+  test("manifest add", () => {
+    command.fab(["manifest", "add"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: true }));
   });
 
-  test("manifest --add", () => {
-    command.fab(["manifest", "--add"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: true }));
-  });
-
-  test("manifest --add depend", () => {
-    command.fab(["manifest", "--add", "depend"]);
+  test("manifest add depend", () => {
+    command.fab(["manifest", "add", "depend"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: "depend" }));
   });
 
-  test("manifest -d", () => {
-    command.fab(["manifest", "-d"]);
+  test("manifest delete", () => {
+    command.fab(["manifest", "delete"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: true }));
   });
 
-  test("manifest --delete", () => {
-    command.fab(["manifest", "--delete"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: true }));
-  });
-
-  test("manifest --delete depend", () => {
-    command.fab(["manifest", "--delete", "depend"]);
+  test("manifest delete depend", () => {
+    command.fab(["manifest", "delete", "depend"]);
     expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: "depend" }));
   });
 
-  // Not blocking multiple options together, but not supporting it either, so not testing.
+  test("manifest path", () => {
+    command.fab(["manifest", "path"]);
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+  });
 
-  // An unexpected command is a likely mistake, as `fab manifest list` is a reasonable mistake.
-  test("manifest unexpected-param", () => {
+  test("manifest unexpected-command", () => {
     expect(() => {
-      command.fab(["manifest", "unexpected-param"]);
+      command.fab(["manifest", "unexpected-command"]);
     }).toThrow();
   });
 
