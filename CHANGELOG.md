@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+### Changed
+
+- `fab manifest` now uses subcommands rather than options for edit/list/path et al
+
 ## [5.0.3] (2019-12-20)
 
 ### Changed
