@@ -12,7 +12,6 @@ import * as coreBranch from "../src/core-branch";
 import * as coreClone from "../src/core-clone";
 import * as coreSnapshot from "../src/core-snapshot";
 import * as repo from "../src/repo";
-import * as util from "../src/util";
 import * as sandpit from "../dev/sandpit";
 
 
@@ -50,7 +49,7 @@ describe("system (full functionality)", () => {
   test("unexpected command throws", () => {
     expect(() => {
       command.fab(["unexpected-command"]);
-    }).toThrow(util.suppressTerminateExceptionMessage);
+    }).toThrow();
   });
 
   test("playground init of hg nested", () => {

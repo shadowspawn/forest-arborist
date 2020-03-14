@@ -43,12 +43,12 @@ describe("core manifest", () => {
     }).toThrow();
   });
 
-  test("show", () => {
+  test("path", () => {
     const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
     process.chdir("free"); // test one option from somewhere in tree other than seed
 
     const spy = jest.spyOn(global.console, 'log');
-    command.fab(["manifest"]);
+    command.fab(["manifest", "path"]);
     expect(console.log).toHaveBeenCalledWith(manifestPath);
     spy.mockRestore();
   });
@@ -59,7 +59,7 @@ describe("core manifest", () => {
     const listing = (JSON.stringify(manifestObject, undefined, "  "));
 
     const spy = jest.spyOn(global.console, 'log');
-    command.fab(["manifest", "--list"]);
+    command.fab(["manifest", "list"]);
     expect(console.log).toHaveBeenCalledWith(listing);
     spy.mockRestore();
   });
@@ -75,7 +75,7 @@ describe("core manifest", () => {
     // spy.mockImplementation(() => {
     // dummy out editor!
     // });
-    command.fab(["manifest", "--edit"]);
+    command.fab(["manifest", "edit"]);
     expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});
     spy.mockRestore();
     util.restoreEnvVar("EDITOR", holdEditorName);
@@ -83,7 +83,7 @@ describe("core manifest", () => {
 
   test("delete folder-does-not-exist", () => {
     expect(() => {
-      command.fab(["manifest", "--delete", "folder-does-not-exist"]);
+      command.fab(["manifest", "delete", "folder-does-not-exist"]);
     }).toThrow();
   });
 
@@ -91,7 +91,7 @@ describe("core manifest", () => {
     const manifestBefore = core.readManifest({ });
     delete(manifestBefore.dependencies["locked"]);
     process.chdir("locked");
-    command.fab(["manifest", "--delete"]);
+    command.fab(["manifest", "delete"]);
     process.chdir(nestedRoot);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
@@ -100,7 +100,7 @@ describe("core manifest", () => {
   test("delete named-depend", () => {
     const manifestBefore = core.readManifest({ });
     delete(manifestBefore.dependencies["pinned"]);
-    command.fab(["manifest", "--delete", "pinned"]);
+    command.fab(["manifest", "delete", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
   });
@@ -108,23 +108,18 @@ describe("core manifest", () => {
   test("delete missing-depend", () => {
     // Already deleted above
     expect(() => {
-      command.fab(["manifest", "--delete", "pinned"]);
+      command.fab(["manifest", "delete", "pinned"]);
     }).toThrow();
   });
 
   test("add", () => {
     const manifestBefore = core.readManifest({ });
     manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({ seedRepoPath: ".", repoPath: "pinned" });
-    command.fab(["manifest", "--add", "pinned"]);
+    command.fab(["manifest", "add", "pinned"]);
     const manifestAfter = core.readManifest({ });
     expect(manifestBefore).toEqual(manifestAfter);
 
     // Block adding seed
-    expect(() => {
-      command.fab(["manifest", "--add"]);
-    }).toThrow();
-
-    // Check we detect easy wrong syntax
     expect(() => {
       command.fab(["manifest", "add"]);
     }).toThrow();
@@ -136,7 +131,7 @@ describe("core manifest", () => {
     coreInit.doInit({ root: ".", manifest: "custom" });
 
     const spy = jest.spyOn(global.console, 'log');
-    command.fab(["manifest"]);
+    command.fab(["manifest", "path"]);
     expect(console.log).toHaveBeenCalledWith(customManifestPath);
     spy.mockRestore();
   });
