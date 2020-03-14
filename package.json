@@ -53,7 +53,7 @@
   },
   "dependencies": {
     "chalk": "^3.0.0",
-    "commander": "^5.0.0-2",
+    "commander": "^5.0.0",
     "fs-extra": "^8.1.0",
     "shell-quote": "^1.7.2",
     "tmp": "^0.1.0"
