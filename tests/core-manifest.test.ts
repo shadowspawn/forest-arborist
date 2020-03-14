@@ -39,7 +39,7 @@ describe("core manifest", () => {
     process.chdir(tempFolder.name);
 
     expect(() => {
-      command.fab(["manifest"]);
+      command.fab(["manifest", "path"]);
     }).toThrow();
   });
 
