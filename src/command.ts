@@ -375,6 +375,5 @@ Description:
 
 
 export function fab(args: string[]): void {
-  const baseArgs = ["node", "fab"];
-  makeProgram({ exitOverride: true }).parse(baseArgs.concat(args));
+  makeProgram({ exitOverride: true }).parse(args, { from: "user" });
 }
