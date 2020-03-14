@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
-## [5.0.4] (2020-03-14)
+## [5.0.5] (2020-03-14)
 
 ### Changed
 
@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - `fab manifest` now uses subcommands rather than options for edit/list/path et al
+
+## [5.0.4] (2019-12-28)
+
+### Changed
+
+- dependencies
 
 ## [5.0.3] (2019-12-20)
 
@@ -264,6 +270,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[5.0.5]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.1...v5.0.2
