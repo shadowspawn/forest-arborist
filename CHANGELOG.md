@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [6.0.0] (2020-04-04)
+
+### Changed
+
+- require node 10
+- update dependencies
 
 ## [5.0.6] (2020-03-19)
 
@@ -276,6 +281,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[6.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.6...v6.0.0
 [5.0.6]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.4...v5.0.5
 [5.0.4]: https://github.com/shadowspawn/forest-arborist/compare/v5.0.3...v5.0.4
