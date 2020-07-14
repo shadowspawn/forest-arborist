@@ -34,7 +34,7 @@ function trace(param: string | object) {
 
 function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
   return program.commands.find((cmd: commander.Command) => {
-    return commandName === cmd.name() && !cmd._noHelp;
+    return commandName === cmd.name() && !cmd.hidden;
   });
 }
 
@@ -120,7 +120,7 @@ function getCommandNames(program: commander.Command) {
   // (Not including aliases, by design.)
   return program.commands
     .filter((cmd: commander.Command) => {
-      return !cmd._noHelp;
+      return !cmd._hidden;
     })
     .map((cmd: commander.Command) => {
       return cmd.name();
