@@ -5,7 +5,7 @@ import * as coreInit from "../src/core-init";
 import * as repo from "../src/repo";
 
 
-export function commitAndDetach(repoPath: string) {
+export function commitAndDetach(repoPath: string): string {
   const startingDir = process.cwd();
   process.chdir(repoPath);
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
@@ -17,7 +17,7 @@ export function commitAndDetach(repoPath: string) {
 }
 
 
-export function makeOneGitRepo(repoPath: string, origin?: string) {
+export function makeOneGitRepo(repoPath: string, origin?: string): void {
   const startingDir = process.cwd();
   childProcess.execFileSync("git", ["init", repoPath]);
   process.chdir(repoPath);
@@ -30,7 +30,7 @@ export function makeOneGitRepo(repoPath: string, origin?: string) {
 
 
 // Nested, direct construction of a sandpit.
-export function makeNestedGitForest() {
+export function makeNestedGitForest(): void {
   const startingDir = process.cwd();
   makeOneGitRepo("nested", "git@ex.com:path/to/main.git");
   process.chdir("nested");

@@ -46,7 +46,7 @@ export interface SnapshotOptions {
 }
 
 
-export function doSnapshot(options: SnapshotOptions) {
+export function doSnapshot(options: SnapshotOptions): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
@@ -113,7 +113,7 @@ function readSnapshot(snapshotPath: string) {
 }
 
 
-export function doRecreate(snapshotPath: string, destinationParam?: string) {
+export function doRecreate(snapshotPath: string, destinationParam?: string): void {
   const startDir = process.cwd();
   const snapshotObject = readSnapshot(snapshotPath);
   const seedRepoEntry = snapshotObject.seedRepo;
@@ -156,7 +156,7 @@ export function doRecreate(snapshotPath: string, destinationParam?: string) {
 }
 
 
-export function doRestore(snapshotPath?: string) {
+export function doRestore(snapshotPath?: string): void {
   if (snapshotPath !== undefined && !fs.existsSync(snapshotPath)) {
     util.terminate(`snapshot file not found "${snapshotPath}"`);
   }

@@ -16,7 +16,7 @@ export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
 
 // Mutable platform to allow cross-platform testing, where needed.
 let gPlatform: string = process.platform;
-export function setPlatformForTest(platformParam: string) {
+export function setPlatformForTest(platformParam: string): void {
   gPlatform = platformParam;
 }
 
@@ -40,12 +40,12 @@ export function shouldDisableColour(platform: string = gPlatform): boolean {
 }
 
 
-export function errorColour(text: string) {
+export function errorColour(text: string): string {
   return chalk.red(text);
 }
 
 
-export function commandColour(text: string) {
+export function commandColour(text: string): string {
   return chalk.magenta(text);
 }
 
@@ -60,7 +60,7 @@ export function terminate(message?: string): never {
 }
 
 
-export function normalizeToPosix(relPathParam?: string) {
+export function normalizeToPosix(relPathParam?: string): string {
   let relPath = relPathParam;
   if (relPath === undefined) {
     relPath = ".";
@@ -76,7 +76,7 @@ export function normalizeToPosix(relPathParam?: string) {
 }
 
 
-export function readJson(targetPath: string, requiredProperties?: string[]) {
+export function readJson(targetPath: string, requiredProperties?: string[]): any {
   const rootObject = fsX.readJsonSync(targetPath);
 
   // Sanity check. Possible errors due to hand editing, but during development
@@ -101,7 +101,7 @@ export interface ExecCommandSyncOptions {
 }
 
 
-export function execCommandSync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions) {
+export function execCommandSync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): void {
   const options = Object.assign({ }, optionsParam);
   let cwdDisplay = `${options.cwd}: `;
   if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
@@ -139,7 +139,7 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
 }
 
 
-export function restoreEnvVar(key: string, restoreValue?: string) {
+export function restoreEnvVar(key: string, restoreValue?: string): void {
   if (restoreValue === undefined) {
     delete process.env[key];
   } else {

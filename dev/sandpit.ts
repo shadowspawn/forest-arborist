@@ -56,7 +56,7 @@ function makeRemotes(absoluteRemotesPath: string) {
 }
 
 
-export function makePlayground(playgroundDestination: string) {
+export function makePlayground(playgroundDestination: string): { gitPinnedRevision: string, hgPinnedRevision: string } {
   const startDir = process.cwd();
 
   const playgroundDir = path.resolve(process.cwd(), playgroundDestination);

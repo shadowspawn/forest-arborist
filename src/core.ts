@@ -144,7 +144,7 @@ export interface WriteRootFileOptions {
 }
 
 
-export function writeRootFile(options: WriteRootFileOptions) {
+export function writeRootFile(options: WriteRootFileOptions): void {
   let initialisedWord = "Initialised";
   if (fs.existsSync(options.rootFilePath))
     initialisedWord = "Reinitialised";
@@ -269,7 +269,7 @@ export function readManifest(options: ReadManifestOptions): Manifest {
 }
 
 
-export function writeManifest(manifestPath: string, manifestObject: Manifest) {
+export function writeManifest(manifestPath: string, manifestObject: Manifest): void {
   const manifestObjectToDisk = {
     dependencies: manifestObject.dependencies,
     rootDirectory: manifestObject.rootDirectory,

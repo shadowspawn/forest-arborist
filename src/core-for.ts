@@ -7,7 +7,7 @@ export interface ForOptions {
   keepgoing?: boolean;
 }
 
-export function doFor(cmd: string, args: string[], options: ForOptions, filter: (entry: core.DependencyEntry) => boolean) {
+export function doFor(cmd: string, args: string[], options: ForOptions, filter: (entry: core.DependencyEntry) => boolean): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
@@ -40,28 +40,28 @@ export function doFor(cmd: string, args: string[], options: ForOptions, filter: 
 }
 
 
-export function doForEach(cmd: string, args: string[], options: ForOptions) {
+export function doForEach(cmd: string, args: string[], options: ForOptions): void {
   doFor(cmd, args, options, () => {
     return true;
   });
 }
 
 
-export function doForFree(cmd: string, args: string[], options: ForOptions) {
+export function doForFree(cmd: string, args: string[], options: ForOptions): void {
   doFor(cmd, args, options, (entry) => {
     return (entry.lockBranch === undefined && entry.pinRevision === undefined);
   });
 }
 
 
-export function doForGit(args: string[], options: ForOptions) {
+export function doForGit(args: string[], options: ForOptions): void {
   doFor("git", args, options, (entry) => {
     return (entry.repoType === "git");
   });
 }
 
 
-export function doForHg(args: string[], options: ForOptions) {
+export function doForHg(args: string[], options: ForOptions): void {
   doFor("hg", args, options, (entry) => {
     return (entry.repoType === "hg");
   });

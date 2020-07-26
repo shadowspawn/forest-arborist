@@ -12,7 +12,7 @@ export interface MakeBranchOptions {
 }
 
 
-export function doMakeBranch(branch: string, startPoint?: string, optionsParam?: MakeBranchOptions) {
+export function doMakeBranch(branch: string, startPoint?: string, optionsParam?: MakeBranchOptions): void {
   const options: MakeBranchOptions = Object.assign({ }, optionsParam);
 
   const startDir = process.cwd();
@@ -70,7 +70,7 @@ function switchOneRepo(branch: string, repoType: repo.RepoType, repoPath: string
 }
 
 
-export function doSwitch(branch: string) {
+export function doSwitch(branch: string): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
 
@@ -135,7 +135,7 @@ export function doSwitch(branch: string) {
 }
 
 
-export function completeSwitch(context: completion.CompletionContext) {
+export function completeSwitch(context: completion.CompletionContext): void {
   let branches: string[] = [];
   const startDir = process.cwd();
   core.cdRootDirectory();

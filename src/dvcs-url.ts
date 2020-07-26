@@ -164,7 +164,7 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
 }
 
 
-export function isRelativePath(pathname: string) {
+export function isRelativePath(pathname: string): boolean {
   if (pathname === null || pathname === undefined) { return false; }
 
   // (string.startsWith only available from ES6)

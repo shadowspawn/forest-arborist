@@ -36,7 +36,7 @@ export function getRepoTypeForParams(repoPath: string, repoType?: RepoType): Rep
 }
 
 
-export function isGitRepository(repository: string) {
+export function isGitRepository(repository: string): boolean {
   try {
     // Handle local repos ourselves, as ls-remote only intended for remote repositories.
     const parsed = dvcsUrl.parse(repository);
@@ -55,7 +55,7 @@ export function isGitRepository(repository: string) {
 }
 
 
-export function isHgRepository(repository: string) {
+export function isHgRepository(repository: string): boolean {
   try {
     // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync(
@@ -69,7 +69,7 @@ export function isHgRepository(repository: string) {
 }
 
 
-export function getOrigin(repoPath: string, repoTypeParam?: RepoType) {
+export function getOrigin(repoPath: string, repoTypeParam?: RepoType): string | undefined {
   let origin;
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
@@ -91,7 +91,7 @@ export function getOrigin(repoPath: string, repoTypeParam?: RepoType) {
 }
 
 
-export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
+export function getBranch(repoPath: string, repoTypeParam?: RepoType): string | undefined {
   let branch;
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 
@@ -114,7 +114,7 @@ export function getBranch(repoPath: string, repoTypeParam?: RepoType) {
 }
 
 
-export function getRevision(repoPath: string, repoTypeParam?: RepoType) {
+export function getRevision(repoPath: string, repoTypeParam?: RepoType): string | undefined {
   let revision: string | undefined = "";
   const repoType = getRepoTypeForParams(repoPath, repoTypeParam);
 

@@ -17,7 +17,7 @@ export interface CompletionContext {
 const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
 
 
-function trace(param: string | object) {
+function trace(param: any) {
   if (gDebug) {
     // Reopening for each log (KISS!)
     const stream = fs.createWriteStream(util.getStringOrThrow(process.env.FAB_COMPLETION_LOG), { flags: 'a+' });
@@ -169,7 +169,7 @@ function complete(program: commander.Command) {
 }
 
 
-export function completion(program: commander.Command) {
+export function completion(program: commander.Command): void {
   // Follow description of `npm completion` and output script unless in plumbing mode, performing completion.
   if (process.env.COMP_CWORD === undefined || process.env.COMP_LINE === undefined || process.env.COMP_POINT === undefined) {
     const completionScript = fs.readFileSync(path.join(__dirname, "../../resources/fab_completion.sh"));

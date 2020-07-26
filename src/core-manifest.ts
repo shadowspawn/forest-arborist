@@ -23,7 +23,7 @@ export interface ManifestOptions {
   list?: boolean;
 }
 
-export function doManifest(options: ManifestOptions) {
+export function doManifest(options: ManifestOptions): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();

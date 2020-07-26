@@ -9,7 +9,7 @@ import * as repo from "./repo";
 import * as util from "./util";
 
 
-export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
+export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
   // Mercurial does not support making intermediate folders.
   if (entry.repoType === "hg") {
     const parentDir = path.dirname(repoPath);
@@ -67,7 +67,7 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
 }
 
 
-export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string) {
+export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
   // Determine target for checkout
   let revision;
   let gitConfig: string[] = [];
@@ -109,7 +109,7 @@ export interface InstallOptions {
 }
 
 
-export function doInstall(options: InstallOptions) {
+export function doInstall(options: InstallOptions): void {
   const startDir = process.cwd();
   // Use same branch as seed for free branches
   const manifestObject = core.readManifest({

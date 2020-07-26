@@ -35,7 +35,7 @@ function hgAutoMerge(repoPath: string) {
 }
 
 
-export function doPull() {
+export function doPull(): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(

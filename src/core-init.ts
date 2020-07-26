@@ -118,7 +118,7 @@ export interface InitOptions {
   root: string;
 }
 
-export function doInit(options: InitOptions) {
+export function doInit(options: InitOptions): void {
   const startDir = process.cwd();
 
   const relManifestPath = core.manifestPath({ manifest: options.manifest });
