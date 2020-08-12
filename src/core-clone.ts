@@ -66,6 +66,19 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   }
 }
 
+function refreshEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
+  // Refresh repo in case we have stale state. Reasonable during an install, which will clone repos if missing.
+  // Could do more work to check if target already present, or restrict what is requested, but KISS.
+  if (entry.pinRevision !== undefined
+    || entry.lockBranch !== undefined
+    || freeBranch !== undefined) {
+    if (entry.repoType === "git") {
+      util.execCommandSync("git", ["fetch"], { cwd: repoPath });
+    } else if (entry.repoType === "hg") {
+      util.execCommandSync("hg", ["pull"], { cwd: repoPath });
+    }
+  }
+}
 
 export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
   // Determine target for checkout
@@ -132,6 +145,7 @@ export function doInstall(options: InstallOptions): void {
   Object.keys(dependencies).forEach((repoPath) => {
     const entry = dependencies[repoPath];
     if (fs.existsSync(repoPath)) {
+      refreshEntry(entry, repoPath, freeBranch);
       checkoutEntry(entry, repoPath, freeBranch);
     } else {
       cloneEntry(entry, repoPath, freeBranch);
