@@ -97,7 +97,7 @@ function getOptionNames(partial: string, options: commander.Option[]): string[] 
   let optionNames: string[] = [];
   if (partial.startsWith("--")) {
     optionNames = options.map((option) => {
-      return option.long;
+      return option.long as string; // lint: excluded undefined in filter
     });
   } else if (partial.startsWith("-")) {
     optionNames = options
