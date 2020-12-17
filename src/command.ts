@@ -95,6 +95,7 @@ Description:
 
   program
     .command("completion")
+    .allowExcessArguments()
     .description("output shell completion script")
     .addHelpText("after", `
 Description:
@@ -277,7 +278,7 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
   // Hidden command for trying things out
   /* istanbul ignore next  */
   program
-    .command("_test", { noHelp: true })
+    .command("_test", { hidden: true })
     .description("Placeholder for internal development code")
     .option("--expected")
     .action(() => {
