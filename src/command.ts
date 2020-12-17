@@ -59,8 +59,7 @@ export function makeProgram(options?: { exitOverride: boolean }): Command {
 
   // Extra help
   /* istanbul ignore next  */
-  program.on("--help", () => {
-    console.log(`
+  program.addHelpText("after", `
 Files:
   ${core.manifestPath({})} default manifest for forest
   ${core.fabRootFilename} marks root of forest (do not commit to VCS)
@@ -75,26 +74,21 @@ Commands Summary:
 
 See https://github.com/shadowspawn/forest-arborist.git for usage overview.
 See also "fab <command> --help" for individual command options and further help.`);
-  });
 
   program
     .command("clone <source> [destination]")
     .option("-b, --branch <branchname>", "branch to checkout for free repos")
     .option("-m, --manifest <name>", "custom manifest file")
     .description("clone source and install its dependencies")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
+    .addHelpText("after", `
 Description:
-
   Clones a forest by cloning the seed repo into a newly created directory
   and installing its dependencies.
 
   The optional destination is the name for the newly created root directory.
   For a nested forest the new directory is the seed repo, like with
   the git and hg clone commands. For a sibling forest the new directory
-  is the root directory for the forest and not a repository itself.`);
-    })
+  is the root directory for the forest and not a repository itself.`)
     .action((source, destination, options) => {
       coreClone.doClone(source, destination, options);
     });
@@ -102,11 +96,8 @@ Description:
   program
     .command("completion")
     .description("output shell completion script")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
+    .addHelpText("after", `
 Description:
-
   Output shell completion script.
 
   For trying out shell completion without writing files on Linux:
@@ -115,8 +106,7 @@ Description:
       eval \`$(fab completion)\`
 
   To install, write the output to a shell startup file, or to a file and invoke from a shell startup file.
-  (c.f. npm completion)`);
-    })
+  (c.f. npm completion)`)
     .action(() => {
       completion.completion(program);
     });
@@ -128,11 +118,8 @@ Description:
     .option("--root <dir>", "root directory of forest relative to seed repo")
     .option("-m, --manifest <name>", "custom manifest file")
     .description("add manifest in current directory, and marker file at root of forest")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
+    .addHelpText("after", `
 Description:
-
   Use init to create the manifest based on your current sandpit.
   Run from your seed repo and it finds the dependent repos.
   Specify the forest layout with --sibling, --nested, or --root.
@@ -145,8 +132,7 @@ Examples:
 
   For a forest layout with sibling repositories beside the seed repo, either:
       fab init --sibling
-      fab init --root ..`);
-    })
+      fab init --root ..`)
     .action((options) => {
       if (!options.nested && !options.sibling && (options.root === undefined)) {
         util.terminate("please specify one of --sibling, --nested, --root to specify forest layout");
@@ -167,16 +153,12 @@ Examples:
     .command("install")
     .option("-m, --manifest <name>", "custom manifest file")
     .description("clone missing (new) dependent repositories")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
+    .addHelpText("after", `
 Description:
-
   Run Install from the seed repo.
 
   Target repos: all missing and pinned repos. Pinned repos will be updated
-  to match the <pinRevision> from the manifest if necessary.`);
-    })
+  to match the <pinRevision> from the manifest if necessary.`)
     .action((options) => {
       coreClone.doInstall(options);
     });
@@ -191,11 +173,8 @@ Description:
   program
     .command("pull")
     .description("git-style pull, which is fetch and merge")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
-Target repos: free and branch-locked, excludes repos pinned to a revision.`);
-    })
+    .addHelpText("after", `
+Target repos: free and branch-locked, excludes repos pinned to a revision.`)
     .action((options) => {
       corePull.doPull();
     });
@@ -309,11 +288,8 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`);
   const manifestCommand = program
     .command("manifest")
     .description("manage manifest dependencies")
-    .on("--help", () => {
-      /* istanbul ignore next  */
-      console.log(`
+    .addHelpText("after", `
 Description:
-
   Specify a command to list or make changes to manifest. Can be used from
   anywhere in forest.
 
@@ -322,7 +298,6 @@ Description:
 
   edit uses the EDITOR or VISUAL environment variable if specified,
   and falls back to Notepad on Windows and vi on other platforms.`);
-    });
 
   manifestCommand
     .command("add [repo-path]")
