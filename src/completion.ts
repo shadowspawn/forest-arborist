@@ -34,7 +34,7 @@ function trace(param: any) {
 
 function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
   return program.commands.find((cmd: commander.Command) => {
-    return commandName === cmd.name() && !cmd.hidden;
+    return commandName === cmd.name() && !(cmd as any)._hidden;
   });
 }
 
@@ -96,8 +96,12 @@ function processEnv(): CompletionContext {
 function getOptionNames(partial: string, options: commander.Option[]): string[] {
   let optionNames: string[] = [];
   if (partial.startsWith("--")) {
-    optionNames = options.map((option) => {
-      return option.long;
+    optionNames = options
+    .filter((option) => {
+      return option.long !== undefined;
+    })
+    .map((option) => {
+      return option.long as string; // lint: excluded undefined in filter
     });
   } else if (partial.startsWith("-")) {
     optionNames = options
@@ -120,7 +124,7 @@ function getCommandNames(program: commander.Command) {
   // (Not including aliases, by design.)
   return program.commands
     .filter((cmd: commander.Command) => {
-      return !cmd._hidden;
+      return !(cmd as any)._hidden;
     })
     .map((cmd: commander.Command) => {
       return cmd.name();
@@ -144,20 +148,20 @@ function complete(program: commander.Command) {
 
   // Work out what to suggest.
   if (context.commandName === undefined) {
-    if (program.listenerCount(completionEvent) > 0) {
-      program.emit(completionEvent, context);
+    if ((program as any).listenerCount(completionEvent) > 0) {
+      (program as any).emit(completionEvent, context);
     } else if (context.lookingForOption) {
-      context.suggest(...getOptionNames(context.partial, program.options));
+      context.suggest(...getOptionNames(context.partial, (program as any).options));
     } else {
       context.suggest(...getCommandNames(program));
     }
   } else {
     const command = findCommand(context.commandName, program);
-    if (command !== undefined && command.listenerCount(completionEvent) > 0) {
-      command.emit(completionEvent, context);
+    if (command !== undefined && (command as any).listenerCount(completionEvent) > 0) {
+      (command as any).emit(completionEvent, context);
     } else if (context.lookingForOption) {
       if (command !== undefined) {
-        context.suggest(...getOptionNames(context.partial, command.options));
+        context.suggest(...getOptionNames(context.partial, (command as any).options));
       }
       if (context.partial.startsWith("--")) {
         context.suggest("--help");
