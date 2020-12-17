@@ -62,12 +62,10 @@ export function makeProgram(options?: { exitOverride: boolean }): Command {
   program.on("--help", () => {
     console.log(`
 Files:
-
   ${core.manifestPath({})} default manifest for forest
   ${core.fabRootFilename} marks root of forest (do not commit to VCS)
 
 Commands Summary:
-
   Forest management: clone, init, install
   Utility: status, pull, for-each, for-free, git, hg
   Branch: make-branch, switch
