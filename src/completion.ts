@@ -163,9 +163,6 @@ function complete(program: commander.Command) {
       if (command !== undefined) {
         context.suggest(...getOptionNames(context.partial, command.createHelp().visibleOptions(command)));
       }
-      if (context.partial.startsWith("--")) {
-        context.suggest("--help");
-      }
     } else {
       // nothing we can suggest for command arguments
     }
