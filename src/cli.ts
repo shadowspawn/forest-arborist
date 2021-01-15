@@ -11,14 +11,14 @@ const program = command.makeProgram();
 // https://github.com/tj/commander.js/issues/625
 if (program.commands) {
   program.commands.sort((a: command.Command, b: command.Command) => {
-    return a._name.localeCompare(b._name);
+    return a.name().localeCompare(b.name());
   });
 }
 
 try {
   program.parse(process.argv);
 } catch (err) {
-  if (program.debug) {
+  if (program.opts().debug) {
     console.log(`${err.stack}`);
   }
   // util.terminate(`caught exception with message ${err.message}`);

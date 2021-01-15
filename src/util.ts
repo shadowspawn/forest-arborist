@@ -76,6 +76,7 @@ export function normalizeToPosix(relPathParam?: string): string {
 }
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function readJson(targetPath: string, requiredProperties?: string[]): any {
   const rootObject = fsX.readJsonSync(targetPath);
 

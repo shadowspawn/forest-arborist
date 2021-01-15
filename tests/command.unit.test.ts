@@ -241,9 +241,9 @@ describe("for-each cli", () => {
     expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
   });
 
-  // dash-dash, because we document that calling pattern
-  test("for-each --keepgoing -- command --option argument", () => {
-    command.fab(["for-each", "--keepgoing", "--", "command", "--option", "argument"]);
+  // pass-through options
+  test("for-each --keepgoing command --option argument", () => {
+    command.fab(["for-each", "--keepgoing", "command", "--option", "argument"]);
     expect(forEachSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
@@ -284,9 +284,9 @@ describe("for-free cli", () => {
     expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
   });
 
-  // dash-dash, because we document that calling pattern
-  test("for-free --keepgoing -- command --option argument", () => {
-    command.fab(["for-free", "--keepgoing", "--", "command", "--option", "argument"]);
+  // pass-through options
+  test("for-free --keepgoing command --option argument", () => {
+    command.fab(["for-free", "--keepgoing", "command", "--option", "argument"]);
     expect(forFreeSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
@@ -327,9 +327,9 @@ describe("git (for)", () => {
     expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
-  // dash-dash, because we document that calling pattern
-  test("git --keepgoing --- command --option argument", () => {
-    command.fab(["git", "--keepgoing", "--", "command", "--option", "argument"]);
+  // pass-through options
+  test("git --keepgoing command --option argument", () => {
+    command.fab(["git", "--keepgoing", "command", "--option", "argument"]);
     expect(forGitSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
@@ -370,9 +370,9 @@ describe("hg (for)", () => {
     expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
   });
 
-  // dash-dash, because we document that calling pattern
-  test("hg --keepgoing --- command --option argument", () => {
-    command.fab(["hg", "--keepgoing", "--", "command", "--option", "argument"]);
+  // pass-through options
+  test("hg --keepgoing command --option argument", () => {
+    command.fab(["hg", "--keepgoing", "command", "--option", "argument"]);
     expect(forHgSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
   });
 
