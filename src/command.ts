@@ -55,6 +55,7 @@ export function makeProgram(options?: { exitOverride: boolean }): Command {
 
   program
     .version(myPackage.version)
+    .allowExcessArguments(false)
     .option("--debug", "include debugging information, such as stack dump");
 
   // Extra help
@@ -167,7 +168,7 @@ Description:
   program
     .command("status")
     .description("show concise status for each repo in the forest")
-    .action((options) => {
+    .action(() => {
       doStatus();
     });
 
@@ -176,14 +177,14 @@ Description:
     .description("git-style pull, which is fetch and merge")
     .addHelpText("after", `
 Target repos: free and branch-locked, excludes repos pinned to a revision.`)
-    .action((options) => {
+    .action(() => {
       corePull.doPull();
     });
 
   program
     .command("root")
     .description("show the root directory of the forest")
-    .action((options) => {
+    .action(() => {
       core.cdRootDirectory();
       console.log(process.cwd());
     });
@@ -191,7 +192,7 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
   program
     .command("seed")
     .description("show the seed directory of the forest")
-    .action((options) => {
+    .action(() => {
       core.cdRootDirectory();
       const rootObject = core.readRootFile();
       const seedPath = path.resolve(process.cwd(), rootObject.seedPath);

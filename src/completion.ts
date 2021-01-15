@@ -18,7 +18,7 @@ export interface CompletionContext {
 const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
 
 
-function trace(param: any) {
+function trace(param: unknown) {
   if (gDebug) {
     // Reopening for each log (KISS!)
     const stream = fs.createWriteStream(util.getStringOrThrow(process.env.FAB_COMPLETION_LOG), { flags: 'a+' });
@@ -99,12 +99,12 @@ function getOptionNames(partial: string, options: commander.Option[]): string[] 
   let optionNames: string[] = [];
   if (partial.startsWith("--")) {
     optionNames = options
-    .filter((option) => {
-      return option.long !== undefined;
-    })
-    .map((option) => {
-      return option.long as string; // lint: excluded undefined in filter
-    });
+      .filter((option) => {
+        return option.long !== undefined;
+      })
+      .map((option) => {
+        return option.long as string; // lint: excluded undefined in filter
+      });
   } else if (partial.startsWith("-")) {
     optionNames = options
       .filter((option) => {
