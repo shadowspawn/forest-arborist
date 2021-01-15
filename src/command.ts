@@ -56,6 +56,7 @@ export function makeProgram(options?: { exitOverride: boolean }): Command {
   program
     .version(myPackage.version)
     .allowExcessArguments(false)
+    .enablePositionalOptions()
     .option("--debug", "include debugging information, such as stack dump");
 
   // Extra help
@@ -201,9 +202,10 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
 
   program
     .command("for-each")
+    .passThroughOptions()
     .alias("forEach") // because javascript has forEach so very familiar
-    .description("run specified command on each repo in the forest, e.g. \"fab for-each -- ls -al\"")
-    .arguments("-- <command> [args...]")
+    .description("run specified command on each repo in the forest, e.g. \"fab for-each ls -al\"")
+    .arguments("<command> [args...]")
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
     .action((command, args, options) => {
       coreFor.doForEach(command, args, options);
@@ -211,8 +213,9 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
 
   program
     .command("for-free")
+    .passThroughOptions()
     .description("run specified command on repos which are not locked or pinned")
-    .arguments("-- <command> [args...]")
+    .arguments("<command> [args...]")
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
     .action((command, args, options) => {
       coreFor.doForFree(command, args, options);
@@ -220,18 +223,20 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
 
   program
     .command("git")
+    .passThroughOptions()
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
-    .description("run specified git command on each git repo in the forest, e.g. \"fab git -- remote -v\"")
-    .arguments("-- [args...]")
+    .description("run specified git command on each git repo in the forest, e.g. \"fab git remote -v\"")
+    .arguments("[args...]")
     .action((args, options) => {
       coreFor.doForGit(args, options);
     });
 
   program
     .command("hg")
+    .passThroughOptions()
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
-    .description("run specified hg command on each hg repo in the forest, e.g. \"fab hg -- outgoing\"")
-    .arguments("-- [args...]")
+    .description("run specified hg command on each hg repo in the forest, e.g. \"fab hg outgoing\"")
+    .arguments("[args...]")
     .action((args, options) => {
       coreFor.doForHg(args, options);
     });
