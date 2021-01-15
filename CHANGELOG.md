@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [7.0.0] (2021-01-16)
+
+### Changed
+
+- reduce need for `--` for commands which run commands across forest
+- rework internals to use Commander 7 code patterns
+- require node 12
 
 ## [6.0.2] (2020-08-12)
 

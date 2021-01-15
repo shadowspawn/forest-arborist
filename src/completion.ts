@@ -1,4 +1,5 @@
 import * as commander from "commander"; // NB: accessing undocumented commander internals.
+import * as events from 'events';
 import * as fs from "fs";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
@@ -17,7 +18,7 @@ export interface CompletionContext {
 const gDebug = (process.env.FAB_COMPLETION_LOG !== undefined);
 
 
-function trace(param: any) {
+function trace(param: unknown) {
   if (gDebug) {
     // Reopening for each log (KISS!)
     const stream = fs.createWriteStream(util.getStringOrThrow(process.env.FAB_COMPLETION_LOG), { flags: 'a+' });
@@ -33,8 +34,9 @@ function trace(param: any) {
 
 
 function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
-  return program.commands.find((cmd: commander.Command) => {
-    return commandName === cmd.name() && !cmd.hidden;
+  const visibleCommands = program.createHelp().visibleCommands(program);
+  return visibleCommands.find((cmd: commander.Command) => {
+    return commandName === cmd.name();
   });
 }
 
@@ -96,9 +98,13 @@ function processEnv(): CompletionContext {
 function getOptionNames(partial: string, options: commander.Option[]): string[] {
   let optionNames: string[] = [];
   if (partial.startsWith("--")) {
-    optionNames = options.map((option) => {
-      return option.long as string; // lint: excluded undefined in filter
-    });
+    optionNames = options
+      .filter((option) => {
+        return option.long !== undefined;
+      })
+      .map((option) => {
+        return option.long as string; // lint: excluded undefined in filter
+      });
   } else if (partial.startsWith("-")) {
     optionNames = options
       .filter((option) => {
@@ -118,10 +124,7 @@ function getOptionNames(partial: string, options: commander.Option[]): string[] 
 
 function getCommandNames(program: commander.Command) {
   // (Not including aliases, by design.)
-  return program.commands
-    .filter((cmd: commander.Command) => {
-      return !cmd._hidden;
-    })
+  return program.createHelp().visibleCommands(program)
     .map((cmd: commander.Command) => {
       return cmd.name();
     });
@@ -144,23 +147,21 @@ function complete(program: commander.Command) {
 
   // Work out what to suggest.
   if (context.commandName === undefined) {
-    if (program.listenerCount(completionEvent) > 0) {
-      program.emit(completionEvent, context);
+    const programEventEmitter = program as (commander.Command & events.EventEmitter);
+    if (programEventEmitter.listenerCount(completionEvent) > 0) {
+      programEventEmitter.emit(completionEvent, context);
     } else if (context.lookingForOption) {
-      context.suggest(...getOptionNames(context.partial, program.options));
+      context.suggest(...getOptionNames(context.partial, program.createHelp().visibleOptions(program)));
     } else {
       context.suggest(...getCommandNames(program));
     }
   } else {
-    const command = findCommand(context.commandName, program);
+    const command = findCommand(context.commandName, program) as (commander.Command & events.EventEmitter);
     if (command !== undefined && command.listenerCount(completionEvent) > 0) {
       command.emit(completionEvent, context);
     } else if (context.lookingForOption) {
       if (command !== undefined) {
-        context.suggest(...getOptionNames(context.partial, command.options));
-      }
-      if (context.partial.startsWith("--")) {
-        context.suggest("--help");
+        context.suggest(...getOptionNames(context.partial, command.createHelp().visibleOptions(command)));
       }
     } else {
       // nothing we can suggest for command arguments

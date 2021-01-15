@@ -75,13 +75,13 @@ To pull new changesets:
 
 There are two commands which take an explicit additional command to run across the forest. A `--` is used to mark the end of the `fab` options, and is optional if there are no options in the additional command. (_free_ is explained in [Dependent Repository Types](#dependent-repository-types))
 
-    fab for-each -- git remote -v
-    fab for-free -- git branch
+    fab for-each git remote -v
+    fab for-free git branch
 
 There are two commands which run specifically `git` or `hg` commands across the forest repositories of matching type:
 
-    fab git -- remote -v
-    fab hg -- summary
+    fab git remote -v
+    fab hg summary
 
 ## Working With Branches
 

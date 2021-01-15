@@ -36,7 +36,7 @@ describe("completion", () => {
       .option("--long");
     program.command("betaOne");
     program.command("betaTwo");
-    program.command("secret", { noHelp: true });
+    program.command("secret", { hidden: true });
   });
 
   afterAll(() => {
@@ -50,10 +50,11 @@ describe("completion", () => {
   test("partial command: <all>", () => {
     setEnv("fab ");
     completion.completion(program);
-    expect(logSpy).toHaveBeenCalledTimes(3);
+    expect(logSpy).toHaveBeenCalledTimes(4);
     expect(logSpy).toHaveBeenCalledWith("alpha");
     expect(logSpy).toHaveBeenCalledWith("betaOne");
     expect(logSpy).toHaveBeenCalledWith("betaTwo");
+    expect(logSpy).toHaveBeenCalledWith("help");
   });
 
   test("partial command: matching", () => {
@@ -80,16 +81,18 @@ describe("completion", () => {
   test("global option: short", () => {
     setEnv("fab -");
     completion.completion(program);
-    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledTimes(2);
     expect(logSpy).toHaveBeenCalledWith("-g");
+    expect(logSpy).toHaveBeenCalledWith("-h");
   });
 
   test("global option: long", () => {
     setEnv("fab --");
     completion.completion(program);
-    expect(logSpy).toHaveBeenCalledTimes(2);
+    expect(logSpy).toHaveBeenCalledTimes(3);
     expect(logSpy).toHaveBeenCalledWith("--debug");
     expect(logSpy).toHaveBeenCalledWith("--global");
+    expect(logSpy).toHaveBeenCalledWith("--help");
   });
 
   test("global option: long matching", () => {
@@ -122,8 +125,9 @@ describe("completion", () => {
   test("command: short option", () => {
     setEnv("fab alpha -");
     completion.completion(program);
-    expect(logSpy).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledTimes(2);
     expect(logSpy).toHaveBeenCalledWith("-s");
+    expect(logSpy).toHaveBeenCalledWith("-h"); // bonus item
   });
 
   test("command: long option", () => {
