@@ -57,6 +57,10 @@ export function makeProgram(options?: { exitOverride: boolean }): Command {
     .version(myPackage.version)
     .allowExcessArguments(false)
     .enablePositionalOptions()
+    .configureHelp({
+      sortSubcommands: true,
+      sortOptions: true
+    })
     .option("--debug", "include debugging information, such as stack dump");
 
   // Extra help
