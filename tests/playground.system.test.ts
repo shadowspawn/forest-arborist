@@ -48,7 +48,7 @@ describe("system (full functionality)", () => {
 
   test("unexpected command throws", () => {
     expect(() => {
-      command.fab(["unexpected-command"]);
+      command.fab(["unexpected-command"], { suppressOutput: true });
     }).toThrow();
   });
 

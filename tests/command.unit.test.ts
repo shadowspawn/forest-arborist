@@ -151,7 +151,7 @@ describe("init cli", () => {
 
   test("init --sibling unexpected-param", () => {
     expect(() => {
-      command.fab(["init", "--sibling", "unexpected-param"]);
+      command.fab(["init", "--sibling", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
 
@@ -194,7 +194,7 @@ describe("install cli", () => {
 
   test("install unexpected-param", () => {
     expect(() => {
-      command.fab(["install", "unexpected-param"]);
+      command.fab(["install", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
 
@@ -488,7 +488,7 @@ describe("snapshot cli", () => {
 
   test("snapshot unexpected-param", () => {
     expect(() => {
-      command.fab(["snapshot", "unexpected-param"]);
+      command.fab(["snapshot", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
 
@@ -608,7 +608,7 @@ describe("manifest cli", () => {
 
   test("manifest unexpected-command", () => {
     expect(() => {
-      command.fab(["manifest", "unexpected-command"]);
+      command.fab(["manifest", "unexpected-command"], { suppressOutput: true });
     }).toThrow();
   });
 
@@ -638,7 +638,7 @@ describe("pull cli", () => {
 
   test("pull unexpected-param", () => {
     expect(() => {
-      command.fab(["pull", "unexpected-param"]);
+      command.fab(["pull", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
 
@@ -678,7 +678,7 @@ describe("unknown-command cli", () => {
 
   test("unknown-command", () => {
     expect(() => {
-      command.fab(["unknown-command"]);
+      command.fab(["unknown-command"], { suppressOutput: true });
     }).toThrow();
   });
 

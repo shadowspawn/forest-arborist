@@ -45,13 +45,20 @@ function doStatus() {
 
 export type Command = commander.Command;
 
-export function makeProgram(options?: { exitOverride: boolean }): Command {
+export function makeProgram(options?: { exitOverride?: boolean, suppressOutput?: boolean }): Command {
   const program = new commander.Command();
 
   // Configuration
   if (options?.exitOverride) {
     program.exitOverride();
   }
+  if (options?.suppressOutput) {
+    program.configureOutput({
+      writeOut: () => {},
+      writeErr: () => {}
+    });
+  }
+
 
   program
     .version(myPackage.version)
@@ -335,6 +342,6 @@ Description:
 }
 
 
-export function fab(args: string[]): void {
-  makeProgram({ exitOverride: true }).parse(args, { from: "user" });
+export function fab(args: string[], opts?: { suppressOutput?: boolean }): void {
+  makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parse(args, { from: "user" });
 }
