@@ -119,7 +119,7 @@ export function doSwitch(branch: string): void {
       if (beforeDependencies === undefined || beforeDependencies[repoPath] === undefined) {
         const entryAfter = afterDependencies[repoPath];
         if (!fs.existsSync(repoPath)) {
-          console.log(`${repoPath}: missing, run \"fab install\" to clone\n`);
+          console.log(`${repoPath}: missing, run "fab install" to clone\n`);
         } else if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
           // Switch branch of free repo.
           switchOneRepo(branch, entryAfter.repoType, repoPath);

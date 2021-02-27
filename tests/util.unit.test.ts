@@ -72,6 +72,7 @@ describe("terminate", () => {
     try {
       util.terminate(message);
     } catch(err) {
+      // this block left intentionally blank
     }
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy.mock.calls[0][0]).toContain(message);
