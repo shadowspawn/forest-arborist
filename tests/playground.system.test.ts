@@ -289,8 +289,8 @@ describe("system (full functionality)", () => {
       // Make changes to check install imposes changes. Missing repo, and change locked and pinned.
       process.chdir("sibling");
       fsX.removeSync("free");
-      childProcess.execFileSync("git", ["checkout", "master"], { cwd: path.join("libs", "locked")});
-      childProcess.execFileSync("git", ["checkout", "master"], { cwd: path.join("libs", "pinned")});
+      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: path.join("libs", "locked")});
+      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: path.join("libs", "pinned")});
 
       expect(fs.existsSync("free")).toBe(false);
       expect(repo.getBranch(path.join("libs", "locked"))).not.toEqual("lockedBranch");

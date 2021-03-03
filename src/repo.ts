@@ -122,7 +122,7 @@ export function getRevision(repoPath: string, repoTypeParam?: RepoType): string 
     try {
       // This will throw noisily in an empty repo, but does work for a detached head.
       revision = childProcess.execFileSync(
-        "git", ["rev-list", "--max-count=1", "HEAD"], { cwd: repoPath }
+        "git", ["rev-list", "--max-count=1", "HEAD"], { cwd: repoPath, stdio: ["pipe", "pipe", null]}
       ).toString().trim();
     } catch (err) {
       revision = undefined;

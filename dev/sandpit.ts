@@ -123,8 +123,8 @@ export function makePlayground(playgroundDestination: string): { gitPinnedRevisi
   // Setup pinned
   process.chdir(path.join(nestedRoot, "libs", "pinned"));
   const hgPinnedRevision = repo.getExistingRevision(".");
-  fs.writeFileSync(".dummy", "Hello, world");
-  childProcess.execFileSync("hg", ["add", ".dummy"]);
+  fs.writeFileSync(".pinned", "Hello, world");
+  childProcess.execFileSync("hg", ["add", ".pinned"]);
   childProcess.execFileSync("hg", ["commit", "-m", "simple commit"]);
   childProcess.execFileSync("hg", ["update", "--rev", hgPinnedRevision]);
   childProcess.execFileSync("hg", ["push"]);
