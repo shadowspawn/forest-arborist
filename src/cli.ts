@@ -20,8 +20,3 @@ try {
   // Recommended practice for node is set exitcode not force exit
   process.exitCode = 1;
 }
-
-// Show help if no command specified.
-if (process.argv.length === 2) {
-  program.help();
-}
