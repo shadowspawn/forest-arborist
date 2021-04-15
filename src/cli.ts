@@ -8,7 +8,7 @@ import * as util from "./util";
 const program = command.makeProgram();
 
 try {
-  program.parse(process.argv);
+  program.parseAsync(process.argv).then(() => console.log('thened'));
 } catch (err) {
   if (program.opts().debug) {
     console.log(`${err.stack}`);

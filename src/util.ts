@@ -9,6 +9,7 @@ import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
 import * as shellQuote from "shell-quote";
+import * as util from "util";
 
 declare let JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
@@ -136,6 +137,34 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
       throw err;
     }
   }
+  console.log(""); // blank line after command output
+}
+
+
+export async function execCommandAsync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): Promise<void> {
+  const options = Object.assign({ }, optionsParam);
+  let cwdDisplay = `${options.cwd}: `;
+  if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
+    cwdDisplay = "(root): ";
+    options.cwd = ".";
+  }
+  if (options.suppressContext)
+    cwdDisplay = "";
+
+  const execFile = util.promisify(childProcess.execFile);
+  const result = await execFile(
+    cmd, args,
+    { cwd: options.cwd });
+
+  // Trying hard to get a possibly copy-and-paste command.
+  let quotedArgs = "";
+  if (args !== undefined) {
+    quotedArgs = shellQuote.quote(args);
+    quotedArgs = quotedArgs.replace(/\n/g, "\\n");
+  }
+
+  console.log(commandColour(`${cwdDisplay}${cmd} ${quotedArgs}`));
+  console.log(result.stdout);
   console.log(""); // blank line after command output
 }
 

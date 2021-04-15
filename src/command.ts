@@ -1,5 +1,7 @@
 import * as commander from "commander";
 import * as path from "path";
+import * as util from "./util";
+
 // Mine
 import * as completion from "./completion";
 import * as core from "./core";
@@ -10,7 +12,6 @@ import * as coreInit from "./core-init";
 import * as coreManifest from "./core-manifest";
 import * as corePull from "./core-pull";
 import * as coreSnapshot from "./core-snapshot";
-import * as util from "./util";
 // Trickery to cope with different relative paths for typescipt and javascript
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const myPackage = require("dummy_for_node_modules/../../package.json");
@@ -36,6 +37,29 @@ function doStatus() {
       );
     }
   });
+  process.chdir(startDir);
+}
+
+async function doStatusAsync() {
+  const startDir = process.cwd();
+  core.cdRootDirectory();
+  const forestRepos = core.readManifest(
+    { fromRoot: true, addSeedToDependencies: true }
+  ).dependencies;
+
+  await Promise.all(Object.keys(forestRepos).map(async (repoPath) => {
+    const entry = forestRepos[repoPath];
+    if (entry.repoType === "git") {
+      // Using short form of options to reduce amount of output for commonly used command
+      await util.execCommandAsync(
+        "git", ["status", "-sb"], { cwd: repoPath }
+      );
+    } else if (entry.repoType === "hg") {
+      util.execCommandSync(
+        "hg", ["status"], { cwd: repoPath }
+      );
+    }
+  }));
   process.chdir(startDir);
 }
 
@@ -182,6 +206,13 @@ Description:
     .description("show concise status for each repo in the forest")
     .action(() => {
       doStatus();
+    });
+
+  program
+    .command("a-status")
+    .description("show concise status for each repo in the forest")
+    .action(() => {
+      doStatusAsync();
     });
 
   program
