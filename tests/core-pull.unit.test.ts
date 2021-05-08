@@ -42,7 +42,7 @@ describe("core branch", () => {
     readManifestSpy.mockReturnValue({
       dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
     });
-    getBranchSpy.mockReturnValue("master");
+    getBranchSpy.mockReturnValue("trunk");
 
     corePull.doPull();
     expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addSeedToDependencies: true }); // just checking once

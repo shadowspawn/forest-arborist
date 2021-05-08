@@ -19,7 +19,7 @@ describe("repo", () => {
     process.chdir(tempFolder.name);
 
     fs.mkdirSync("notRepo");
-    childProcess.execFileSync("git", ["init", "emptyGitRepo"]);
+    childProcess.execFileSync("git", ["init", "emptyGitRepo", "-b", "trunk", "-q"]);
     childProcess.execFileSync("hg", ["init", "emptyHgRepo"]);
     cc.makeOneGitRepo("hasOrigin", testOrigin);
     cc.makeOneGitRepo("detached", testOrigin);
@@ -74,7 +74,7 @@ describe("repo", () => {
     expect(() => {
       repo.getBranch("doesNotExist");
     }).toThrowError(util.suppressTerminateExceptionMessage);
-    expect(repo.getBranch("emptyGitRepo", "git")).toBe("master");
+    expect(repo.getBranch("emptyGitRepo", "git")).toBe("trunk");
     expect(repo.getBranch("detached", "git")).toBeUndefined();
     expect(repo.getBranch("emptyHgRepo", "hg")).toBe("default");
   });

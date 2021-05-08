@@ -71,7 +71,7 @@ describe("core", () => {
   });
 
   test("readManifest v1", () => {
-    childProcess.execFileSync("git", ["init"]);
+    childProcess.execFileSync("git", ["init", "-b", "trunk", "-q"]);
     // v1 and v2 wrote mainPathFromRoot not seedPathFromRoot
     const testManifestObject = {
       dependencies: [],

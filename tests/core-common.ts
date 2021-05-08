@@ -19,7 +19,7 @@ export function commitAndDetach(repoPath: string): string {
 
 export function makeOneGitRepo(repoPath: string, origin?: string): void {
   const startingDir = process.cwd();
-  childProcess.execFileSync("git", ["init", repoPath]);
+  childProcess.execFileSync("git", ["init", repoPath, "-b", "trunk", "-q"]);
   process.chdir(repoPath);
   childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"]);
   if (origin)

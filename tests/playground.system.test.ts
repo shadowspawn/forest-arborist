@@ -227,8 +227,8 @@ describe("system (full functionality)", () => {
       process.chdir("main-forest");
       expect(fs.existsSync(core.fabRootFilename)).toBe(true);
       // Check for slim repos, no libs
-      expect(repo.getBranch("main")).toEqual("master");
-      expect(repo.getBranch("free")).toEqual("master");
+      expect(repo.getBranch("main")).toEqual("trunk");
+      expect(repo.getBranch("free")).toEqual("trunk");
       expect(fs.existsSync("libs")).toBe(false);
     });
 
@@ -289,8 +289,8 @@ describe("system (full functionality)", () => {
       // Make changes to check install imposes changes. Missing repo, and change locked and pinned.
       process.chdir("sibling");
       fsX.removeSync("free");
-      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: path.join("libs", "locked")});
-      childProcess.execFileSync("git", ["checkout", "--quiet", "master"], { cwd: path.join("libs", "pinned")});
+      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], { cwd: path.join("libs", "locked")});
+      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], { cwd: path.join("libs", "pinned")});
 
       expect(fs.existsSync("free")).toBe(false);
       expect(repo.getBranch(path.join("libs", "locked"))).not.toEqual("lockedBranch");
@@ -301,7 +301,7 @@ describe("system (full functionality)", () => {
       process.chdir("..");
       //
       expect(fs.existsSync("free")).toBe(true);
-      expect(repo.getBranch("free")).toEqual("master");
+      expect(repo.getBranch("free")).toEqual("trunk");
       expect(repo.getBranch(path.join("libs", "locked"))).toEqual("lockedBranch");
       expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(sanddpitRevisions.gitPinnedRevision);
     });

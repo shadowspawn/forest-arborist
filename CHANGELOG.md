@@ -7,11 +7,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [8.0.0] (2021-05-08)
+
+### Fixed
+
+- reduce noise in `npm test` output by explicitly setting branch for new repos ([#18])
 
 ### Changed
 
 - update dependencies
+
+### Removed
+
+- support for Node.js 12, now require Node.js 14
 
 ## [7.0.0] (2021-01-16)
 
@@ -309,8 +317,10 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [#14]: https://github.com/shadowspawn/forest-arborist/issues/14
+[#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[8.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v7.0.0...v8.0.0
 [7.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v6.0.2...v7.0.0
 [6.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v6.0.1...v6.0.2
 [6.0.1]: https://github.com/shadowspawn/forest-arborist/compare/v6.0.0...v6.0.1
