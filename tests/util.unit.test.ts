@@ -148,23 +148,6 @@ describe("normalizeToPosix", () => {
 describe("execCommandSync", () => {
   // Testing the key functionality, but not the command logging.
 
-  test("allowedShellStatus", () => {
-    const spy = jest.spyOn(childProcess, 'execFileSync');
-    spy.mockImplementation(() => {
-      throw({ status: 99 });
-    });
-
-    expect(() => {
-      util.execCommandSync("command");
-    }).toThrow();
-
-    expect(() => {
-      util.execCommandSync("command", [], { allowedShellStatus: 99 });
-    }).not.toThrow();
-
-    spy.mockRestore();
-  });
-
   test("cwd", () => {
     const spy = jest.spyOn(childProcess, 'execFileSync');
     spy.mockReturnValue(Buffer.alloc(0));

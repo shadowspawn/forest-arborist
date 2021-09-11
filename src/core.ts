@@ -162,7 +162,8 @@ export function writeRootFile(options: WriteRootFileOptions): void {
       try {
         childProcess.execFileSync("git", ["check-ignore", "--quiet", fabRootFilename]);
       } catch (err) {
-        if (err.status === 1) {
+        const peekErr = err as { status?: number }; // exception includes spawnSync result
+        if (peekErr.status === 1) {
           console.log(`(Suggest you add ${fabRootFilename} to .gitignore)`);
         }
       }

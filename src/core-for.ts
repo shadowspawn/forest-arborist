@@ -29,7 +29,8 @@ export function doFor(cmd: string, args: string[], options: ForOptions, filter: 
       } else {
         // Check whether the command was a typo before suggesting the --keepgoing option
         // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
-        if (err.code !== "ENOENT") {
+        const peekErr = err as { code?: string };
+        if (peekErr.code !== "ENOENT") {
           console.log('(to keep going despite errors you can use "--keepgoing")');
         }
         throw err;

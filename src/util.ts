@@ -97,7 +97,6 @@ export function readJson(targetPath: string, requiredProperties?: string[]): any
 
 export interface ExecCommandSyncOptions {
   cwd?: string;
-  allowedShellStatus?: number;
   suppressContext?: boolean;
 }
 
@@ -120,22 +119,16 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
   }
   console.log(commandColour(`${cwdDisplay}${cmd} ${quotedArgs}`));
 
-  try {
-    // Note: this stdio option hooks up child stream to parent so we get live progress.
-    let stdio: childProcess.StdioOptions = "inherit";
-    // `jest --silent` does not suppress "inherit", so use default "pipe".
-    if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
-      stdio = "pipe";
-    childProcess.execFileSync(
-      cmd, args,
-      { cwd: options.cwd, stdio }
-    );
-  } catch (err) {
-    // Some commands return non-zero for expected situations
-    if (options.allowedShellStatus === undefined || options.allowedShellStatus !== err.status) {
-      throw err;
-    }
-  }
+  // Note: this stdio option hooks up child stream to parent so we get live progress.
+  let stdio: childProcess.StdioOptions = "inherit";
+  // `jest --silent` does not suppress "inherit", so use default "pipe".
+  if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
+    stdio = "pipe";
+  childProcess.execFileSync(
+    cmd, args,
+    { cwd: options.cwd, stdio }
+  );
+
   console.log(""); // blank line after command output
 }
 

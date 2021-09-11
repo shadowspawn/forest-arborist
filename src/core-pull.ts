@@ -24,7 +24,8 @@ function hgAutoMerge(repoPath: string) {
         "hg", ["commit", "--message", "Merge"], { cwd: repoPath }
       );
     } catch (err) {
-      if (err.status === 1) {
+      const peekErr = err as { status?: number }; // exception includes spawnSync result
+      if (peekErr.status === 1) {
         console.log(util.errorColour("NB: unresolved conflicts"));
         console.log("");
       } else {
