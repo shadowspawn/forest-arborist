@@ -63,6 +63,7 @@ export function makeProgram(options?: { exitOverride?: boolean, suppressOutput?:
   program
     .version(myPackage.version)
     .allowExcessArguments(false)
+    .showSuggestionAfterError()
     .enablePositionalOptions()
     .configureHelp({
       sortSubcommands: true,
