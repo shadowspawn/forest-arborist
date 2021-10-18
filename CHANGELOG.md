@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [8.1.2] (2021-10-18)
+
+### Fixed
+
+- Preserve dependency origin when editing manifest ([#10])
 
 ## [8.1.1] (2021-10-18)
 
@@ -343,9 +347,11 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 - first stable release
 
 [#14]: https://github.com/shadowspawn/forest-arborist/issues/14
+[#10]: https://github.com/shadowspawn/forest-arborist/issues/10
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[8.1.2]: https://github.com/shadowspawn/forest-arborist/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/shadowspawn/forest-arborist/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/shadowspawn/forest-arborist/compare/v8.0.2...v8.1.0
 [8.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v8.0.1...v8.0.2
