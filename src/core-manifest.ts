@@ -37,7 +37,7 @@ export function doManifest(options: ManifestOptions): void {
       ||((process.platform === "win32") ? "notepad.exe" : "vi");
     childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
   } else if (options.list) {
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const relTargetPath = rootRelative(startDir, options.add);
@@ -45,7 +45,7 @@ export function doManifest(options: ManifestOptions): void {
     if (seedPath === absTargetPath) {
       util.terminate("Seed folder cannot be added as a dependency");
     }
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
     console.log(`Adding dependency for ${absTargetPath}`);
     manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] = coreInit.makeDependencyEntry({
       repoPath: relTargetPath,
@@ -54,7 +54,7 @@ export function doManifest(options: ManifestOptions): void {
     core.writeManifest(manifestPath, manifestObject);
   } else if (options.delete) {
     const targetPath = rootRelative(startDir, options.delete);
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest });
+    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
     if (manifestObject.dependencies[targetPath] === undefined) {
       util.terminate(`No manifest dependency for: ${targetPath}`);
     }

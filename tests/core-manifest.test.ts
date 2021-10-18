@@ -55,7 +55,7 @@ describe("core manifest", () => {
 
   test("list", () => {
     // Bit specific copy of implementation, but want to test list. Make fuzzier if necessary.
-    const manifestObject = core.readManifest({ });
+    const manifestObject = core.readManifest({ preserveDependencyOrigins: true });
     const listing = (JSON.stringify(manifestObject, undefined, "  "));
 
     const spy = jest.spyOn(global.console, 'log');

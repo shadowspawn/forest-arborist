@@ -175,6 +175,7 @@ export function writeRootFile(options: WriteRootFileOptions): void {
 export interface ReadManifestOptions {
   fromRoot?: boolean;
   addSeedToDependencies?: boolean;
+  preserveDependencyOrigins?: boolean; // default behaviour is turn origins into absolute during read
   seedPath?: string;
   manifest?: string;
 }
@@ -261,8 +262,10 @@ export function readManifest(options: ReadManifestOptions): Manifest {
     }
 
     // Turn relative repos into absolute repos.
-    if (entry.origin !== undefined && dvcsUrl.isRelativePath(entry.origin)) {
-      entry.origin = dvcsUrl.resolve(parsedSeedOrigin, entry.origin);
+    if (!options.preserveDependencyOrigins) {
+      if (entry.origin !== undefined && dvcsUrl.isRelativePath(entry.origin)) {
+        entry.origin = dvcsUrl.resolve(parsedSeedOrigin, entry.origin);
+      }
     }
   });
 
