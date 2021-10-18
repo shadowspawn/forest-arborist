@@ -346,6 +346,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/master...develop
+[8.1.1]: https://github.com/shadowspawn/forest-arborist/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/shadowspawn/forest-arborist/compare/v8.0.2...v8.1.0
 [8.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v8.0.1...v8.0.2
 [8.0.1]: https://github.com/shadowspawn/forest-arborist/compare/v8.0.0...v8.0.1
