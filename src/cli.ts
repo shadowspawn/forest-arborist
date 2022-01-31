@@ -2,7 +2,7 @@
 
 // Mine
 import * as command from "./command";
-import * as process from 'process';
+// import * as process from 'process'; -- use global so can modify exitCode
 import * as util from "./util";
 
 
