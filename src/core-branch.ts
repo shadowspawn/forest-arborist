@@ -1,5 +1,6 @@
 import * as childProcess from "child_process";
 import * as fs from "fs";
+import * as process from 'process';
 // Mine
 import * as completion from "./completion";
 import * as core from "./core";

@@ -1,5 +1,6 @@
 import * as commander from "commander";
 import * as path from "path";
+import * as process from 'process';
 // Mine
 import * as completion from "./completion";
 import * as core from "./core";

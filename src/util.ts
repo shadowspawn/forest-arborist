@@ -8,6 +8,7 @@ import chalk = require('chalk'); // this import style required for chalk 3
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
+import * as process from 'process';
 import * as shellQuote from "shell-quote";
 
 declare let JEST_RUNNING: boolean | undefined; // Set via jest options in package.json

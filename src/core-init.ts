@@ -2,6 +2,7 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
+import * as process from 'process';
 // Mine
 import * as core from "./core";
 import * as dvcsUrl from "./dvcs-url";

@@ -4,11 +4,12 @@
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
+import * as process from 'process';
 import * as tmp from "tmp";
-import * as core from "../src/core";
-import * as util from "../src/util";
 // Mine
 import * as cc from "./core-common";
+import * as core from "../src/core";
+import * as util from "../src/util";
 
 
 describe("core", () => {

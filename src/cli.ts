@@ -2,6 +2,7 @@
 
 // Mine
 import * as command from "./command";
+import * as process from 'process';
 import * as util from "./util";
 
 

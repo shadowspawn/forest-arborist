@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as process from 'process';
 // Mine
 import * as core from "./core";
 import * as coreClone from "./core-clone";

@@ -1,5 +1,6 @@
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
+import * as process from 'process';
 import * as readline from "readline";
 // Mine
 import * as util from "../src/util";

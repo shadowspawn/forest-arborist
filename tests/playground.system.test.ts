@@ -4,6 +4,7 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
+import * as process from "process";
 import * as tmp from "tmp";
 // Mine
 import * as command from "../src/command";

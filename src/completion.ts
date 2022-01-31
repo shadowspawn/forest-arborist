@@ -2,6 +2,7 @@ import * as commander from "commander"; // NB: accessing undocumented commander 
 import * as events from 'events';
 import * as fs from "fs";
 import * as path from "path";
+import * as process from 'process';
 import * as shellQuote from "shell-quote";
 // Mine
 import * as util from "./util";

@@ -1,3 +1,4 @@
+import * as process from "process";
 // Mine
 import * as dvcsUrl from "../src/dvcs-url";
 import * as util from "../src/util";

@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
+import * as process from 'process';
 import * as tmp from "tmp";
 // Mine
 import * as core from "./core";

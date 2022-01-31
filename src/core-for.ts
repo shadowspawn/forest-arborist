@@ -1,3 +1,4 @@
+import * as process from 'process';
 // Mine
 import * as core from "./core";
 import * as util from "./util";

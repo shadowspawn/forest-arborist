@@ -1,5 +1,6 @@
 
 import * as childProcess from "child_process";
+import * as process from "process";
 // Mine
 import * as coreInit from "../src/core-init";
 import * as repo from "../src/repo";
