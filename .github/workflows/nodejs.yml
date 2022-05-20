@@ -2,7 +2,8 @@ name: build
 
 on: [push, pull_request]
 
-# Reminder: npm ci not available with node 8 (older npm)
+permissions:
+   contents: read
 
 jobs:
   # Somewhat unexpectedly, can test Windows and Ubuntu together!
