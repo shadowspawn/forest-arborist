@@ -52,6 +52,7 @@
     ]
   },
   "dependencies": {
+    "@commander-js/extra-typings": "^0.1.0",
     "chalk": "^4.1.2",
     "commander": "^9.0.0",
     "fs-extra": "^10.0.0",

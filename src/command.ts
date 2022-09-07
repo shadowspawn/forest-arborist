@@ -1,4 +1,4 @@
-import * as commander from "commander";
+import * as commander from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from 'process';
 // Mine
@@ -162,7 +162,11 @@ Examples:
       if (options.nested) {
         options.root = ".";
       }
-      coreInit.doInit(options);
+      // Typescript does not narrow options.root type to remove undefined, so do it ourselves.
+      const root = options.root;
+      if (root === undefined)
+        util.terminate('logic error, root should not be undefined at this point');
+      coreInit.doInit({ manifest: options.manifest, root });
     });
 
   program
