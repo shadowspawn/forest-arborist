@@ -1,4 +1,4 @@
-import * as commander from "@commander-js/extra-typings";
+import { Command } from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from 'process';
 // Mine
@@ -44,10 +44,9 @@ function doStatus() {
 // ------------------------------------------------------------------------------
 // Command line processing. Returning new object to allow multiple calls for testing.
 
-export type Command = commander.Command;
-
-export function makeProgram(options?: { exitOverride?: boolean, suppressOutput?: boolean }): Command {
-  const program = new commander.Command();
+export function makeProgram(options?: { exitOverride?: boolean, suppressOutput?: boolean }): Command<[], { debug?: boolean }> {
+  const program = new Command()
+    .option("--debug", "include debugging information, such as stack dump");
 
   // Configuration
   if (options?.exitOverride) {
@@ -69,8 +68,7 @@ export function makeProgram(options?: { exitOverride?: boolean, suppressOutput?:
     .configureHelp({
       sortSubcommands: true,
       sortOptions: true
-    })
-    .option("--debug", "include debugging information, such as stack dump");
+    });
 
   // Extra help
   /* istanbul ignore next  */
