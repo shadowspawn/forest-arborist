@@ -20,7 +20,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - support for Node.js 12
 
-
 ## [8.1.3] (2022-01-30)
 
 ### Changed
