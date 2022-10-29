@@ -1,6 +1,6 @@
 // Test the command line completion
 
-import * as commander from "commander";
+import * as commander from "@commander-js/extra-typings";
 import * as process from 'process';
 // Mine
 import * as completion from "../src/completion";

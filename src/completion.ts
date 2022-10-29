@@ -1,4 +1,4 @@
-import * as commander from "commander"; // NB: accessing undocumented commander internals.
+import * as commander from "@commander-js/extra-typings"; // NB: accessing undocumented commander internals.
 import * as events from 'events';
 import * as fs from "fs";
 import * as path from "path";
@@ -34,9 +34,9 @@ function trace(param: unknown) {
 }
 
 
-function findCommand(commandName: string, program: commander.Command): commander.Command | undefined {
+function findCommand(commandName: string, program: commander.Command): commander.CommandUnknownOpts | undefined {
   const visibleCommands = program.createHelp().visibleCommands(program);
-  return visibleCommands.find((cmd: commander.Command) => {
+  return visibleCommands.find((cmd) => {
     return commandName === cmd.name();
   });
 }
@@ -126,7 +126,7 @@ function getOptionNames(partial: string, options: commander.Option[]): string[] 
 function getCommandNames(program: commander.Command) {
   // (Not including aliases, by design.)
   return program.createHelp().visibleCommands(program)
-    .map((cmd: commander.Command) => {
+    .map((cmd) => {
       return cmd.name();
     });
 }
