@@ -1,7 +1,7 @@
 # Forest Arborist
 
 [![npm version](https://img.shields.io/npm/v/@shadowspawn/forest-arborist.svg)](https://www.npmjs.com/package/@shadowspawn/forest-arborist)
-[![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg)](https://github.com/shadowspawn/forest-arborist/actions?query=workflow%3Abuild+branch%3Amaster)
+[![GitHub build](https://github.com/shadowspawn/forest-arborist/workflows/build/badge.svg)](https://github.com/shadowspawn/forest-arborist/actions?query=workflow%3Abuild+branch%3Amain)
 
 - [Forest Arborist](#forest-arborist)
     - [Overview](#overview)

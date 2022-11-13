@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+### Changed
+
+- default git branch changed from `master` to `main`
+
 ## [9.0.1] (2022-10-29)
 
 ### Changed

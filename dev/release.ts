@@ -53,7 +53,7 @@ async function main() {
   }
 
   console.log("\nCopy up");
-  execCommandSync("git", ["checkout", "master"]);
+  execCommandSync("git", ["checkout", "main"]);
   execCommandSync("git", ["merge", "--ff-only", "develop"]);
 
   console.log("\nClean build");
@@ -108,7 +108,7 @@ async function main() {
 
   console.log("Copy down for next version");
   execCommandSync("git", ["checkout", "develop"]);
-  execCommandSync("git", ["merge", "master"]);
+  execCommandSync("git", ["merge", "main"]);
   execCommandSync("npm", ["version", "-no-git-tag-version", "prepatch"]);
 }
 
