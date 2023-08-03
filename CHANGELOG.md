@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## [11.0.0] (2023-08-03)
+
+### Changed
+
+- update dependencies
+- requires Node.js v16 or higher
+
 ## [10.0.0] (2023-01-14)
 
 ### Changed
@@ -390,6 +397,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/main...develop
+[11.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v10.0.0...v11.0.0
 [10.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v9.0.2...v10.0.0
 [9.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v9.0.1...v9.0.2
 [9.0.1]: https://github.com/shadowspawn/forest-arborist/compare/v9.0.0...v9.0.1
