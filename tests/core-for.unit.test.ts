@@ -14,6 +14,7 @@ describe("core for", () => {
     cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
     cdRootDirectorySpy.mockReturnValue(undefined);
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
+    execCommandSyncSpy.mockReturnValue(undefined);
     // custom
     readManifestSpy = jest.spyOn(core, "readManifest");
     readManifestSpy.mockReturnValue({
@@ -35,7 +36,7 @@ describe("core for", () => {
   beforeEach(() => {
     cdRootDirectorySpy.mockClear();
     readManifestSpy.mockClear();
-    execCommandSyncSpy.mockReset();
+    execCommandSyncSpy.mockClear();
   });
 
   test("for-each", () => {
@@ -69,6 +70,8 @@ describe("core for", () => {
   });
 
   test("throw", () => {
+    const logSpy = jest.spyOn(global.console, 'log');
+    logSpy.mockReturnValue(undefined);
     execCommandSyncSpy.mockImplementation(() => {
       throw "x";
     });
@@ -78,6 +81,7 @@ describe("core for", () => {
     expect(() => {
       coreFor.doForFree("command", [], { keepgoing: true });
     }).not.toThrow();
+    logSpy.mockRestore();
   });
 
 });
