@@ -13,8 +13,6 @@ function execCommandSync(cmd: string, args?: string[]) {
 }
 
 
-execCommandSync("npm", ["unlink"]);
-
 execCommandSync("npm", ["pack"]);
 const files = fs.readdirSync(".");
 const tarball = files.filter((filename) => {
