@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## [12.0.0] (2023-10-15)
+
+### Changed
+
+- update dependencies
+- requires Node.js v18 or higher
+
+
 ## [11.0.0] (2023-08-03)
 
 ### Changed
