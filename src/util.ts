@@ -134,6 +134,64 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
 }
 
 
+export function throttleActions(actions: Promise<string>[], jobs: number) {
+  let actionIndex = 0;
+  let nextResult = 0;
+  const results = new Array(actions.length);
+  // const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
+
+  async function doNextAction() {
+    if (actionIndex < actions.length) {
+      const myIndex = actionIndex++;
+      const result = await actions[myIndex];
+      results[myIndex] = result;
+      // show results in order
+      while (nextResult < actionIndex && results[nextResult]) {
+        console.log(results[nextResult]);
+        nextResult++;
+      }
+      return doNextAction();
+    }
+  }
+
+  // Start off initial parallel actions. As each one resolves, it chains another action.
+  const startingJobs = [];
+  while (actionIndex < jobs && actionIndex < actions.length) {
+    startingJobs.push(doNextAction());
+  }
+  return Promise.all(startingJobs);
+}
+
+export function prepareCommand(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): Promise<string> {
+  const options = Object.assign({ }, optionsParam);
+  let cwdDisplay = `${options.cwd}`;
+  if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
+    cwdDisplay = "(root)";
+    options.cwd = ".";
+  }
+
+  // Trying hard to get a possibly copy-and-paste command.
+  let quotedArgs = "";
+  if (args !== undefined) {
+    quotedArgs = shellQuote.quote(args);
+    quotedArgs = quotedArgs.replace(/\n/g, "\\n");
+  }
+
+  return new Promise((resolve) => {
+    const prettyCommand = commandColour(`${cwdDisplay}: ${cmd} ${quotedArgs}`);
+
+    childProcess.execFile(cmd, args, { cwd: options.cwd }, (error, stdout, stderr) => {
+      if (error) {
+        // KISS for calling code, return error message but do not reject
+        resolve([prettyCommand, stderr, error.message, ''].join('\n'));
+      } else {
+        resolve([prettyCommand, stdout, ''].join('\n'));
+      }
+    });
+  });
+}
+
+
 export function restoreEnvVar(key: string, restoreValue?: string): void {
   if (restoreValue === undefined) {
     delete process.env[key];

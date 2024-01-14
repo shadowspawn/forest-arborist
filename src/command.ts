@@ -17,26 +17,30 @@ import * as util from "./util";
 const myPackage = require("dummy_for_node_modules/../../package.json");
 
 
-function doStatus() {
+async function doStatus(jobs: number) {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
     { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
 
+  const commands: Promise<string>[] = [];
+
   Object.keys(forestRepos).forEach((repoPath) => {
     const entry = forestRepos[repoPath];
     if (entry.repoType === "git") {
       // Using short form of options to reduce amount of output for commonly used command
-      util.execCommandSync(
+      commands.push(util.prepareCommand(
         "git", ["status", "-sb"], { cwd: repoPath }
-      );
+      ));
     } else if (entry.repoType === "hg") {
-      util.execCommandSync(
+      commands.push(util.prepareCommand(
         "hg", ["status"], { cwd: repoPath }
-      );
+      ));
     }
   });
+  await util.throttleActions(commands, jobs);
+
   process.chdir(startDir);
 }
 
@@ -183,9 +187,10 @@ Description:
 
   program
     .command("status")
+    .option('-j, --jobs <n>', 'number of parallel jobs', "3")
     .description("show concise status for each repo in the forest")
-    .action(() => {
-      doStatus();
+    .action((options) => {
+      doStatus(parseInt(options.jobs));
     });
 
   program
