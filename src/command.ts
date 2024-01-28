@@ -1,4 +1,4 @@
-import { Command } from "@commander-js/extra-typings";
+import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from 'process';
 // Mine
@@ -16,6 +16,13 @@ import * as util from "./util";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const myPackage = require("dummy_for_node_modules/../../package.json");
 
+function myParseInt(value: string) {
+  const parsedValue = parseInt(value, 10);
+  if (isNaN(parsedValue)) {
+    throw new InvalidArgumentError('Not a number.');
+  }
+  return parsedValue;
+}
 
 async function doStatus(jobs: number) {
   const startDir = process.cwd();
@@ -187,10 +194,10 @@ Description:
 
   program
     .command("status")
-    .option('-j, --jobs <n>', 'number of parallel jobs', "3")
+    .option('-j, --jobs <n>', 'number of parallel jobs', myParseInt, 4)
     .description("show concise status for each repo in the forest")
     .action((options) => {
-      doStatus(parseInt(options.jobs));
+      doStatus(options.jobs);
     });
 
   program
