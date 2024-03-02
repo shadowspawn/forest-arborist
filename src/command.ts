@@ -1,4 +1,4 @@
-import { Command } from "@commander-js/extra-typings";
+import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from 'process';
 // Mine
@@ -16,6 +16,13 @@ import * as util from "./util";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const myPackage = require("dummy_for_node_modules/../../package.json");
 
+function myParseInt(value: string) {
+  const parsedValue = parseInt(value, 10);
+  if (isNaN(parsedValue)) {
+    throw new InvalidArgumentError('Not a number.');
+  }
+  return parsedValue;
+}
 
 function doStatus() {
   const startDir = process.cwd();
@@ -23,7 +30,6 @@ function doStatus() {
   const forestRepos = core.readManifest(
     { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
-
   Object.keys(forestRepos).forEach((repoPath) => {
     const entry = forestRepos[repoPath];
     if (entry.repoType === "git") {
@@ -247,6 +253,16 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
     });
 
   program
+    .command("git-p")
+    .passThroughOptions()
+    .option("-j, --jobs <number>", "number of parallel jobs", myParseInt, 4)
+    .description("run git commands in parallel")
+    .arguments("[args...]")
+    .action(async (args, options) => {
+      coreFor.doForGitParallel(args, options);
+    });
+
+  program
     .command("hg")
     .passThroughOptions()
     .option("-k, --keepgoing", "ignore intermediate errors and process all the repos")
@@ -348,4 +364,9 @@ Description:
 
 export function fab(args: string[], opts?: { suppressOutput?: boolean }): void {
   makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parse(args, { from: "user" });
+}
+
+
+export async function fabAsync(args: string[], opts?: { suppressOutput?: boolean }): Promise<void> {
+  makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parseAsync(args, { from: "user" });
 }

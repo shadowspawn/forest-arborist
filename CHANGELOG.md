@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## [12.1.0-0] (2024-03-03)
+
+### Added
+
+- experimental `git-p` which runs git commands in parallel
+
 ## [12.0.0] (2023-10-15)
 
 ### Changed
@@ -405,6 +411,8 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/main...develop
+[12.1.0-0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v12.1.0-0
+[12.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v11.0.0...v12.0.0
 [11.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v10.0.0...v11.0.0
 [10.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v9.0.2...v10.0.0
 [9.0.2]: https://github.com/shadowspawn/forest-arborist/compare/v9.0.1...v9.0.2

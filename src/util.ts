@@ -134,6 +134,86 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
 }
 
 
+export async function execCommandAsync(commandDetail: CommandDetail) : Promise<string> {
+  const joinStrings = (...things: string[]) => {
+    const result: string[] = [];
+    things.map((thing) => {
+      if (thing) result.push(thing);
+    });
+    return result.join('\n');
+  };
+
+  return new Promise((resolve) => {
+    childProcess.execFile(commandDetail.cmd, commandDetail.args, commandDetail.execOptions, (error, stdout, stderr) => {
+      if (error) {
+        console.error(error.message);
+        // KISS for calling code, return error message but do not reject
+        resolve(joinStrings(commandDetail.prettyCommand, stderr.toString(), error.message));
+      } else {
+        resolve(joinStrings(commandDetail.prettyCommand, stdout.toString()));
+      }
+    });
+  });
+}
+
+
+export interface CommandDetail {
+  cmd: string;
+  args?: string[];
+  prettyCommand: string;
+  execOptions?: ExecCommandSyncOptions;
+}
+
+export function throttleActions(actions: CommandDetail[], jobs: number) {
+  let actionIndex = 0;
+  let nextResult = 0;
+  const results = new Array(actions.length);
+  // const sleep = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay))
+
+  async function doNextAction() {
+    if (actionIndex < actions.length) {
+      const myIndex = actionIndex++;
+      const result = await execCommandAsync(actions[myIndex]);
+      results[myIndex] = result;
+      // show results in order
+      while (nextResult < actionIndex && results[nextResult]) {
+        console.log(results[nextResult]);
+        nextResult++;
+      }
+      return doNextAction();
+    }
+  }
+
+  // Start off initial parallel actions. As each one resolves, it chains another action.
+  const startingJobs = [];
+  while (actionIndex < jobs && actionIndex < actions.length) {
+    startingJobs.push(doNextAction());
+  }
+  return Promise.all(startingJobs);
+}
+
+
+export function prepareCommand(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): CommandDetail {
+  const options = Object.assign({ }, optionsParam);
+  let cwdDisplay = `${options.cwd}`;
+  if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
+    cwdDisplay = "(root)";
+    options.cwd = ".";
+  }
+
+  // Trying hard to get a possibly copy-and-paste command.
+  let quotedArgs = "";
+  if (args !== undefined) {
+    quotedArgs = shellQuote.quote(args);
+    quotedArgs = quotedArgs.replace(/\n/g, "\\n");
+  }
+
+  const prettyCommand = commandColour(`${cwdDisplay}: ${cmd} ${quotedArgs}`);
+  const execOptions = { cwd: options.cwd };
+  return { cmd, args, prettyCommand, execOptions };
+}
+
+
 export function restoreEnvVar(key: string, restoreValue?: string): void {
   if (restoreValue === undefined) {
     delete process.env[key];
