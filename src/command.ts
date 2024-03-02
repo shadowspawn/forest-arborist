@@ -30,23 +30,19 @@ async function doStatus(jobs: number) {
   const forestRepos = core.readManifest(
     { fromRoot: true, addSeedToDependencies: true }
   ).dependencies;
-
-  const commands: Promise<string>[] = [];
-
   Object.keys(forestRepos).forEach((repoPath) => {
     const entry = forestRepos[repoPath];
     if (entry.repoType === "git") {
       // Using short form of options to reduce amount of output for commonly used command
-      commands.push(util.prepareCommand(
+      util.execCommandSync(
         "git", ["status", "-sb"], { cwd: repoPath }
-      ));
+      );
     } else if (entry.repoType === "hg") {
-      commands.push(util.prepareCommand(
+      util.execCommandSync(
         "hg", ["status"], { cwd: repoPath }
-      ));
+      );
     }
   });
-  await util.throttleActions(commands, jobs);
 
   process.chdir(startDir);
 }
@@ -205,7 +201,7 @@ Description:
     .description("git-style pull, which is fetch and merge")
     .addHelpText("after", `
 Target repos: free and branch-locked, excludes repos pinned to a revision.`)
-    .action(() => {
+    .action((options) => {
       corePull.doPull();
     });
 
@@ -256,6 +252,16 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`)
     .arguments("[args...]")
     .action((args, options) => {
       coreFor.doForGit(args, options);
+    });
+
+  program
+    .command("git-p")
+    .passThroughOptions()
+    .option("-j, --jobs <number>", "number of parallel jobs", myParseInt, 4)
+    .description("run git commands in parallel")
+    .arguments("[args...]")
+    .action(async (args, options) => {
+      coreFor.doForGitParallel(args, options);
     });
 
   program
@@ -358,6 +364,6 @@ Description:
 }
 
 
-export function fab(args: string[], opts?: { suppressOutput?: boolean }): void {
-  makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parse(args, { from: "user" });
+export async function fab(args: string[], opts?: { suppressOutput?: boolean }): Promise<void> {
+  makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parseAsync(args, { from: "user" });
 }

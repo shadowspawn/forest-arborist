@@ -134,7 +134,37 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
 }
 
 
-export function throttleActions(actions: Promise<string>[], jobs: number) {
+export async function execCommandAsync(commandDetail: CommandDetail) : Promise<string> {
+  const joinStrings = (...things: string[]) => {
+    const result: string[] = [];
+    things.map((thing) => {
+      if (thing) result.push(thing);
+    });
+    return result.join('\n');
+  };
+
+  return new Promise((resolve) => {
+    childProcess.execFile(commandDetail.cmd, commandDetail.args, commandDetail.execOptions, (error, stdout, stderr) => {
+      if (error) {
+        console.error(error.message);
+        // KISS for calling code, return error message but do not reject
+        resolve(joinStrings(commandDetail.prettyCommand, stderr.toString(), error.message));
+      } else {
+        resolve(joinStrings(commandDetail.prettyCommand, stdout.toString()));
+      }
+    });
+  });
+}
+
+
+export interface CommandDetail {
+  cmd: string;
+  args?: string[];
+  prettyCommand: string;
+  execOptions?: ExecCommandSyncOptions;
+}
+
+export function throttleActions(actions: CommandDetail[], jobs: number) {
   let actionIndex = 0;
   let nextResult = 0;
   const results = new Array(actions.length);
@@ -143,7 +173,7 @@ export function throttleActions(actions: Promise<string>[], jobs: number) {
   async function doNextAction() {
     if (actionIndex < actions.length) {
       const myIndex = actionIndex++;
-      const result = await actions[myIndex];
+      const result = await execCommandAsync(actions[myIndex]);
       results[myIndex] = result;
       // show results in order
       while (nextResult < actionIndex && results[nextResult]) {
@@ -162,7 +192,8 @@ export function throttleActions(actions: Promise<string>[], jobs: number) {
   return Promise.all(startingJobs);
 }
 
-export function prepareCommand(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): Promise<string> {
+
+export function prepareCommand(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): CommandDetail {
   const options = Object.assign({ }, optionsParam);
   let cwdDisplay = `${options.cwd}`;
   if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
@@ -177,18 +208,9 @@ export function prepareCommand(cmd: string, args?: string[],  optionsParam?: Exe
     quotedArgs = quotedArgs.replace(/\n/g, "\\n");
   }
 
-  return new Promise((resolve) => {
-    const prettyCommand = commandColour(`${cwdDisplay}: ${cmd} ${quotedArgs}`);
-
-    childProcess.execFile(cmd, args, { cwd: options.cwd }, (error, stdout, stderr) => {
-      if (error) {
-        // KISS for calling code, return error message but do not reject
-        resolve([prettyCommand, stderr, error.message, ''].join('\n'));
-      } else {
-        resolve([prettyCommand, stdout, ''].join('\n'));
-      }
-    });
-  });
+  const prettyCommand = commandColour(`${cwdDisplay}: ${cmd} ${quotedArgs}`);
+  const execOptions = { cwd: options.cwd };
+  return { cmd, args, prettyCommand, execOptions };
 }
 
 
