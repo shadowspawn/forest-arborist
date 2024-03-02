@@ -190,7 +190,7 @@ Description:
   program
     .command("status")
     .description("show concise status for each repo in the forest")
-    .action((options) => {
+    .action(() => {
       doStatus();
     });
 
