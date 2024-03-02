@@ -24,7 +24,7 @@ function myParseInt(value: string) {
   return parsedValue;
 }
 
-async function doStatus(jobs: number) {
+function doStatus() {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest(
@@ -43,7 +43,6 @@ async function doStatus(jobs: number) {
       );
     }
   });
-
   process.chdir(startDir);
 }
 
@@ -190,10 +189,9 @@ Description:
 
   program
     .command("status")
-    .option('-j, --jobs <n>', 'number of parallel jobs', myParseInt, 4)
     .description("show concise status for each repo in the forest")
     .action((options) => {
-      doStatus(options.jobs);
+      doStatus();
     });
 
   program
@@ -201,7 +199,7 @@ Description:
     .description("git-style pull, which is fetch and merge")
     .addHelpText("after", `
 Target repos: free and branch-locked, excludes repos pinned to a revision.`)
-    .action((options) => {
+    .action(() => {
       corePull.doPull();
     });
 
@@ -364,6 +362,11 @@ Description:
 }
 
 
-export async function fab(args: string[], opts?: { suppressOutput?: boolean }): Promise<void> {
+export function fab(args: string[], opts?: { suppressOutput?: boolean }): void {
+  makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parse(args, { from: "user" });
+}
+
+
+export async function fabAsync(args: string[], opts?: { suppressOutput?: boolean }): Promise<void> {
   makeProgram({ exitOverride: true, suppressOutput: opts?.suppressOutput }).parseAsync(args, { from: "user" });
 }
