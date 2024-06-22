@@ -1,6 +1,6 @@
 import * as childProcess from "child_process";
 import * as fs from "fs";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as completion from "./completion";
 import * as core from "./core";
@@ -12,15 +12,19 @@ export interface MakeBranchOptions {
   publish?: boolean;
 }
 
-
-export function doMakeBranch(branch: string, startPoint?: string, optionsParam?: MakeBranchOptions): void {
-  const options: MakeBranchOptions = Object.assign({ }, optionsParam);
+export function doMakeBranch(
+  branch: string,
+  startPoint?: string,
+  optionsParam?: MakeBranchOptions,
+): void {
+  const options: MakeBranchOptions = Object.assign({}, optionsParam);
 
   const startDir = process.cwd();
   core.cdRootDirectory();
-  const forestRepos = core.readManifest(
-    { fromRoot: true, addSeedToDependencies: true }
-  ).dependencies;
+  const forestRepos = core.readManifest({
+    fromRoot: true,
+    addSeedToDependencies: true,
+  }).dependencies;
 
   Object.keys(forestRepos).forEach((repoPath) => {
     const entry = forestRepos[repoPath];
@@ -36,7 +40,9 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
       util.execCommandSync("git", args, { cwd: repoPath });
       if (options.publish) {
         util.execCommandSync(
-          "git", ["push", "--set-upstream", "origin", branch], { cwd: repoPath }
+          "git",
+          ["push", "--set-upstream", "origin", branch],
+          { cwd: repoPath },
         );
       }
     } else if (repoType === "hg") {
@@ -45,11 +51,13 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
       }
       util.execCommandSync("hg", ["branch", branch], { cwd: repoPath });
       if (options.publish) {
+        util.execCommandSync("hg", ["commit", "--message", "Create branch"], {
+          cwd: repoPath,
+        });
         util.execCommandSync(
-          "hg", ["commit", "--message", "Create branch"], { cwd: repoPath }
-        );
-        util.execCommandSync(
-          "hg", ["push", "--branch", branch, "--new-branch"], { cwd: repoPath }
+          "hg",
+          ["push", "--branch", branch, "--new-branch"],
+          { cwd: repoPath },
         );
       }
     }
@@ -57,19 +65,17 @@ export function doMakeBranch(branch: string, startPoint?: string, optionsParam?:
   process.chdir(startDir); // Simplify unit tests and reuse
 }
 
-
-function switchOneRepo(branch: string, repoType: repo.RepoType, repoPath: string) {
+function switchOneRepo(
+  branch: string,
+  repoType: repo.RepoType,
+  repoPath: string,
+) {
   if (repoType === "git") {
-    util.execCommandSync(
-      "git", ["checkout", branch], { cwd: repoPath }
-    );
+    util.execCommandSync("git", ["checkout", branch], { cwd: repoPath });
   } else if (repoType === "hg") {
-    util.execCommandSync(
-      "hg", ["update", branch], { cwd: repoPath }
-    );
+    util.execCommandSync("hg", ["update", branch], { cwd: repoPath });
   }
 }
-
 
 export function doSwitch(branch: string): void {
   const startDir = process.cwd();
@@ -80,7 +86,11 @@ export function doSwitch(branch: string): void {
   // (Do not actually need switchOneRepo, could just call noisier coreClone.checkoutEntry.)
 
   const beforeManifest = core.readManifest({ fromRoot: true });
-  switchOneRepo(branch, repo.getRepoTypeForLocalPath(beforeManifest.seedPathFromRoot), beforeManifest.seedPathFromRoot);
+  switchOneRepo(
+    branch,
+    repo.getRepoTypeForLocalPath(beforeManifest.seedPathFromRoot),
+    beforeManifest.seedPathFromRoot,
+  );
   const beforeDependencies = beforeManifest.dependencies;
   const afterDependencies = core.readManifest({ fromRoot: true }).dependencies;
 
@@ -90,10 +100,16 @@ export function doSwitch(branch: string): void {
       const entryAfter = afterDependencies[repoPath];
       if (entryAfter !== undefined) {
         const entryBefore = beforeDependencies[repoPath];
-        if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
+        if (
+          entryAfter.lockBranch === undefined &&
+          entryAfter.pinRevision === undefined
+        ) {
           // Switch branch of free repo.
           switchOneRepo(branch, entryAfter.repoType, repoPath);
-        } else if (entryBefore.lockBranch !== entryAfter.lockBranch || entryBefore.pinRevision !== entryAfter.pinRevision) {
+        } else if (
+          entryBefore.lockBranch !== entryAfter.lockBranch ||
+          entryBefore.pinRevision !== entryAfter.pinRevision
+        ) {
           // Repo changed to locked or pinned, checkout new state.
           coreClone.checkoutEntry(entryAfter, repoPath, branch);
         }
@@ -104,11 +120,19 @@ export function doSwitch(branch: string): void {
   // Repo missing from manifest on new branch.
   if (beforeDependencies !== undefined) {
     Object.keys(beforeDependencies).forEach((repoPath) => {
-      if (afterDependencies === undefined || afterDependencies[repoPath] === undefined) {
+      if (
+        afterDependencies === undefined ||
+        afterDependencies[repoPath] === undefined
+      ) {
         const entryBefore = beforeDependencies[repoPath];
-        if (entryBefore.lockBranch === undefined && entryBefore.pinRevision === undefined) {
+        if (
+          entryBefore.lockBranch === undefined &&
+          entryBefore.pinRevision === undefined
+        ) {
           // Leave it up to caller, although tempting to change branch which might be useful during a copy-up.
-          console.log(`${repoPath}: no longer in forest manifest, not changing branch\n`);
+          console.log(
+            `${repoPath}: no longer in forest manifest, not changing branch\n`,
+          );
         }
       }
     });
@@ -117,11 +141,17 @@ export function doSwitch(branch: string): void {
   // Repo added to manifest on new branch.
   if (afterDependencies !== undefined) {
     Object.keys(afterDependencies).forEach((repoPath) => {
-      if (beforeDependencies === undefined || beforeDependencies[repoPath] === undefined) {
+      if (
+        beforeDependencies === undefined ||
+        beforeDependencies[repoPath] === undefined
+      ) {
         const entryAfter = afterDependencies[repoPath];
         if (!fs.existsSync(repoPath)) {
           console.log(`${repoPath}: missing, run "fab install" to clone\n`);
-        } else if (entryAfter.lockBranch === undefined && entryAfter.pinRevision === undefined) {
+        } else if (
+          entryAfter.lockBranch === undefined &&
+          entryAfter.pinRevision === undefined
+        ) {
           // Switch branch of free repo.
           switchOneRepo(branch, entryAfter.repoType, repoPath);
         } else {
@@ -135,7 +165,6 @@ export function doSwitch(branch: string): void {
   process.chdir(startDir); // Simplify unit tests and reuse
 }
 
-
 export function completeSwitch(context: completion.CompletionContext): void {
   let branches: string[] = [];
   const startDir = process.cwd();
@@ -143,11 +172,19 @@ export function completeSwitch(context: completion.CompletionContext): void {
   const rootObject = core.readRootFile();
 
   if (repo.isGitRepository(rootObject.seedPath)) {
-    const gitBranches = childProcess.execFileSync(
-      "git",
-      ["for-each-ref", "--format=%(refname:short)", "refs/heads", "refs/remotes"],
-      { cwd: rootObject.seedPath }
-    ).toString().trim();
+    const gitBranches = childProcess
+      .execFileSync(
+        "git",
+        [
+          "for-each-ref",
+          "--format=%(refname:short)",
+          "refs/heads",
+          "refs/remotes",
+        ],
+        { cwd: rootObject.seedPath },
+      )
+      .toString()
+      .trim();
     branches = gitBranches.split("\n");
   }
   // hg...

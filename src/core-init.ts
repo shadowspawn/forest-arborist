@@ -2,18 +2,21 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as core from "./core";
 import * as dvcsUrl from "./dvcs-url";
 import * as repo from "./repo";
 import * as util from "./util";
 
+interface FindRepositoriesCallback {
+  (repoPath: string, repoType: repo.RepoType): void;
+}
 
-interface FindRepositoriesCallback { (repoPath: string, repoType: repo.RepoType): void }
-
-
-function findRepositories(startingDirectory: string, callback: FindRepositoriesCallback) {
+function findRepositories(
+  startingDirectory: string,
+  callback: FindRepositoriesCallback,
+) {
   if (startingDirectory === ".hg" || startingDirectory === ".git") {
     return; // No point searching inside control folders
   }
@@ -34,14 +37,18 @@ function findRepositories(startingDirectory: string, callback: FindRepositoriesC
   });
 }
 
-
 function isHgPinned(repoPath: string) {
-  const behindCount = childProcess.execFileSync(
-    "hg", ["--repository", repoPath, "log", "-r", "children(.) and branch(.)", "--template", "x"]
-  ).length;
+  const behindCount = childProcess.execFileSync("hg", [
+    "--repository",
+    repoPath,
+    "log",
+    "-r",
+    "children(.) and branch(.)",
+    "--template",
+    "x",
+  ]).length;
   return behindCount > 0;
 }
-
 
 interface MakeDependencyEntryWithDetailsOptions {
   repoPath: string;
@@ -50,9 +57,14 @@ interface MakeDependencyEntryWithDetailsOptions {
   parsedSeedOrigin: dvcsUrl.DvcsUrl;
 }
 
-function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsOptions): core.DependencyEntry {
+function makeDependencyEntryWithDetails(
+  options: MakeDependencyEntryWithDetailsOptions,
+): core.DependencyEntry {
   const repoPath = options.repoPath;
-  const repoType = repo.getRepoTypeForParams(options.repoPath, options.repoType);
+  const repoType = repo.getRepoTypeForParams(
+    options.repoPath,
+    options.repoType,
+  );
   const parsedSeedOrigin = options.parsedSeedOrigin;
   const origin = repo.getOrigin(repoPath, repoType);
 
@@ -77,8 +89,7 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
   } else {
     // Fairly conservative about choosing free.
     let locked = true;
-    if (origin !== undefined && parsedSeedOrigin
-   !== undefined) {
+    if (origin !== undefined && parsedSeedOrigin !== undefined) {
       const parsedOrigin = dvcsUrl.parse(origin);
       if (dvcsUrl.sameDir(parsedOrigin, parsedSeedOrigin)) {
         locked = false;
@@ -99,20 +110,25 @@ function makeDependencyEntryWithDetails(options: MakeDependencyEntryWithDetailsO
   return entry;
 }
 
-
 export interface MakeDependencyEntryOptions {
   repoPath: string;
   seedRepoPath: string;
 }
 
-export function makeDependencyEntry(options: MakeDependencyEntryOptions): core.DependencyEntry {
+export function makeDependencyEntry(
+  options: MakeDependencyEntryOptions,
+): core.DependencyEntry {
   const repoPath = options.repoPath;
   const repoType = repo.getRepoTypeForLocalPath(repoPath);
   const seedBranch = repo.getBranch(options.seedRepoPath);
   const parsedSeedOrigin = dvcsUrl.parse(repo.getOrigin(options.seedRepoPath));
-  return makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin});
+  return makeDependencyEntryWithDetails({
+    repoPath,
+    repoType,
+    seedBranch,
+    parsedSeedOrigin,
+  });
 }
-
 
 export interface InitOptions {
   manifest?: string;
@@ -124,8 +140,10 @@ export function doInit(options: InitOptions): void {
 
   const relManifestPath = core.manifestPath({ manifest: options.manifest });
   if (fs.existsSync(relManifestPath)) {
-    console.log(util.errorColour(`Skipping init, already have ${relManifestPath}`));
-    console.log("(Delete it to start over, or did you want \"fab install\"?)");
+    console.log(
+      util.errorColour(`Skipping init, already have ${relManifestPath}`),
+    );
+    console.log('(Delete it to start over, or did you want "fab install"?)');
     return util.terminate();
   }
   const absManifestPath = path.resolve(startDir, relManifestPath);
@@ -138,8 +156,7 @@ export function doInit(options: InitOptions): void {
   if (seedOrigin === undefined) {
     console.log(util.errorColour("(origin not specified for starting repo)"));
   } else {
-    parsedSeedOrigin
- = dvcsUrl.parse(seedOrigin);
+    parsedSeedOrigin = dvcsUrl.parse(seedOrigin);
   }
 
   // Sort out seed and root paths
@@ -159,7 +176,12 @@ export function doInit(options: InitOptions): void {
   process.chdir(rootAbsolutePath);
   const dependencies: core.Dependencies = {};
   findRepositories(".", (repoPath, repoType) => {
-    const entry = makeDependencyEntryWithDetails({ repoPath, repoType, seedBranch, parsedSeedOrigin});
+    const entry = makeDependencyEntryWithDetails({
+      repoPath,
+      repoType,
+      seedBranch,
+      parsedSeedOrigin,
+    });
     dependencies[util.normalizeToPosix(repoPath)] = entry;
   });
   delete dependencies[mainFromRoot];
@@ -187,7 +209,9 @@ export function doInit(options: InitOptions): void {
 
   // Offer clue for possible sibling init situation.
   if (Object.keys(dependencies).length === 0) {
-    console.log("(No dependencies found. For a sibling repo layout use \"fab init --root ..\")");
+    console.log(
+      '(No dependencies found. For a sibling repo layout use "fab init --root ..")',
+    );
   }
   process.chdir(startDir); // Simplify unit tests and reuse
 }

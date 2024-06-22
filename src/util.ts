@@ -4,23 +4,21 @@
 // with terminal colouring. May give up as more trouble than worth, or make
 // an option.
 
-import chalk = require('chalk'); // this import style required for chalk 3
+import chalk = require("chalk"); // this import style required for chalk 3
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 import * as shellQuote from "shell-quote";
 
 declare let JEST_RUNNING: boolean | undefined; // Set via jest options in package.json
 export const suppressTerminateExceptionMessage = "suppressMessageFromTerminate";
-
 
 // Mutable platform to allow cross-platform testing, where needed.
 let gPlatform: string = process.platform;
 export function setPlatformForTest(platformParam: string): void {
   gPlatform = platformParam;
 }
-
 
 // Exported for tests, no need to call otherwise.
 export function shouldDisableColour(platform: string = gPlatform): boolean {
@@ -40,26 +38,21 @@ export function shouldDisableColour(platform: string = gPlatform): boolean {
   return shouldDisable;
 }
 
-
 export function errorColour(text: string): string {
   return chalk.red(text);
 }
-
 
 export function commandColour(text: string): string {
   return chalk.magenta(text);
 }
 
-
 export function terminate(message?: string): never {
-  if (message !== undefined)
-    console.error(errorColour(`Error: ${message}`));
+  if (message !== undefined) console.error(errorColour(`Error: ${message}`));
   // Using throw rather than terminate so that we can catch in unit tests
   throw new Error(suppressTerminateExceptionMessage);
   // Set the error code in cli so no side-affects for other clients.
   //process.exit(1);
 }
-
 
 export function normalizeToPosix(relPathParam?: string): string {
   let relPath = relPathParam;
@@ -76,18 +69,26 @@ export function normalizeToPosix(relPathParam?: string): string {
   return path.posix.normalize(relPath);
 }
 
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function readJson(targetPath: string, requiredProperties?: string[]): any {
+export function readJson(
+  targetPath: string,
+  requiredProperties?: string[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): any {
   const rootObject = fsX.readJsonSync(targetPath);
 
   // Sanity check. Possible errors due to hand editing, but during development
   // usually unsupported old file formats!
   if (requiredProperties !== undefined) {
-    for (let length = requiredProperties.length, index = 0; index < length; index += 1) {
+    for (
+      let length = requiredProperties.length, index = 0;
+      index < length;
+      index += 1
+    ) {
       const required = requiredProperties[index];
       if (!Object.prototype.hasOwnProperty.call(rootObject, required)) {
-        terminate(`problem parsing: ${targetPath}\nMissing property '${required}'`);
+        terminate(
+          `problem parsing: ${targetPath}\nMissing property '${required}'`,
+        );
       }
     }
   }
@@ -95,22 +96,23 @@ export function readJson(targetPath: string, requiredProperties?: string[]): any
   return rootObject;
 }
 
-
 export interface ExecCommandSyncOptions {
   cwd?: string;
   suppressContext?: boolean;
 }
 
-
-export function execCommandSync(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): void {
-  const options = Object.assign({ }, optionsParam);
+export function execCommandSync(
+  cmd: string,
+  args?: string[],
+  optionsParam?: ExecCommandSyncOptions,
+): void {
+  const options = Object.assign({}, optionsParam);
   let cwdDisplay = `${options.cwd}: `;
   if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
     cwdDisplay = "(root): ";
     options.cwd = ".";
   }
-  if (options.suppressContext)
-    cwdDisplay = "";
+  if (options.suppressContext) cwdDisplay = "";
 
   // Trying hard to get a possibly copy-and-paste command.
   let quotedArgs = "";
@@ -123,39 +125,46 @@ export function execCommandSync(cmd: string, args?: string[],  optionsParam?: Ex
   // Note: this stdio option hooks up child stream to parent so we get live progress.
   let stdio: childProcess.StdioOptions = "inherit";
   // `jest --silent` does not suppress "inherit", so use default "pipe".
-  if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING)
-    stdio = "pipe";
-  childProcess.execFileSync(
-    cmd, args,
-    { cwd: options.cwd, stdio }
-  );
+  if (typeof JEST_RUNNING !== "undefined" && JEST_RUNNING) stdio = "pipe";
+  childProcess.execFileSync(cmd, args, { cwd: options.cwd, stdio });
 
   console.log(""); // blank line after command output
 }
 
-
-export async function execCommandAsync(commandDetail: CommandDetail) : Promise<string> {
+export async function execCommandAsync(
+  commandDetail: CommandDetail,
+): Promise<string> {
   const joinStrings = (...things: string[]) => {
     const result: string[] = [];
     things.map((thing) => {
       if (thing) result.push(thing);
     });
-    return result.join('\n');
+    return result.join("\n");
   };
 
   return new Promise((resolve) => {
-    childProcess.execFile(commandDetail.cmd, commandDetail.args, commandDetail.execOptions, (error, stdout, stderr) => {
-      if (error) {
-        console.error(error.message);
-        // KISS for calling code, return error message but do not reject
-        resolve(joinStrings(commandDetail.prettyCommand, stderr.toString(), error.message));
-      } else {
-        resolve(joinStrings(commandDetail.prettyCommand, stdout.toString()));
-      }
-    });
+    childProcess.execFile(
+      commandDetail.cmd,
+      commandDetail.args,
+      commandDetail.execOptions,
+      (error, stdout, stderr) => {
+        if (error) {
+          console.error(error.message);
+          // KISS for calling code, return error message but do not reject
+          resolve(
+            joinStrings(
+              commandDetail.prettyCommand,
+              stderr.toString(),
+              error.message,
+            ),
+          );
+        } else {
+          resolve(joinStrings(commandDetail.prettyCommand, stdout.toString()));
+        }
+      },
+    );
   });
 }
-
 
 export interface CommandDetail {
   cmd: string;
@@ -192,9 +201,12 @@ export function throttleActions(actions: CommandDetail[], jobs: number) {
   return Promise.all(startingJobs);
 }
 
-
-export function prepareCommand(cmd: string, args?: string[],  optionsParam?: ExecCommandSyncOptions): CommandDetail {
-  const options = Object.assign({ }, optionsParam);
+export function prepareCommand(
+  cmd: string,
+  args?: string[],
+  optionsParam?: ExecCommandSyncOptions,
+): CommandDetail {
+  const options = Object.assign({}, optionsParam);
   let cwdDisplay = `${options.cwd}`;
   if (options.cwd === undefined || options.cwd === "" || options.cwd === ".") {
     cwdDisplay = "(root)";
@@ -220,7 +232,6 @@ export function prepareCommand(cmd: string, args?: string[],  optionsParam?: Exe
   return { cmd, args: extendedArgs, prettyCommand, execOptions };
 }
 
-
 export function restoreEnvVar(key: string, restoreValue?: string): void {
   if (restoreValue === undefined) {
     delete process.env[key];
@@ -229,16 +240,14 @@ export function restoreEnvVar(key: string, restoreValue?: string): void {
   }
 }
 
-
 // Narrow type particularly for string|undefined to let TypeScript see we checked
-export function getStringOrThrow(str: string | undefined, message?: string): string {
-  if (typeof str === "string")
-    return str;
+export function getStringOrThrow(
+  str: string | undefined,
+  message?: string,
+): string {
+  if (typeof str === "string") return str;
   throw message || "Expecting string";
 }
-
-
-
 
 // Initialisation
 

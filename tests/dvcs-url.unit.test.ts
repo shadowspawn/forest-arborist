@@ -3,7 +3,6 @@ import * as process from "process";
 import * as dvcsUrl from "../src/dvcs-url";
 import * as util from "../src/util";
 
-
 describe("dvcs-url parse recognises git URL protocols", () => {
   const pathname = "/path/to/repo.git/";
 
@@ -89,9 +88,7 @@ describe("dvcs-url parse recognises git URL protocols", () => {
 
   test("git file", () => {
     // file:///path/to/repo.git/
-    const variations = [
-      "file:///path/to/repo.git/",
-    ];
+    const variations = ["file:///path/to/repo.git/"];
     variations.forEach((url) => {
       const parsed = dvcsUrl.parse(url);
       expect(parsed.protocol).toEqual("file:");
@@ -114,9 +111,7 @@ describe("dvcs-url parse recognises git URL protocols", () => {
 
   test("git path-posix", () => {
     // /path/to/repo.git/
-    const variations = [
-      "/path/to/repo.git/",
-    ];
+    const variations = ["/path/to/repo.git/"];
     variations.forEach((url) => {
       const parsed = dvcsUrl.parse(url);
       expect(parsed.protocol).toEqual("path-posix");
@@ -133,7 +128,6 @@ describe("dvcs-url parse recognises git URL protocols", () => {
     util.setPlatformForTest(process.platform);
   });
 });
-
 
 describe("dvcs-url parse recognises hg URL protocols", () => {
   const pathname = "/path/to/repo";
@@ -190,9 +184,7 @@ describe("dvcs-url parse recognises hg URL protocols", () => {
 
   test("hg path-posix", () => {
     // local/filesystem/path[#revision]
-    const variations = [
-      "local/filesystem/path",
-    ];
+    const variations = ["local/filesystem/path"];
     variations.forEach((url) => {
       const parsed = dvcsUrl.parse(url);
       expect(parsed.protocol).toEqual("path-posix");
@@ -204,9 +196,7 @@ describe("dvcs-url parse recognises hg URL protocols", () => {
     // file://local/filesystem/path[#revision]
     // Urk, strips the local unless we have three slashes!
     // Perhaps partial not supported by url?
-    const variations = [
-      "file:///local/filesystem/path",
-    ];
+    const variations = ["file:///local/filesystem/path"];
     variations.forEach((url) => {
       const parsed = dvcsUrl.parse(url);
       expect(parsed.protocol).toEqual("file:");
@@ -214,7 +204,6 @@ describe("dvcs-url parse recognises hg URL protocols", () => {
     });
   });
 });
-
 
 describe("dvcs-url resolve", () => {
   test("ssh-like protocols", () => {
@@ -256,105 +245,125 @@ describe("dvcs-url resolve", () => {
   });
 });
 
-
 test("parse undefined", () => {
   expect(dvcsUrl.parse()).toEqual({ protocol: "", pathname: "" });
 });
 
-
 test("sameDir", () => {
   // Not exhaustive!
   // Different protocol
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("ssh://host.xz/path1"),
-    dvcsUrl.parse("user@host.xz:path1")
-  )).toBe(false);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/path1"),
+      dvcsUrl.parse("user@host.xz:path1"),
+    ),
+  ).toBe(false);
   // Different host
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("ssh://host.xz1/path1"),
-    dvcsUrl.parse("ssh://host.xz2/path2")
-  )).toBe(false);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("user@host.xz1:path1"),
-    dvcsUrl.parse("user@host.xz2:path1")
-  )).toBe(false);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz1/path1"),
+      dvcsUrl.parse("ssh://host.xz2/path2"),
+    ),
+  ).toBe(false);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz1:path1"),
+      dvcsUrl.parse("user@host.xz2:path1"),
+    ),
+  ).toBe(false);
   // Different dir
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("ssh://host.xz1/a/path1"),
-    dvcsUrl.parse("ssh://host.xz2/b/path1")
-  )).toBe(false);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("user@host.xz1:a/path1"),
-    dvcsUrl.parse("user@host.xz2:b/path1")
-  )).toBe(false);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("a/path1"),
-    dvcsUrl.parse("b/path1")
-  )).toBe(false);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("a\\path1"),
-    dvcsUrl.parse("b\\path1")
-  )).toBe(false);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz1/a/path1"),
+      dvcsUrl.parse("ssh://host.xz2/b/path1"),
+    ),
+  ).toBe(false);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz1:a/path1"),
+      dvcsUrl.parse("user@host.xz2:b/path1"),
+    ),
+  ).toBe(false);
+  expect(
+    dvcsUrl.sameDir(dvcsUrl.parse("a/path1"), dvcsUrl.parse("b/path1")),
+  ).toBe(false);
+  expect(
+    dvcsUrl.sameDir(dvcsUrl.parse("a\\path1"), dvcsUrl.parse("b\\path1")),
+  ).toBe(false);
   // same protocol and (parent) dir
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("ssh://host.xz/path1"),
-    dvcsUrl.parse("ssh://host.xz/path2")
-  )).toBe(true);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("ssh://host.xz/a/path1"),
-    dvcsUrl.parse("ssh://host.xz/a/path2")
-  )).toBe(true);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("git://host.xz/path1"),
-    dvcsUrl.parse("git://host.xz/path2")
-  )).toBe(true);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("user@host.xz2:a/path1"),
-    dvcsUrl.parse("user@host.xz2:a/path2")
-  )).toBe(true);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("a/path1"),
-    dvcsUrl.parse("a/path2")
-  )).toBe(true);
-  expect(dvcsUrl.sameDir(
-    dvcsUrl.parse("a\\path1"),
-    dvcsUrl.parse("a\\path2")
-  )).toBe(true);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/path1"),
+      dvcsUrl.parse("ssh://host.xz/path2"),
+    ),
+  ).toBe(true);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("ssh://host.xz/a/path1"),
+      dvcsUrl.parse("ssh://host.xz/a/path2"),
+    ),
+  ).toBe(true);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("git://host.xz/path1"),
+      dvcsUrl.parse("git://host.xz/path2"),
+    ),
+  ).toBe(true);
+  expect(
+    dvcsUrl.sameDir(
+      dvcsUrl.parse("user@host.xz2:a/path1"),
+      dvcsUrl.parse("user@host.xz2:a/path2"),
+    ),
+  ).toBe(true);
+  expect(
+    dvcsUrl.sameDir(dvcsUrl.parse("a/path1"), dvcsUrl.parse("a/path2")),
+  ).toBe(true);
+  expect(
+    dvcsUrl.sameDir(dvcsUrl.parse("a\\path1"), dvcsUrl.parse("a\\path2")),
+  ).toBe(true);
 });
 
-
 test("repoName", () => {
-  expect(dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo"))).toBe("repo");
-  expect(dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo.git"))).toBe("repo");
+  expect(
+    dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo")),
+  ).toBe("repo");
+  expect(
+    dvcsUrl.repoName(dvcsUrl.parse("ssh://user@host.xz:123/path/to/repo.git")),
+  ).toBe("repo");
   expect(dvcsUrl.repoName(dvcsUrl.parse("user@host.xz2:a/repo"))).toBe("repo");
-  expect(dvcsUrl.repoName(dvcsUrl.parse("user@host.xz2:a/repo.git"))).toBe("repo");
+  expect(dvcsUrl.repoName(dvcsUrl.parse("user@host.xz2:a/repo.git"))).toBe(
+    "repo",
+  );
   expect(dvcsUrl.repoName(dvcsUrl.parse("a/b/c/repo"))).toBe("repo");
   expect(dvcsUrl.repoName(dvcsUrl.parse("a\\b\\c\\repo"))).toBe("repo");
 });
 
-
 test("relative", () => {
-  expect(dvcsUrl.relative(
-    dvcsUrl.parse("ssh://user@host.xz:123/path/a"),
-    dvcsUrl.parse("ssh://user@host.xz:123/path/b")
-  )).toBe("../b");
-  expect(dvcsUrl.relative(
-    dvcsUrl.parse("user@host.xz2:path/a"),
-    dvcsUrl.parse("user@host.xz2:path/b")
-  )).toBe("../b");
-  expect(dvcsUrl.relative(
-    dvcsUrl.parse("/path/a"),
-    dvcsUrl.parse("/path/b")
-  )).toBe("../b");
+  expect(
+    dvcsUrl.relative(
+      dvcsUrl.parse("ssh://user@host.xz:123/path/a"),
+      dvcsUrl.parse("ssh://user@host.xz:123/path/b"),
+    ),
+  ).toBe("../b");
+  expect(
+    dvcsUrl.relative(
+      dvcsUrl.parse("user@host.xz2:path/a"),
+      dvcsUrl.parse("user@host.xz2:path/b"),
+    ),
+  ).toBe("../b");
+  expect(
+    dvcsUrl.relative(dvcsUrl.parse("/path/a"), dvcsUrl.parse("/path/b")),
+  ).toBe("../b");
 
   util.setPlatformForTest("win32");
-  expect(dvcsUrl.relative(
-    dvcsUrl.parse("C:\\Users\\a"),
-    dvcsUrl.parse("C:\\Users\\b")
-  )).toBe("../b");
+  expect(
+    dvcsUrl.relative(
+      dvcsUrl.parse("C:\\Users\\a"),
+      dvcsUrl.parse("C:\\Users\\b"),
+    ),
+  ).toBe("../b");
   util.setPlatformForTest(process.platform);
 });
-
 
 test("isRelativePath", () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

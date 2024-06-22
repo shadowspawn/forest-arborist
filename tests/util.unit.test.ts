@@ -5,7 +5,6 @@ import * as process from "process";
 // Mine
 import * as util from "../src/util";
 
-
 describe("shouldDisableColour", () => {
   const holdForceColor = process.env["FORCE_COLOR"];
   const holdNoColor = process.env["NO_COLOR"];
@@ -58,9 +57,7 @@ describe("shouldDisableColour", () => {
   });
 });
 
-
 describe("terminate", () => {
-
   test("throws", () => {
     expect(() => {
       util.terminate("Goodbye");
@@ -69,19 +66,17 @@ describe("terminate", () => {
 
   test("displays message", () => {
     const message = "custom message";
-    const spy = jest.spyOn(global.console, 'error');
+    const spy = jest.spyOn(global.console, "error");
     try {
       util.terminate(message);
-    } catch(err) {
+    } catch (err) {
       // this block left intentionally blank
     }
     expect(spy).toHaveBeenCalledTimes(1);
     expect(spy.mock.calls[0][0]).toContain(message);
     spy.mockRestore();
   });
-
 });
-
 
 describe("restoreEnvVar", () => {
   const key = "FOREST_ARBORIST_RESTORE_ENV_VAR_KEY";
@@ -98,7 +93,6 @@ describe("restoreEnvVar", () => {
     process.env[key] = "existing value";
     util.restoreEnvVar(key, "2");
     expect(process.env[key]).toEqual("2");
-
   });
 
   test("restores missing value", () => {
@@ -112,9 +106,7 @@ describe("restoreEnvVar", () => {
     expect(process.env[key]).toBeUndefined();
     expect(key in process.env).toBe(false);
   });
-
 });
-
 
 test("coloured text", () => {
   // Simple check that message gets included in styled text
@@ -123,9 +115,7 @@ test("coloured text", () => {
   expect(util.commandColour(sampleString)).toContain(sampleString);
 });
 
-
 describe("normalizeToPosix", () => {
-
   test("native", () => {
     const nativePath = path.join("a", "b", "c");
     expect(util.normalizeToPosix(nativePath)).toEqual("a/b/c");
@@ -142,43 +132,48 @@ describe("normalizeToPosix", () => {
     expect(util.normalizeToPosix("")).toEqual(".");
     expect(util.normalizeToPosix(undefined)).toEqual(".");
   });
-
 });
-
 
 describe("execCommandSync", () => {
   // Testing the key functionality, but not the command logging.
 
   test("cwd", () => {
-    const spy = jest.spyOn(childProcess, 'execFileSync');
+    const spy = jest.spyOn(childProcess, "execFileSync");
     spy.mockReturnValue(Buffer.alloc(0));
 
     util.execCommandSync("command");
-    expect(spy).toHaveBeenLastCalledWith("command", undefined, { "cwd": ".", "stdio": "pipe" });
+    expect(spy).toHaveBeenLastCalledWith("command", undefined, {
+      cwd: ".",
+      stdio: "pipe",
+    });
 
     util.execCommandSync("command", ["a", "b"]);
-    expect(spy).toHaveBeenLastCalledWith("command", ["a", "b"], { "cwd": ".", "stdio": "pipe" });
+    expect(spy).toHaveBeenLastCalledWith("command", ["a", "b"], {
+      cwd: ".",
+      stdio: "pipe",
+    });
 
     util.execCommandSync("command", undefined, { cwd: "dir" });
-    expect(spy).toHaveBeenLastCalledWith("command", undefined, { "cwd": "dir", "stdio": "pipe" });
+    expect(spy).toHaveBeenLastCalledWith("command", undefined, {
+      cwd: "dir",
+      stdio: "pipe",
+    });
 
     spy.mockRestore();
   });
-
 });
-
 
 test("readJson", () => {
   const subject = { required: "value", extra: "extra" };
-  const spy = jest.spyOn(fsX, 'readJsonSync');
+  const spy = jest.spyOn(fsX, "readJsonSync");
   spy.mockImplementation(() => {
     return subject;
   });
 
-  expect(util.readJson('dummyFile')).toEqual(subject);
-  expect(util.readJson('dummyFile', ["required"])).toEqual(subject);
+  expect(util.readJson("dummyFile")).toEqual(subject);
+  expect(util.readJson("dummyFile", ["required"])).toEqual(subject);
   expect(() => {
-    util.readJson('dummyFile', ["missing"]);
+    util.readJson("dummyFile", ["missing"]);
   }).toThrow();
 
   spy.mockRestore();

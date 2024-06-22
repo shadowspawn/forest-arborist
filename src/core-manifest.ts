@@ -8,9 +8,8 @@ import * as core from "./core";
 import * as coreInit from "./core-init";
 import * as util from "./util";
 
-
 function rootRelative(startDir: string, optionalPath: boolean | string) {
-  const targetPath = (typeof optionalPath === "boolean") ? "." : optionalPath;
+  const targetPath = typeof optionalPath === "boolean" ? "." : optionalPath;
   const absolutePath = path.resolve(startDir, targetPath);
   // Assume running from root dir
   return path.relative(process.cwd(), absolutePath);
@@ -28,16 +27,24 @@ export function doManifest(options: ManifestOptions): void {
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
   const seedPath = path.resolve(process.cwd(), rootObject.seedPath);
-  const manifestPath = core.manifestPath({ seedPath, manifest: rootObject.manifest });
+  const manifestPath = core.manifestPath({
+    seedPath,
+    manifest: rootObject.manifest,
+  });
 
   if (options.edit) {
     // Same checks as osenv.editor
-    const editor = process.env.EDITOR
-      || process.env.VISUAL
-      ||((process.platform === "win32") ? "notepad.exe" : "vi");
+    const editor =
+      process.env.EDITOR ||
+      process.env.VISUAL ||
+      (process.platform === "win32" ? "notepad.exe" : "vi");
     childProcess.execFileSync(editor, [manifestPath], { stdio: "inherit" });
   } else if (options.list) {
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
+    const manifestObject = core.readManifest({
+      seedPath,
+      manifest: rootObject.manifest,
+      preserveDependencyOrigins: true,
+    });
     console.log(JSON.stringify(manifestObject, undefined, "  "));
   } else if (options.add) {
     const relTargetPath = rootRelative(startDir, options.add);
@@ -45,16 +52,25 @@ export function doManifest(options: ManifestOptions): void {
     if (seedPath === absTargetPath) {
       util.terminate("Seed folder cannot be added as a dependency");
     }
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
-    console.log(`Adding dependency for ${absTargetPath}`);
-    manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] = coreInit.makeDependencyEntry({
-      repoPath: relTargetPath,
-      seedRepoPath: seedPath,
+    const manifestObject = core.readManifest({
+      seedPath,
+      manifest: rootObject.manifest,
+      preserveDependencyOrigins: true,
     });
+    console.log(`Adding dependency for ${absTargetPath}`);
+    manifestObject.dependencies[util.normalizeToPosix(relTargetPath)] =
+      coreInit.makeDependencyEntry({
+        repoPath: relTargetPath,
+        seedRepoPath: seedPath,
+      });
     core.writeManifest(manifestPath, manifestObject);
   } else if (options.delete) {
     const targetPath = rootRelative(startDir, options.delete);
-    const manifestObject = core.readManifest({ seedPath, manifest: rootObject.manifest, preserveDependencyOrigins: true });
+    const manifestObject = core.readManifest({
+      seedPath,
+      manifest: rootObject.manifest,
+      preserveDependencyOrigins: true,
+    });
     if (manifestObject.dependencies[targetPath] === undefined) {
       util.terminate(`No manifest dependency for: ${targetPath}`);
     }
@@ -67,4 +83,3 @@ export function doManifest(options: ManifestOptions): void {
   }
   process.chdir(startDir);
 }
-

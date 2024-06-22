@@ -2,12 +2,11 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as core from "../src/core";
 import * as coreInit from "../src/core-init";
 import * as repo from "../src/repo";
-
 
 function makeRemotes(absoluteRemotesPath: string) {
   const startDir = process.cwd();
@@ -28,8 +27,18 @@ function makeRemotes(absoluteRemotesPath: string) {
     const workRepo = repoPath.concat("-work");
     const bareRepo = repoPath.concat(".git");
     childProcess.execFileSync("git", ["init", "-b", "trunk", workRepo]);
-    childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Empty but real commit"], { cwd: workRepo });
-    childProcess.execFileSync("git", ["clone", "--bare", "--quiet", workRepo, bareRepo]);
+    childProcess.execFileSync(
+      "git",
+      ["commit", "--allow-empty", "-m", "Empty but real commit"],
+      { cwd: workRepo },
+    );
+    childProcess.execFileSync("git", [
+      "clone",
+      "--bare",
+      "--quiet",
+      workRepo,
+      bareRepo,
+    ]);
     fsX.removeSync(workRepo);
   });
 
@@ -49,15 +58,19 @@ function makeRemotes(absoluteRemotesPath: string) {
     const dummyFile = ".dummy";
     fs.writeFileSync(path.join(repoPath, dummyFile), "x");
     childProcess.execFileSync("hg", ["add", dummyFile], { cwd: repoPath });
-    childProcess.execFileSync("hg", ["commit", "-m", "First commit"], { cwd: repoPath });
+    childProcess.execFileSync("hg", ["commit", "-m", "First commit"], {
+      cwd: repoPath,
+    });
     childProcess.execFileSync("hg", ["update", "null"], { cwd: repoPath });
   });
 
   process.chdir(startDir);
 }
 
-
-export function makePlayground(playgroundDestination: string): { gitPinnedRevision: string, hgPinnedRevision: string } {
+export function makePlayground(playgroundDestination: string): {
+  gitPinnedRevision: string;
+  hgPinnedRevision: string;
+} {
   const startDir = process.cwd();
 
   const playgroundDir = path.resolve(process.cwd(), playgroundDestination);
@@ -72,8 +85,16 @@ export function makePlayground(playgroundDestination: string): { gitPinnedRevisi
   const siblingRoot = path.join(playgroundDir, "sibling");
   fs.mkdirSync(siblingRoot);
   process.chdir(siblingRoot);
-  childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "main")]);
-  childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "free")]);
+  childProcess.execFileSync("git", [
+    "clone",
+    "--quiet",
+    path.join(gitRemotesDir, "main"),
+  ]);
+  childProcess.execFileSync("git", [
+    "clone",
+    "--quiet",
+    path.join(gitRemotesDir, "free"),
+  ]);
 
   // Slim manifest
   process.chdir(path.join(siblingRoot, "main"));
@@ -81,20 +102,46 @@ export function makePlayground(playgroundDestination: string): { gitPinnedRevisi
 
   // Get libs
   process.chdir(path.join(siblingRoot));
-  childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
-  childProcess.execFileSync("git", ["clone", "--quiet", path.join(gitRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);
+  childProcess.execFileSync("git", [
+    "clone",
+    "--quiet",
+    path.join(gitRemotesDir, "libs", "locked"),
+    path.join("libs", "locked"),
+  ]);
+  childProcess.execFileSync("git", [
+    "clone",
+    "--quiet",
+    path.join(gitRemotesDir, "libs", "pinned"),
+    path.join("libs", "pinned"),
+  ]);
 
   // Setup pinned
   process.chdir(path.join(siblingRoot, "libs", "pinned"));
   const gitPinnedRevision = repo.getExistingRevision(".");
-  childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Another empty but real commit"]);
+  childProcess.execFileSync("git", [
+    "commit",
+    "--allow-empty",
+    "-m",
+    "Another empty but real commit",
+  ]);
   childProcess.execFileSync("git", ["push", "--quiet"]);
   childProcess.execFileSync("git", ["checkout", "--quiet", gitPinnedRevision]);
 
   // Setup locked
   process.chdir(path.join(siblingRoot, "libs", "locked"));
-  childProcess.execFileSync("git", ["checkout", "--quiet", "-b", "lockedBranch"]);
-  childProcess.execFileSync("git", ["push", "--quiet", "--set-upstream", "origin", "lockedBranch"]);
+  childProcess.execFileSync("git", [
+    "checkout",
+    "--quiet",
+    "-b",
+    "lockedBranch",
+  ]);
+  childProcess.execFileSync("git", [
+    "push",
+    "--quiet",
+    "--set-upstream",
+    "origin",
+    "lockedBranch",
+  ]);
 
   // Setup main
   process.chdir(path.join(siblingRoot, "main"));
@@ -108,8 +155,18 @@ export function makePlayground(playgroundDestination: string): { gitPinnedRevisi
   const nestedRoot = path.join(playgroundDir, "nested");
   fs.mkdirSync(nestedRoot);
   process.chdir(nestedRoot);
-  childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "main"), "."]);
-  childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "free"), "free"]);
+  childProcess.execFileSync("hg", [
+    "clone",
+    "--quiet",
+    path.join(hgRemotesDir, "main"),
+    ".",
+  ]);
+  childProcess.execFileSync("hg", [
+    "clone",
+    "--quiet",
+    path.join(hgRemotesDir, "free"),
+    "free",
+  ]);
 
   // Slim manifest
   process.chdir(nestedRoot);
@@ -118,8 +175,18 @@ export function makePlayground(playgroundDestination: string): { gitPinnedRevisi
   // Get libs
   process.chdir(nestedRoot);
   fsX.ensureDirSync("libs");
-  childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "locked"), path.join("libs", "locked")]);
-  childProcess.execFileSync("hg", ["clone", "--quiet", path.join(hgRemotesDir, "libs", "pinned"), path.join("libs", "pinned")]);
+  childProcess.execFileSync("hg", [
+    "clone",
+    "--quiet",
+    path.join(hgRemotesDir, "libs", "locked"),
+    path.join("libs", "locked"),
+  ]);
+  childProcess.execFileSync("hg", [
+    "clone",
+    "--quiet",
+    path.join(hgRemotesDir, "libs", "pinned"),
+    path.join("libs", "pinned"),
+  ]);
 
   // Setup pinned
   process.chdir(path.join(nestedRoot, "libs", "pinned"));

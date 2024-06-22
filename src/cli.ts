@@ -5,7 +5,6 @@ import * as command from "./command";
 // import * as process from 'process'; -- use global so can modify exitCode
 import * as util from "./util";
 
-
 const program = command.makeProgram();
 
 async function main() {

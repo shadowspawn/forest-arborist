@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as core from "./core";
 import * as coreClone from "./core-clone";
@@ -8,19 +8,19 @@ import * as dvcsUrl from "./dvcs-url";
 import * as repo from "./repo";
 import * as util from "./util";
 
-
 function doSemiInstall() {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const manifestObject = core.readManifest({ fromRoot: true, manifest: rootObject.manifest });
+  const manifestObject = core.readManifest({
+    fromRoot: true,
+    manifest: rootObject.manifest,
+  });
 
   const seedPath = rootObject.seedPath;
   let freeBranch = repo.getBranch(seedPath);
   if (freeBranch === undefined && repo.isGitRepository(seedPath)) {
-    util.execCommandSync(
-      "git", ["checkout", "@{-1}"], { cwd: seedPath }
-    );
+    util.execCommandSync("git", ["checkout", "@{-1}"], { cwd: seedPath });
     // childProcess.execFileSync("git", ["checkout", "@{-1}"], { cwd: seedPath });
     freeBranch = repo.getBranch(seedPath);
   } else {
@@ -41,17 +41,18 @@ function doSemiInstall() {
   process.chdir(startDir);
 }
 
-
 export interface SnapshotOptions {
   output?: string;
 }
-
 
 export function doSnapshot(options: SnapshotOptions): void {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const rootObject = core.readRootFile();
-  const manifestObject = core.readManifest({ fromRoot: true, manifest: rootObject.manifest });
+  const manifestObject = core.readManifest({
+    fromRoot: true,
+    manifest: rootObject.manifest,
+  });
 
   // Create dependencies with fixed revision and absolute repo.
   const dependencies: core.Dependencies = {};
@@ -77,7 +78,7 @@ export function doSnapshot(options: SnapshotOptions): void {
     rootDirectory: manifestObject.rootDirectory,
     seedPathFromRoot: manifestObject.seedPathFromRoot,
     manifest: rootObject.manifest,
-    seedRepo
+    seedRepo,
   };
 
   const prettySnapshot = JSON.stringify(snapshot, null, "  ");
@@ -89,32 +90,39 @@ export function doSnapshot(options: SnapshotOptions): void {
   process.chdir(startDir);
 }
 
-
 function readSnapshot(snapshotPath: string) {
-  const snapshotObject = util.readJson(
-    snapshotPath,
-    ["dependencies", "rootDirectory"]
-  );
+  const snapshotObject = util.readJson(snapshotPath, [
+    "dependencies",
+    "rootDirectory",
+  ]);
 
   // Used mainRepo and mainPathFromRoot in fab v1 amd v2
   if (snapshotObject.seedRepo === undefined) {
     snapshotObject.seedRepo = snapshotObject.mainRepo;
   }
   if (!Object.prototype.hasOwnProperty.call(snapshotObject, "seedRepo")) {
-    util.terminate(`problem parsing: ${snapshotPath}\nMissing property 'seedRepo'`);
+    util.terminate(
+      `problem parsing: ${snapshotPath}\nMissing property 'seedRepo'`,
+    );
   }
   if (snapshotObject.seedPathFromRoot === undefined) {
     snapshotObject.seedPathFromRoot = snapshotObject.mainPathFromRoot;
   }
-  if (!Object.prototype.hasOwnProperty.call(snapshotObject, "seedPathFromRoot")) {
-    util.terminate(`problem parsing: ${snapshotPath}\nMissing property 'seedPathFromRoot'`);
+  if (
+    !Object.prototype.hasOwnProperty.call(snapshotObject, "seedPathFromRoot")
+  ) {
+    util.terminate(
+      `problem parsing: ${snapshotPath}\nMissing property 'seedPathFromRoot'`,
+    );
   }
 
   return snapshotObject;
 }
 
-
-export function doRecreate(snapshotPath: string, destinationParam?: string): void {
+export function doRecreate(
+  snapshotPath: string,
+  destinationParam?: string,
+): void {
   const startDir = process.cwd();
   const snapshotObject = readSnapshot(snapshotPath);
   const seedRepoEntry = snapshotObject.seedRepo;
@@ -125,7 +133,9 @@ export function doRecreate(snapshotPath: string, destinationParam?: string): voi
   }
 
   // Clone seed repo first and cd to root
-  const seedPathFromRoot = util.normalizeToPosix(snapshotObject.seedPathFromRoot);
+  const seedPathFromRoot = util.normalizeToPosix(
+    snapshotObject.seedPathFromRoot,
+  );
   if (seedPathFromRoot !== ".") {
     // Sibling layout. Make wrapper root directory.
     fs.mkdirSync(destination);
@@ -152,10 +162,11 @@ export function doRecreate(snapshotPath: string, destinationParam?: string): voi
   });
 
   console.log(`Recreated repo forest from snapshot to ${destination}`);
-  console.log("(use \"fab restore\" without snapshot file to get a current checkout again)");
+  console.log(
+    '(use "fab restore" without snapshot file to get a current checkout again)',
+  );
   process.chdir(startDir);
 }
-
 
 export function doRestore(snapshotPath?: string): void {
   if (snapshotPath !== undefined && !fs.existsSync(snapshotPath)) {
@@ -171,7 +182,10 @@ export function doRestore(snapshotPath?: string): void {
   const snapshotObject = readSnapshot(snapshotPath);
   core.cdRootDirectory();
 
-  coreClone.checkoutEntry(snapshotObject.seedRepo, snapshotObject.seedPathFromRoot);
+  coreClone.checkoutEntry(
+    snapshotObject.seedRepo,
+    snapshotObject.seedPathFromRoot,
+  );
 
   const dependencies = snapshotObject.dependencies;
   Object.keys(dependencies).forEach((repoPath) => {
@@ -184,6 +198,8 @@ export function doRestore(snapshotPath?: string): void {
   });
 
   console.log("Restored repo forest from snapshot");
-  console.log("(use \"fab restore\" without snapshot file to get a current checkout again)");
+  console.log(
+    '(use "fab restore" without snapshot file to get a current checkout again)',
+  );
   process.chdir(startDir);
 }

@@ -40,28 +40,44 @@ describe("core branch", () => {
 
   test("pull #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
+      dependencies: { g: { repoType: "git" } },
+      rootDirectory: "..",
+      seedPathFromRoot: "main",
+      mainPathFromRoot: "main",
     });
     getBranchSpy.mockReturnValue("trunk");
 
     corePull.doPull();
-    expect(readManifestSpy).toHaveBeenCalledWith({ fromRoot: true, addSeedToDependencies: true }); // just checking once
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], { cwd: "g"});
+    expect(readManifestSpy).toHaveBeenCalledWith({
+      fromRoot: true,
+      addSeedToDependencies: true,
+    }); // just checking once
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], {
+      cwd: "g",
+    });
   });
 
   test("pull in locked #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git", lockBranch: "locked" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
+      dependencies: { g: { repoType: "git", lockBranch: "locked" } },
+      rootDirectory: "..",
+      seedPathFromRoot: "main",
+      mainPathFromRoot: "main",
     });
     getBranchSpy.mockReturnValue("locked");
 
     corePull.doPull();
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], { cwd: "g"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], {
+      cwd: "g",
+    });
   });
 
   test("pull in detached #git", () => {
     readManifestSpy.mockReturnValue({
-      dependencies: { "g": { repoType: "git" } }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main"
+      dependencies: { g: { repoType: "git" } },
+      rootDirectory: "..",
+      seedPathFromRoot: "main",
+      mainPathFromRoot: "main",
     });
     getBranchSpy.mockReturnValue(undefined);
 
@@ -72,13 +88,15 @@ describe("core branch", () => {
   test("pull does not do pinned #mixed", () => {
     readManifestSpy.mockReturnValue({
       dependencies: {
-        "g": { repoType: "git", pinRevision: "DEADBEEF" },
-        "h": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", seedPathFromRoot: "main", mainPathFromRoot: "main",
+        g: { repoType: "git", pinRevision: "DEADBEEF" },
+        h: { repoType: "hg", pinRevision: "DEADBEEF" },
+      },
+      rootDirectory: "..",
+      seedPathFromRoot: "main",
+      mainPathFromRoot: "main",
     });
 
     corePull.doPull();
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
   });
-
 });

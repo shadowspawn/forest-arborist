@@ -9,7 +9,6 @@ import * as repo from "../src/repo";
 import * as util from "../src/util";
 import * as cc from "./core-common";
 
-
 describe("repo", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.DirResult;
@@ -20,7 +19,13 @@ describe("repo", () => {
     process.chdir(tempFolder.name);
 
     fs.mkdirSync("notRepo");
-    childProcess.execFileSync("git", ["init", "emptyGitRepo", "-b", "trunk", "-q"]);
+    childProcess.execFileSync("git", [
+      "init",
+      "emptyGitRepo",
+      "-b",
+      "trunk",
+      "-q",
+    ]);
     childProcess.execFileSync("hg", ["init", "emptyHgRepo"]);
     cc.makeOneGitRepo("hasOrigin", testOrigin);
     cc.makeOneGitRepo("detached", testOrigin);
@@ -92,6 +97,8 @@ describe("repo", () => {
     expect(repo.getRevision("detached", "git")).not.toBeUndefined();
     expect(repo.getRevision("emptyGitRepo", "git")).toBeUndefined();
 
-    expect(repo.getRevision("emptyHgRepo", "hg")).toBe("0000000000000000000000000000000000000000");
+    expect(repo.getRevision("emptyHgRepo", "hg")).toBe(
+      "0000000000000000000000000000000000000000",
+    );
   });
 });

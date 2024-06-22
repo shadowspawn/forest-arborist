@@ -4,12 +4,11 @@ import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as dvcsUrl from "./dvcs-url";
 import * as repo from "./repo";
 import * as util from "./util";
-
 
 export interface DependencyEntry {
   repoType: repo.RepoType;
@@ -22,10 +21,7 @@ export interface Dependencies {
   [repoPath: string]: DependencyEntry;
 }
 
-
-
 export const fabRootFilename = ".fab-root.json"; // stored in root directory
-
 
 export function cdRootDirectory(): void {
   const startDir = process.cwd();
@@ -40,24 +36,24 @@ export function cdRootDirectory(): void {
     // NB: chdir("..") from "/" silently does nothing on Mac, so check we moved
     const cwd = process.cwd();
     process.chdir("..");
-    tryParent = (cwd !== process.cwd());
+    tryParent = cwd !== process.cwd();
   } while (tryParent);
 
   // Failed to find root
   process.chdir(startDir);
   if (startedInMainDirectory) {
-    util.terminate("root of forest not found. (Do you need to call \"fab install\"?)");
+    util.terminate(
+      'root of forest not found. (Do you need to call "fab install"?)',
+    );
   } else {
     util.terminate("root of forest not found. ");
   }
 }
 
-
 export interface ManifestOptions {
   manifest?: string;
   seedPath?: string;
 }
-
 
 // Perhaps make internal when finished refactor?
 export function manifestPath(options: ManifestOptions): string {
@@ -78,11 +74,12 @@ export function manifestPath(options: ManifestOptions): string {
   return manifest;
 }
 
-
-export function manifestList(seedPath: string): number | undefined  {
+export function manifestList(seedPath: string): number | undefined {
   const manifestDir = path.join(seedPath, ".fab");
   if (!fs.existsSync(manifestDir)) {
-    console.log("(No manifest folder found. Do you need to cd to seed repo, or run \"fab init\"?)");
+    console.log(
+      '(No manifest folder found. Do you need to cd to seed repo, or run "fab init"?)',
+    );
     return undefined;
   }
 
@@ -105,12 +102,10 @@ export function manifestList(seedPath: string): number | undefined  {
   return count; // Used in tests, not in client code.
 }
 
-
 export interface RootFile {
   seedPath: string;
   manifest?: string;
 }
-
 
 export function readRootFile(): RootFile {
   // Use absolute path so appears in any errors
@@ -122,7 +117,9 @@ export function readRootFile(): RootFile {
     rootObjectOnDisk.seedPath = rootObjectOnDisk.mainPath;
   }
   if (rootObjectOnDisk.seedPath === undefined) {
-    util.terminate(`problem parsing: ${fabRootPath}\nMissing property 'seedPath'`);
+    util.terminate(
+      `problem parsing: ${fabRootPath}\nMissing property 'seedPath'`,
+    );
   }
 
   const rootObject: RootFile = {
@@ -136,7 +133,6 @@ export function readRootFile(): RootFile {
   return rootObject;
 }
 
-
 export interface WriteRootFileOptions {
   rootFilePath: string;
   seedPath: string;
@@ -144,24 +140,28 @@ export interface WriteRootFileOptions {
   tipToAddToIgnore?: boolean;
 }
 
-
 export function writeRootFile(options: WriteRootFileOptions): void {
   let initialisedWord = "Initialised";
-  if (fs.existsSync(options.rootFilePath))
-    initialisedWord = "Reinitialised";
+  if (fs.existsSync(options.rootFilePath)) initialisedWord = "Reinitialised";
   const rootObject = {
     seedPath: util.normalizeToPosix(options.seedPath),
     manifest: options.manifest,
   };
   fsX.writeJsonSync(options.rootFilePath, rootObject, { spaces: 2 });
 
-  console.log(`${initialisedWord} marker file at root of forest: ${fabRootFilename}`);
+  console.log(
+    `${initialisedWord} marker file at root of forest: ${fabRootFilename}`,
+  );
 
   if (options.tipToAddToIgnore) {
     const rootDir = path.dirname(options.rootFilePath);
     if (repo.isGitRepository(rootDir)) {
       try {
-        childProcess.execFileSync("git", ["check-ignore", "--quiet", fabRootFilename]);
+        childProcess.execFileSync("git", [
+          "check-ignore",
+          "--quiet",
+          fabRootFilename,
+        ]);
       } catch (err) {
         const peekErr = err as { status?: number }; // exception includes spawnSync result
         if (peekErr.status === 1) {
@@ -171,7 +171,6 @@ export function writeRootFile(options: WriteRootFileOptions): void {
     }
   }
 }
-
 
 export interface ReadManifestOptions {
   fromRoot?: boolean;
@@ -190,7 +189,7 @@ export interface Manifest {
 interface ManifestOnDisk {
   dependencies: Dependencies;
   rootDirectory: string;
-  mainPathFromRoot: string;  // Old deprecated name
+  mainPathFromRoot: string; // Old deprecated name
   seedPathFromRoot?: string; // New name
   tipsForManualEditing?: string[];
 }
@@ -224,18 +223,24 @@ export function readManifest(options: ReadManifestOptions): Manifest {
 
   // Hurrah, read manifest
   // mainPathFromRoot is deprecated, but still must be present to support older versions of fab.
-  const manifestObjectFromDisk: ManifestOnDisk = util.readJson(
-    fabManifest,
-    ["dependencies", "rootDirectory", "mainPathFromRoot"]
-  );
+  const manifestObjectFromDisk: ManifestOnDisk = util.readJson(fabManifest, [
+    "dependencies",
+    "rootDirectory",
+    "mainPathFromRoot",
+  ]);
   if (manifestObjectFromDisk.seedPathFromRoot === undefined) {
     // File written by older version.
-    manifestObjectFromDisk.seedPathFromRoot = manifestObjectFromDisk.mainPathFromRoot;
+    manifestObjectFromDisk.seedPathFromRoot =
+      manifestObjectFromDisk.mainPathFromRoot;
   }
 
   // Cleanup as may have been edited or set poorly in old versions.
-  manifestObjectFromDisk.rootDirectory = util.normalizeToPosix(manifestObjectFromDisk.rootDirectory);
-  manifestObjectFromDisk.seedPathFromRoot = util.normalizeToPosix(manifestObjectFromDisk.seedPathFromRoot);
+  manifestObjectFromDisk.rootDirectory = util.normalizeToPosix(
+    manifestObjectFromDisk.rootDirectory,
+  );
+  manifestObjectFromDisk.seedPathFromRoot = util.normalizeToPosix(
+    manifestObjectFromDisk.seedPathFromRoot,
+  );
 
   const manifestObject: Manifest = {
     dependencies: manifestObjectFromDisk.dependencies,
@@ -247,7 +252,10 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   const seedOrigin = repo.getOrigin(seedPath, seedRepoType);
   const parsedSeedOrigin = dvcsUrl.parse(seedOrigin);
   if (options.addSeedToDependencies) {
-    manifestObject.dependencies[manifestObject.seedPathFromRoot] = { origin: seedOrigin, repoType: seedRepoType };
+    manifestObject.dependencies[manifestObject.seedPathFromRoot] = {
+      origin: seedOrigin,
+      repoType: seedRepoType,
+    };
   }
 
   Object.keys(manifestObject.dependencies).forEach((repoPath) => {
@@ -255,9 +263,11 @@ export function readManifest(options: ReadManifestOptions): Manifest {
     const entry = manifestObject.dependencies[repoPath];
     const supportedTypes = ["git", "hg"];
     if (supportedTypes.indexOf(entry.repoType) === -1) {
-      console.log(util.errorColour(
-        `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`
-      ));
+      console.log(
+        util.errorColour(
+          `Skipping entry for "${repoPath}" with unsupported repoType: ${entry.repoType}`,
+        ),
+      );
       delete manifestObject.dependencies[repoPath];
       return; // continue forEach
     }
@@ -273,8 +283,10 @@ export function readManifest(options: ReadManifestOptions): Manifest {
   return manifestObject;
 }
 
-
-export function writeManifest(manifestPath: string, manifestObject: Manifest): void {
+export function writeManifest(
+  manifestPath: string,
+  manifestObject: Manifest,
+): void {
   const manifestObjectToDisk = {
     dependencies: manifestObject.dependencies,
     rootDirectory: manifestObject.rootDirectory,

@@ -2,21 +2,20 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 import * as tmp from "tmp";
 // Mine
 import * as sandpit from "./sandpit";
 import * as util from "../src/util";
 
 function execCommandSync(cmd: string, args?: string[]) {
-  util.execCommandSync(cmd, args, { suppressContext:true });
+  util.execCommandSync(cmd, args, { suppressContext: true });
 }
-
 
 execCommandSync("npm", ["pack"]);
 const files = fs.readdirSync(".");
 const tarball = files.filter((filename) => {
-  return (filename.startsWith("shadowspawn-forest-arborist"));
+  return filename.startsWith("shadowspawn-forest-arborist");
 })[0];
 execCommandSync("npm", ["install", "--global", tarball]);
 
@@ -30,8 +29,7 @@ try {
   // Perform smoketest
   execCommandSync("fab", ["--version"]);
   execCommandSync("fab", ["clone", path.join("remotes", "git", "main.git")]);
-
-} catch(reason) {
+} catch (reason) {
   console.log(util.errorColour("\nSomething went wrong, tidying up..."));
   failed = true;
 }

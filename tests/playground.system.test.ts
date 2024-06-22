@@ -15,7 +15,6 @@ import * as coreSnapshot from "../src/core-snapshot";
 import * as repo from "../src/repo";
 import * as sandpit from "../dev/sandpit";
 
-
 describe("system (full functionality)", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.DirResult;
@@ -65,9 +64,20 @@ describe("system (full functionality)", () => {
     expect(manifestObject.seedPathFromRoot).toEqual(".");
 
     const dependencies = manifestObject.dependencies;
-    expect(dependencies["free"]).toEqual(       { repoType: "hg", origin: path.join(remotes, "hg", "free") });
-    expect(dependencies["libs/pinned"]).toEqual({ repoType: "hg", origin: path.join(remotes, "hg", "libs", "pinned"), pinRevision: sanddpitRevisions.hgPinnedRevision });
-    expect(dependencies["libs/locked"]).toEqual({ repoType: "hg", origin: path.join(remotes, "hg", "libs", "locked"), lockBranch: "lockedBranch" });
+    expect(dependencies["free"]).toEqual({
+      repoType: "hg",
+      origin: path.join(remotes, "hg", "free"),
+    });
+    expect(dependencies["libs/pinned"]).toEqual({
+      repoType: "hg",
+      origin: path.join(remotes, "hg", "libs", "pinned"),
+      pinRevision: sanddpitRevisions.hgPinnedRevision,
+    });
+    expect(dependencies["libs/locked"]).toEqual({
+      repoType: "hg",
+      origin: path.join(remotes, "hg", "libs", "locked"),
+      lockBranch: "lockedBranch",
+    });
   });
 
   test("playground init of git sibling", () => {
@@ -82,17 +92,27 @@ describe("system (full functionality)", () => {
     expect(manifestObject.seedPathFromRoot).toEqual("main");
 
     const dependencies = manifestObject.dependencies;
-    expect(dependencies["free"]).toEqual(       { repoType: "git", origin: path.join(remotes, "git", "free") });
-    expect(dependencies["libs/pinned"]).toEqual({ repoType: "git", origin: path.join(remotes, "git", "libs", "pinned"), pinRevision: sanddpitRevisions.gitPinnedRevision });
-    expect(dependencies["libs/locked"]).toEqual({ repoType: "git", origin: path.join(remotes, "git", "libs", "locked"), lockBranch: "lockedBranch" });
+    expect(dependencies["free"]).toEqual({
+      repoType: "git",
+      origin: path.join(remotes, "git", "free"),
+    });
+    expect(dependencies["libs/pinned"]).toEqual({
+      repoType: "git",
+      origin: path.join(remotes, "git", "libs", "pinned"),
+      pinRevision: sanddpitRevisions.gitPinnedRevision,
+    });
+    expect(dependencies["libs/locked"]).toEqual({
+      repoType: "git",
+      origin: path.join(remotes, "git", "libs", "locked"),
+      lockBranch: "lockedBranch",
+    });
   });
-
 
   describe("test display commands", () => {
     let spy: jest.SpyInstance;
 
     beforeAll(() => {
-      spy = jest.spyOn(global.console, 'log');
+      spy = jest.spyOn(global.console, "log");
     });
 
     afterAll(() => {
@@ -152,9 +172,7 @@ describe("system (full functionality)", () => {
       command.fab(["seed"]);
       expect(spy).toHaveBeenLastCalledWith(path.join(siblingRoot, "main"));
     });
-
   });
-
 
   describe("clone nested #hg", () => {
     let clonesSandpit: string;
@@ -171,7 +189,9 @@ describe("system (full functionality)", () => {
     // Somewhat pairwise, some permutations.
 
     test("clone nested --manifest slim", () => {
-      coreClone.doClone(path.join(remotes, "hg", "main"), undefined, { manifest: "slim" });
+      coreClone.doClone(path.join(remotes, "hg", "main"), undefined, {
+        manifest: "slim",
+      });
 
       // Check root
       expect(fs.existsSync("main")).toBe(true);
@@ -190,7 +210,9 @@ describe("system (full functionality)", () => {
       coreBranch.doMakeBranch(branch, undefined, { publish: true });
 
       process.chdir(clonesSandpit);
-      coreClone.doClone(path.join(remotes, "hg", "main"), "nested2", { branch });
+      coreClone.doClone(path.join(remotes, "hg", "main"), "nested2", {
+        branch,
+      });
 
       // Check root
       expect(fs.existsSync("nested2")).toBe(true);
@@ -201,9 +223,10 @@ describe("system (full functionality)", () => {
       expect(repo.getBranch("free")).toEqual(branch);
       process.chdir("libs");
       expect(repo.getBranch("locked")).toEqual("lockedBranch");
-      expect(repo.getRevision("pinned")).toEqual(sanddpitRevisions.hgPinnedRevision);
+      expect(repo.getRevision("pinned")).toEqual(
+        sanddpitRevisions.hgPinnedRevision,
+      );
     });
-
   });
 
   describe("clone sibling #git", () => {
@@ -221,7 +244,9 @@ describe("system (full functionality)", () => {
     // Somewhat pairwise, some permutations.
 
     test("clone sibling --manifest slim", () => {
-      coreClone.doClone(path.join(remotes, "git", "main.git"), undefined, { manifest: "slim" });
+      coreClone.doClone(path.join(remotes, "git", "main.git"), undefined, {
+        manifest: "slim",
+      });
 
       // Check root
       expect(fs.existsSync("main-forest")).toBe(true);
@@ -240,7 +265,9 @@ describe("system (full functionality)", () => {
       coreBranch.doMakeBranch(branch, undefined, { publish: true });
 
       process.chdir(clonesSandpit);
-      coreClone.doClone(path.join(remotes, "git", "main.git"), "sibling2", { branch });
+      coreClone.doClone(path.join(remotes, "git", "main.git"), "sibling2", {
+        branch,
+      });
 
       // Check root
       expect(fs.existsSync("sibling2")).toBe(true);
@@ -251,9 +278,10 @@ describe("system (full functionality)", () => {
       expect(repo.getBranch("free")).toEqual(branch);
       process.chdir("libs");
       expect(repo.getBranch("locked")).toEqual("lockedBranch");
-      expect(repo.getRevision("pinned")).toEqual(sanddpitRevisions.gitPinnedRevision);
+      expect(repo.getRevision("pinned")).toEqual(
+        sanddpitRevisions.gitPinnedRevision,
+      );
     });
-
   });
 
   describe("install", () => {
@@ -272,7 +300,13 @@ describe("system (full functionality)", () => {
 
     test("install --manifest slim #hg #nested #clean", () => {
       const branch = "develop";
-      childProcess.execFileSync("hg", ["clone", "--branch", branch, path.join(remotes, "hg", "main"), "nested"]);
+      childProcess.execFileSync("hg", [
+        "clone",
+        "--branch",
+        branch,
+        path.join(remotes, "hg", "main"),
+        "nested",
+      ]);
 
       process.chdir("nested");
       coreClone.doInstall({ manifest: "slim" });
@@ -290,23 +324,34 @@ describe("system (full functionality)", () => {
       // Make changes to check install imposes changes. Missing repo, and change locked and pinned.
       process.chdir("sibling");
       fsX.removeSync("free");
-      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], { cwd: path.join("libs", "locked")});
-      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], { cwd: path.join("libs", "pinned")});
+      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], {
+        cwd: path.join("libs", "locked"),
+      });
+      childProcess.execFileSync("git", ["checkout", "--quiet", "trunk"], {
+        cwd: path.join("libs", "pinned"),
+      });
 
       expect(fs.existsSync("free")).toBe(false);
-      expect(repo.getBranch(path.join("libs", "locked"))).not.toEqual("lockedBranch");
-      expect(repo.getRevision(path.join("libs", "pinned"))).not.toEqual(sanddpitRevisions.gitPinnedRevision);
+      expect(repo.getBranch(path.join("libs", "locked"))).not.toEqual(
+        "lockedBranch",
+      );
+      expect(repo.getRevision(path.join("libs", "pinned"))).not.toEqual(
+        sanddpitRevisions.gitPinnedRevision,
+      );
       //
       process.chdir("main");
-      coreClone.doInstall({ });
+      coreClone.doInstall({});
       process.chdir("..");
       //
       expect(fs.existsSync("free")).toBe(true);
       expect(repo.getBranch("free")).toEqual("trunk");
-      expect(repo.getBranch(path.join("libs", "locked"))).toEqual("lockedBranch");
-      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(sanddpitRevisions.gitPinnedRevision);
+      expect(repo.getBranch(path.join("libs", "locked"))).toEqual(
+        "lockedBranch",
+      );
+      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(
+        sanddpitRevisions.gitPinnedRevision,
+      );
     });
-
   });
 
   describe("snapshots", () => {
@@ -328,7 +373,11 @@ describe("system (full functionality)", () => {
     });
 
     test("snapshot --output ss", () => {
-      coreClone.doClone(path.join(remotes, "git", "main.git"), path.join(snapshotsSandpit, "sibling"), { });
+      coreClone.doClone(
+        path.join(remotes, "git", "main.git"),
+        path.join(snapshotsSandpit, "sibling"),
+        {},
+      );
       process.chdir("sibling");
 
       // Remember state
@@ -350,7 +399,11 @@ describe("system (full functionality)", () => {
     test("restore ss", () => {
       process.chdir("sibling");
       Object.keys(snapshotRevisions).forEach((repoPath) => {
-        childProcess.execFileSync("git", ["commit", "--allow-empty", "-m", "Change"], { cwd: repoPath });
+        childProcess.execFileSync(
+          "git",
+          ["commit", "--allow-empty", "-m", "Change"],
+          { cwd: repoPath },
+        );
       });
 
       coreSnapshot.doRestore(snapshotPath);
@@ -366,8 +419,12 @@ describe("system (full functionality)", () => {
       // Restoring to an unpinned state, expect for pinned which will be restore to pinned.
       expect(repo.getRevision("main")).not.toEqual(snapshotRevisions["main"]);
       expect(repo.getRevision("free")).not.toEqual(snapshotRevisions["free"]);
-      expect(repo.getRevision(path.join("libs", "locked"))).not.toEqual(snapshotRevisions[path.join("libs", "locked")]);
-      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(snapshotRevisions[path.join("libs", "pinned")]);
+      expect(repo.getRevision(path.join("libs", "locked"))).not.toEqual(
+        snapshotRevisions[path.join("libs", "locked")],
+      );
+      expect(repo.getRevision(path.join("libs", "pinned"))).toEqual(
+        snapshotRevisions[path.join("libs", "pinned")],
+      );
     });
 
     test("recreate ss", () => {
@@ -378,7 +435,5 @@ describe("system (full functionality)", () => {
         expect(repo.getRevision(repoPath)).toEqual(snapshotRevisions[repoPath]);
       });
     });
-
   });
-
 });

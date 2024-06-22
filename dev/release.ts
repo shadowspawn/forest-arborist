@@ -1,29 +1,25 @@
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
-import * as process from 'process';
+import * as process from "process";
 import * as readline from "readline";
 // Mine
 import * as util from "../src/util";
 
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
-
 // Using execCommandSync to get echo and familiar colouring for commands.
-
 
 function exitWithMessage(message: string) {
   console.log(util.errorColour(`Stopping: ${message}`));
   process.exit(1);
 }
 
-
 function execCommandSync(cmd: string, args?: string[]) {
-  util.execCommandSync(cmd, args, { suppressContext:true });
+  util.execCommandSync(cmd, args, { suppressContext: true });
 }
-
 
 async function readLineAsync(message: string) {
   return new Promise<string>((resolve) => {
@@ -33,23 +29,34 @@ async function readLineAsync(message: string) {
   });
 }
 
-
 async function main() {
   console.log("Checking sandpit clean");
   try {
     childProcess.execFileSync("git", ["diff-index", "--quiet", "HEAD"]);
-    childProcess.execFileSync("git", ["diff-index", "--cached", "--quiet", "HEAD"]);
-  } catch(err) {
+    childProcess.execFileSync("git", [
+      "diff-index",
+      "--cached",
+      "--quiet",
+      "HEAD",
+    ]);
+  } catch (err) {
     execCommandSync("git", ["status"]);
     exitWithMessage("sandpit not clean");
   }
 
   console.log("\nChecking for local commits");
   try {
-    childProcess.execFileSync("git", ["diff-tree", "--quiet", "HEAD", "@{upstream}"]);
-  } catch(err) {
+    childProcess.execFileSync("git", [
+      "diff-tree",
+      "--quiet",
+      "HEAD",
+      "@{upstream}",
+    ]);
+  } catch (err) {
     execCommandSync("git", ["status"]);
-    exitWithMessage("local commits pending. Push first and let CI tests run for full safety.");
+    exitWithMessage(
+      "local commits pending. Push first and let CI tests run for full safety.",
+    );
   }
 
   console.log("\nCopy up");
@@ -67,7 +74,9 @@ async function main() {
   // npm-publish-dry-run goes here...
 
   console.log("\nnpm version");
-  console.log("Bump version using major | minor | patch, or specify explicitly like 1.0");
+  console.log(
+    "Bump version using major | minor | patch, or specify explicitly like 1.0",
+  );
   console.log("(leave blank to skip version change)");
   const newVersion = await readLineAsync("Version for release: ");
   if (newVersion.length > 0) {
@@ -112,12 +121,17 @@ async function main() {
   execCommandSync("npm", ["version", "-no-git-tag-version", "prepatch"]);
 }
 
-
-main().then(() => {
-  rl.close();
-}).catch(() => {
-  rl.close();
-  console.log(util.errorColour("Something went wrong, going back to develop branch."));
-  execCommandSync("git", ["checkout", "develop"]);
-  console.log(util.errorColour("Something went wrong, back on develop branch."));
-});
+main()
+  .then(() => {
+    rl.close();
+  })
+  .catch(() => {
+    rl.close();
+    console.log(
+      util.errorColour("Something went wrong, going back to develop branch."),
+    );
+    execCommandSync("git", ["checkout", "develop"]);
+    console.log(
+      util.errorColour("Something went wrong, back on develop branch."),
+    );
+  });

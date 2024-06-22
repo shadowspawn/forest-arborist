@@ -19,7 +19,6 @@ import * as coreManifest from "../src/core-manifest";
 import * as corePull from "../src/core-pull";
 import * as coreSnapshot from "../src/core-snapshot";
 
-
 describe("clone cli", () => {
   let cloneSpy: jest.SpyInstance;
 
@@ -39,7 +38,11 @@ describe("clone cli", () => {
   // simplest
   test("clone source", () => {
     command.fab(["clone", "source"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", undefined, expect.objectContaining({ }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      undefined,
+      expect.objectContaining({}),
+    );
     const options: coreClone.CloneOptions = cloneSpy.mock.calls[0][2];
     expect(options.branch).toBeUndefined();
     expect(options.manifest).toBeUndefined();
@@ -47,37 +50,70 @@ describe("clone cli", () => {
 
   test("clone source destination", () => {
     command.fab(["clone", "source", "destination"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", "destination", expect.objectContaining({ }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      "destination",
+      expect.objectContaining({}),
+    );
   });
 
   test("clone -b name source", () => {
     command.fab(["clone", "-b", "name", "source"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", undefined, expect.objectContaining({ branch: "name" }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      undefined,
+      expect.objectContaining({ branch: "name" }),
+    );
   });
 
   test("clone --branch name source", () => {
     command.fab(["clone", "--branch", "name", "source"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", undefined, expect.objectContaining({ branch: "name" }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      undefined,
+      expect.objectContaining({ branch: "name" }),
+    );
   });
 
   test("clone -m name source", () => {
     command.fab(["clone", "-m", "name", "source"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", undefined, expect.objectContaining({ manifest: "name" }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      undefined,
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   test("clone --manifest name source", () => {
     command.fab(["clone", "--manifest", "name", "source"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", undefined, expect.objectContaining({ manifest: "name" }));
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      undefined,
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   // most complex
   test("clone --branch branchName --manifest manifestName source destination", () => {
-    command.fab(["clone", "--branch", "branchName", "--manifest", "manifestName", "source", "destination"]);
-    expect(cloneSpy).toHaveBeenCalledWith("source", "destination", expect.objectContaining({ branch: "branchName", manifest: "manifestName" }));
+    command.fab([
+      "clone",
+      "--branch",
+      "branchName",
+      "--manifest",
+      "manifestName",
+      "source",
+      "destination",
+    ]);
+    expect(cloneSpy).toHaveBeenCalledWith(
+      "source",
+      "destination",
+      expect.objectContaining({
+        branch: "branchName",
+        manifest: "manifestName",
+      }),
+    );
   });
-
 });
-
 
 describe("init cli", () => {
   let initSpy: jest.SpyInstance;
@@ -117,46 +153,56 @@ describe("init cli", () => {
 
   test("init excess parameters", () => {
     expect(() => {
-      command.fab(["init",  "--sibling", "--root", ".."]);
+      command.fab(["init", "--sibling", "--root", ".."]);
     }).toThrow();
   });
 
   // simple
   test("init --root ..", () => {
     command.fab(["init", "--root", ".."]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: ".." }));
+    expect(initSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ root: ".." }),
+    );
     const options: coreInit.InitOptions = initSpy.mock.calls[0][0];
     expect(options.manifest).toBeUndefined();
   });
 
   test("init --nested", () => {
     command.fab(["init", "--nested"]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: "." }));
+    expect(initSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ root: "." }),
+    );
   });
 
   test("init --sibling", () => {
     command.fab(["init", "--sibling"]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ root: ".." }));
+    expect(initSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ root: ".." }),
+    );
   });
 
   test("init --sibling -m name", () => {
     command.fab(["init", "--sibling", "-m", "name"]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
+    expect(initSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   test("init --sibling --manifest name", () => {
-    command.fab(["init", "--sibling","--manifest", "name"]);
-    expect(initSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
+    command.fab(["init", "--sibling", "--manifest", "name"]);
+    expect(initSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   test("init --sibling unexpected-param", () => {
     expect(() => {
-      command.fab(["init", "--sibling", "unexpected-param"], { suppressOutput: true });
+      command.fab(["init", "--sibling", "unexpected-param"], {
+        suppressOutput: true,
+      });
     }).toThrow();
   });
-
 });
-
 
 describe("install cli", () => {
   let installSpy: jest.SpyInstance;
@@ -177,19 +223,23 @@ describe("install cli", () => {
   // simplest
   test("install", () => {
     command.fab(["install"]);
-    expect(installSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+    expect(installSpy).toHaveBeenCalledWith(expect.objectContaining({}));
     const options: coreClone.InstallOptions = installSpy.mock.calls[0][0];
     expect(options.manifest).toBeUndefined();
   });
 
   test("install -m name", () => {
     command.fab(["install", "-m", "name"]);
-    expect(installSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
+    expect(installSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   test("install --manifest name", () => {
     command.fab(["install", "--manifest", "name"]);
-    expect(installSpy).toHaveBeenCalledWith(expect.objectContaining({ manifest: "name" }));
+    expect(installSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ manifest: "name" }),
+    );
   });
 
   test("install unexpected-param", () => {
@@ -197,9 +247,7 @@ describe("install cli", () => {
       command.fab(["install", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
-
 });
-
 
 describe("for-each cli", () => {
   let forEachSpy: jest.SpyInstance;
@@ -220,35 +268,53 @@ describe("for-each cli", () => {
   // simplest
   test("for-each command", () => {
     command.fab(["for-each", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ }));
+    expect(forEachSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({}),
+    );
     const options: coreForEach.ForOptions = forEachSpy.mock.calls[0][2];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("for-each -k command", () => {
     command.fab(["for-each", "-k", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
+    expect(forEachSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   test("for-each --keepgoing command", () => {
     command.fab(["for-each", "--keepgoing", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
+    expect(forEachSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   // alias
   test("forEach --keepgoing command", () => {
     command.fab(["forEach", "--keepgoing", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
+    expect(forEachSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   // pass-through options
   test("for-each --keepgoing command --option argument", () => {
     command.fab(["for-each", "--keepgoing", "command", "--option", "argument"]);
-    expect(forEachSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forEachSpy).toHaveBeenCalledWith(
+      "command",
+      ["--option", "argument"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
-
 });
-
 
 describe("for-free cli", () => {
   let forFreeSpy: jest.SpyInstance;
@@ -269,29 +335,43 @@ describe("for-free cli", () => {
   // simplest
   test("for-free command", () => {
     command.fab(["for-free", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ }));
+    expect(forFreeSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({}),
+    );
     const options: coreForEach.ForOptions = forFreeSpy.mock.calls[0][2];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("for-free -k command", () => {
     command.fab(["for-free", "-k", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   test("for-free --keepgoing command", () => {
     command.fab(["for-free", "--keepgoing", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith("command", [], expect.objectContaining({ keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith(
+      "command",
+      [],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   // pass-through options
   test("for-free --keepgoing command --option argument", () => {
     command.fab(["for-free", "--keepgoing", "command", "--option", "argument"]);
-    expect(forFreeSpy).toHaveBeenCalledWith("command", ["--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forFreeSpy).toHaveBeenCalledWith(
+      "command",
+      ["--option", "argument"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
-
 });
-
 
 describe("git (for)", () => {
   let forGitSpy: jest.SpyInstance;
@@ -312,29 +392,39 @@ describe("git (for)", () => {
   // simplest
   test("git command", () => {
     command.fab(["git", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ }));
+    expect(forGitSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({}),
+    );
     const options: coreForEach.ForOptions = forGitSpy.mock.calls[0][1];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("git -k command", () => {
     command.fab(["git", "-k", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   test("git --keepgoing command", () => {
     command.fab(["git", "--keepgoing", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   // pass-through options
   test("git --keepgoing command --option argument", () => {
     command.fab(["git", "--keepgoing", "command", "--option", "argument"]);
-    expect(forGitSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forGitSpy).toHaveBeenCalledWith(
+      ["command", "--option", "argument"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
-
 });
-
 
 describe("hg (for)", () => {
   let forHgSpy: jest.SpyInstance;
@@ -355,29 +445,39 @@ describe("hg (for)", () => {
   // simplest
   test("hg command", () => {
     command.fab(["hg", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ }));
+    expect(forHgSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({}),
+    );
     const options: coreForEach.ForOptions = forHgSpy.mock.calls[0][1];
     expect(options.keepgoing).toBeUndefined();
   });
 
   test("hg -k command", () => {
     command.fab(["hg", "-k", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   test("hg --keepgoing command", () => {
     command.fab(["hg", "--keepgoing", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(["command"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(
+      ["command"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
 
   // pass-through options
   test("hg --keepgoing command --option argument", () => {
     command.fab(["hg", "--keepgoing", "command", "--option", "argument"]);
-    expect(forHgSpy).toHaveBeenCalledWith(["command", "--option", "argument"], expect.objectContaining({ keepgoing: true }));
+    expect(forHgSpy).toHaveBeenCalledWith(
+      ["command", "--option", "argument"],
+      expect.objectContaining({ keepgoing: true }),
+    );
   });
-
 });
-
 
 describe("switch cli", () => {
   let switchSpy: jest.SpyInstance;
@@ -400,9 +500,7 @@ describe("switch cli", () => {
     command.fab(["switch", "branch"]);
     expect(switchSpy).toHaveBeenCalledWith("branch");
   });
-
 });
-
 
 describe("make-branch cli", () => {
   let makeBranchSpy: jest.SpyInstance;
@@ -423,34 +521,53 @@ describe("make-branch cli", () => {
   // simplest
   test("make-branch branch", () => {
     command.fab(["make-branch", "branch"]);
-    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ }));
-    const options: coreBranch.MakeBranchOptions = makeBranchSpy.mock.calls[0][2];
+    expect(makeBranchSpy).toHaveBeenCalledWith(
+      "branch",
+      undefined,
+      expect.objectContaining({}),
+    );
+    const options: coreBranch.MakeBranchOptions =
+      makeBranchSpy.mock.calls[0][2];
     expect(options.publish).toBeUndefined();
   });
 
   test("make-branch branch start-point", () => {
     command.fab(["make-branch", "branch", "start-point"]);
-    expect(makeBranchSpy).toHaveBeenCalledWith("branch", "start-point", expect.objectContaining({ }));
+    expect(makeBranchSpy).toHaveBeenCalledWith(
+      "branch",
+      "start-point",
+      expect.objectContaining({}),
+    );
   });
 
   test("make-branch -p branch", () => {
     command.fab(["make-branch", "-p", "branch"]);
-    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ publish: true }));
+    expect(makeBranchSpy).toHaveBeenCalledWith(
+      "branch",
+      undefined,
+      expect.objectContaining({ publish: true }),
+    );
   });
 
   test("make-branch --publish branch", () => {
     command.fab(["make-branch", "--publish", "branch"]);
-    expect(makeBranchSpy).toHaveBeenCalledWith("branch", undefined, expect.objectContaining({ publish: true }));
+    expect(makeBranchSpy).toHaveBeenCalledWith(
+      "branch",
+      undefined,
+      expect.objectContaining({ publish: true }),
+    );
   });
 
   // most complex
   test("make-branch --publish branch start-point", () => {
     command.fab(["make-branch", "--publish", "branch", "start-point"]);
-    expect(makeBranchSpy).toHaveBeenCalledWith("branch", "start-point", expect.objectContaining({ publish: true }));
+    expect(makeBranchSpy).toHaveBeenCalledWith(
+      "branch",
+      "start-point",
+      expect.objectContaining({ publish: true }),
+    );
   });
-
 });
-
 
 describe("snapshot cli", () => {
   let snapshotSpy: jest.SpyInstance;
@@ -471,19 +588,23 @@ describe("snapshot cli", () => {
   // simplest
   test("snapshot", () => {
     command.fab(["snapshot"]);
-    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({}));
     const options: coreSnapshot.SnapshotOptions = snapshotSpy.mock.calls[0][0];
     expect(options.output).toBeUndefined();
   });
 
   test("snapshot -o file", () => {
     command.fab(["snapshot", "-o", "file"]);
-    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ output: "file" }));
+    expect(snapshotSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ output: "file" }),
+    );
   });
 
   test("snapshot --output file", () => {
     command.fab(["snapshot", "--output", "file"]);
-    expect(snapshotSpy).toHaveBeenCalledWith(expect.objectContaining({ output: "file" }));
+    expect(snapshotSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ output: "file" }),
+    );
   });
 
   test("snapshot unexpected-param", () => {
@@ -491,9 +612,7 @@ describe("snapshot cli", () => {
       command.fab(["snapshot", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
-
 });
-
 
 describe("recreate cli", () => {
   let recreateSpy: jest.SpyInstance;
@@ -521,9 +640,7 @@ describe("recreate cli", () => {
     command.fab(["recreate", "snapshot", "destinaton"]);
     expect(recreateSpy).toHaveBeenCalledWith("snapshot", "destinaton");
   });
-
 });
-
 
 describe("restore cli", () => {
   let restoreSpy: jest.SpyInstance;
@@ -551,9 +668,7 @@ describe("restore cli", () => {
     command.fab(["restore", "snapshot"]);
     expect(restoreSpy).toHaveBeenCalledWith("snapshot");
   });
-
 });
-
 
 describe("manifest cli", () => {
   let manifestSpy: jest.SpyInstance;
@@ -573,37 +688,49 @@ describe("manifest cli", () => {
 
   test("manifest edit", () => {
     command.fab(["manifest", "edit"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ edit: true }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ edit: true }),
+    );
   });
 
   test("manifest list", () => {
     command.fab(["manifest", "list"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ list: true }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ list: true }),
+    );
   });
 
   test("manifest add", () => {
     command.fab(["manifest", "add"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: true }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ add: true }),
+    );
   });
 
   test("manifest add depend", () => {
     command.fab(["manifest", "add", "depend"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ add: "depend" }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ add: "depend" }),
+    );
   });
 
   test("manifest delete", () => {
     command.fab(["manifest", "delete"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: true }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ delete: true }),
+    );
   });
 
   test("manifest delete depend", () => {
     command.fab(["manifest", "delete", "depend"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ delete: "depend" }));
+    expect(manifestSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ delete: "depend" }),
+    );
   });
 
   test("manifest path", () => {
     command.fab(["manifest", "path"]);
-    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({ }));
+    expect(manifestSpy).toHaveBeenCalledWith(expect.objectContaining({}));
   });
 
   test("manifest unexpected-command", () => {
@@ -611,9 +738,7 @@ describe("manifest cli", () => {
       command.fab(["manifest", "unexpected-command"], { suppressOutput: true });
     }).toThrow();
   });
-
 });
-
 
 describe("pull cli", () => {
   let pullSpy: jest.SpyInstance;
@@ -641,9 +766,7 @@ describe("pull cli", () => {
       command.fab(["pull", "unexpected-param"], { suppressOutput: true });
     }).toThrow();
   });
-
 });
-
 
 describe("completion cli", () => {
   let completionSpy: jest.SpyInstance;
@@ -670,16 +793,12 @@ describe("completion cli", () => {
     command.fab(["completion"]);
     expect(completionSpy).toHaveBeenCalledTimes(1);
   });
-
 });
 
-
 describe("unknown-command cli", () => {
-
   test("unknown-command", () => {
     expect(() => {
       command.fab(["unknown-command"], { suppressOutput: true });
     }).toThrow();
   });
-
 });

@@ -9,7 +9,6 @@ import * as command from "../src/command";
 import * as core from "../src/core";
 import * as util from "../src/util";
 
-
 describe("core init", () => {
   const startDir = process.cwd();
   let tempFolder: tmp.DirResult;
@@ -62,5 +61,4 @@ describe("core init", () => {
       command.fab(["init", "--nested"]);
     }).toThrow(util.suppressTerminateExceptionMessage);
   });
-
 });

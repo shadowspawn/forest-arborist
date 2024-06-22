@@ -4,13 +4,12 @@
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 import * as tmp from "tmp";
 // Mine
 import * as cc from "./core-common";
 import * as core from "../src/core";
 import * as util from "../src/util";
-
 
 describe("core", () => {
   const startDir = process.cwd();
@@ -27,10 +26,20 @@ describe("core", () => {
   });
 
   test("manifestPath", () => {
-    expect(util.normalizeToPosix(core.manifestPath({}))).toEqual(".fab/manifest.json");
-    expect(util.normalizeToPosix(core.manifestPath({ manifest: "custom" }))).toEqual(".fab/custom_manifest.json");
-    expect(util.normalizeToPosix(core.manifestPath({ seedPath: "main" }))).toEqual("main/.fab/manifest.json");
-    expect(util.normalizeToPosix(core.manifestPath({ seedPath: "main", manifest: "custom" }))).toEqual("main/.fab/custom_manifest.json");
+    expect(util.normalizeToPosix(core.manifestPath({}))).toEqual(
+      ".fab/manifest.json",
+    );
+    expect(
+      util.normalizeToPosix(core.manifestPath({ manifest: "custom" })),
+    ).toEqual(".fab/custom_manifest.json");
+    expect(
+      util.normalizeToPosix(core.manifestPath({ seedPath: "main" })),
+    ).toEqual("main/.fab/manifest.json");
+    expect(
+      util.normalizeToPosix(
+        core.manifestPath({ seedPath: "main", manifest: "custom" }),
+      ),
+    ).toEqual("main/.fab/custom_manifest.json");
   });
 
   test("cdRootDirectoy", () => {
@@ -64,7 +73,11 @@ describe("core", () => {
   });
 
   test("rootFile", () => {
-    const testRootOptions: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "foo" };
+    const testRootOptions: core.WriteRootFileOptions = {
+      rootFilePath: core.fabRootFilename,
+      seedPath: ".",
+      manifest: "foo",
+    };
     core.writeRootFile(testRootOptions);
     const rootContents = core.readRootFile();
     expect(rootContents.seedPath).toEqual(testRootOptions.seedPath);
@@ -80,12 +93,19 @@ describe("core", () => {
       mainPathFromRoot: "main",
     };
     // Failing test with relative path. Sigh, something skanky somewhere! Make absolute.
-    const fabManifest = path.resolve(process.cwd(), core.manifestPath({ seedPath: "." }));
+    const fabManifest = path.resolve(
+      process.cwd(),
+      core.manifestPath({ seedPath: "." }),
+    );
     fsX.mkdirpSync(path.dirname(fabManifest));
     fsX.writeJsonSync(fabManifest, testManifestObject, { spaces: 2 });
     const manifestContents = core.readManifest({ seedPath: "." });
-    expect(manifestContents.rootDirectory).toEqual(testManifestObject.rootDirectory);
-    expect(manifestContents.seedPathFromRoot).toEqual(testManifestObject.mainPathFromRoot);
+    expect(manifestContents.rootDirectory).toEqual(
+      testManifestObject.rootDirectory,
+    );
+    expect(manifestContents.seedPathFromRoot).toEqual(
+      testManifestObject.mainPathFromRoot,
+    );
   });
 
   test("readManifest", () => {
@@ -108,22 +128,33 @@ describe("core", () => {
     }).toThrow();
 
     // Nested forest
-    const dependencies1: core.Dependencies  = {};
+    const dependencies1: core.Dependencies = {};
     dependencies1["git"] = { repoType: "git" };
     dependencies1["hg"] = { repoType: "hg" };
-    dependencies1["silly"] = { repoType: "silly" } as unknown as core.DependencyEntry; // Deliberately assigning bogus value to repoType
-    dependencies1["relativeOrigin"] = { repoType: "git", origin: "./relativeOrigin" };
+    dependencies1["silly"] = {
+      repoType: "silly",
+    } as unknown as core.DependencyEntry; // Deliberately assigning bogus value to repoType
+    dependencies1["relativeOrigin"] = {
+      repoType: "git",
+      origin: "./relativeOrigin",
+    };
     const manifestWriteNested = {
       dependencies: dependencies1,
       rootDirectory: ".",
       seedPathFromRoot: ".",
       mainPathFromRoot: ".",
     };
-    fsX.writeFileSync(core.manifestPath({ manifest: "nested1" }), JSON.stringify(manifestWriteNested));
-    expect(core.manifestList(".")).toEqual(1);  // First manifest
+    fsX.writeFileSync(
+      core.manifestPath({ manifest: "nested1" }),
+      JSON.stringify(manifestWriteNested),
+    );
+    expect(core.manifestList(".")).toEqual(1); // First manifest
 
     // discard unrecognised repo tyeps
-    const manifestReadNested1 = core.readManifest({ seedPath: ".", manifest: "nested1" });
+    const manifestReadNested1 = core.readManifest({
+      seedPath: ".",
+      manifest: "nested1",
+    });
     expect(manifestReadNested1.dependencies["git"]).not.toBeUndefined();
     expect(manifestReadNested1.dependencies["hg"]).not.toBeUndefined();
     // drop unrecognised repo types
@@ -131,25 +162,42 @@ describe("core", () => {
     // seed repo not present by default
     expect(manifestReadNested1.dependencies["."]).toBeUndefined();
     // absolute origin
-    expect(manifestReadNested1.dependencies["relativeOrigin"].origin).toEqual("git://host.xz/path1/relativeOrigin");
+    expect(manifestReadNested1.dependencies["relativeOrigin"].origin).toEqual(
+      "git://host.xz/path1/relativeOrigin",
+    );
 
     // add seed repo on request
-    const manifestReadNested2 = core.readManifest({ seedPath: ".", manifest: "nested1", addSeedToDependencies: true });
+    const manifestReadNested2 = core.readManifest({
+      seedPath: ".",
+      manifest: "nested1",
+      addSeedToDependencies: true,
+    });
     expect(manifestReadNested2.dependencies["."]).not.toBeUndefined();
 
     // fromRoot
-    const rootOptions3: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "nested1" };
+    const rootOptions3: core.WriteRootFileOptions = {
+      rootFilePath: core.fabRootFilename,
+      seedPath: ".",
+      manifest: "nested1",
+    };
     core.writeRootFile(rootOptions3);
     const manifestReadNested3 = core.readManifest({ fromRoot: true });
     expect(manifestReadNested3.dependencies["git"]).not.toBeUndefined();
 
     // tipToAddToIgnore. Only informational, not exercising code and not checking detail.
-    const rootOptions4: core.WriteRootFileOptions = { rootFilePath: core.fabRootFilename, seedPath: ".", manifest: "nested4", tipToAddToIgnore: true };
+    const rootOptions4: core.WriteRootFileOptions = {
+      rootFilePath: core.fabRootFilename,
+      seedPath: ".",
+      manifest: "nested4",
+      tipToAddToIgnore: true,
+    };
     core.writeRootFile(rootOptions4);
 
     // Default manifest name, and list
-    fsX.writeFileSync(core.manifestPath({ }), JSON.stringify(manifestWriteNested));
+    fsX.writeFileSync(
+      core.manifestPath({}),
+      JSON.stringify(manifestWriteNested),
+    );
     expect(core.manifestList(".")).toEqual(2); // Added default manifest
   });
-
 });

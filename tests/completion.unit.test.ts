@@ -1,10 +1,9 @@
 // Test the command line completion
 
 import * as commander from "@commander-js/extra-typings";
-import * as process from 'process';
+import * as process from "process";
 // Mine
 import * as completion from "../src/completion";
-
 
 function setEnv(line: string) {
   // Set COMP_POINT using ^ placeholder in line. (cursor point)
@@ -16,25 +15,23 @@ function setEnv(line: string) {
   }
   process.env.COMP_POINT = point.toString();
   process.env.COMP_LINE = line;
-  process.env.COMP_CWORD = (completion.splitIntoArgs(line).length - 1).toString();
+  process.env.COMP_CWORD = (
+    completion.splitIntoArgs(line).length - 1
+  ).toString();
 }
-
 
 describe("completion", () => {
   let logSpy: jest.SpyInstance;
   let program: commander.Command;
 
   beforeAll(() => {
-    logSpy = jest.spyOn(global.console, 'log');
+    logSpy = jest.spyOn(global.console, "log");
     logSpy.mockReturnValue(undefined);
 
     program = new commander.Command();
     program.option("-g, --global");
     program.option("--debug");
-    program
-      .command("alpha <foo>")
-      .option("-s, --short")
-      .option("--long");
+    program.command("alpha <foo>").option("-s, --short").option("--long");
     program.command("betaOne");
     program.command("betaTwo");
     program.command("secret", { hidden: true });
@@ -152,5 +149,4 @@ describe("completion", () => {
     completion.completion(program);
     expect(logSpy).toHaveBeenCalledTimes(0);
   });
-
 });

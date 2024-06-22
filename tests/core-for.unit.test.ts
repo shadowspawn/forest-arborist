@@ -3,7 +3,6 @@ import * as core from "../src/core";
 import * as coreFor from "../src/core-for";
 import * as util from "../src/util";
 
-
 describe("core for", () => {
   // Spy heavy!
   let cdRootDirectorySpy: jest.SpyInstance;
@@ -19,11 +18,13 @@ describe("core for", () => {
     readManifestSpy = jest.spyOn(core, "readManifest");
     readManifestSpy.mockReturnValue({
       dependencies: {
-        "g": { repoType: "git" },
-        "h": { repoType: "hg" },
-        "locked": { repoType: "git", lockBranch: "lockedBranch" },
-        "pinned": { repoType: "hg", pinRevision: "DEADBEEF" },
-      }, rootDirectory: "..", seedPathFromRoot: "main"
+        g: { repoType: "git" },
+        h: { repoType: "hg" },
+        locked: { repoType: "git", lockBranch: "lockedBranch" },
+        pinned: { repoType: "hg", pinRevision: "DEADBEEF" },
+      },
+      rootDirectory: "..",
+      seedPathFromRoot: "main",
     });
   });
 
@@ -42,35 +43,55 @@ describe("core for", () => {
   test("for-each", () => {
     coreFor.doForEach("command", [], {});
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(4);
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "g"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "h"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "locked"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "pinned"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "g",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "h",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "locked",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "pinned",
+    });
   });
 
   test("for-free", () => {
     coreFor.doForFree("command", [], {});
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "g"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], { cwd: "h"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "g",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("command", [], {
+      cwd: "h",
+    });
   });
 
   test("git (for)", () => {
     coreFor.doForGit(["command"], {});
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["command"], { cwd: "g"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["command"], { cwd: "locked"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["command"], {
+      cwd: "g",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["command"], {
+      cwd: "locked",
+    });
   });
 
   test("hg (for)", () => {
     coreFor.doForHg(["command"], {});
     expect(execCommandSyncSpy).toHaveBeenCalledTimes(2);
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["command"], { cwd: "h"});
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["command"], { cwd: "pinned"});
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["command"], {
+      cwd: "h",
+    });
+    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["command"], {
+      cwd: "pinned",
+    });
   });
 
   test("throw", () => {
-    const logSpy = jest.spyOn(global.console, 'log');
+    const logSpy = jest.spyOn(global.console, "log");
     logSpy.mockReturnValue(undefined);
     execCommandSyncSpy.mockImplementation(() => {
       throw "x";
@@ -83,5 +104,4 @@ describe("core for", () => {
     }).not.toThrow();
     logSpy.mockRestore();
   });
-
 });

@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as fsX from "fs-extra";
 import * as path from "path";
-import * as process from 'process';
+import * as process from "process";
 import * as tmp from "tmp";
 // Mine
 import * as core from "./core";
@@ -9,8 +9,11 @@ import * as dvcsUrl from "./dvcs-url";
 import * as repo from "./repo";
 import * as util from "./util";
 
-
-export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
+export function cloneEntry(
+  entry: core.DependencyEntry,
+  repoPath: string,
+  freeBranch?: string,
+): void {
   // Mercurial does not support making intermediate folders.
   if (entry.repoType === "hg") {
     const parentDir = path.dirname(repoPath);
@@ -36,7 +39,8 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   if (branch !== undefined) {
     if (entry.repoType === "git") {
       args.push("--branch", branch);
-    } if (entry.repoType === "hg") {
+    }
+    if (entry.repoType === "hg") {
       args.push("--updaterev", branch);
     }
   }
@@ -45,7 +49,8 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === "git") {
       args.push("--no-checkout");
-    } if (entry.repoType === "hg") {
+    }
+    if (entry.repoType === "hg") {
       args.push("--noupdate");
     }
   }
@@ -56,23 +61,29 @@ export function cloneEntry(entry: core.DependencyEntry, repoPath: string, freeBr
   // Second command to checkout pinned revision
   if (entry.pinRevision !== undefined) {
     if (entry.repoType === "git") {
-      util.execCommandSync(
-        "git", ["checkout", "--quiet", entry.pinRevision], { cwd: repoPath }
-      );
+      util.execCommandSync("git", ["checkout", "--quiet", entry.pinRevision], {
+        cwd: repoPath,
+      });
     } else if (entry.repoType === "hg") {
-      util.execCommandSync(
-        "hg", ["update", "--rev", entry.pinRevision], { cwd: repoPath }
-      );
+      util.execCommandSync("hg", ["update", "--rev", entry.pinRevision], {
+        cwd: repoPath,
+      });
     }
   }
 }
 
-function refreshEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
+function refreshEntry(
+  entry: core.DependencyEntry,
+  repoPath: string,
+  freeBranch?: string,
+): void {
   // Refresh repo in case we have stale state. Reasonable during an install, which will clone repos if missing.
   // Could do more work to check if target already present, or restrict what is requested, but KISS.
-  if (entry.pinRevision !== undefined
-    || entry.lockBranch !== undefined
-    || freeBranch !== undefined) {
+  if (
+    entry.pinRevision !== undefined ||
+    entry.lockBranch !== undefined ||
+    freeBranch !== undefined
+  ) {
     if (entry.repoType === "git") {
       util.execCommandSync("git", ["fetch"], { cwd: repoPath });
     } else if (entry.repoType === "hg") {
@@ -81,13 +92,16 @@ function refreshEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?
   }
 }
 
-export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, freeBranch?: string): void {
+export function checkoutEntry(
+  entry: core.DependencyEntry,
+  repoPath: string,
+  freeBranch?: string,
+): void {
   // Determine target for checkout
   let revision;
   let gitConfig: string[] = [];
   let displayName = repoPath;
-  if (displayName === "" || displayName === ".")
-    displayName = "(root)";
+  if (displayName === "" || displayName === ".") displayName = "(root)";
   if (entry.pinRevision !== undefined) {
     console.log(`# ${displayName}: checkout pinned revision`);
     revision = entry.pinRevision;
@@ -104,24 +118,22 @@ export function checkoutEntry(entry: core.DependencyEntry, repoPath: string, fre
 
   if (revision !== undefined) {
     if (entry.repoType === "git") {
-      util.execCommandSync(
-        "git", gitConfig.concat(["checkout", revision]), { cwd: repoPath }
-      );
+      util.execCommandSync("git", gitConfig.concat(["checkout", revision]), {
+        cwd: repoPath,
+      });
     } else if (entry.repoType === "hg") {
-      util.execCommandSync(
-        "hg", ["update", "--rev", revision], { cwd: repoPath }
-      );
+      util.execCommandSync("hg", ["update", "--rev", revision], {
+        cwd: repoPath,
+      });
     }
   } else {
     console.log("");
   }
 }
 
-
 export interface InstallOptions {
   manifest?: string;
 }
-
 
 export function doInstall(options: InstallOptions): void {
   const startDir = process.cwd();
@@ -155,16 +167,18 @@ export function doInstall(options: InstallOptions): void {
   process.chdir(startDir);
 }
 
-
 export interface CloneOptions {
   manifest?: string;
   branch?: string;
 }
 
-
 // Returns path to new root, as it the destination is not specified it is affected by nested/sibling.
 
-export function doClone(source: string, destinationParam?: string, optionsParam?: CloneOptions): string {
+export function doClone(
+  source: string,
+  destinationParam?: string,
+  optionsParam?: CloneOptions,
+): string {
   let options: CloneOptions = {};
   if (optionsParam !== undefined) {
     options = optionsParam;
@@ -218,7 +232,10 @@ export function doClone(source: string, destinationParam?: string, optionsParam?
     }
     fs.mkdirSync(rootDestination);
     // Move seed into root with manifest supplied name
-    const seedPathFromHere = path.join(rootDestination, manifest.seedPathFromRoot);
+    const seedPathFromHere = path.join(
+      rootDestination,
+      manifest.seedPathFromRoot,
+    );
     fs.renameSync(shelfRepoPath, seedPathFromHere);
     tmpObj.removeCallback();
     process.chdir(seedPathFromHere);

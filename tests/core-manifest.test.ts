@@ -12,7 +12,6 @@ import * as coreInit from "../src/core-init";
 import * as util from "../src/util";
 import * as cc from "./core-common";
 
-
 describe("core manifest", () => {
   const startDir = process.cwd();
   const tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
@@ -45,10 +44,10 @@ describe("core manifest", () => {
   });
 
   test("path", () => {
-    const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
+    const manifestPath = path.resolve(process.cwd(), core.manifestPath({}));
     process.chdir("free"); // test one option from somewhere in tree other than seed
 
-    const spy = jest.spyOn(global.console, 'log');
+    const spy = jest.spyOn(global.console, "log");
     command.fab(["manifest", "path"]);
     expect(console.log).toHaveBeenCalledWith(manifestPath);
     spy.mockRestore();
@@ -56,10 +55,12 @@ describe("core manifest", () => {
 
   test("list", () => {
     // Bit specific copy of implementation, but want to test list. Make fuzzier if necessary.
-    const manifestObject = core.readManifest({ preserveDependencyOrigins: true });
-    const listing = (JSON.stringify(manifestObject, undefined, "  "));
+    const manifestObject = core.readManifest({
+      preserveDependencyOrigins: true,
+    });
+    const listing = JSON.stringify(manifestObject, undefined, "  ");
 
-    const spy = jest.spyOn(global.console, 'log');
+    const spy = jest.spyOn(global.console, "log");
     command.fab(["manifest", "list"]);
     expect(console.log).toHaveBeenCalledWith(listing);
     spy.mockRestore();
@@ -67,17 +68,19 @@ describe("core manifest", () => {
 
   test("edit", () => {
     // Using knowledge of implementation, but hopefully worth it so we can test edit!
-    const manifestPath = path.resolve(process.cwd(), core.manifestPath({ }));
+    const manifestPath = path.resolve(process.cwd(), core.manifestPath({}));
     const holdEditorName = process.env["EDITOR"];
     const editorName = "dummy-editor-not-called";
     process.env["EDITOR"] = editorName;
-    const spy = jest.spyOn(childProcess, 'execFileSync');
+    const spy = jest.spyOn(childProcess, "execFileSync");
     spy.mockReturnValue(Buffer.alloc(0));
     // spy.mockImplementation(() => {
     // dummy out editor!
     // });
     command.fab(["manifest", "edit"]);
-    expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], { stdio: "inherit"});
+    expect(spy).toHaveBeenCalledWith(editorName, [manifestPath], {
+      stdio: "inherit",
+    });
     spy.mockRestore();
     util.restoreEnvVar("EDITOR", holdEditorName);
   });
@@ -89,20 +92,20 @@ describe("core manifest", () => {
   });
 
   test("delete (cwd)", () => {
-    const manifestBefore = core.readManifest({ });
-    delete(manifestBefore.dependencies["locked"]);
+    const manifestBefore = core.readManifest({});
+    delete manifestBefore.dependencies["locked"];
     process.chdir("locked");
     command.fab(["manifest", "delete"]);
     process.chdir(nestedRoot);
-    const manifestAfter = core.readManifest({ });
+    const manifestAfter = core.readManifest({});
     expect(manifestBefore).toEqual(manifestAfter);
   });
 
   test("delete named-depend", () => {
-    const manifestBefore = core.readManifest({ });
-    delete(manifestBefore.dependencies["pinned"]);
+    const manifestBefore = core.readManifest({});
+    delete manifestBefore.dependencies["pinned"];
     command.fab(["manifest", "delete", "pinned"]);
-    const manifestAfter = core.readManifest({ });
+    const manifestAfter = core.readManifest({});
     expect(manifestBefore).toEqual(manifestAfter);
   });
 
@@ -114,10 +117,13 @@ describe("core manifest", () => {
   });
 
   test("add", () => {
-    const manifestBefore = core.readManifest({ });
-    manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({ seedRepoPath: ".", repoPath: "pinned" });
+    const manifestBefore = core.readManifest({});
+    manifestBefore.dependencies["pinned"] = coreInit.makeDependencyEntry({
+      seedRepoPath: ".",
+      repoPath: "pinned",
+    });
     command.fab(["manifest", "add", "pinned"]);
-    const manifestAfter = core.readManifest({ });
+    const manifestAfter = core.readManifest({});
     expect(manifestBefore).toEqual(manifestAfter);
 
     // Block adding seed
@@ -127,14 +133,16 @@ describe("core manifest", () => {
   });
 
   test("custom manifest name", () => {
-    const customManifestPath = path.resolve(process.cwd(), core.manifestPath({ manifest: "custom" }));
-    fs.unlinkSync(path.resolve(process.cwd(), core.manifestPath({ })));
+    const customManifestPath = path.resolve(
+      process.cwd(),
+      core.manifestPath({ manifest: "custom" }),
+    );
+    fs.unlinkSync(path.resolve(process.cwd(), core.manifestPath({})));
     coreInit.doInit({ root: ".", manifest: "custom" });
 
-    const spy = jest.spyOn(global.console, 'log');
+    const spy = jest.spyOn(global.console, "log");
     command.fab(["manifest", "path"]);
     expect(console.log).toHaveBeenCalledWith(customManifestPath);
     spy.mockRestore();
   });
-
 });

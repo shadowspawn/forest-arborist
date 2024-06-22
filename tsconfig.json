@@ -8,10 +8,6 @@
     "outDir": "./dist",
     "strict": true
   },
-  "include": [
-    "./dev/*",
-    "./src/*",
-    "./tests/*"
-  ],
+  "include": ["./dev/*", "./src/*", "./tests/*"],
   "compileOnSave": true
 }

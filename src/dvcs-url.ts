@@ -36,7 +36,6 @@ import * as util from "./util";
 //   https://[user[:pass]@]host[:port]/[path][#revision]
 //   ssh://[user@]host[:port]/[path][#revision]
 
-
 export interface DvcsUrl {
   protocol: string;
   pathname: string;
@@ -52,12 +51,20 @@ export function parse(urlString?: string): DvcsUrl {
   // Parsing for git covers hg as well, sweet!
   let result: DvcsUrl;
   const parsed = url.parse(urlString);
-  const recognisedProtocols = ["ssh:", "git:", "http:", "https:", "ftp:", "ftps:", "file:"];
+  const recognisedProtocols = [
+    "ssh:",
+    "git:",
+    "http:",
+    "https:",
+    "ftp:",
+    "ftps:",
+    "file:",
+  ];
   if (!!parsed.protocol && recognisedProtocols.indexOf(parsed.protocol) > -1) {
     result = {
       protocol: parsed.protocol,
-      pathname: (parsed.pathname ? parsed.pathname : ""),
-      href: parsed.href
+      pathname: parsed.pathname ? parsed.pathname : "",
+      href: parsed.href,
     };
   } else {
     const backslashPos = urlString.indexOf("\\");
@@ -67,9 +74,9 @@ export function parse(urlString?: string): DvcsUrl {
       // Crude test for Windows file path
       result = {
         protocol: "path-win32", // leave off colon for fake protocol
-        pathname: urlString
+        pathname: urlString,
       };
-    } else if (colonPos > 0 && ((slashPos === -1) || (slashPos > colonPos))) {
+    } else if (colonPos > 0 && (slashPos === -1 || slashPos > colonPos)) {
       // git variation.
       //   An alternative scp-like syntax may also be used with the ssh protocol:
       //     [user@]host.xz:path/to/repo.git/
@@ -77,19 +84,18 @@ export function parse(urlString?: string): DvcsUrl {
       result = {
         protocol: "scp", // leave off colon for fake protocol
         pathname: urlString.substring(colonPos + 1),
-        scpAuthAndHost: urlString.substring(0, colonPos)
+        scpAuthAndHost: urlString.substring(0, colonPos),
       };
     } else {
       result = {
         protocol: "path-posix", // leave off colon for fake protocol
-        pathname: urlString
+        pathname: urlString,
       };
     }
   }
 
   return result;
 }
-
 
 export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
   // When getting started and user still has empty repos, we may not yet know origin.
@@ -99,12 +105,21 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
 
   // Do the fake protocols first
   if (object1.protocol === "path-posix") {
-    return (path.posix.dirname(object1.pathname) === path.posix.dirname(object2.pathname));
+    return (
+      path.posix.dirname(object1.pathname) ===
+      path.posix.dirname(object2.pathname)
+    );
   } else if (object1.protocol === "path-win32") {
-    return (path.win32.dirname(object1.pathname) === path.win32.dirname(object2.pathname));
+    return (
+      path.win32.dirname(object1.pathname) ===
+      path.win32.dirname(object2.pathname)
+    );
   } else if (object1.protocol === "scp") {
-    return (object1.scpAuthAndHost === object2.scpAuthAndHost)
-      && (path.posix.dirname(object1.pathname) === path.posix.dirname(object2.pathname));
+    return (
+      object1.scpAuthAndHost === object2.scpAuthAndHost &&
+      path.posix.dirname(object1.pathname) ===
+        path.posix.dirname(object2.pathname)
+    );
   }
 
   // Proper protocol! Tweak path and reconstruct full URL for dir.
@@ -117,7 +132,6 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
   return url.format(dir1) === url.format(dir2);
 }
 
-
 // like path.basename
 export function repoName(urlObject: DvcsUrl): string {
   if (urlObject.protocol === "path-win32") {
@@ -127,18 +141,19 @@ export function repoName(urlObject: DvcsUrl): string {
   return path.posix.basename(urlObject.pathname, ".git");
 }
 
-
 // like path.relative
 export function relative(object1: DvcsUrl, object2: DvcsUrl): string {
   // We assume that client already determined this is a reasonable question!
   if (object1.protocol === "path-win32") {
-    const relativePath = path.win32.relative(object1.pathname, object2.pathname);
+    const relativePath = path.win32.relative(
+      object1.pathname,
+      object2.pathname,
+    );
     return util.normalizeToPosix(relativePath);
   }
 
   return path.posix.relative(object1.pathname, object2.pathname);
 }
-
 
 // like path.resolve
 export function resolve(urlObject: DvcsUrl, relativePath: string): string {
@@ -163,9 +178,10 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
   return url.format(parsedTemp);
 }
 
-
 export function isRelativePath(pathname: string): boolean {
-  if (pathname === null || pathname === undefined) { return false; }
+  if (pathname === null || pathname === undefined) {
+    return false;
+  }
 
   // (string.startsWith only available from ES6)
   return pathname.indexOf("./") === 0 || pathname.indexOf("../") === 0;
