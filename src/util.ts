@@ -210,7 +210,14 @@ export function prepareCommand(cmd: string, args?: string[],  optionsParam?: Exe
 
   const prettyCommand = commandColour(`${cwdDisplay}: ${cmd} ${quotedArgs}`);
   const execOptions = { cwd: options.cwd };
-  return { cmd, args, prettyCommand, execOptions };
+
+  // Hack colour back into git command
+  let extendedArgs = args ?? [];
+  if (cmd === "git" && process?.stdout?.isTTY) {
+    extendedArgs = ["-c", "color.ui=always", ...extendedArgs];
+  }
+
+  return { cmd, args: extendedArgs, prettyCommand, execOptions };
 }
 
 
