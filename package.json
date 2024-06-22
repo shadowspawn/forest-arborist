@@ -15,8 +15,13 @@
     "url": "https://github.com/shadowspawn/forest-arborist.git"
   },
   "scripts": {
+    "check": "npm run check:lint && npm run check:format",
+    "check:format": "prettier --check .",
     "create-playground": "node dist/dev/create-playground",
-    "lint": "eslint .",
+    "check:lint": "eslint .",
+    "fix": "npm run fix:lint && npm run fix:format",
+    "fix:format": "prettier --write .",
+    "fix:lint": "eslint --fix .",
     "prepare": "tsc",
     "pull": "git pull && npm install && npm test",
     "release": "node dist/dev/release",
@@ -55,7 +60,9 @@
     "@commander-js/extra-typings": "^11.1.0",
     "chalk": "^4.1.2",
     "commander": "^11.0.0",
+    "eslint-config-prettier": "^9.1.0",
     "fs-extra": "^11.1.0",
+    "prettier": "^3.3.2",
     "shell-quote": "^1.7.2",
     "tmp": "^0.2.1"
   },
