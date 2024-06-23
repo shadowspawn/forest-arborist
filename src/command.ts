@@ -1,4 +1,4 @@
-import { Command } from "@commander-js/extra-typings";
+import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from "process";
 // Mine
@@ -15,6 +15,13 @@ import * as util from "./util";
 // Trickery to cope with different relative paths for typescipt and javascript
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const myPackage = require("dummy_for_node_modules/../../package.json");
+
+function myParseInt(value: string) {
+  const parsedValue = parseInt(value, 10);
+  if (isNaN(parsedValue)) throw new InvalidArgumentError("Not a number.");
+  if (parsedValue < 1) throw new InvalidArgumentError("jobs must be >= 1");
+  return parsedValue;
+}
 
 async function doStatus() {
   const startDir = process.cwd();
@@ -45,10 +52,9 @@ export function makeProgram(options?: {
   exitOverride?: boolean;
   suppressOutput?: boolean;
 }): Command<[], { debug?: boolean }> {
-  const program = new Command().option(
-    "--debug",
-    "include debugging information, such as stack dump",
-  );
+  const program = new Command()
+    .option("--debug", "include debugging information, such as stack dump")
+    .option("-j, --jobs <number>", "number of parallel jobs", myParseInt, 4); // kiss, global option
 
   // Configuration
   if (options?.exitOverride) {
@@ -63,6 +69,9 @@ export function makeProgram(options?: {
 
   program
     .version(myPackage.version)
+    .on("option:jobs", function () {
+      core.setCommandJobs(program.opts().jobs);
+    })
     .allowExcessArguments(false)
     .showSuggestionAfterError()
     .enablePositionalOptions()

@@ -357,7 +357,10 @@ export function toRepoArray(dependencies: Dependencies) {
   });
 }
 
-const kJobs = 4; // Is it worth the hassle to make this configurable whether by command line or environment variable?
+let gJobs = 4;
+export function setCommandJobs(jobs: number) {
+  gJobs = jobs;
+}
 
 export async function processRepos(
   repos: RepoEntry[],
@@ -369,7 +372,7 @@ export async function processRepos(
 
   async function doNextTask() {
     if (repoIndex < repos.length) {
-      const helper = kJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
+      const helper = gJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
       const index = repoIndex++;
       await processRepo(repos[index], helper);
       results[index] = helper.getPendingOutput();
@@ -384,7 +387,7 @@ export async function processRepos(
 
   // Start off initial parallel tasks. As each one resolves, it chains another task.
   const startingJobs = [];
-  while (repoIndex < kJobs && repoIndex < repos.length) {
+  while (repoIndex < gJobs && repoIndex < repos.length) {
     startingJobs.push(doNextTask());
   }
   return Promise.all(startingJobs);
