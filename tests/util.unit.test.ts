@@ -142,7 +142,7 @@ describe("execCommandSync", () => {
     spy.mockReturnValue(Buffer.alloc(0));
 
     util.execCommandSync("command");
-    expect(spy).toHaveBeenLastCalledWith("command", undefined, {
+    expect(spy).toHaveBeenLastCalledWith("command", [], {
       cwd: ".",
       stdio: "pipe",
     });
@@ -153,8 +153,8 @@ describe("execCommandSync", () => {
       stdio: "pipe",
     });
 
-    util.execCommandSync("command", undefined, { cwd: "dir" });
-    expect(spy).toHaveBeenLastCalledWith("command", undefined, {
+    util.execCommandSync("command", [], { cwd: "dir" });
+    expect(spy).toHaveBeenLastCalledWith("command", [], {
       cwd: "dir",
       stdio: "pipe",
     });
