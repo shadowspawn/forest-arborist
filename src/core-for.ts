@@ -1,7 +1,6 @@
 import * as process from "process";
 // Mine
 import * as core from "./core";
-import * as util from "./util";
 
 export interface ForOptions {
   keepgoing?: boolean;
@@ -23,30 +22,35 @@ export function doFor(
     fromRoot: true,
     addSeedToDependencies: true,
   }).dependencies;
+  const targetRepos = core
+    .toRepoArray(forestRepos)
+    .filter((repo) => filter(repo));
 
-  Object.keys(forestRepos).forEach((repoPath) => {
-    if (!filter(forestRepos[repoPath])) {
-      return; // continue forEach
-    }
+  const processRepo = async (repo: core.RepoEntry, helper: core.TaskHelper) => {
+    const options = { cwd: repo.repoPath, outputConfig: helper };
+    await helper.execCommand(cmd, args, options);
+  };
+  core.processRepos(targetRepos, processRepo);
 
-    try {
-      util.execCommandSync(cmd, args, { cwd: repoPath });
-    } catch (err) {
-      if (options.keepgoing) {
-        console.log(""); // blank line after command output
-      } else {
-        // Check whether the command was a typo before suggesting the --keepgoing option
-        // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
-        const peekErr = err as { code?: string };
-        if (peekErr.code !== "ENOENT") {
-          console.log(
-            '(to keep going despite errors you can use "--keepgoing")',
-          );
-        }
-        throw err;
-      }
-    }
-  });
+  //   try {
+  //     util.execCommandSync(cmd, args, { cwd: repoPath });
+  //   } catch (err) {
+  //     if (options.keepgoing) {
+  //       console.log(""); // blank line after command output
+  //     } else {
+  //       // Check whether the command was a typo before suggesting the --keepgoing option
+  //       // `execFileSync` fails with "ENOENT" when the command being run doesn't exist
+  //       const peekErr = err as { code?: string };
+  //       if (peekErr.code !== "ENOENT") {
+  //         console.log(
+  //           '(to keep going despite errors you can use "--keepgoing")',
+  //         );
+  //       }
+  //       throw err;
+  //     }
+  //   }
+  // });
+
   process.chdir(startDir); // Simplify unit tests and reuse
 }
 

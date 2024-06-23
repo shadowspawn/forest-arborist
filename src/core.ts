@@ -371,18 +371,26 @@ export async function processRepos(
   const results = new Array(repos.length);
 
   async function doNextTask() {
-    if (repoIndex < repos.length) {
-      const helper = gJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
-      const index = repoIndex++;
+    if (repoIndex >= repos.length) return;
+
+    const helper = gJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
+    const index = repoIndex++;
+    try {
       await processRepo(repos[index], helper);
-      results[index] = helper.getPendingOutput();
-      // show results in order
-      while (nextResult < repoIndex && results[nextResult]) {
-        if (results[nextResult]) console.log(results[nextResult]);
-        nextResult++;
-      }
-      return doNextTask();
+    } catch (err) {
+      // Error already described in stdout?
+      helper.log(""); // Extra line needed for synchonised processing.
     }
+
+    results[index] = helper.getPendingOutput();
+    // show results in order
+    while (nextResult < repoIndex && results[nextResult]) {
+      if (results[nextResult]) {
+        console.log(results[nextResult]);
+      }
+      nextResult++;
+    }
+    return doNextTask();
   }
 
   // Start off initial parallel tasks. As each one resolves, it chains another task.
@@ -390,5 +398,6 @@ export async function processRepos(
   while (repoIndex < gJobs && repoIndex < repos.length) {
     startingJobs.push(doNextTask());
   }
-  return Promise.all(startingJobs);
+
+  await Promise.all(startingJobs);
 }

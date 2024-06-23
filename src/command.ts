@@ -31,7 +31,7 @@ async function doStatus() {
     addSeedToDependencies: true,
   }).dependencies;
 
-  const doStatus = async (repo: core.RepoEntry, helper: core.TaskHelper) => {
+  const processRepo = async (repo: core.RepoEntry, helper: core.TaskHelper) => {
     const options = { cwd: repo.repoPath, outputConfig: helper };
     if (repo.repoType === "git") {
       // Using short form of options to reduce amount of output for commonly used command
@@ -40,7 +40,7 @@ async function doStatus() {
       await helper.execCommand("hg", ["status"], options);
     }
   };
-  core.processRepos(core.toRepoArray(forestRepos), doStatus);
+  core.processRepos(core.toRepoArray(forestRepos), processRepo);
 
   process.chdir(startDir);
 }
