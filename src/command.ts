@@ -1,4 +1,4 @@
-import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
+import { Command } from "@commander-js/extra-typings";
 import * as path from "path";
 import * as process from "process";
 // Mine
@@ -16,30 +16,25 @@ import * as util from "./util";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const myPackage = require("dummy_for_node_modules/../../package.json");
 
-function myParseInt(value: string) {
-  const parsedValue = parseInt(value, 10);
-  if (isNaN(parsedValue)) {
-    throw new InvalidArgumentError("Not a number.");
-  }
-  return parsedValue;
-}
-
-function doStatus() {
+async function doStatus() {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest({
     fromRoot: true,
     addSeedToDependencies: true,
   }).dependencies;
-  Object.keys(forestRepos).forEach((repoPath) => {
-    const entry = forestRepos[repoPath];
-    if (entry.repoType === "git") {
+
+  const doStatus = async (repo: core.RepoEntry, helper: core.TaskHelper) => {
+    const options = { cwd: repo.repoPath, outputConfig: helper };
+    if (repo.repoType === "git") {
       // Using short form of options to reduce amount of output for commonly used command
-      util.execCommandSync("git", ["status", "-sb"], { cwd: repoPath });
-    } else if (entry.repoType === "hg") {
-      util.execCommandSync("hg", ["status"], { cwd: repoPath });
+      await helper.execCommand("git", ["status", "-sb"], options);
+    } else if (repo.repoType === "hg") {
+      await helper.execCommand("hg", ["status"], options);
     }
-  });
+  };
+  core.processRepos(core.toRepoArray(forestRepos), doStatus);
+
   process.chdir(startDir);
 }
 
@@ -223,8 +218,8 @@ Description:
   program
     .command("status")
     .description("show concise status for each repo in the forest")
-    .action(() => {
-      doStatus();
+    .action(async () => {
+      await doStatus();
     });
 
   program
@@ -301,16 +296,6 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`,
     .arguments("[args...]")
     .action((args, options) => {
       coreFor.doForGit(args, options);
-    });
-
-  program
-    .command("git-p")
-    .passThroughOptions()
-    .option("-j, --jobs <number>", "number of parallel jobs", myParseInt, 4)
-    .description("run git commands in parallel")
-    .arguments("[args...]")
-    .action(async (args, options) => {
-      coreFor.doForGitParallel(args, options);
     });
 
   program

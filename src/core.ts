@@ -306,3 +306,86 @@ export function writeManifest(
   };
   fsX.writeJsonSync(manifestPath, manifestObjectToDisk, { spaces: 2 });
 }
+
+export interface TaskHelper {
+  log: (message: string) => void;
+  error: (message: string) => void;
+  synchronous: boolean;
+  execCommand: util.ExecCommand;
+  getPendingOutput: () => string;
+}
+
+class TaskHelperAsync implements TaskHelper {
+  logs: string[] = [];
+  errors: string[] = [];
+  synchronous = false;
+  execCommand = util.execCommand;
+
+  log(message: string) {
+    this.logs.push(message);
+  }
+  error(message: string) {
+    this.errors.push(message);
+  }
+  getPendingOutput() {
+    let outputLines: string[] = [];
+    outputLines = outputLines.concat(this.logs);
+    outputLines = outputLines.concat(this.errors);
+    return outputLines.join("\n");
+  }
+}
+
+class TaskHelperSync implements TaskHelper {
+  outputConfig = util.getCommandOutputConfigSync();
+
+  log = this.outputConfig.log;
+  error = this.outputConfig.error;
+  synchronous = true;
+  execCommand = util.execCommandSync;
+  getPendingOutput() {
+    return "";
+  }
+}
+
+export interface RepoEntry extends DependencyEntry {
+  repoPath: string;
+}
+
+export function toRepoArray(dependencies: Dependencies) {
+  return Object.entries(dependencies).map(([repoPath, detail]) => {
+    return { repoPath, ...detail };
+  });
+}
+
+const kJobs = 4; // Is it worth the hassle to make this configurable whether by command line or environment variable?
+
+export async function processRepos(
+  repos: RepoEntry[],
+  processRepo: (repo: RepoEntry, helper: TaskHelper) => Promise<void> | void,
+) {
+  let repoIndex = 0;
+  let nextResult = 0;
+  const results = new Array(repos.length);
+
+  async function doNextTask() {
+    if (repoIndex < repos.length) {
+      const helper = kJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
+      const index = repoIndex++;
+      await processRepo(repos[index], helper);
+      results[index] = helper.getPendingOutput();
+      // show results in order
+      while (nextResult < repoIndex && results[nextResult]) {
+        if (results[nextResult]) console.log(results[nextResult]);
+        nextResult++;
+      }
+      return doNextTask();
+    }
+  }
+
+  // Start off initial parallel tasks. As each one resolves, it chains another task.
+  const startingJobs = [];
+  while (repoIndex < kJobs && repoIndex < repos.length) {
+    startingJobs.push(doNextTask());
+  }
+  return Promise.all(startingJobs);
+}

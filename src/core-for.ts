@@ -50,32 +50,6 @@ export function doFor(
   process.chdir(startDir); // Simplify unit tests and reuse
 }
 
-export async function doForParallel(
-  cmd: string,
-  args: string[],
-  options: ForParallelOptions,
-  filter: (entry: core.DependencyEntry) => boolean,
-): Promise<void> {
-  const startDir = process.cwd();
-  core.cdRootDirectory();
-  const forestRepos = core.readManifest({
-    fromRoot: true,
-    addSeedToDependencies: true,
-  }).dependencies;
-  const commands: util.CommandDetail[] = [];
-
-  Object.keys(forestRepos).forEach((repoPath) => {
-    if (!filter(forestRepos[repoPath])) {
-      return; // continue forEach
-    }
-
-    commands.push(util.prepareCommand(cmd, args, { cwd: repoPath }));
-  });
-  await util.throttleActions(commands, options.jobs);
-
-  process.chdir(startDir); // Simplify unit tests and reuse
-}
-
 export function doForEach(
   cmd: string,
   args: string[],
@@ -98,15 +72,6 @@ export function doForFree(
 
 export function doForGit(args: string[], options: ForOptions): void {
   doFor("git", args, options, (entry) => {
-    return entry.repoType === "git";
-  });
-}
-
-export function doForGitParallel(
-  args: string[],
-  options: ForParallelOptions,
-): void {
-  doForParallel("git", args, options, (entry) => {
     return entry.repoType === "git";
   });
 }
