@@ -368,6 +368,7 @@ export async function processRepos(
 ) {
   let repoIndex = 0;
   let nextResult = 0;
+  let errorCount = 0;
   const results = new Array(repos.length);
 
   async function doNextTask() {
@@ -379,6 +380,7 @@ export async function processRepos(
       await processRepo(repos[index], helper);
     } catch (err) {
       // Error already described in stdout?
+      errorCount++;
       helper.log(""); // Extra line needed for synchonised processing.
     }
 
@@ -400,4 +402,7 @@ export async function processRepos(
   }
 
   await Promise.all(startingJobs);
+  if (errorCount > 0) {
+    console.error(`Errors in ${errorCount}/${repos.length} repos.`);
+  }
 }
