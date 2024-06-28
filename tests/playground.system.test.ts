@@ -24,6 +24,7 @@ describe("system (full functionality)", () => {
   let remotes: string;
 
   beforeAll(() => {
+    core.setCommandJobs(1); // Getting errors when running tests with GitHub Actions. Try disabling parallel.
     tempFolder = tmp.dirSync({ unsafeCleanup: true, keep: true });
     sanddpitRevisions = sandpit.makePlayground(tempFolder.name);
     process.chdir(tempFolder.name);
