@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
-## [13.0.0] (2024-06-28)
+## [13.0.0-0] (2024-06-28)
 
 ### Changed
 
@@ -429,7 +429,7 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/main...develop
-[13.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v13.0.0
+[13.0.0-0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v13.0.0-0
 [12.1.0-0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v12.1.0-0
 [12.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v11.0.0...v12.0.0
 [11.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v10.0.0...v11.0.0
