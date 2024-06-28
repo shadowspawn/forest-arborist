@@ -12,6 +12,7 @@ describe("core branch", () => {
   let cdRootDirectorySpy: jest.SpyInstance;
   let readManifestSpy: jest.SpyInstance;
   let execCommandSyncSpy: jest.SpyInstance;
+  let execCommandSpy: jest.SpyInstance;
   let getRepoTypeForLocalPathSpy: jest.SpyInstance; // Needed for switch
   let existsSyncSpy: jest.SpyInstance; // Needed for switch when manifest changes
 
@@ -20,6 +21,8 @@ describe("core branch", () => {
     cdRootDirectorySpy.mockReturnValue(undefined);
     execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
     execCommandSyncSpy.mockReturnValue(undefined);
+    execCommandSpy = jest.spyOn(util, "execCommand");
+    execCommandSpy.mockReturnValue(undefined);
     getRepoTypeForLocalPathSpy = jest.spyOn(repo, "getRepoTypeForLocalPath");
     getRepoTypeForLocalPathSpy.mockImplementation((repoPath: string) => {
       if (repoPath === "h" || repoPath == ".") {
@@ -38,6 +41,7 @@ describe("core branch", () => {
     cdRootDirectorySpy.mockRestore();
     readManifestSpy.mockRestore();
     execCommandSyncSpy.mockRestore();
+    execCommandSpy.mockRestore();
     getRepoTypeForLocalPathSpy.mockRestore();
     existsSyncSpy.mockRestore();
   });
@@ -46,6 +50,7 @@ describe("core branch", () => {
     cdRootDirectorySpy.mockClear();
     readManifestSpy.mockReset();
     execCommandSyncSpy.mockClear();
+    execCommandSpy.mockClear();
     getRepoTypeForLocalPathSpy.mockClear();
     existsSyncSpy.mockClear();
   });
@@ -221,7 +226,7 @@ describe("core branch", () => {
 
   // make-branch
 
-  test("make-branch does not do locked and pinned #mixed", () => {
+  test("make-branch does not do locked and pinned #mixed", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: {
         g: { repoType: "git", lockBranch: "lockedBranch" },
@@ -231,94 +236,122 @@ describe("core branch", () => {
       rootDirectory: "..",
       seedPathFromRoot: "main",
     });
-    coreBranch.doMakeBranch("b");
-    expect(execCommandSyncSpy).toHaveBeenCalledTimes(1);
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["git", ["checkout", "-b", "b"], { cwd: "main" }],
+    await coreBranch.doMakeBranch("b");
+    expect(execCommandSpy).toHaveBeenCalledTimes(1);
+    expect(execCommandSpy.mock.calls).toEqual([
+      [
+        "git",
+        ["checkout", "-b", "b"],
+        expect.objectContaining({ cwd: "main" }),
+      ],
     ]);
   });
 
-  test("make-branch branch #git", () => {
+  test("make-branch branch #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { main: { repoType: "git" } },
       rootDirectory: "..",
       seedPathFromRoot: "main",
     });
-    coreBranch.doMakeBranch("b");
+    await coreBranch.doMakeBranch("b");
     expect(readManifestSpy).toHaveBeenCalledWith({
       fromRoot: true,
       addSeedToDependencies: true,
     }); // just checking once
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["git", ["checkout", "-b", "b"], { cwd: "main" }],
+    expect(execCommandSpy.mock.calls).toEqual([
+      [
+        "git",
+        ["checkout", "-b", "b"],
+        expect.objectContaining({ cwd: "main" }),
+      ],
     ]);
   });
 
-  test("make-branch branch #hg", () => {
+  test("make-branch branch #hg", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { ".": { repoType: "hg" } },
       rootDirectory: ".",
       seedPathFromRoot: ".",
     });
-    coreBranch.doMakeBranch("b");
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["hg", ["branch", "b"], { cwd: "." }],
+    await coreBranch.doMakeBranch("b");
+    expect(execCommandSpy.mock.calls).toEqual([
+      ["hg", ["branch", "b"], expect.objectContaining({ cwd: "." })],
     ]);
   });
 
-  test("make-branch branch start-point #git", () => {
+  test("make-branch branch start-point #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { main: { repoType: "git" } },
       rootDirectory: "..",
       seedPathFromRoot: "main",
     });
-    coreBranch.doMakeBranch("b", "start-point");
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["git", ["checkout", "-b", "b", "start-point"], { cwd: "main" }],
+    await coreBranch.doMakeBranch("b", "start-point");
+    expect(execCommandSpy.mock.calls).toEqual([
+      [
+        "git",
+        ["checkout", "-b", "b", "start-point"],
+        expect.objectContaining({ cwd: "main" }),
+      ],
     ]);
   });
 
-  test("make-branch branch start-point #hg", () => {
+  test("make-branch branch start-point #hg", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { ".": { repoType: "hg" } },
       rootDirectory: ".",
       seedPathFromRoot: ".",
     });
-    coreBranch.doMakeBranch("b", "start-point");
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["hg", ["update", "start-point"], { cwd: "." }],
-      ["hg", ["branch", "b"], { cwd: "." }],
+    await coreBranch.doMakeBranch("b", "start-point");
+    expect(execCommandSpy.mock.calls).toEqual([
+      ["hg", ["update", "start-point"], expect.objectContaining({ cwd: "." })],
+      ["hg", ["branch", "b"], expect.objectContaining({ cwd: "." })],
     ]);
   });
 
-  test("make-branch branch --publish #git", () => {
+  test("make-branch branch --publish #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { main: { repoType: "git" } },
       rootDirectory: "..",
       seedPathFromRoot: "main",
     });
-    coreBranch.doMakeBranch("b", undefined, { publish: true });
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["git", ["checkout", "-b", "b"], { cwd: "main" }],
-      ["git", ["push", "--set-upstream", "origin", "b"], { cwd: "main" }],
+    await coreBranch.doMakeBranch("b", undefined, { publish: true });
+    expect(execCommandSpy.mock.calls).toEqual([
+      [
+        "git",
+        ["checkout", "-b", "b"],
+        expect.objectContaining({ cwd: "main" }),
+      ],
+      [
+        "git",
+        ["push", "--set-upstream", "origin", "b"],
+        expect.objectContaining({ cwd: "main" }),
+      ],
     ]);
   });
 
-  test("make-branch branch --publish #hg]", () => {
+  test("make-branch branch --publish #hg]", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { ".": { repoType: "hg" } },
       rootDirectory: ".",
       seedPathFromRoot: ".",
     });
-    coreBranch.doMakeBranch("b", undefined, { publish: true });
-    expect(execCommandSyncSpy.mock.calls).toEqual([
-      ["hg", ["branch", "b"], { cwd: "." }],
-      ["hg", ["commit", "--message", "Create branch"], { cwd: "." }],
-      ["hg", ["push", "--branch", "b", "--new-branch"], { cwd: "." }],
+    await coreBranch.doMakeBranch("b", undefined, { publish: true });
+    expect(execCommandSpy.mock.calls).toEqual([
+      ["hg", ["branch", "b"], expect.objectContaining({ cwd: "." })],
+      [
+        "hg",
+        ["commit", "--message", "Create branch"],
+        expect.objectContaining({ cwd: "." }),
+      ],
+      [
+        "hg",
+        ["push", "--branch", "b", "--new-branch"],
+        expect.objectContaining({ cwd: "." }),
+      ],
     ]);
   });
 
-  test("make-branch branch #mixed", () => {
+  test("make-branch branch #mixed", async () => {
     // Light check that gets called for each.
     readManifestSpy.mockReturnValue({
       dependencies: {
@@ -329,20 +362,24 @@ describe("core branch", () => {
       rootDirectory: "..",
       seedPathFromRoot: "main",
     });
-    coreBranch.doMakeBranch("b");
-    expect(execCommandSyncSpy).toHaveBeenCalledTimes(3);
-    expect(execCommandSyncSpy).toHaveBeenCalledWith(
+    await coreBranch.doMakeBranch("b");
+    expect(execCommandSpy).toHaveBeenCalledTimes(3);
+    expect(execCommandSpy).toHaveBeenCalledWith(
       "git",
       ["checkout", "-b", "b"],
-      { cwd: "main" },
+      expect.objectContaining({ cwd: "main" }),
     );
-    expect(execCommandSyncSpy).toHaveBeenCalledWith(
+    expect(execCommandSpy).toHaveBeenCalledWith(
       "git",
       ["checkout", "-b", "b"],
-      { cwd: "g" },
+      expect.objectContaining({ cwd: "g" }),
     );
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("hg", ["branch", "b"], {
-      cwd: "h",
-    });
+    expect(execCommandSpy).toHaveBeenCalledWith(
+      "hg",
+      ["branch", "b"],
+      expect.objectContaining({
+        cwd: "h",
+      }),
+    );
   });
 });

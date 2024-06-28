@@ -266,53 +266,24 @@ describe("for-each cli", () => {
   });
 
   // simplest
-  test("for-each command", () => {
-    command.fab(["for-each", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({}),
-    );
-    const options: coreForEach.ForOptions = forEachSpy.mock.calls[0][2];
-    expect(options.keepgoing).toBeUndefined();
-  });
-
-  test("for-each -k command", () => {
-    command.fab(["for-each", "-k", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({ keepgoing: true }),
-    );
-  });
-
-  test("for-each --keepgoing command", () => {
-    command.fab(["for-each", "--keepgoing", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("for-each command", async () => {
+    await command.fabAsync(["for-each", "command"]);
+    expect(forEachSpy).toHaveBeenCalledWith("command", []);
   });
 
   // alias
-  test("forEach --keepgoing command", () => {
-    command.fab(["forEach", "--keepgoing", "command"]);
-    expect(forEachSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("forEach command", async () => {
+    await command.fabAsync(["forEach", "command"]);
+    expect(forEachSpy).toHaveBeenCalledWith("command", []);
   });
 
   // pass-through options
-  test("for-each --keepgoing command --option argument", () => {
-    command.fab(["for-each", "--keepgoing", "command", "--option", "argument"]);
-    expect(forEachSpy).toHaveBeenCalledWith(
-      "command",
-      ["--option", "argument"],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("for-each command --option argument", async () => {
+    await command.fabAsync(["for-each", "command", "--option", "argument"]);
+    expect(forEachSpy).toHaveBeenCalledWith("command", [
+      "--option",
+      "argument",
+    ]);
   });
 });
 
@@ -333,43 +304,18 @@ describe("for-free cli", () => {
   });
 
   // simplest
-  test("for-free command", () => {
-    command.fab(["for-free", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({}),
-    );
-    const options: coreForEach.ForOptions = forFreeSpy.mock.calls[0][2];
-    expect(options.keepgoing).toBeUndefined();
-  });
-
-  test("for-free -k command", () => {
-    command.fab(["for-free", "-k", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({ keepgoing: true }),
-    );
-  });
-
-  test("for-free --keepgoing command", () => {
-    command.fab(["for-free", "--keepgoing", "command"]);
-    expect(forFreeSpy).toHaveBeenCalledWith(
-      "command",
-      [],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("for-free command", async () => {
+    await command.fabAsync(["for-free", "command"]);
+    expect(forFreeSpy).toHaveBeenCalledWith("command", []);
   });
 
   // pass-through options
-  test("for-free --keepgoing command --option argument", () => {
-    command.fab(["for-free", "--keepgoing", "command", "--option", "argument"]);
-    expect(forFreeSpy).toHaveBeenCalledWith(
-      "command",
-      ["--option", "argument"],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("for-free command --option argument", async () => {
+    await command.fabAsync(["for-free", "command", "--option", "argument"]);
+    expect(forFreeSpy).toHaveBeenCalledWith("command", [
+      "--option",
+      "argument",
+    ]);
   });
 });
 
@@ -390,39 +336,14 @@ describe("git (for)", () => {
   });
 
   // simplest
-  test("git command", () => {
-    command.fab(["git", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({}),
-    );
-    const options: coreForEach.ForOptions = forGitSpy.mock.calls[0][1];
-    expect(options.keepgoing).toBeUndefined();
+  test("git command", async () => {
+    await command.fabAsync(["git", "command"]);
+    expect(forGitSpy).toHaveBeenCalledWith(["command"]);
   });
-
-  test("git -k command", () => {
-    command.fab(["git", "-k", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({ keepgoing: true }),
-    );
-  });
-
-  test("git --keepgoing command", () => {
-    command.fab(["git", "--keepgoing", "command"]);
-    expect(forGitSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({ keepgoing: true }),
-    );
-  });
-
   // pass-through options
-  test("git --keepgoing command --option argument", () => {
-    command.fab(["git", "--keepgoing", "command", "--option", "argument"]);
-    expect(forGitSpy).toHaveBeenCalledWith(
-      ["command", "--option", "argument"],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("git command --option argument", async () => {
+    await command.fab(["git", "command", "--option", "argument"]);
+    expect(forGitSpy).toHaveBeenCalledWith(["command", "--option", "argument"]);
   });
 });
 
@@ -443,39 +364,15 @@ describe("hg (for)", () => {
   });
 
   // simplest
-  test("hg command", () => {
-    command.fab(["hg", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({}),
-    );
-    const options: coreForEach.ForOptions = forHgSpy.mock.calls[0][1];
-    expect(options.keepgoing).toBeUndefined();
-  });
-
-  test("hg -k command", () => {
-    command.fab(["hg", "-k", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({ keepgoing: true }),
-    );
-  });
-
-  test("hg --keepgoing command", () => {
-    command.fab(["hg", "--keepgoing", "command"]);
-    expect(forHgSpy).toHaveBeenCalledWith(
-      ["command"],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("hg command", async () => {
+    await command.fabAsync(["hg", "command"]);
+    expect(forHgSpy).toHaveBeenCalledWith(["command"]);
   });
 
   // pass-through options
-  test("hg --keepgoing command --option argument", () => {
-    command.fab(["hg", "--keepgoing", "command", "--option", "argument"]);
-    expect(forHgSpy).toHaveBeenCalledWith(
-      ["command", "--option", "argument"],
-      expect.objectContaining({ keepgoing: true }),
-    );
+  test("hg command --option argument", async () => {
+    await command.fabAsync(["hg", "command", "--option", "argument"]);
+    expect(forHgSpy).toHaveBeenCalledWith(["command", "--option", "argument"]);
   });
 });
 

@@ -11,15 +11,15 @@ describe("core branch", () => {
   let cdRootDirectorySpy: jest.SpyInstance;
   let readManifestSpy: jest.SpyInstance;
   let getBranchSpy: jest.SpyInstance;
-  let execCommandSyncSpy: jest.SpyInstance;
+  let execCommandSpy: jest.SpyInstance;
 
   beforeAll(() => {
     cdRootDirectorySpy = jest.spyOn(core, "cdRootDirectory");
     cdRootDirectorySpy.mockReturnValue(undefined);
     getBranchSpy = jest.spyOn(repo, "getBranch");
     // getBranchSpy custom as needed
-    execCommandSyncSpy = jest.spyOn(util, "execCommandSync");
-    execCommandSyncSpy.mockReturnValue(undefined);
+    execCommandSpy = jest.spyOn(util, "execCommand");
+    execCommandSpy.mockReturnValue(undefined);
     readManifestSpy = jest.spyOn(core, "readManifest");
     // readManifestSpy custom per test
   });
@@ -28,17 +28,17 @@ describe("core branch", () => {
     cdRootDirectorySpy.mockRestore();
     readManifestSpy.mockRestore();
     getBranchSpy.mockRestore();
-    execCommandSyncSpy.mockRestore();
+    execCommandSpy.mockRestore();
   });
 
   beforeEach(() => {
     cdRootDirectorySpy.mockClear();
     readManifestSpy.mockReset();
     getBranchSpy.mockReset();
-    execCommandSyncSpy.mockClear();
+    execCommandSpy.mockClear();
   });
 
-  test("pull #git", () => {
+  test("pull #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { g: { repoType: "git" } },
       rootDirectory: "..",
@@ -47,17 +47,21 @@ describe("core branch", () => {
     });
     getBranchSpy.mockReturnValue("trunk");
 
-    corePull.doPull();
+    await corePull.doPull();
     expect(readManifestSpy).toHaveBeenCalledWith({
       fromRoot: true,
       addSeedToDependencies: true,
     }); // just checking once
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], {
-      cwd: "g",
-    });
+    expect(execCommandSpy).toHaveBeenCalledWith(
+      "git",
+      ["pull"],
+      expect.objectContaining({
+        cwd: "g",
+      }),
+    );
   });
 
-  test("pull in locked #git", () => {
+  test("pull in locked #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { g: { repoType: "git", lockBranch: "locked" } },
       rootDirectory: "..",
@@ -66,13 +70,17 @@ describe("core branch", () => {
     });
     getBranchSpy.mockReturnValue("locked");
 
-    corePull.doPull();
-    expect(execCommandSyncSpy).toHaveBeenCalledWith("git", ["pull"], {
-      cwd: "g",
-    });
+    await corePull.doPull();
+    expect(execCommandSpy).toHaveBeenCalledWith(
+      "git",
+      ["pull"],
+      expect.objectContaining({
+        cwd: "g",
+      }),
+    );
   });
 
-  test("pull in detached #git", () => {
+  test("pull in detached #git", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: { g: { repoType: "git" } },
       rootDirectory: "..",
@@ -81,11 +89,11 @@ describe("core branch", () => {
     });
     getBranchSpy.mockReturnValue(undefined);
 
-    corePull.doPull();
-    expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
+    await corePull.doPull();
+    expect(execCommandSpy).toHaveBeenCalledTimes(0);
   });
 
-  test("pull does not do pinned #mixed", () => {
+  test("pull does not do pinned #mixed", async () => {
     readManifestSpy.mockReturnValue({
       dependencies: {
         g: { repoType: "git", pinRevision: "DEADBEEF" },
@@ -96,7 +104,7 @@ describe("core branch", () => {
       mainPathFromRoot: "main",
     });
 
-    corePull.doPull();
-    expect(execCommandSyncSpy).toHaveBeenCalledTimes(0);
+    await corePull.doPull();
+    expect(execCommandSpy).toHaveBeenCalledTimes(0);
   });
 });

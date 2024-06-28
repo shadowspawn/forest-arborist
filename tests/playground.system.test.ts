@@ -203,11 +203,11 @@ describe("system (full functionality)", () => {
       expect(fs.existsSync("libs")).toBe(false);
     });
 
-    test("clone nested destination --branch develop", () => {
+    test("clone nested destination --branch develop", async () => {
       const branch = "develop";
       // Make a branch using previous clone
       process.chdir("main");
-      coreBranch.doMakeBranch(branch, undefined, { publish: true });
+      await coreBranch.doMakeBranch(branch, undefined, { publish: true });
 
       process.chdir(clonesSandpit);
       coreClone.doClone(path.join(remotes, "hg", "main"), "nested2", {
@@ -258,11 +258,11 @@ describe("system (full functionality)", () => {
       expect(fs.existsSync("libs")).toBe(false);
     });
 
-    test("clone sibling destination --branch develop", () => {
+    test("clone sibling destination --branch develop", async () => {
       const branch = "develop";
       // Make a branch using previous clone
       process.chdir("main-forest");
-      coreBranch.doMakeBranch(branch, undefined, { publish: true });
+      await coreBranch.doMakeBranch(branch, undefined, { publish: true });
 
       process.chdir(clonesSandpit);
       coreClone.doClone(path.join(remotes, "git", "main.git"), "sibling2", {

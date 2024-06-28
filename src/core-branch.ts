@@ -12,11 +12,11 @@ export interface MakeBranchOptions {
   publish?: boolean;
 }
 
-export function doMakeBranch(
+export async function doMakeBranch(
   branch: string,
   startPoint?: string,
   optionsParam?: MakeBranchOptions,
-): void {
+): Promise<void> {
   const options: MakeBranchOptions = Object.assign({}, optionsParam);
 
   const startDir = process.cwd();
@@ -26,42 +26,50 @@ export function doMakeBranch(
     addSeedToDependencies: true,
   }).dependencies;
 
-  Object.keys(forestRepos).forEach((repoPath) => {
-    const entry = forestRepos[repoPath];
+  const processRepo = async (
+    entry: core.RepoEntry,
+    helper: core.TaskHelper,
+  ) => {
     if (entry.lockBranch !== undefined || entry.pinRevision !== undefined) {
-      return; // continue forEach
+      return;
     }
-
     const repoType = entry.repoType;
+    const repoPath = entry.repoPath;
+    const execOptions = { cwd: repoPath, outputConfig: helper };
+
     if (repoType === "git") {
       // Could check for remote branch using "git fetch origin ${branch}" ?
       const args = ["checkout", "-b", branch];
       if (startPoint !== undefined) args.push(startPoint);
-      util.execCommandSync("git", args, { cwd: repoPath });
+      await helper.execCommand("git", args, execOptions);
       if (options.publish) {
-        util.execCommandSync(
+        await helper.execCommand(
           "git",
           ["push", "--set-upstream", "origin", branch],
-          { cwd: repoPath },
+          execOptions,
         );
       }
     } else if (repoType === "hg") {
       if (startPoint !== undefined) {
-        util.execCommandSync("hg", ["update", startPoint], { cwd: repoPath });
+        await helper.execCommand("hg", ["update", startPoint], execOptions);
       }
-      util.execCommandSync("hg", ["branch", branch], { cwd: repoPath });
+      await helper.execCommand("hg", ["branch", branch], execOptions);
       if (options.publish) {
-        util.execCommandSync("hg", ["commit", "--message", "Create branch"], {
-          cwd: repoPath,
-        });
-        util.execCommandSync(
+        await helper.execCommand(
+          "hg",
+          ["commit", "--message", "Create branch"],
+          execOptions,
+        );
+        await helper.execCommand(
           "hg",
           ["push", "--branch", branch, "--new-branch"],
-          { cwd: repoPath },
+          execOptions,
         );
       }
     }
-  });
+  };
+
+  await core.processRepos(core.toRepoArray(forestRepos), processRepo);
   process.chdir(startDir); // Simplify unit tests and reuse
 }
 

@@ -32,16 +32,16 @@ async function doStatus() {
   }).dependencies;
 
   const processRepo = async (repo: core.RepoEntry, helper: core.TaskHelper) => {
-    const options = { cwd: repo.repoPath, outputConfig: helper };
+    const execOptions = { cwd: repo.repoPath, outputConfig: helper };
     if (repo.repoType === "git") {
       // Using short form of options to reduce amount of output for commonly used command
-      await helper.execCommand("git", ["status", "-sb"], options);
+      await helper.execCommand("git", ["status", "-sb"], execOptions);
     } else if (repo.repoType === "hg") {
-      await helper.execCommand("hg", ["status"], options);
+      await helper.execCommand("hg", ["status"], execOptions);
     }
   };
-  core.processRepos(core.toRepoArray(forestRepos), processRepo);
 
+  await core.processRepos(core.toRepoArray(forestRepos), processRepo);
   process.chdir(startDir);
 }
 
@@ -239,8 +239,8 @@ Description:
       `
 Target repos: free and branch-locked, excludes repos pinned to a revision.`,
     )
-    .action(() => {
-      corePull.doPull();
+    .action(async () => {
+      await corePull.doPull();
     });
 
   program
@@ -269,12 +269,8 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`,
       'run specified command on each repo in the forest, e.g. "fab for-each ls -al"',
     )
     .arguments("<command> [args...]")
-    .option(
-      "-k, --keepgoing",
-      "ignore intermediate errors and process all the repos",
-    )
-    .action((command, args, options) => {
-      coreFor.doForEach(command, args, options);
+    .action(async (command, args) => {
+      await coreFor.doForEach(command, args);
     });
 
   program
@@ -284,42 +280,30 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`,
       "run specified command on repos which are not locked or pinned",
     )
     .arguments("<command> [args...]")
-    .option(
-      "-k, --keepgoing",
-      "ignore intermediate errors and process all the repos",
-    )
-    .action((command, args, options) => {
-      coreFor.doForFree(command, args, options);
+    .action(async (command, args) => {
+      await coreFor.doForFree(command, args);
     });
 
   program
     .command("git")
     .passThroughOptions()
-    .option(
-      "-k, --keepgoing",
-      "ignore intermediate errors and process all the repos",
-    )
     .description(
       'run specified git command on each git repo in the forest, e.g. "fab git remote -v"',
     )
     .arguments("[args...]")
-    .action((args, options) => {
-      coreFor.doForGit(args, options);
+    .action(async (args) => {
+      await coreFor.doForGit(args);
     });
 
   program
     .command("hg")
     .passThroughOptions()
-    .option(
-      "-k, --keepgoing",
-      "ignore intermediate errors and process all the repos",
-    )
     .description(
       'run specified hg command on each hg repo in the forest, e.g. "fab hg outgoing"',
     )
     .arguments("[args...]")
-    .action((args, options) => {
-      coreFor.doForHg(args, options);
+    .action(async (args) => {
+      await coreFor.doForHg(args);
     });
 
   program
@@ -336,8 +320,8 @@ Target repos: free and branch-locked, excludes repos pinned to a revision.`,
     .command("make-branch <branch> [start_point]")
     .option("-p, --publish", "push newly created branch")
     .description("create new branch in free repos")
-    .action((branch, startPoint, options) => {
-      coreBranch.doMakeBranch(branch, startPoint, options);
+    .action(async (branch, startPoint, options) => {
+      await coreBranch.doMakeBranch(branch, startPoint, options);
     });
 
   program
@@ -427,7 +411,7 @@ export async function fabAsync(
   args: string[],
   opts?: { suppressOutput?: boolean },
 ): Promise<void> {
-  makeProgram({
+  await makeProgram({
     exitOverride: true,
     suppressOutput: opts?.suppressOutput,
   }).parseAsync(args, { from: "user" });

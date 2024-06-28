@@ -40,7 +40,7 @@ function hgAutoMerge(repoPath: string) {
   }
 }
 
-export function doPull(): void {
+export async function doPull(): Promise<void> {
   const startDir = process.cwd();
   core.cdRootDirectory();
   const forestRepos = core.readManifest({
@@ -48,24 +48,30 @@ export function doPull(): void {
     addSeedToDependencies: true,
   }).dependencies;
 
-  Object.keys(forestRepos).forEach((repoPath) => {
-    const entry = forestRepos[repoPath];
+  const processRepo = async (
+    entry: core.RepoEntry,
+    helper: core.TaskHelper,
+  ) => {
+    const repoPath = entry.repoPath;
+    const repoType = entry.repoType;
+    const execOptions = { cwd: repoPath, outputConfig: helper };
     if (entry.pinRevision !== undefined) {
-      console.log(`Skipping pinned repo: ${repoPath}\n`);
+      console.log(`Skipping pinned repo: ${entry.repoPath}\n`);
     } else if (
-      entry.repoType === "git" &&
-      repo.getBranch(repoPath, entry.repoType) === undefined
+      repoType === "git" &&
+      repo.getBranch(repoPath, repoType) === undefined
     ) {
       console.log(`Skipping repo with detached HEAD: ${repoPath}\n`);
     } else {
-      const repoType = entry.repoType;
       if (repoType === "git") {
-        util.execCommandSync("git", ["pull"], { cwd: repoPath });
+        await helper.execCommand("git", ["pull"], execOptions);
       } else if (repoType === "hg") {
-        util.execCommandSync("hg", ["pull", "--update"], { cwd: repoPath });
+        await helper.execCommand("hg", ["pull", "--update"], execOptions);
         hgAutoMerge(repoPath);
       }
     }
-  });
+  };
+
+  await core.processRepos(core.toRepoArray(forestRepos), processRepo);
   process.chdir(startDir);
 }
