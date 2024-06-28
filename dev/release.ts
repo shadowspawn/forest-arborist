@@ -70,7 +70,7 @@ async function main() {
   console.log("\nTests");
   // Calling scripts rather than running directly.
   execCommandSync("npm", ["run", "--silent", "test", "--", "--no-verbose"]);
-  execCommandSync("npm", ["run", "--silent", "lint"]);
+  execCommandSync("npm", ["run", "--silent", "check"]);
   // npm-publish-dry-run goes here...
 
   console.log("\nnpm version");
