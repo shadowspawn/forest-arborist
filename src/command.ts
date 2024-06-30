@@ -54,7 +54,12 @@ export function makeProgram(options?: {
 }): Command<[], { debug?: boolean }> {
   const program = new Command()
     .option("--debug", "include debugging information, such as stack dump")
-    .option("-j, --jobs <number>", "number of parallel jobs", myParseInt, 4); // kiss, global option
+    .option(
+      "-j, --jobs <number>",
+      "number of parallel jobs",
+      myParseInt,
+      core.getCommandJobs(),
+    ); // kiss, global option
 
   // Configuration
   if (options?.exitOverride) {

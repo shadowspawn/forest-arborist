@@ -3,6 +3,7 @@
 import * as childProcess from "child_process";
 import * as fs from "fs";
 import * as fsX from "fs-extra";
+import * as os from "os";
 import * as path from "path";
 import * as process from "process";
 // Mine
@@ -357,9 +358,12 @@ export function toRepoArray(dependencies: Dependencies) {
   });
 }
 
-let gJobs = 4;
+let gJobs = os.availableParallelism?.() ?? 4;
 export function setCommandJobs(jobs: number) {
   gJobs = jobs;
+}
+export function getCommandJobs() {
+  return gJobs;
 }
 
 export async function processRepos(
