@@ -1,6 +1,6 @@
 {
   "name": "@shadowspawn/forest-arborist",
-  "version": "13.0.0-1",
+  "version": "13.0.0-2",
   "description": "Forest Arborist. A loosely coupled repository manager inspired by Mercurial subrepositories, npm, and Git.",
   "keywords": [
     "git",
@@ -60,9 +60,7 @@
     "@commander-js/extra-typings": "^12.1.0",
     "chalk": "^4.1.2",
     "commander": "^12.1.0",
-    "eslint-config-prettier": "^9.1.0",
     "fs-extra": "^11.1.0",
-    "prettier": "^3.3.2",
     "shell-quote": "^1.7.2",
     "tmp": "^0.2.1"
   },
@@ -73,8 +71,10 @@
     "@types/shell-quote": "^1.7.1",
     "@types/tmp": "^0.2.1",
     "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^28.6.0",
     "jest": "^29.3.1",
+    "prettier": "^3.3.2",
     "ts-jest": "^29.0.3",
     "typescript": "^5.1.6",
     "typescript-eslint": "^7.13.1"
