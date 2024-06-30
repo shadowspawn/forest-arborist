@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## [13.0.0-1] (2024-06-30)
+
+### Changed
+
+- use `os.availableParallelism()` to set default number of jobs
+
 ## [13.0.0-0] (2024-06-28)
 
 ### Changed
