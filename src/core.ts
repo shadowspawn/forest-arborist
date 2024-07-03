@@ -312,27 +312,41 @@ export interface TaskHelper {
   log: (message: string) => void;
   error: (message: string) => void;
   synchronous: boolean;
+  liveProgress: boolean;
   execCommand: util.ExecCommand;
-  getPendingOutput: () => string;
+  getPendingOutput: () => string; // will be empty if synchronous or liveProgress as already displayed
 }
 
 class TaskHelperAsync implements TaskHelper {
-  logs: string[] = [];
-  errors: string[] = [];
+  messages: string[] = []; // To track separate log/error would need to also preserve interleaved order.
   synchronous = false;
+  liveProgress = false;
   execCommand = util.execCommand;
 
   log(message: string) {
-    this.logs.push(message);
+    this.messages.push(message);
   }
   error(message: string) {
-    this.errors.push(message);
+    this.messages.push(message);
   }
   getPendingOutput() {
-    let outputLines: string[] = [];
-    outputLines = outputLines.concat(this.logs);
-    outputLines = outputLines.concat(this.errors);
-    return outputLines.join("\n");
+    return this.messages.join("\n");
+  }
+}
+
+class TaskHelperAsyncLiveProgress implements TaskHelper {
+  synchronous = false;
+  liveProgress = true;
+  execCommand = util.execCommand;
+
+  log(message: string) {
+    console.log(message);
+  }
+  error(message: string) {
+    console.error(message);
+  }
+  getPendingOutput() {
+    return "";
   }
 }
 
@@ -342,6 +356,7 @@ class TaskHelperSync implements TaskHelper {
   log = this.outputConfig.log;
   error = this.outputConfig.error;
   synchronous = true;
+  liveProgress = false;
   execCommand = util.execCommandSync;
   getPendingOutput() {
     return "";
@@ -378,7 +393,12 @@ export async function processRepos(
   async function doNextTask() {
     if (repoIndex >= repos.length) return;
 
-    const helper = gJobs > 1 ? new TaskHelperAsync() : new TaskHelperSync();
+    let helper: TaskHelper;
+    if (gJobs <= 1) helper = new TaskHelperSync();
+    else if (repoIndex === nextResult) {
+      helper = new TaskHelperAsyncLiveProgress();
+    } else helper = new TaskHelperAsync();
+
     const index = repoIndex++;
     try {
       await processRepo(repos[index], helper);
@@ -390,7 +410,7 @@ export async function processRepos(
 
     results[index] = helper.getPendingOutput();
     // show results in order
-    while (nextResult < repoIndex && results[nextResult]) {
+    while (nextResult < repoIndex && results[nextResult] !== undefined) {
       if (results[nextResult]) {
         console.log(results[nextResult]);
       }

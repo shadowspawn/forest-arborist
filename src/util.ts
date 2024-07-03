@@ -101,6 +101,7 @@ export function getCommandOutputConfigSync() {
     log: (message: string) => console.log(message),
     error: (message: string) => console.error(message),
     synchronous: true,
+    liveProgress: false,
   };
 }
 type CommandOutputConfig = ReturnType<typeof getCommandOutputConfigSync>;
@@ -163,17 +164,23 @@ export function execCommand(
   }
 
   return new Promise<void>((resolve, reject) => {
-    childProcess.execFile(
+    const child = childProcess.execFile(
       cmd,
       extendedArgs,
       { cwd: options.cwd },
       (error, stdout, stderr) => {
-        if (stdout) outputHelper.log(stdout);
-        if (stderr) outputHelper.error(stderr);
+        if (!outputHelper.liveProgress) {
+          if (stdout) outputHelper.log(stdout);
+          if (stderr) outputHelper.error(stderr);
+        }
         if (error) return reject(error);
         resolve();
       },
     );
+    if (outputHelper.liveProgress) {
+      child.stdout?.on("data", (data) => outputHelper.log(data.toString()));
+      child.stderr?.on("data", (data) => outputHelper.error(data.toString()));
+    }
   });
 }
 
