@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased] (date goes here)
 
+## [13.0.0-3] (2024-07-03)
+
+### Fixed
+
+- live progress from first async job, so get immediate feedback that work has started
+
 ## [13.0.0-2] (2024-06-30)
 
 ### Fixed
