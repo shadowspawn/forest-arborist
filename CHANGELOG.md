@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- markdownlint-disable MD024 -->
 
-## [Unreleased] (date goes here)
+## [13.0.0] (2024-09-06)
+
+### Changed
+
+- these commands now process repos in parallel
+    - `fab status`
+    - `fab pull`
+    - `fab make-branch`
+    - `fab for-each`
+    - `fab for-free`
+    - `fab git`
+    - `fab hg`
+
+### Removed
+
+- experimental `git-p`
+- `--keepgoing`
 
 ## [13.0.0-3] (2024-07-03)
 
@@ -57,7 +73,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - update dependencies
 - requires Node.js v18 or higher
-
 
 ## [11.0.0] (2023-08-03)
 
@@ -447,6 +462,10 @@ Changed nomenclature for the repo containing the manifests from _main_ to _seed_
 [#18]: https://github.com/shadowspawn/forest-arborist/issues/18
 
 [Unreleased]: https://github.com/shadowspawn/forest-arborist/compare/main...develop
+[13.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v13.0.0
+[13.0.0-3]: https://github.com/shadowspawn/forest-arborist/compare/v13.0.2...v13.0.0-3
+[13.0.0-2]: https://github.com/shadowspawn/forest-arborist/compare/v13.0.1...v13.0.0-2
+[13.0.0-1]: https://github.com/shadowspawn/forest-arborist/compare/v13.0.0...v13.0.0-1
 [13.0.0-0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v13.0.0-0
 [12.1.0-0]: https://github.com/shadowspawn/forest-arborist/compare/v12.0.0...v12.1.0-0
 [12.0.0]: https://github.com/shadowspawn/forest-arborist/compare/v11.0.0...v12.0.0
