@@ -39,7 +39,7 @@ async function main() {
       "--quiet",
       "HEAD",
     ]);
-  } catch (err) {
+  } catch (_err) {
     execCommandSync("git", ["status"]);
     exitWithMessage("sandpit not clean");
   }
@@ -52,7 +52,7 @@ async function main() {
       "HEAD",
       "@{upstream}",
     ]);
-  } catch (err) {
+  } catch (_err) {
     execCommandSync("git", ["status"]);
     exitWithMessage(
       "local commits pending. Push first and let CI tests run for full safety.",

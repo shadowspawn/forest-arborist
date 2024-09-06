@@ -29,7 +29,7 @@ try {
   // Perform smoketest
   execCommandSync("fab", ["--version"]);
   execCommandSync("fab", ["clone", path.join("remotes", "git", "main.git")]);
-} catch (reason) {
+} catch (_reason) {
   console.log(util.errorColour("\nSomething went wrong, tidying up..."));
   failed = true;
 }

@@ -69,7 +69,7 @@ describe("terminate", () => {
     const spy = jest.spyOn(global.console, "error");
     try {
       util.terminate(message);
-    } catch (err) {
+    } catch (_err) {
       // this block left intentionally blank
     }
     expect(spy).toHaveBeenCalledTimes(1);

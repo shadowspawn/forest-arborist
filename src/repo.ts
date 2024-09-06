@@ -52,7 +52,7 @@ export function isGitRepository(repository: string): boolean {
       stdio: "ignore",
     });
     return true;
-  } catch (err) {
+  } catch (_err) {
     return false;
   }
 }
@@ -62,7 +62,7 @@ export function isHgRepository(repository: string): boolean {
     // KISS and get hg to check. Hard to be definitive by hand, especially with scp URLs.
     childProcess.execFileSync("hg", ["id", repository], { stdio: "ignore" });
     return true;
-  } catch (err) {
+  } catch (_err) {
     return false;
   }
 }
@@ -88,7 +88,7 @@ export function getOrigin(
         .toString()
         .trim();
     }
-  } catch (err) {
+  } catch (_err) {
     // May have created repo locally and does not yet have an origin
   }
 
@@ -112,7 +112,7 @@ export function getBranch(
         })
         .toString()
         .trim();
-    } catch (err) {
+    } catch (_err) {
       branch = undefined;
     }
   } else if (repoType === "hg") {
@@ -141,7 +141,7 @@ export function getRevision(
         })
         .toString()
         .trim();
-    } catch (err) {
+    } catch (_err) {
       revision = undefined;
     }
   } else if (repoType === "hg") {

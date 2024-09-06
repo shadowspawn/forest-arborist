@@ -67,17 +67,17 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.0",
     "@types/jest": "^29.2.0",
-    "@types/node": "^18.18.5",
+    "@types/node": "^20.16.5",
     "@types/shell-quote": "^1.7.1",
     "@types/tmp": "^0.2.1",
-    "eslint": "^8.57.0",
+    "eslint": "^9.9.1",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jest": "^28.6.0",
     "jest": "^29.3.1",
     "prettier": "^3.3.2",
     "ts-jest": "^29.0.3",
     "typescript": "^5.1.6",
-    "typescript-eslint": "^7.13.1"
+    "typescript-eslint": "^8.4.0"
   },
   "bugs": {
     "url": "https://github.com/shadowspawn/forest-arborist/issues"

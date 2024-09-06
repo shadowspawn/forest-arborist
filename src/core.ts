@@ -402,7 +402,7 @@ export async function processRepos(
     const index = repoIndex++;
     try {
       await processRepo(repos[index], helper);
-    } catch (err) {
+    } catch (_err) {
       // Error already described in stdout?
       errorCount++;
       helper.log(""); // Extra line needed for synchonised processing.

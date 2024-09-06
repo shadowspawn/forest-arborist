@@ -4,6 +4,7 @@
 // with terminal colouring. May give up as more trouble than worth, or make
 // an option.
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 import chalk = require("chalk"); // this import style required for chalk 3
 import * as childProcess from "child_process";
 import * as fsX from "fs-extra";
