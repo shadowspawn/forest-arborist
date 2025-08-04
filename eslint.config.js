@@ -5,7 +5,12 @@ const prettier = require("eslint-config-prettier");
 
 module.exports = tseslint.config(
   {
-    ignores: ["**/dist/**", "eslint.config.js", ".prettierrc.js"],
+    ignores: [
+      "**/dist/**",
+      "eslint.config.js",
+      ".prettierrc.js",
+      "jest.config.js",
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,

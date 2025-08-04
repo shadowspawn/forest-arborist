@@ -34,27 +34,6 @@
     "dist/src/*.js",
     "resources/*"
   ],
-  "jest": {
-    "globals": {
-      "JEST_RUNNING": true
-    },
-    "testEnvironment": "node",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(tsx?)$",
-    "testPathIgnorePatterns": [
-      "/dist/",
-      "/node_modules/"
-    ],
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json"
-    ]
-  },
   "dependencies": {
     "@commander-js/extra-typings": "^12.1.0",
     "chalk": "^4.1.2",

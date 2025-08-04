@@ -1,4 +1,5 @@
 import { Command, InvalidArgumentError } from "@commander-js/extra-typings";
+import * as fs from "fs";
 import * as path from "path";
 import * as process from "process";
 // Mine
@@ -13,7 +14,21 @@ import * as corePull from "./core-pull";
 import * as coreSnapshot from "./core-snapshot";
 import * as util from "./util";
 
-import { version } from "../package.json";
+// Wouldn't it be nice for Commander to do this!
+function getPackageVersion(): string {
+  let dir = path.dirname(__dirname);
+  // In TypeScript running directly with Jest, found at "../package.json"
+  let pkgPath = path.join(dir, "package.json");
+  if (!fs.existsSync(pkgPath)) {
+    // In transpiled JavaScript found at "../../package.json"
+    dir = path.dirname(dir);
+    pkgPath = path.join(dir, "package.json");
+  }
+
+  if (!fs.existsSync(pkgPath)) return "version unknown";
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  return require(pkgPath).version;
+}
 
 function myParseInt(value: string) {
   const parsedValue = parseInt(value, 10);
@@ -72,7 +87,7 @@ export function makeProgram(options?: {
   }
 
   program
-    .version(version)
+    .version(getPackageVersion())
     .on("option:jobs", function () {
       core.setCommandJobs(program.opts().jobs);
     })
