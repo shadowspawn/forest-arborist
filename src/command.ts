@@ -12,9 +12,8 @@ import * as coreManifest from "./core-manifest";
 import * as corePull from "./core-pull";
 import * as coreSnapshot from "./core-snapshot";
 import * as util from "./util";
-// Trickery to cope with different relative paths for typescipt and javascript
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const myPackage = require("dummy_for_node_modules/../../package.json");
+
+import { version } from "../package.json";
 
 function myParseInt(value: string) {
   const parsedValue = parseInt(value, 10);
@@ -73,7 +72,7 @@ export function makeProgram(options?: {
   }
 
   program
-    .version(myPackage.version)
+    .version(version)
     .on("option:jobs", function () {
       core.setCommandJobs(program.opts().jobs);
     })

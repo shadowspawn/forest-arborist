@@ -32,7 +32,6 @@
   "license": "MIT",
   "files": [
     "dist/src/*.js",
-    "npm-shrinkwrap.json",
     "resources/*"
   ],
   "jest": {
