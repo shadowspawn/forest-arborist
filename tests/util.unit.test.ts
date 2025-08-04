@@ -61,7 +61,7 @@ describe("terminate", () => {
   test("throws", () => {
     expect(() => {
       util.terminate("Goodbye");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
   });
 
   test("displays message", () => {

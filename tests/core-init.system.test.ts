@@ -26,7 +26,7 @@ describe("core init", () => {
   test("no repo", () => {
     expect(() => {
       command.fab(["init", "--nested"]);
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
   });
 
   test("empty git repo", () => {

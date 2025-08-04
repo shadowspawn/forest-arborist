@@ -10,7 +10,7 @@ test("getRepoTypeForLocalPath", () => {
   spy.mockReturnValue(false);
   expect(() => {
     repo.getRepoTypeForLocalPath("notRepo");
-  }).toThrowError();
+  }).toThrow();
 
   spy.mockImplementation((targetPath: fs.PathLike) => {
     return typeof targetPath === "string" && targetPath.indexOf(".git") != -1;

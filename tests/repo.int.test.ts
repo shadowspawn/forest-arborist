@@ -62,10 +62,10 @@ describe("repo", () => {
   test("getOrigin", () => {
     expect(() => {
       repo.getOrigin("notRepo");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
     expect(() => {
       repo.getOrigin("doesNotExist");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
     // We have local only repos, so no origin.
     expect(repo.getOrigin("emptyGitRepo", "git")).toBeUndefined();
     expect(repo.getOrigin("emptyHgRepo", "hg")).toBeUndefined();
@@ -76,10 +76,10 @@ describe("repo", () => {
   test("getBranch", () => {
     expect(() => {
       repo.getBranch("notRepo");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
     expect(() => {
       repo.getBranch("doesNotExist");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
     expect(repo.getBranch("emptyGitRepo", "git")).toBe("trunk");
     expect(repo.getBranch("detached", "git")).toBeUndefined();
     expect(repo.getBranch("emptyHgRepo", "hg")).toBe("default");
@@ -89,10 +89,10 @@ describe("repo", () => {
     // Basic checks, throw on no repo
     expect(() => {
       repo.getRevision("notRepo");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
     expect(() => {
       repo.getRevision("doesNotExist");
-    }).toThrowError(util.suppressTerminateExceptionMessage);
+    }).toThrow(util.suppressTerminateExceptionMessage);
 
     expect(repo.getRevision("detached", "git")).not.toBeUndefined();
     expect(repo.getRevision("emptyGitRepo", "git")).toBeUndefined();
