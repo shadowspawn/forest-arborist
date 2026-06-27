@@ -6,14 +6,13 @@ permissions:
    contents: read
 
 jobs:
-  # Somewhat unexpectedly, can test Windows and Ubuntu together!
   test-windows:
     name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.x, 24.x, 26.x]
         os: [ubuntu-latest, windows-latest]
 
     steps:
@@ -26,6 +25,9 @@ jobs:
       run: git config --global "user.email" "noreply@no.reply"
     - name: git config user.name
       run: git config --global "user.name" "Unit Test"
+    - name: Install Mercurial
+      if: runner.os == 'Windows'
+      run: choco install hg -y
     - name: npm install
       run: npm install
     - name: npm test
@@ -39,7 +41,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
     - uses: actions/checkout@v4
