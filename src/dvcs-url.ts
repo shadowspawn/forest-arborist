@@ -43,6 +43,19 @@ export interface DvcsUrl {
   scpAuthAndHost?: string;
 }
 
+// We used to use url.parse() directly, but that has been deprecated as insecure.
+function safeURLParse(urlString?: string): URL | undefined {
+  if (urlString === undefined) {
+    return undefined;
+  }
+
+  try {
+    return new URL(urlString);
+  } catch {
+    return undefined;
+  }
+}
+
 export function parse(urlString?: string): DvcsUrl {
   if (urlString === undefined) {
     return { protocol: "", pathname: "" };
@@ -50,7 +63,7 @@ export function parse(urlString?: string): DvcsUrl {
 
   // Parsing for git covers hg as well, sweet!
   let result: DvcsUrl;
-  const parsed = url.parse(urlString);
+  const parsed = safeURLParse(urlString);
   const recognisedProtocols = [
     "ssh:",
     "git:",
@@ -60,7 +73,7 @@ export function parse(urlString?: string): DvcsUrl {
     "ftps:",
     "file:",
   ];
-  if (!!parsed.protocol && recognisedProtocols.indexOf(parsed.protocol) > -1) {
+  if (!!parsed?.protocol && recognisedProtocols.indexOf(parsed.protocol) > -1) {
     result = {
       protocol: parsed.protocol,
       pathname: parsed.pathname ? parsed.pathname : "",
@@ -124,10 +137,12 @@ export function sameDir(object1: DvcsUrl, object2: DvcsUrl): boolean {
 
   // Proper protocol! Tweak path and reconstruct full URL for dir.
   if (object1.href === undefined) return false;
-  const dir1 = url.parse(object1.href);
+  const dir1 = safeURLParse(object1.href);
+  if (!dir1) return false;
   if (dir1.pathname) dir1.pathname = path.posix.dirname(dir1.pathname);
   if (object2.href === undefined) return false;
-  const dir2 = url.parse(object2.href);
+  const dir2 = safeURLParse(object2.href);
+  if (!dir2) return false;
   if (dir2.pathname) dir2.pathname = path.posix.dirname(dir2.pathname);
   return url.format(dir1) === url.format(dir2);
 }
@@ -172,7 +187,8 @@ export function resolve(urlObject: DvcsUrl, relativePath: string): string {
 
   // Proper protocol! Tweak path and reconstruct full URL.
   if (urlObject.href === undefined) return relativePath;
-  const parsedTemp = url.parse(urlObject.href);
+  const parsedTemp = safeURLParse(urlObject.href);
+  if (!parsedTemp) return relativePath;
   const temp2 = path.posix.join(urlObject.pathname, relativePath);
   parsedTemp.pathname = path.posix.normalize(temp2);
   return url.format(parsedTemp);
