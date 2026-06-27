@@ -25,9 +25,14 @@ jobs:
       run: git config --global "user.email" "noreply@no.reply"
     - name: git config user.name
       run: git config --global "user.name" "Unit Test"
-    - name: Install Mercurial
+    - name: Install Mercurial on Windows (1)
       if: runner.os == 'Windows'
       run: choco install hg -y
+    - name: Install Mercurial on Windows (2)
+      if: runner.os == 'Windows'
+      run: refreshenv
+    - name: Check Mercurial installed
+      run: hg --version
     - name: npm install
       run: npm install
     - name: npm test
