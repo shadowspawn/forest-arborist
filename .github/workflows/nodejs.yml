@@ -27,7 +27,7 @@ jobs:
       run: git config --global "user.name" "Unit Test"
     - name: Install Mercurial on Windows (1)
       if: runner.os == 'Windows'
-      run: choco install hg -y
+      run: choco install hg -y --no-progress
     - name: Install Mercurial on Windows (2)
       if: runner.os == 'Windows'
       run: refreshenv
