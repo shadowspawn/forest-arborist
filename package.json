@@ -26,7 +26,7 @@
     "pull": "git pull && npm install && npm test",
     "release": "node dist/dev/release",
     "smoketest": "node dist/dev/smoketest",
-    "test": "jest --silent"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --silent"
   },
   "author": "John Gee",
   "license": "MIT",
@@ -35,9 +35,9 @@
     "resources/*"
   ],
   "dependencies": {
-    "@commander-js/extra-typings": "^12.1.0",
+    "@commander-js/extra-typings": "^15.0.0",
     "chalk": "^4.1.2",
-    "commander": "^12.1.0",
+    "commander": "^15.0.0",
     "fs-extra": "^11.1.0",
     "shell-quote": "^1.7.2",
     "tmp": "^0.2.1"
@@ -65,6 +65,6 @@
     "test": "./tests"
   },
   "engines": {
-    "node": ">= 22"
+    "node": ">= 22.12.0"
   }
 }
