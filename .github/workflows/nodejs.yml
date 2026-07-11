@@ -6,26 +6,41 @@ permissions:
    contents: read
 
 jobs:
-  # Somewhat unexpectedly, can test Windows and Ubuntu together!
   test-windows:
     name: Test on node ${{ matrix.node-version }} and ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.x, 24.x, 26.x]
         os: [ubuntu-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
         node-version: ${{ matrix.node-version }}
     - name: git config user.email
       run: git config --global "user.email" "noreply@no.reply"
     - name: git config user.name
       run: git config --global "user.name" "Unit Test"
+    - name: Install Mercurial on Windows
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        choco install hg -y --no-progress
+        $hgCandidates = @(
+          'C:\ProgramData\chocolatey\bin\hg.exe',
+          'C:\Program Files\Mercurial\hg.exe'
+        )
+        $hgExe = $hgCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+        if (-not $hgExe) {
+          throw 'Mercurial installed but hg.exe was not found in expected locations.'
+        }
+        Split-Path $hgExe -Parent | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+    - name: Check Mercurial installed
+      run: hg --version
     - name: npm install
       run: npm install
     - name: npm test
@@ -39,12 +54,12 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x, 24.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
         node-version: ${{ matrix.node-version }}
     - name: npm install, and test
